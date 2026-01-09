@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+:root {
+  /* Neutral surfaces & text */
+  --light-bg: #F8F9FA; /* Light Background */
+  --dark-navy: #242835; /* Primary text */
+  --soft-gray: #B6B6B6; /* Secondary text, borders */
+
+  /* Brand & accent colors */
+  --primary: #1F3379; /* Primary Blue */
+  --soft-blue: #5B7FBF; /* Hover/secondary/buttons/links */
+  --warm-coral: #E75F3E; /* CTA accents */
+  --gentle-peach: #FFAD87; /* Friendly accents */
+  --alert-red: #D50D0D; /* Errors */
+  --achievement-green: #4CAF50; /* Success */
+  --fulfillment-gold: #FFB74D; /* Rewards */
+
+  /* Map to base UI tokens */
+  --background: var(--light-bg);
+  --foreground: var(--dark-navy);
+
+  --surface: #ffffff;
+  --surface-alt: #f2f4f7;
+  --border-color: #d9dce2;
+  --muted-text: #6b7280;
+}
+
+@theme inline {
+  /* Core colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Brand palette */
+  --color-primary: var(--primary);
+  --color-soft-blue: var(--soft-blue);
+  --color-warm-coral: var(--warm-coral);
+  --color-gentle-peach: var(--gentle-peach);
+  --color-alert-red: var(--alert-red);
+  --color-achievement-green: var(--achievement-green);
+  --color-fulfillment-gold: var(--fulfillment-gold);
+
+  /* Neutrals */
+  --color-dark-navy: var(--dark-navy);
+  --color-soft-gray: var(--soft-gray);
+  --color-light-bg: var(--light-bg);
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Keep dark mode neutral; accents still use brand tokens above */
+    --background: #0e1116;
+    --foreground: #f2f5f9;
+    --surface: #1a1f27;
+    --surface-alt: #252c37;
+    --border-color: #2f3742;
+    --muted-text: #9ca3af;
+  }
+}
+
+body { background: var(--background); color: var(--foreground); font-family: var(--font-sans), system-ui, sans-serif; }
+
+/* Light/Dark utility tokens */
+.surface { background: var(--surface); }
+.surface-alt { background: var(--surface-alt); }
+.border-base { border-color: var(--border-color); }
+.text-muted { color: var(--muted-text); }
+
+/* Normalize native control chrome so Tailwind utilities are visible */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Utility animations for conic gradient elements */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin 12s linear infinite;
+}
+
+.animate-spin-slower {
+  animation: spin 28s linear infinite;
+}
+
+/* Subtle glass card helper (optional) */
+.glass-surface {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.12)
+  );
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 20px 40px -18px rgba(0, 0, 0, 0.35);
+}
+
+/* Brand hero background: dark blue to purple gradient (matching mobile app) */
+.bg-brand-gradient {
+  /* Dark blue to purple gradient matching mobile app */
+  background:
+    radial-gradient(120vmax 80vmax at 10% -10%, rgba(124, 58, 237, 0.3), transparent 60%),
+    radial-gradient(90vmax 60vmax at 90% 110%, rgba(59, 130, 246, 0.2), transparent 55%),
+    linear-gradient(180deg, #1e3a8a 0%, #3b82f6 25%, #7c3aed 75%, #9333ea 100%);
+}
+
+/* Animated gradient underline for the navbar */
+@keyframes gradient-slide {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Enhanced brand pan for logo gradient when mask available */
+@keyframes brand-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.header-animated {
+  position: relative;
+}
+
+.header-animated::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--soft-blue), var(--warm-coral), var(--gentle-peach), var(--primary));
+  background-size: 300% 100%;
+  animation: gradient-slide 10s linear infinite;
+  opacity: 0.9;
+}
+
+/* Theming transitions (respect reduced motion) */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-transition * { transition: background-color 180ms, color 180ms, border-color 180ms; }
+}
+
+/* Gentle horizontal gradient pan for brand elements */
+.animate-brand-gradient {
+  background-size: 400% 400% !important;
+  animation: brand-pan 14s ease-in-out infinite;
+}
+
+/* Hue-shift fallback animation for raster logo (PNG/JPG) */
+@keyframes logo-hue {
+  0% { filter: hue-rotate(0deg) brightness(1); }
+  40% { filter: hue-rotate(35deg) brightness(1.08); }
+  60% { filter: hue-rotate(20deg) brightness(1.04); }
+  100% { filter: hue-rotate(0deg) brightness(1); }
+}
+
+.animate-logo-hue {
+  animation: logo-hue 9s ease-in-out infinite;
+}
+
+/* Subtle floating/bobbing effect */
+@keyframes floaty {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float-slow {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+/* Soft pulsing glow for box shadows */
+@keyframes soft-glow {
+  0% { box-shadow: inset 0 0 0 0 rgba(255,255,255,0.08), 0 8px 24px -12px rgba(0,0,0,0.30); }
+  50% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16), 0 12px 28px -12px rgba(0,0,0,0.36); }
+  100% { box-shadow: inset 0 0 0 0 rgba(255,255,255,0.08), 0 8px 24px -12px rgba(0,0,0,0.30); }
+}
+
+.animate-soft-glow {
+  animation: soft-glow 5.5s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-in both;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow,
+  .animate-spin-slower,
+  .animate-brand-gradient,
+  .animate-float-slow,
+  .animate-soft-glow,
+  .animate-fade-in {
+    animation: none !important;
+  }
+}
