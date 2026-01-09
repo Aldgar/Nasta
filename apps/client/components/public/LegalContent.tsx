@@ -20,7 +20,10 @@ export default function LegalContent({ content }: LegalContentProps) {
     const flushList = () => {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={key++} className="ml-6 mb-4 space-y-2 list-disc text-neutral-200">
+          <ul
+            key={key++}
+            className="ml-6 mb-4 space-y-2 list-disc text-neutral-200"
+          >
             {listItems.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}
@@ -46,10 +49,7 @@ export default function LegalContent({ content }: LegalContentProps) {
       if (trimmed.startsWith("# ")) {
         flushList();
         elements.push(
-          <h1
-            key={key++}
-            className="text-4xl font-bold mb-6 mt-8 text-white"
-          >
+          <h1 key={key++} className="text-4xl font-bold mb-6 mt-8 text-white">
             {trimmed.substring(2)}
           </h1>
         );
@@ -106,4 +106,3 @@ export default function LegalContent({ content }: LegalContentProps) {
     </div>
   );
 }
-
