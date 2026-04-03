@@ -69,8 +69,12 @@ async function bootstrap() {
   ];
   const corsEnv = process.env.CORS_ORIGIN;
   // In development, allow any origin (including mobile apps on local network)
-  // In production, use configured origin or default
-  const origin = isProd ? (corsEnv ?? defaultOrigins[0]) : true; // Allow all origins in development for mobile testing
+  // In production, support comma-separated origins
+  const origin = isProd
+    ? (corsEnv?.includes(',')
+        ? corsEnv.split(',').map((o) => o.trim())
+        : corsEnv ?? defaultOrigins[0])
+    : true;
   app.enableCors({ origin, credentials: true });
 
   // Global exception filter — prevents stack trace leaks in production

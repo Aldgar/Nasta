@@ -56,8 +56,8 @@ import { ReflectorModule } from './core/reflector.module';
         ADMIN_INVITE_CODE: Joi.string().min(8).optional(),
         CORS_ORIGIN: Joi.when('NODE_ENV', {
           is: 'production',
-          then: Joi.string().uri().required(),
-          otherwise: Joi.string().uri().optional(),
+          then: Joi.string().required(),
+          otherwise: Joi.string().optional(),
         }),
         THROTTLE_TTL: Joi.number().integer().min(1).default(60),
         THROTTLE_LIMIT: Joi.number().integer().min(1).default(20),
