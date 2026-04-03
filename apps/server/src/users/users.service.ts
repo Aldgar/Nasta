@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  Logger,
   NotFoundException,
   ConflictException,
   ForbiddenException,
@@ -21,6 +22,8 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsService,
@@ -148,7 +151,7 @@ export class UsersService {
     };
 
     // Log the query for debugging
-    console.log(
+    this.logger.log(
       '[UsersService] getVerifiedCandidates query:',
       JSON.stringify(whereClause, null, 2),
     );
@@ -173,7 +176,7 @@ export class UsersService {
       },
       take: 10,
     });
-    console.log(
+    this.logger.log(
       '[UsersService] All candidates (first 10):',
       JSON.stringify(allCandidates, null, 2),
     );
@@ -246,7 +249,7 @@ export class UsersService {
     });
 
     // Verify each candidate meets all requirements
-    console.log(
+    this.logger.log(
       `[UsersService] Query returned ${candidates.length} candidates`,
     );
     const verifiedCandidates = candidates.filter((c) => {
@@ -260,7 +263,7 @@ export class UsersService {
       const allOk = emailOk && phoneOk && idOk && bgOk;
 
       if (!allOk) {
-        console.error(`[UsersService] ❌ INVALID CANDIDATE RETURNED:`, {
+        this.logger.error(`[UsersService] ❌ INVALID CANDIDATE RETURNED:`, {
           id: c.id,
           name: `${c.firstName} ${c.lastName}`,
           emailVerified: emailOk,
@@ -276,34 +279,34 @@ export class UsersService {
     });
 
     if (verifiedCandidates.length !== candidates.length) {
-      console.error(
+      this.logger.error(
         `[UsersService] ⚠️ WARNING: Query returned ${candidates.length} candidates but only ${verifiedCandidates.length} are fully verified!`,
       );
       // Filter out invalid candidates
       candidates.splice(0, candidates.length, ...verifiedCandidates);
     }
 
-    console.log(
+    this.logger.log(
       `[UsersService] ✅ Returning ${candidates.length} verified candidates`,
     );
     if (candidates.length > 0) {
       candidates.forEach((c, idx) => {
-        console.log(`[UsersService] ✅ VERIFIED Candidate ${idx + 1}:`, {
+        this.logger.log(`[UsersService] ✅ VERIFIED Candidate ${idx + 1}:`, {
           id: c.id,
           name: `${c.firstName} ${c.lastName}`,
           email: c.email,
         });
       });
     } else {
-      console.log(
+      this.logger.log(
         '[UsersService] ⚠️ No fully verified candidates found. All candidates must have:',
       );
-      console.log('  - Email verified');
-      console.log('  - Phone verified');
-      console.log(
+      this.logger.log('  - Email verified');
+      this.logger.log('  - Phone verified');
+      this.logger.log(
         '  - ID verified (isIdVerified: true, idVerificationStatus: VERIFIED)',
       );
-      console.log(
+      this.logger.log(
         '  - Background check approved (isBackgroundVerified: true, backgroundCheckStatus: APPROVED)',
       );
     }
@@ -483,12 +486,12 @@ export class UsersService {
       const result = Array.from(skillMap.values()).sort((a, b) =>
         a.name.localeCompare(b.name),
       );
-      console.log(
+      this.logger.log(
         `[UsersService] getAllSkills returning ${result.length} skills`,
       );
       return result;
     } catch (error) {
-      console.error('[UsersService] Error in getAllSkills:', error);
+      this.logger.error('[UsersService] Error in getAllSkills:', error);
       // Return empty array on error instead of throwing
       return [];
     }
@@ -1504,21 +1507,21 @@ export class UsersService {
           ? '#ef4444'
           : dto.actionType === 'SUSPEND'
             ? '#f59e0b'
-            : '#8b5cf6';
+            : '#D4A853';
 
       // Build email content with branded template
       const emailContent = `
-        <p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${actionDescription}.</p>
-        <div style="background-color: ${actionColor === '#ef4444' ? '#fef2f2' : actionColor === '#f59e0b' ? '#fffbeb' : '#f3f4f6'}; padding: 20px; border-radius: 8px; border-left: 4px solid ${actionColor}; margin: 20px 0;">
-          <p style="margin: 0 0 10px 0; color: #1f2937; font-weight: 600;">${t('email.legal.actionDetails')}:</p>
-          <p style="margin: 5px 0; color: #4b5563;"><strong>${t('email.legal.actionType')}:</strong> ${dto.actionType}</p>
-          <p style="margin: 5px 0; color: #4b5563;"><strong>${t('email.kyc.reason')}:</strong> ${dto.reason}</p>
-          <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 13px;">${t('email.legal.date')}: ${new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${actionDescription}.</p>
+        <div style="background-color: ${actionColor === '#ef4444' ? 'rgba(239, 68, 68, 0.08)' : actionColor === '#f59e0b' ? 'rgba(245, 158, 11, 0.08)' : 'rgba(201, 150, 63, 0.08)'}; padding: 20px; border-radius: 8px; border-left: 4px solid ${actionColor}; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0; color: #F5E6C8; font-weight: 600;">${t('email.legal.actionDetails')}:</p>
+          <p style="margin: 5px 0; color: #B8A88A;"><strong>${t('email.legal.actionType')}:</strong> ${dto.actionType}</p>
+          <p style="margin: 5px 0; color: #B8A88A;"><strong>${t('email.kyc.reason')}:</strong> ${dto.reason}</p>
+          <p style="margin: 10px 0 0 0; color: #8B7A5E; font-size: 13px;">${t('email.legal.date')}: ${new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
         ${
           dto.actionType === 'RESTRICT'
-            ? `<p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.restrictMessage')}</p>`
-            : `<p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.actionTakenMessage')}</p>`
+            ? `<p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.restrictMessage')}</p>`
+            : `<p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.actionTakenMessage')}</p>`
         }
       `;
 
@@ -1534,11 +1537,11 @@ export class UsersService {
       await this.notifications.sendEmail(
         user.email,
         `⚠️ ${t('email.legal.actionTitle', { actionType: dto.actionType })}`,
-        `${t('email.legal.actionGreeting', { firstName: user.firstName || t('email.common.there') })}\n\n${actionDescription}.\n\n${t('email.legal.actionType')}: ${dto.actionType}\n${t('email.kyc.reason')}: ${dto.reason}\n\n${t('email.legal.actionTakenMessage')}\n\n${t('email.legal.actionFooter')}\n\n${t('email.common.bestRegards')}\n${t('email.common.cumpridoTeam')}`,
+        `${t('email.legal.actionGreeting', { firstName: user.firstName || t('email.common.there') })}\n\n${actionDescription}.\n\n${t('email.legal.actionType')}: ${dto.actionType}\n${t('email.kyc.reason')}: ${dto.reason}\n\n${t('email.legal.actionTakenMessage')}\n\n${t('email.legal.actionFooter')}\n\n${t('email.common.bestRegards')}\n${t('email.common.nestaTeam')}`,
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send legal action email:', emailError);
+      this.logger.error('Failed to send legal action email:', emailError);
     }
 
     // Create notification and send push notification
@@ -1561,9 +1564,9 @@ export class UsersService {
           ticketNumber: ticket.ticketNumber,
         },
       });
-      console.log('✅ Legal action notification created:', notification);
+      this.logger.log('✅ Legal action notification created:', notification);
     } catch (notifError) {
-      console.error(
+      this.logger.error(
         '❌ Failed to create notification for legal action:',
         notifError,
       );
@@ -1665,22 +1668,22 @@ export class UsersService {
             firstName: user.firstName,
             lastName: user.lastName,
           }),
-          `<p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.legal.warningReceived', { warningType: dto.warningType })}</p>
-           <div style="background-color: ${dto.warningType === 'FINAL' ? '#fee2e2' : '#fef3c7'}; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
-             <p style="margin: 0 0 10px 0; color: #92400e; font-weight: 700; font-size: 14px; text-transform: uppercase;">${warningSeverity}</p>
-             <p style="margin: 10px 0 0 0; color: #78350f; font-weight: 600;">${t('email.legal.warningMessageLabel')}:</p>
-             <p style="margin: 10px 0 0 0; color: #92400e; line-height: 1.6;">${dto.message}</p>
-             <p style="margin: 15px 0 0 0; color: #a16207; font-size: 13px;">${t('email.legal.date')}: ${new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          `<p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.legal.warningReceived', { warningType: dto.warningType })}</p>
+           <div style="background-color: ${dto.warningType === 'FINAL' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)'}; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+             <p style="margin: 0 0 10px 0; color: #fbbf24; font-weight: 700; font-size: 14px; text-transform: uppercase;">${warningSeverity}</p>
+             <p style="margin: 10px 0 0 0; color: #D4A853; font-weight: 600;">${t('email.legal.warningMessageLabel')}:</p>
+             <p style="margin: 10px 0 0 0; color: #fbbf24; line-height: 1.6;">${dto.message}</p>
+             <p style="margin: 15px 0 0 0; color: #fbbf24; font-size: 13px;">${t('email.legal.date')}: ${new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' })}</p>
            </div>
-           <p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.warningComplianceMessage')}</p>
-           <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin-top: 15px;">${t('email.legal.warningContactMessage')}</p>`,
+           <p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.legal.warningComplianceMessage')}</p>
+           <p style="color: #8B7A5E; font-size: 14px; line-height: 1.6; margin-top: 15px;">${t('email.legal.warningContactMessage')}</p>`,
           t('email.common.supportMessage'),
           t,
           normalizedLang,
         ),
       );
     } catch (emailError) {
-      console.error('Failed to send warning email:', emailError);
+      this.logger.error('Failed to send warning email:', emailError);
     }
 
     // Create notification and send push notification
@@ -1700,9 +1703,9 @@ export class UsersService {
           ticketNumber: ticket.ticketNumber,
         },
       });
-      console.log('✅ Warning notification created:', notification);
+      this.logger.log('✅ Warning notification created:', notification);
     } catch (notifError) {
-      console.error(
+      this.logger.error(
         '❌ Failed to create notification for warning:',
         notifError,
       );
@@ -1798,22 +1801,22 @@ export class UsersService {
             firstName: user.firstName,
             lastName: user.lastName,
           }),
-          `<p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.actionForm.submittedMessage')}</p>
-           <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981; margin: 20px 0;">
-             <p style="margin: 0 0 10px 0; color: #1f2937; font-weight: 600;">${t('email.actionForm.actionTypeLabel')}:</p>
-             <p style="margin: 0 0 20px 0; color: #065f46; font-size: 18px; font-weight: 700;">${actionTypeDescription}</p>
-             <p style="margin: 10px 0 0 0; color: #1f2937; font-weight: 600;">${t('email.actionForm.detailsLabel')}:</p>
-             <p style="margin: 10px 0 0 0; color: #047857; line-height: 1.6;">${dto.details}</p>
-             <p style="margin: 15px 0 0 0; color: #059669; font-size: 13px;">${t('email.common.date', { date: new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' }) })}</p>
+          `<p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.actionForm.submittedMessage')}</p>
+           <div style="background-color: rgba(16, 185, 129, 0.08); padding: 20px; border-radius: 8px; border-left: 4px solid #10b981; margin: 20px 0;">
+             <p style="margin: 0 0 10px 0; color: #F5E6C8; font-weight: 600;">${t('email.actionForm.actionTypeLabel')}:</p>
+             <p style="margin: 0 0 20px 0; color: #34d399; font-size: 18px; font-weight: 700;">${actionTypeDescription}</p>
+             <p style="margin: 10px 0 0 0; color: #F5E6C8; font-weight: 600;">${t('email.actionForm.detailsLabel')}:</p>
+             <p style="margin: 10px 0 0 0; color: #34d399; line-height: 1.6;">${dto.details}</p>
+             <p style="margin: 15px 0 0 0; color: #6ee7b7; font-size: 13px;">${t('email.common.date', { date: new Date().toLocaleDateString(t('email.common.locale'), { year: 'numeric', month: 'long', day: 'numeric' }) })}</p>
            </div>
-           <p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.actionForm.reviewMessage')}</p>`,
+           <p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.actionForm.reviewMessage')}</p>`,
           t('email.common.supportMessage'),
           t,
           normalizedLang,
         ),
       );
     } catch (emailError) {
-      console.error('Failed to send action form email:', emailError);
+      this.logger.error('Failed to send action form email:', emailError);
     }
 
     // Create notification and send push notification
@@ -1842,9 +1845,9 @@ export class UsersService {
           ticketNumber: ticket.ticketNumber,
         },
       });
-      console.log('✅ Action form notification created:', notification);
+      this.logger.log('✅ Action form notification created:', notification);
     } catch (notifError) {
-      console.error(
+      this.logger.error(
         '❌ Failed to create notification for action form:',
         notifError,
       );
@@ -1918,9 +1921,9 @@ export class UsersService {
           ticketNumber: ticket.ticketNumber,
         },
       });
-      console.log('✅ Request info notification created:', notification);
+      this.logger.log('✅ Request info notification created:', notification);
     } catch (notifError) {
-      console.error(
+      this.logger.error(
         '❌ Failed to create notification for request info:',
         notifError,
       );
@@ -2141,8 +2144,8 @@ export class UsersService {
         this.notifications.getBrandedEmailTemplate(
           t('email.legal.actionRevokedTitle'),
           t('email.legal.actionRevokedGreeting', { firstName: user.firstName }),
-          `<p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.legal.actionRevokedMessage')}</p>
-           <div style="background-color: #d1fae5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+          `<p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.legal.actionRevokedMessage')}</p>
+           <div style="background-color: rgba(16, 185, 129, 0.12); padding: 16px; border-radius: 8px; margin: 16px 0;">
              <p><strong>${ticket.subject}</strong></p>
            </div>`,
           t('email.common.supportMessage'),
@@ -2151,7 +2154,7 @@ export class UsersService {
         ),
       );
     } catch (emailError) {
-      console.error('Failed to send revocation email:', emailError);
+      this.logger.error('Failed to send revocation email:', emailError);
     }
 
     return {
@@ -2241,8 +2244,50 @@ export class UsersService {
     };
   }
 
-  async updateMe(currentUserId: string, dto: UpdateMeDto) {
+  async updateMe(currentUserId: string, dto: UpdateMeDto, role?: string) {
     const data: Record<string, unknown> = {};
+
+    // Admin users live in the admins collection
+    if (role === 'ADMIN') {
+      if (dto.email) {
+        const prisma = this.prisma as unknown as {
+          admin: {
+            findUnique: (
+              args: unknown,
+            ) => Promise<{ id: string; email: string } | null>;
+            update: (args: unknown) => Promise<unknown>;
+          };
+        };
+        const exists = await prisma.admin.findUnique({
+          where: { email: dto.email },
+        });
+        if (exists && exists.id !== currentUserId) {
+          throw new ConflictException('Email already in use');
+        }
+        data.email = dto.email;
+      }
+      if (Object.keys(data).length === 0) {
+        throw new BadRequestException('No fields to update');
+      }
+      const prisma = this.prisma as unknown as {
+        admin: {
+          update: (args: unknown) => Promise<Record<string, unknown>>;
+        };
+      };
+      const updated = await prisma.admin.update({
+        where: { id: currentUserId },
+        data,
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          updatedAt: true,
+        },
+      });
+      return { ...updated, role: 'ADMIN' };
+    }
+
     if (dto.email) {
       // unique email check
       const exists = await this.prisma.user.findUnique({
@@ -2254,6 +2299,7 @@ export class UsersService {
       data.email = dto.email;
     }
     if (dto.phone !== undefined) data.phone = dto.phone;
+    if (dto.language) data.language = dto.language;
 
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No fields to update');
@@ -2287,26 +2333,55 @@ export class UsersService {
         'A pending deletion request already exists',
       );
     }
+    const year = new Date().getFullYear();
+    const prefix = `DEL-${year}-`;
+    const lastDel = await this.prisma.deletionRequest.findFirst({
+      where: { ticketNumber: { startsWith: prefix } },
+      orderBy: { ticketNumber: 'desc' },
+      select: { ticketNumber: true },
+    });
+    let seq = 1;
+    if (lastDel?.ticketNumber) {
+      const last = parseInt(lastDel.ticketNumber.replace(prefix, ''), 10);
+      if (!isNaN(last)) seq = last + 1;
+    }
+    const ticketNumber = `${prefix}${seq.toString().padStart(6, '0')}`;
+
     const created = await this.prisma.deletionRequest.create({
       data: {
         userId,
         reason: dto.reason,
+        ticketNumber,
         assignedCapability: 'DELETION_REQUEST_REVIEWER',
       },
-      select: { id: true, status: true, createdAt: true },
+      select: { id: true, status: true, createdAt: true, ticketNumber: true },
     });
-    // Optionally deactivate account immediately pending review
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false },
-    });
-    // Notify listeners
+
     this.notifications.emitDeletionRequestCreated({
       userId,
       requestId: created.id,
       reason: dto.reason,
+      ticketNumber,
     });
     return { request: created, message: 'Deletion request submitted' };
+  }
+
+  async cancelDeletionRequest(userId: string) {
+    const pending = await this.prisma.deletionRequest.findFirst({
+      where: { userId, status: 'PENDING' },
+    });
+    if (!pending) {
+      throw new BadRequestException('No pending deletion request found');
+    }
+    await this.prisma.deletionRequest.update({
+      where: { id: pending.id },
+      data: { status: 'DENIED', adminNotes: 'Cancelled by user' },
+    });
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isActive: true },
+    });
+    return { message: 'Deletion request cancelled. Your account is active.' };
   }
 
   // Admin list deletion requests
@@ -2328,6 +2403,7 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
+        ticketNumber: true,
         status: true,
         reason: true,
         createdAt: true,
@@ -2360,7 +2436,7 @@ export class UsersService {
   ) {
     const req = await this.prisma.deletionRequest.findUnique({
       where: { id: requestId },
-      select: { id: true, status: true, userId: true },
+      select: { id: true, status: true, userId: true, ticketNumber: true },
     });
     if (!req) throw new NotFoundException('Deletion request not found');
     if (req.status !== 'PENDING')
@@ -2376,19 +2452,32 @@ export class UsersService {
       },
       select: {
         id: true,
+        ticketNumber: true,
         status: true,
         reviewedAt: true,
         adminNotes: true,
       },
     });
 
-    // If approved, we keep user inactive and require explicit admin deletion call
     if (decision === 'APPROVED') {
       await this.prisma.user.update({
         where: { id: req.userId },
         data: { isActive: false },
       });
+    } else if (decision === 'DENIED') {
+      await this.prisma.user.update({
+        where: { id: req.userId },
+        data: { isActive: true },
+      });
     }
+
+    this.notifications.emitDeletionRequestReviewed({
+      userId: req.userId,
+      requestId: req.id,
+      ticketNumber: req.ticketNumber,
+      decision,
+      adminNotes: dto.notes,
+    });
 
     return { request: updated, message: 'Deletion request reviewed' };
   }

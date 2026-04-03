@@ -23,6 +23,15 @@ const getStripeProvider = () => {
   stripeChecked = true;
 
   try {
+    // First check if the native module is actually compiled into the binary.
+    // The JS package may be installed but pod install / native rebuild might
+    // not have been run, leaving NativeModules.StripeSdk undefined.
+    const { NativeModules } = require("react-native");
+    if (!NativeModules.StripeSdk) {
+      StripeProvider = null;
+      return StripeProvider;
+    }
+
     const stripe = (() => {
       try {
         return require("@stripe/stripe-react-native");
@@ -43,7 +52,7 @@ const getStripeProvider = () => {
 };
 // Lightweight JWT payload decode (no external dependency)
 function decodeJwtPayload(
-  token: string
+  token: string,
 ): { sub?: string; email?: string; role?: string } | null {
   try {
     const parts = token.split(".");
@@ -53,7 +62,7 @@ function decodeJwtPayload(
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
     return JSON.parse(json);
   } catch {
@@ -63,7 +72,8 @@ function decodeJwtPayload(
 
 import { ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
-import { LanguageProvider } from "@/context/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import { StripeAvailabilityProvider } from "@/context/StripeContext";
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -77,6 +87,7 @@ Notifications.setNotificationHandler({
 
 function RootLayoutNav() {
   const { colorScheme, isDark } = useTheme();
+  const { language } = useLanguage();
   const navState = useRootNavigationState();
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const hasCheckedAuth = useRef(false);
@@ -106,7 +117,7 @@ function RootLayoutNav() {
           } else {
             console.warn(
               "Stripe config endpoint returned non-OK status:",
-              response.status
+              response.status,
             );
           }
         } catch (fetchError: any) {
@@ -122,7 +133,7 @@ function RootLayoutNav() {
           ) {
             console.warn(
               "Failed to fetch Stripe publishable key:",
-              fetchError.message || fetchError
+              fetchError.message || fetchError,
             );
           }
         }
@@ -174,7 +185,7 @@ function RootLayoutNav() {
             error?.message?.includes("FirebaseApp")
           ) {
             console.log(
-              "Push notifications require Firebase setup for native builds. Skipping token registration."
+              "Push notifications require Firebase setup for native builds. Skipping token registration.",
             );
             return;
           }
@@ -212,7 +223,7 @@ function RootLayoutNav() {
             const data = response.notification.request.content.data;
             if (data?.conversationId) {
               router.push(
-                `/chat/room?conversationId=${data.conversationId}` as any
+                `/chat/room?conversationId=${data.conversationId}` as any,
               );
             } else if (data?.jobId) {
               router.push(`/jobs/${data.jobId}` as any);
@@ -268,7 +279,7 @@ function RootLayoutNav() {
         : parsed.path;
 
       // Handle verify-email deep links
-      // Supports: cumprido://verify-email?token=XXX and https://cumprido.com/verify-email?token=XXX
+      // Supports: nasta://verify-email?token=XXX and https://nasta.app/verify-email?token=XXX
       if (path === "verify-email" || path?.includes("verify-email")) {
         const token = parsed.queryParams?.token as string | undefined;
         if (token) {
@@ -330,6 +341,29 @@ function RootLayoutNav() {
     // Only run once when navigation is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navState?.key]);
+
+  // Sync language preference to server so notifications use the correct locale
+  useEffect(() => {
+    if (!language) return;
+    const syncLanguage = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("auth_token");
+        if (!token) return;
+        const base = getApiBase();
+        await fetch(`${base}/users/me`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ language }),
+        });
+      } catch {
+        // Non-critical – silently ignore
+      }
+    };
+    syncLanguage();
+  }, [language]);
 
   const stackContent = (
     <NavThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
@@ -413,6 +447,14 @@ function RootLayoutNav() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="admin/deletion-requests"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="admin/deletion-request-detail"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="legal-acceptance"
           options={{ headerShown: false }}
         />
@@ -461,17 +503,29 @@ function RootLayoutNav() {
     </NavThemeProvider>
   );
 
-  // Always render the Stack, conditionally wrap with StripeProvider
   const StripeProviderComponent = getStripeProvider();
-  if (!publishableKey || !StripeProviderComponent) {
-    return stackContent;
+  const stripeReady = Boolean(publishableKey && StripeProviderComponent);
+
+  const content = (
+    <StripeAvailabilityProvider isReady={stripeReady}>
+      {stackContent}
+    </StripeAvailabilityProvider>
+  );
+
+  // Always render StripeProvider when available to keep the tree structure
+  // stable. Changing the root element type (StripeAvailabilityProvider →
+  // StripeProviderComponent) causes React to unmount and remount the entire
+  // navigation tree, destroying screen state and triggering native Stripe
+  // race conditions that crash the app.
+  if (StripeProviderComponent) {
+    return (
+      <StripeProviderComponent publishableKey={publishableKey || ""}>
+        {content}
+      </StripeProviderComponent>
+    );
   }
 
-  return (
-    <StripeProviderComponent publishableKey={publishableKey}>
-      {stackContent}
-    </StripeProviderComponent>
-  );
+  return content;
 }
 
 export default function RootLayout() {

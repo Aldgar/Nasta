@@ -4,7 +4,7 @@ export const COOKIES_PT = `# Definições de Cookies
 
 ## Compreender Cookies e Rastreamento
 
-O Cumprido utiliza cookies e tecnologias de rastreamento semelhantes para melhorar a sua experiência, analisar a utilização da app e fornecer conteúdo personalizado.
+O Nasta utiliza cookies e tecnologias de rastreamento semelhantes para melhorar a sua experiência, analisar a utilização da app e fornecer conteúdo personalizado.
 
 ## Categorias de Cookies
 

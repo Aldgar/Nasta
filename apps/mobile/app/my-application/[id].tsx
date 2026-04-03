@@ -23,6 +23,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import GradientBackground from "../../components/GradientBackground";
 import { TouchableButton } from "../../components/TouchableButton";
+import { TrackingTimeline, buildServiceProviderTimeline } from "../../components/TrackingTimeline";
 import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
@@ -968,7 +969,7 @@ export default function MyApplicationDetailScreen() {
       case "SHORTLISTED":
         return "#f59e0b";
       default:
-        return "#6b7280";
+        return "#8A7B68";
     }
   };
 
@@ -1044,9 +1045,9 @@ export default function MyApplicationDetailScreen() {
               styles.backBtn,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.7)"
-                  : "rgba(0,0,0,0.05)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "transparent",
+                  ? "rgba(12, 22, 42, 0.75)"
+                  : "rgba(184,130,42,0.06)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "transparent",
                 borderWidth: isDark ? 1 : 0,
               },
             ]}
@@ -1070,11 +1071,11 @@ export default function MyApplicationDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.15)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -1088,7 +1089,7 @@ export default function MyApplicationDetailScreen() {
               <Text
                 style={[
                   styles.companyName,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {application.job.company.name}
@@ -1098,7 +1099,7 @@ export default function MyApplicationDetailScreen() {
               <Text
                 style={[
                   styles.description,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {application.job.description}
@@ -1109,12 +1110,12 @@ export default function MyApplicationDetailScreen() {
                 <Feather
                   name="map-pin"
                   size={14}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text
                   style={[
                     styles.location,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {[application.job.city, application.job.country]
@@ -1133,11 +1134,11 @@ export default function MyApplicationDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.15)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -1165,7 +1166,7 @@ export default function MyApplicationDetailScreen() {
               <Text
                 style={[
                   styles.appliedDate,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("applications.applied")}:{" "}
@@ -1185,13 +1186,46 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.coverLetter,
-                    { color: isDark ? "#cbd5e1" : "#475569" },
+                    { color: isDark ? "#B8A88A" : "#6B6355" },
                   ]}
                 >
                   {application.coverLetter}
                 </Text>
               </View>
             )}
+          </View>
+
+          {/* Tracking Timeline */}
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: isDark
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
+                borderColor: isDark
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
+              },
+            ]}
+          >
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              {t("tracking.title") || "Tracking Timeline"}
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.textMuted,
+                marginBottom: 16,
+              }}
+            >
+              {t("tracking.subtitle") || "Follow your application progress"}
+            </Text>
+            <TrackingTimeline
+              steps={buildServiceProviderTimeline(application, t)}
+              isDark={isDark}
+              colors={colors}
+            />
           </View>
 
           {/* Service Verification Code Input (For Service Providers when Application is ACCEPTED) */}
@@ -1202,11 +1236,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "rgba(99, 102, 241, 0.08)",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(201, 150, 63, 0.08)",
                     borderColor: isDark
-                      ? "rgba(99, 102, 241, 0.3)"
-                      : "rgba(99, 102, 241, 0.2)",
+                      ? "rgba(201, 150, 63, 0.3)"
+                      : "rgba(201, 150, 63, 0.2)",
                     borderWidth: 2,
                   },
                 ]}
@@ -1222,7 +1256,7 @@ export default function MyApplicationDetailScreen() {
                   <Feather
                     name="shield"
                     size={20}
-                    color={isDark ? "#818cf8" : "#6366f1"}
+                    color={isDark ? "#E8B86D" : "#B8822A"}
                   />
                   <Text style={[styles.cardTitle, { color: colors.text }]}>
                     {t("applications.startService")}
@@ -1232,7 +1266,7 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.description,
                     {
-                      color: isDark ? "#cbd5e1" : "#64748b",
+                      color: isDark ? "#B8A88A" : "#8A7B68",
                       marginBottom: 16,
                       fontSize: 13,
                       lineHeight: 18,
@@ -1245,9 +1279,9 @@ export default function MyApplicationDetailScreen() {
                 <TouchableButton
                   style={[
                     {
-                      backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                      backgroundColor: isDark ? "#C9963F" : "#B8822A",
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       alignItems: "center",
                     },
                   ]}
@@ -1263,12 +1297,12 @@ export default function MyApplicationDetailScreen() {
                       gap: 8,
                     }}
                   >
-                    <Feather name="key" size={18} color="#fff" />
+                    <Feather name="key" size={18} color="#FFFAF0" />
                     <Text
                       style={{
-                        color: "#fff",
+                        color: "#FFFAF0",
                         fontSize: 16,
-                        fontWeight: "600",
+                        fontWeight: "700",
                       }}
                     >
                       {t("applications.enterVerificationCode")}
@@ -1403,11 +1437,11 @@ export default function MyApplicationDetailScreen() {
                     styles.card,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.15)"
-                        : "rgba(99, 102, 241, 0.08)",
+                        ? "rgba(201, 150, 63, 0.15)"
+                        : "rgba(201, 150, 63, 0.08)",
                       borderColor: isDark
-                        ? "rgba(99, 102, 241, 0.3)"
-                        : "rgba(99, 102, 241, 0.2)",
+                        ? "rgba(201, 150, 63, 0.3)"
+                        : "rgba(201, 150, 63, 0.2)",
                       borderWidth: 2,
                     },
                   ]}
@@ -1423,7 +1457,7 @@ export default function MyApplicationDetailScreen() {
                     <Feather
                       name="shield"
                       size={20}
-                      color={isDark ? "#818cf8" : "#6366f1"}
+                      color={isDark ? "#E8B86D" : "#B8822A"}
                     />
                     <Text style={[styles.cardTitle, { color: colors.text }]}>
                       {t("applications.startAdditionalServices")}
@@ -1433,7 +1467,7 @@ export default function MyApplicationDetailScreen() {
                     style={[
                       styles.description,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 16,
                         fontSize: 13,
                         lineHeight: 18,
@@ -1446,9 +1480,9 @@ export default function MyApplicationDetailScreen() {
                   <TouchableButton
                     style={[
                       {
-                        backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                        backgroundColor: isDark ? "#C9963F" : "#B8822A",
                         paddingVertical: 14,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         alignItems: "center",
                       },
                     ]}
@@ -1464,12 +1498,12 @@ export default function MyApplicationDetailScreen() {
                         gap: 8,
                       }}
                     >
-                      <Feather name="key" size={18} color="#fff" />
+                      <Feather name="key" size={18} color="#FFFAF0" />
                       <Text
                         style={{
-                          color: "#fff",
+                          color: "#FFFAF0",
                           fontSize: 16,
-                          fontWeight: "600",
+                          fontWeight: "700",
                         }}
                       >
                         {t("applications.enterNewCode")}
@@ -1641,11 +1675,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -1655,7 +1689,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 8 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 8 },
                   ]}
                 >
                   {t("applications.servicesSelectedByEmployer")}
@@ -1770,8 +1804,8 @@ export default function MyApplicationDetailScreen() {
                           ? "#fbbf24"
                           : "#d97706" // Yellow/orange for unpaid
                         : isDark
-                          ? "#cbd5e1"
-                          : "#475569"; // Default
+                          ? "#B8A88A"
+                          : "#6B6355"; // Default
 
                     return (
                       <View key={`selected-${idx}`} style={styles.summaryRow}>
@@ -1845,8 +1879,8 @@ export default function MyApplicationDetailScreen() {
                               ? "#fbbf24"
                               : "#d97706" // Yellow/orange for unpaid
                             : isDark
-                              ? "#cbd5e1"
-                              : "#475569"; // Default
+                              ? "#B8A88A"
+                              : "#6B6355"; // Default
 
                         return (
                           <View
@@ -1894,8 +1928,8 @@ export default function MyApplicationDetailScreen() {
                           ? "#fbbf24"
                           : "#d97706" // Yellow/orange for unpaid
                         : isDark
-                          ? "#cbd5e1"
-                          : "#475569"; // Default
+                          ? "#B8A88A"
+                          : "#6B6355"; // Default
 
                     return request.rates.map((rate: any, rateIdx: number) => {
                       const paymentTypeLabel =
@@ -1987,8 +2021,8 @@ export default function MyApplicationDetailScreen() {
                             borderTopWidth:
                               paidAmount > 0 || unpaidAmount > 0 ? 1 : 0,
                             borderTopColor: isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.2)",
                             paddingTop:
                               paidAmount > 0 || unpaidAmount > 0 ? 8 : 0,
                           },
@@ -1997,7 +2031,7 @@ export default function MyApplicationDetailScreen() {
                         <Text
                           style={[
                             styles.totalLabel,
-                            { color: colors.text, fontWeight: "bold" },
+                            { color: colors.text, fontWeight: "800" },
                           ]}
                         >
                           {t("applications.totalAmount")}:
@@ -2005,7 +2039,7 @@ export default function MyApplicationDetailScreen() {
                         <Text
                           style={[
                             styles.totalAmount,
-                            { color: "#22c55e", fontWeight: "bold" },
+                            { color: "#22c55e", fontWeight: "800" },
                           ]}
                         >
                           {application.currency?.toUpperCase() || "EUR"}{" "}
@@ -2032,11 +2066,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -2046,7 +2080,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.employerSuggestedRates")}
@@ -2060,7 +2094,7 @@ export default function MyApplicationDetailScreen() {
                         styles.requestCard,
                         {
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.05)"
+                            ? "rgba(255,250,240,0.06)"
                             : "rgba(0,0,0,0.02)",
                           borderColor:
                             request.status === "ACCEPTED"
@@ -2068,8 +2102,8 @@ export default function MyApplicationDetailScreen() {
                               : request.status === "REJECTED"
                                 ? "#ef4444"
                                 : isDark
-                                  ? "rgba(255,255,255,0.1)"
-                                  : "rgba(0,0,0,0.1)",
+                                  ? "rgba(201,150,63,0.12)"
+                                  : "rgba(184,130,42,0.2)",
                         },
                       ]}
                     >
@@ -2096,7 +2130,7 @@ export default function MyApplicationDetailScreen() {
                         <Text
                           style={[
                             styles.requestDate,
-                            { color: isDark ? "#94a3b8" : "#64748b" },
+                            { color: isDark ? "#9A8E7A" : "#8A7B68" },
                           ]}
                         >
                           {new Date(request.suggestedAt).toLocaleDateString()}
@@ -2146,7 +2180,7 @@ export default function MyApplicationDetailScreen() {
                             styles.responseMessage,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.05)"
+                                ? "rgba(255,250,240,0.06)"
                                 : "rgba(0,0,0,0.02)",
                               marginTop: 12,
                             },
@@ -2155,7 +2189,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.responseLabel,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {t("applications.employersExplanation")}:
@@ -2163,7 +2197,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.responseText,
-                              { color: isDark ? "#cbd5e1" : "#475569" },
+                              { color: isDark ? "#B8A88A" : "#6B6355" },
                             ]}
                           >
                             {request.message}
@@ -2194,7 +2228,7 @@ export default function MyApplicationDetailScreen() {
                               }}
                             >
                               <Text
-                                style={{ color: "#fff", fontWeight: "600" }}
+                                style={{ color: "#FFFAF0", fontWeight: "700" }}
                               >
                                 {t("common.accept")}
                               </Text>
@@ -2214,7 +2248,7 @@ export default function MyApplicationDetailScreen() {
                               }}
                             >
                               <Text
-                                style={{ color: "#fff", fontWeight: "600" }}
+                                style={{ color: "#FFFAF0", fontWeight: "700" }}
                               >
                                 {t("applications.reject")}
                               </Text>
@@ -2224,10 +2258,10 @@ export default function MyApplicationDetailScreen() {
                             style={{
                               padding: 12,
                               borderRadius: 8,
-                              backgroundColor: isDark ? "#6366f1" : "#6366f1",
+                              backgroundColor: isDark ? "#C9963F" : "#C9963F",
                               alignItems: "center",
                               borderWidth: 1,
-                              borderColor: "#6366f1",
+                              borderColor: "#C9963F",
                             }}
                             onPress={() => {
                               setSelectedNegotiationId(request.id);
@@ -2238,7 +2272,7 @@ export default function MyApplicationDetailScreen() {
                               setShowCounterOfferModal(true);
                             }}
                           >
-                            <Text style={{ color: "#fff", fontWeight: "600" }}>
+                            <Text style={{ color: "#FFFAF0", fontWeight: "700" }}>
                               {t("applications.proposeCounterOffer")}
                             </Text>
                           </TouchableButton>
@@ -2250,7 +2284,7 @@ export default function MyApplicationDetailScreen() {
                             styles.responseMessage,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.05)"
+                                ? "rgba(255,250,240,0.06)"
                                 : "rgba(0,0,0,0.02)",
                               marginTop: 12,
                             },
@@ -2259,7 +2293,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.responseLabel,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {t("applications.yourResponse")}:
@@ -2267,7 +2301,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.responseText,
-                              { color: isDark ? "#cbd5e1" : "#475569" },
+                              { color: isDark ? "#B8A88A" : "#6B6355" },
                             ]}
                           >
                             {request.responseMessage}
@@ -2289,11 +2323,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -2303,7 +2337,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.yourNegotiationRequests")}
@@ -2324,17 +2358,17 @@ export default function MyApplicationDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isAccepted
                               ? "#22c55e"
                               : isRejected
                                 ? "#ef4444"
                                 : hasCounterOffer
-                                  ? "#6366f1"
+                                  ? "#C9963F"
                                   : isDark
-                                    ? "rgba(255,255,255,0.1)"
-                                    : "rgba(0,0,0,0.1)",
+                                    ? "rgba(201,150,63,0.12)"
+                                    : "rgba(184,130,42,0.2)",
                           },
                         ]}
                       >
@@ -2348,7 +2382,7 @@ export default function MyApplicationDetailScreen() {
                                   : isRejected
                                     ? "#ef4444"
                                     : hasCounterOffer
-                                      ? "#6366f1"
+                                      ? "#C9963F"
                                       : "#f59e0b",
                               },
                             ]}
@@ -2364,7 +2398,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.suggestedAt).toLocaleDateString()}
@@ -2417,7 +2451,7 @@ export default function MyApplicationDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -2426,7 +2460,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.yourExplanation")}:
@@ -2434,7 +2468,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.message}
@@ -2447,7 +2481,7 @@ export default function MyApplicationDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -2456,7 +2490,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.employersResponse")}:
@@ -2464,7 +2498,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.responseMessage}
@@ -2477,11 +2511,11 @@ export default function MyApplicationDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(99, 102, 241, 0.1)"
-                                  : "rgba(99, 102, 241, 0.05)",
+                                  ? "rgba(201, 150, 63, 0.1)"
+                                  : "rgba(201, 150, 63, 0.05)",
                                 marginTop: 12,
                                 borderLeftWidth: 3,
-                                borderLeftColor: "#6366f1",
+                                borderLeftColor: "#C9963F",
                                 paddingLeft: 12,
                               },
                             ]}
@@ -2489,7 +2523,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: "#6366f1", fontWeight: "700" },
+                                { color: "#C9963F", fontWeight: "700" },
                               ]}
                             >
                               {t("applications.employersCounterOffer")}:
@@ -2532,7 +2566,7 @@ export default function MyApplicationDetailScreen() {
                                 style={[
                                   styles.responseText,
                                   {
-                                    color: isDark ? "#cbd5e1" : "#475569",
+                                    color: isDark ? "#B8A88A" : "#6B6355",
                                     marginTop: 8,
                                   },
                                 ]}
@@ -2627,12 +2661,12 @@ export default function MyApplicationDetailScreen() {
                                   disabled={isRespondingToCounterOffer}
                                 >
                                   {isRespondingToCounterOffer ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color="#FFFAF0" />
                                   ) : (
                                     <Text
                                       style={{
-                                        color: "#fff",
-                                        fontWeight: "600",
+                                        color: "#FFFAF0",
+                                        fontWeight: "700",
                                       }}
                                     >
                                       {t("common.accept")}
@@ -2717,12 +2751,12 @@ export default function MyApplicationDetailScreen() {
                                   disabled={isRespondingToCounterOffer}
                                 >
                                   {isRespondingToCounterOffer ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color="#FFFAF0" />
                                   ) : (
                                     <Text
                                       style={{
-                                        color: "#fff",
-                                        fontWeight: "600",
+                                        color: "#FFFAF0",
+                                        fontWeight: "700",
                                       }}
                                     >
                                       {t("applications.reject")}
@@ -2737,11 +2771,11 @@ export default function MyApplicationDetailScreen() {
                                   padding: 12,
                                   borderRadius: 8,
                                   backgroundColor: isDark
-                                    ? "#6366f1"
-                                    : "#6366f1",
+                                    ? "#C9963F"
+                                    : "#C9963F",
                                   alignItems: "center",
                                   borderWidth: 1,
-                                  borderColor: "#6366f1",
+                                  borderColor: "#C9963F",
                                   marginTop: 8,
                                 }}
                                 onPress={() => {
@@ -2754,7 +2788,7 @@ export default function MyApplicationDetailScreen() {
                                 }}
                               >
                                 <Text
-                                  style={{ color: "#fff", fontWeight: "600" }}
+                                  style={{ color: "#FFFAF0", fontWeight: "700" }}
                                 >
                                   {t("applications.requestDifferentRate")}
                                 </Text>
@@ -2807,11 +2841,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                     marginBottom: 16,
                   },
                 ]}
@@ -2827,7 +2861,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.employerRequestsAdditionalTime")}
@@ -2847,7 +2881,7 @@ export default function MyApplicationDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isAccepted
                               ? "#22c55e"
@@ -2856,8 +2890,8 @@ export default function MyApplicationDetailScreen() {
                                 : isPendingApproval
                                   ? "#f59e0b"
                                   : isDark
-                                    ? "rgba(255,255,255,0.1)"
-                                    : "rgba(0,0,0,0.1)",
+                                    ? "rgba(201,150,63,0.12)"
+                                    : "rgba(184,130,42,0.2)",
                             marginBottom:
                               idx <
                               application.additionalTimeRequests!.length - 1
@@ -2877,7 +2911,7 @@ export default function MyApplicationDetailScreen() {
                                     ? "#ef4444"
                                     : isPendingApproval
                                       ? "#f59e0b"
-                                      : "#6366f1",
+                                      : "#C9963F",
                               },
                             ]}
                           >
@@ -2892,7 +2926,7 @@ export default function MyApplicationDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.requestedAt).toLocaleDateString()}
@@ -2904,7 +2938,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {t("applications.employersRequestLabel")}
@@ -2913,7 +2947,7 @@ export default function MyApplicationDetailScreen() {
                               style={[
                                 styles.responseText,
                                 {
-                                  color: isDark ? "#cbd5e1" : "#475569",
+                                  color: isDark ? "#B8A88A" : "#6B6355",
                                   marginTop: 4,
                                 },
                               ]}
@@ -2929,7 +2963,7 @@ export default function MyApplicationDetailScreen() {
                               marginTop: 12,
                               padding: 12,
                               borderRadius: 8,
-                              backgroundColor: isDark ? "#6366f1" : "#6366f1",
+                              backgroundColor: isDark ? "#C9963F" : "#C9963F",
                               alignItems: "center",
                             }}
                             onPress={() => {
@@ -2939,7 +2973,7 @@ export default function MyApplicationDetailScreen() {
                               setShowAdditionalTimeResponseModal(true);
                             }}
                           >
-                            <Text style={{ color: "#fff", fontWeight: "600" }}>
+                            <Text style={{ color: "#FFFAF0", fontWeight: "700" }}>
                               {t(
                                 "applications.respondWithAdditionalDaysNeeded"
                               )}
@@ -2976,7 +3010,7 @@ export default function MyApplicationDetailScreen() {
                                 {
                                   color: colors.text,
                                   marginTop: 4,
-                                  fontWeight: "600",
+                                  fontWeight: "700",
                                 },
                               ]}
                             >
@@ -2988,7 +3022,7 @@ export default function MyApplicationDetailScreen() {
                                 style={[
                                   styles.responseText,
                                   {
-                                    color: isDark ? "#cbd5e1" : "#475569",
+                                    color: isDark ? "#B8A88A" : "#6B6355",
                                     marginTop: 8,
                                   },
                                 ]}
@@ -3004,7 +3038,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {t("applications.employersResponseLabel")}
@@ -3013,7 +3047,7 @@ export default function MyApplicationDetailScreen() {
                               style={[
                                 styles.responseText,
                                 {
-                                  color: isDark ? "#cbd5e1" : "#475569",
+                                  color: isDark ? "#B8A88A" : "#6B6355",
                                   marginTop: 4,
                                 },
                               ]}
@@ -3028,7 +3062,7 @@ export default function MyApplicationDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {t("applications.employersResponseLabel")}
@@ -3037,7 +3071,7 @@ export default function MyApplicationDetailScreen() {
                               style={[
                                 styles.responseText,
                                 {
-                                  color: isDark ? "#cbd5e1" : "#475569",
+                                  color: isDark ? "#B8A88A" : "#6B6355",
                                   marginTop: 4,
                                 },
                               ]}
@@ -3057,11 +3091,11 @@ export default function MyApplicationDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                     marginBottom: 16,
                   },
                 ]}
@@ -3077,7 +3111,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t(
@@ -3155,11 +3189,11 @@ export default function MyApplicationDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => setShowNegotiationRequestModal(true)}
@@ -3180,7 +3214,7 @@ export default function MyApplicationDetailScreen() {
               <Text
                 style={[
                   styles.paymentSubtitle,
-                  { color: isDark ? "#94a3b8" : "#64748b", marginTop: 8 },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68", marginTop: 8 },
                 ]}
               >
                 {t("applications.proposeDifferentRate")}
@@ -3212,14 +3246,14 @@ export default function MyApplicationDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderRadius: 24,
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderRadius: 4,
                   overflow: "hidden",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
                   shadowRadius: 16,
-                  elevation: 10,
+                  elevation: 0,
                 },
               ]}
             >
@@ -3228,8 +3262,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -3259,7 +3293,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.requestNegotiationDescription")}
@@ -3290,22 +3324,22 @@ export default function MyApplicationDetailScreen() {
                             flex: 1,
                             minHeight: 56,
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.08)"
+                              ? "rgba(255,250,240,0.10)"
                               : "#f1f5f9",
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#cbd5e1",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#B8A88A",
                             color: colors.text,
                             fontSize: 16,
                             fontWeight: "500",
                             paddingHorizontal: 16,
                             paddingVertical: 14,
-                            borderRadius: 12,
+                            borderRadius: 4,
                             borderWidth: 1.5,
                           },
                         ]}
                         placeholder={t("applications.amount")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={rate.rate}
                         onChangeText={(text) => {
                           const updated = [...negotiationRequestRates];
@@ -3329,7 +3363,7 @@ export default function MyApplicationDetailScreen() {
                           backgroundColor: isDark
                             ? "rgba(239, 68, 68, 0.25)"
                             : "#fee2e2",
-                          borderRadius: 12,
+                          borderRadius: 4,
                           borderWidth: 1,
                           borderColor: isDark
                             ? "rgba(239, 68, 68, 0.4)"
@@ -3376,14 +3410,14 @@ export default function MyApplicationDetailScreen() {
                                     ? colors.tint + "30"
                                     : colors.tint + "15"
                                   : isDark
-                                    ? "rgba(255,255,255,0.08)"
+                                    ? "rgba(255,250,240,0.10)"
                                     : "#f1f5f9",
                               borderColor:
                                 rate.paymentType === type
                                   ? colors.tint
                                   : isDark
-                                    ? "rgba(255,255,255,0.15)"
-                                    : "#cbd5e1",
+                                    ? "rgba(255,250,240,0.12)"
+                                    : "#B8A88A",
                             }}
                           >
                             <Text
@@ -3425,24 +3459,24 @@ export default function MyApplicationDetailScreen() {
                             {
                               minHeight: 56,
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.08)"
+                                ? "rgba(255,250,240,0.10)"
                                 : "#f1f5f9",
                               borderColor: isDark
-                                ? "rgba(255,255,255,0.15)"
-                                : "#cbd5e1",
+                                ? "rgba(255,250,240,0.12)"
+                                : "#B8A88A",
                               color: colors.text,
                               fontSize: 16,
                               fontWeight: "500",
                               paddingHorizontal: 16,
                               paddingVertical: 14,
-                              borderRadius: 12,
+                              borderRadius: 4,
                               borderWidth: 1.5,
                             },
                           ]}
                           placeholder={t(
                             "applications.specifyPaymentTypePlaceholder"
                           )}
-                          placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                          placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                           value={rate.otherSpecification}
                           onChangeText={(text) => {
                             const updated = [...negotiationRequestRates];
@@ -3466,7 +3500,7 @@ export default function MyApplicationDetailScreen() {
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                     borderColor: colors.tint,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     alignItems: "center",
                     marginBottom: 20,
                     backgroundColor: isDark
@@ -3498,7 +3532,7 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.modalDescription,
                     {
-                      color: isDark ? "#9ca3af" : "#6b7280",
+                      color: isDark ? "#9A8E7A" : "#8A7B68",
                       fontSize: 13,
                       marginBottom: 8,
                     },
@@ -3511,23 +3545,23 @@ export default function MyApplicationDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       lineHeight: 24,
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 140,
                     },
                   ]}
                   placeholder={t("applications.explainRateRequest")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={negotiationRequestMessage}
                   onChangeText={setNegotiationRequestMessage}
                   textAlignVertical="top"
@@ -3541,8 +3575,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -3551,7 +3585,7 @@ export default function MyApplicationDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -3572,13 +3606,13 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                     },
                     requestingNegotiation && styles.modalButtonDisabled,
                   ]}
@@ -3586,7 +3620,7 @@ export default function MyApplicationDetailScreen() {
                   disabled={requestingNegotiation}
                 >
                   {requestingNegotiation ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.requestNegotiation")}
@@ -3617,7 +3651,7 @@ export default function MyApplicationDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -3626,8 +3660,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -3656,7 +3690,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {selectedNegotiationStatus === "ACCEPTED"
@@ -3677,14 +3711,14 @@ export default function MyApplicationDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.05)"
-                        : "#f8fafc",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                        ? "rgba(255,250,240,0.06)"
+                        : "#FFF8F0",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#B8A88A",
                       color: colors.text,
                     },
                   ]}
                   placeholder={t("applications.addMessageOptional")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={negotiationResponseMessage}
                   onChangeText={setNegotiationResponseMessage}
                   textAlignVertical="top"
@@ -3698,8 +3732,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -3708,7 +3742,7 @@ export default function MyApplicationDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -3743,7 +3777,7 @@ export default function MyApplicationDetailScreen() {
                   disabled={respondingToNegotiation}
                 >
                   {respondingToNegotiation ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {selectedNegotiationStatus === "ACCEPTED"
@@ -3785,8 +3819,8 @@ export default function MyApplicationDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   maxHeight: "85%",
                 },
               ]}
@@ -3817,7 +3851,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#cbd5e1" : "#4b5563" },
+                    { color: isDark ? "#B8A88A" : "#6B6355" },
                   ]}
                 >
                   {t("applications.proposeCounterOfferDescription")}
@@ -3830,11 +3864,11 @@ export default function MyApplicationDetailScreen() {
                       styles.rateInputCard,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.05)"
+                          ? "rgba(255,250,240,0.06)"
                           : "rgba(0,0,0,0.02)",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "rgba(0,0,0,0.1)",
+                          ? "rgba(201,150,63,0.12)"
+                          : "rgba(184,130,42,0.2)",
                       },
                     ]}
                   >
@@ -3843,7 +3877,7 @@ export default function MyApplicationDetailScreen() {
                         <Text
                           style={[
                             styles.inputLabel,
-                            { color: isDark ? "#cbd5e1" : "#4b5563" },
+                            { color: isDark ? "#B8A88A" : "#6B6355" },
                           ]}
                         >
                           {t("applications.amount")} (€)
@@ -3853,17 +3887,17 @@ export default function MyApplicationDetailScreen() {
                             styles.rateInput,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.1)"
-                                : "rgba(0,0,0,0.05)",
+                                ? "rgba(201,150,63,0.12)"
+                                : "rgba(184,130,42,0.06)",
                               color: colors.text,
                               borderColor: isDark
-                                ? "rgba(255,255,255,0.2)"
-                                : "rgba(0,0,0,0.1)",
+                                ? "rgba(255,250,240,0.15)"
+                                : "rgba(184,130,42,0.2)",
                             },
                           ]}
                           placeholder={t("applications.amountPlaceholder")}
                           placeholderTextColor={
-                            isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"
+                            isDark ? "rgba(201,150,63,0.3)" : "rgba(0,0,0,0.4)"
                           }
                           value={rate.rate}
                           onChangeText={(text) => {
@@ -3904,7 +3938,7 @@ export default function MyApplicationDetailScreen() {
                       <Text
                         style={[
                           styles.inputLabel,
-                          { color: isDark ? "#cbd5e1" : "#4b5563" },
+                          { color: isDark ? "#B8A88A" : "#6B6355" },
                         ]}
                       >
                         {t("applications.paymentType")}
@@ -3927,19 +3961,19 @@ export default function MyApplicationDetailScreen() {
                                 backgroundColor:
                                   rate.paymentType === type.value
                                     ? isDark
-                                      ? "#6366f1"
-                                      : "#4f46e5"
+                                      ? "#C9963F"
+                                      : "#C9963F"
                                     : isDark
-                                      ? "rgba(255,255,255,0.1)"
-                                      : "rgba(0,0,0,0.05)",
+                                      ? "rgba(201,150,63,0.12)"
+                                      : "rgba(184,130,42,0.06)",
                                 borderColor:
                                   rate.paymentType === type.value
                                     ? isDark
-                                      ? "#6366f1"
-                                      : "#4f46e5"
+                                      ? "#C9963F"
+                                      : "#C9963F"
                                     : isDark
-                                      ? "rgba(255,255,255,0.2)"
-                                      : "rgba(0,0,0,0.1)",
+                                      ? "rgba(255,250,240,0.15)"
+                                      : "rgba(184,130,42,0.2)",
                               },
                             ]}
                           >
@@ -3949,7 +3983,7 @@ export default function MyApplicationDetailScreen() {
                                 {
                                   color:
                                     rate.paymentType === type.value
-                                      ? "#fff"
+                                      ? "#FFFAF0"
                                       : colors.text,
                                 },
                               ]}
@@ -3965,12 +3999,12 @@ export default function MyApplicationDetailScreen() {
                             styles.rateInput,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.1)"
-                                : "rgba(0,0,0,0.05)",
+                                ? "rgba(201,150,63,0.12)"
+                                : "rgba(184,130,42,0.06)",
                               color: colors.text,
                               borderColor: isDark
-                                ? "rgba(255,255,255,0.2)"
-                                : "rgba(0,0,0,0.1)",
+                                ? "rgba(255,250,240,0.15)"
+                                : "rgba(184,130,42,0.2)",
                               marginTop: 8,
                             },
                           ]}
@@ -3978,7 +4012,7 @@ export default function MyApplicationDetailScreen() {
                             "applications.specifyPaymentTypePlaceholder"
                           )}
                           placeholderTextColor={
-                            isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"
+                            isDark ? "rgba(201,150,63,0.3)" : "rgba(0,0,0,0.4)"
                           }
                           value={rate.otherSpecification || ""}
                           onChangeText={(text) => {
@@ -4004,10 +4038,10 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.addRateButton,
                     {
-                      borderColor: isDark ? "#6366f1" : "#4f46e5",
+                      borderColor: isDark ? "#E8B86D" : "#C9963F",
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.1)"
-                        : "rgba(79, 70, 229, 0.05)",
+                        ? "rgba(201, 150, 63, 0.1)"
+                        : "rgba(201, 150, 63, 0.05)",
                     },
                   ]}
                 >
@@ -4032,14 +4066,14 @@ export default function MyApplicationDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.05)"
-                        : "#f8fafc",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                        ? "rgba(255,250,240,0.06)"
+                        : "#FFF8F0",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#B8A88A",
                       color: colors.text,
                     },
                   ]}
                   placeholder={t("applications.explainCounterOffer")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={counterOfferMessage}
                   onChangeText={setCounterOfferMessage}
                   textAlignVertical="top"
@@ -4053,8 +4087,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -4063,7 +4097,7 @@ export default function MyApplicationDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -4083,8 +4117,8 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : "#4f46e5",
-                      borderColor: isDark ? "#6366f1" : "#4f46e5",
+                      backgroundColor: isDark ? "#E8B86D" : "#C9963F",
+                      borderColor: isDark ? "#E8B86D" : "#C9963F",
                     },
                     sendingCounterOffer && styles.modalButtonDisabled,
                   ]}
@@ -4092,7 +4126,7 @@ export default function MyApplicationDetailScreen() {
                   disabled={sendingCounterOffer}
                 >
                   {sendingCounterOffer ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.sendCounterOffer")}
@@ -4144,11 +4178,11 @@ export default function MyApplicationDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.2)",
                   width: "100%",
                   maxWidth: 400,
                 },
@@ -4181,7 +4215,7 @@ export default function MyApplicationDetailScreen() {
                 style={[
                   styles.description,
                   {
-                    color: isDark ? "#cbd5e1" : "#64748b",
+                    color: isDark ? "#B8A88A" : "#8A7B68",
                     marginBottom: 20,
                     fontSize: 14,
                     lineHeight: 20,
@@ -4197,11 +4231,11 @@ export default function MyApplicationDetailScreen() {
                 style={[
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.1)"
+                      ? "rgba(201,150,63,0.12)"
                       : "#f1f5f9",
-                    borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                    borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                     borderWidth: 2,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     padding: 16,
                     fontSize: 24,
                     fontWeight: "700",
@@ -4212,7 +4246,7 @@ export default function MyApplicationDetailScreen() {
                   },
                 ]}
                 placeholder={t("applications.verificationCodePlaceholder")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={verificationCode}
                 onChangeText={(text) => {
                   // Only allow digits and limit to 4 characters
@@ -4235,9 +4269,9 @@ export default function MyApplicationDetailScreen() {
                     {
                       flex: 1,
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       alignItems: "center",
                     },
                   ]}
@@ -4251,7 +4285,7 @@ export default function MyApplicationDetailScreen() {
                       {
                         color: colors.text,
                         fontSize: 16,
-                        fontWeight: "600",
+                        fontWeight: "700",
                       },
                     ]}
                   >
@@ -4262,9 +4296,9 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     {
                       flex: 1,
-                      backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                      backgroundColor: isDark ? "#C9963F" : "#B8822A",
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       alignItems: "center",
                     },
                     verifyingCode && { opacity: 0.6 },
@@ -4343,13 +4377,13 @@ export default function MyApplicationDetailScreen() {
                   disabled={verifyingCode || verificationCode.length !== 4}
                 >
                   {verifyingCode ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text
                       style={{
-                        color: "#fff",
+                        color: "#FFFAF0",
                         fontSize: 16,
-                        fontWeight: "600",
+                        fontWeight: "700",
                       }}
                     >
                       {t("applications.verifyCode")}
@@ -4385,14 +4419,14 @@ export default function MyApplicationDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderRadius: 24,
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderRadius: 4,
                   overflow: "hidden",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
                   shadowRadius: 16,
-                  elevation: 10,
+                  elevation: 0,
                 },
               ]}
             >
@@ -4401,8 +4435,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -4431,7 +4465,7 @@ export default function MyApplicationDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.employerRequestsAdditionalTime")}
@@ -4450,23 +4484,23 @@ export default function MyApplicationDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       fontWeight: "500",
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 56,
                     },
                   ]}
                   placeholder={t("applications.enterNumberOfDays")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={additionalDays}
                   onChangeText={setAdditionalDays}
                   keyboardType="numeric"
@@ -4485,17 +4519,17 @@ export default function MyApplicationDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       lineHeight: 24,
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 140,
                     },
@@ -4503,7 +4537,7 @@ export default function MyApplicationDetailScreen() {
                   placeholder={t(
                     "applications.explainAdditionalDaysPlaceholder"
                   )}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={additionalTimeExplanation}
                   onChangeText={setAdditionalTimeExplanation}
                   textAlignVertical="top"
@@ -4517,8 +4551,8 @@ export default function MyApplicationDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -4527,7 +4561,7 @@ export default function MyApplicationDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -4547,13 +4581,13 @@ export default function MyApplicationDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                     },
                     respondingToAdditionalTime && styles.modalButtonDisabled,
                   ]}
@@ -4561,7 +4595,7 @@ export default function MyApplicationDetailScreen() {
                   disabled={respondingToAdditionalTime}
                 >
                   {respondingToAdditionalTime ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.sendResponse")}
@@ -4604,12 +4638,12 @@ const styles = StyleSheet.create({
   backButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
   },
   backButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   header: {
     flexDirection: "row",
@@ -4621,7 +4655,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -4634,7 +4668,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -4676,11 +4710,11 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 4,
   },
   statusText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   appliedDate: {
     fontSize: 12,
@@ -4689,11 +4723,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: "rgba(201,150,63,0.12)",
   },
   coverLetterLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   coverLetter: {
@@ -4707,11 +4741,11 @@ const styles = StyleSheet.create({
   rateItem: {
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   rateText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   totalRow: {
     flexDirection: "row",
@@ -4720,7 +4754,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: "rgba(201,150,63,0.12)",
   },
   totalLabel: {
     fontSize: 16,
@@ -4737,7 +4771,7 @@ const styles = StyleSheet.create({
   },
   requestCard: {
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
   },
@@ -4776,7 +4810,7 @@ const styles = StyleSheet.create({
   },
   responseLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   responseText: {
@@ -4788,7 +4822,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 8,
     marginTop: 8,
@@ -4796,12 +4830,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 0,
   },
   additionalRatesButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalOverlay: {
     flex: 1,
@@ -4820,7 +4854,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: "rgba(201,150,63,0.12)",
   },
   modalTitle: {
     fontSize: 20,
@@ -4844,7 +4878,7 @@ const styles = StyleSheet.create({
   },
   rateInputCard: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
   },
@@ -4861,7 +4895,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   rateInput: {
@@ -4910,14 +4944,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 20,
     gap: 8,
   },
   addRateButtonText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   messageSection: {
     marginBottom: 20,
@@ -4935,8 +4969,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
     marginBottom: 20,
   },
   totalPreviewLabel: {
@@ -4949,13 +4983,13 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   modalTextArea: {
     minHeight: 120,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     fontSize: 15,
     lineHeight: 22,
@@ -4963,7 +4997,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -4980,7 +5014,7 @@ const styles = StyleSheet.create({
   modalCancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -4988,19 +5022,19 @@ const styles = StyleSheet.create({
   modalSubmitButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtonTextSubmit: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentTypeModalContent: {
     borderTopLeftRadius: 24,
@@ -5039,7 +5073,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: "rgba(201,150,63,0.12)",
   },
   paymentTypeModalTitle: {
     fontSize: 20,
@@ -5053,7 +5087,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
   },
@@ -5093,30 +5127,30 @@ const styles = StyleSheet.create({
   otherSpecCancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   otherSpecSaveButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   otherSpecButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   otherSpecButtonTextSave: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   summaryCard: {
     marginTop: 12,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   summaryTitle: {

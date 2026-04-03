@@ -4,7 +4,7 @@ export const PRIVACY_POLICY_EN = `# Privacy Policy
 
 ## 1. Introduction
 
-Cumprido ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application ("App" or "Platform").
+Nasta ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application ("App" or "Platform").
 
 ## 2. Information We Collect
 
@@ -304,8 +304,8 @@ We process your personal data based on the following legal bases:
 
 As required by GDPR Article 37, we have appointed a Data Protection Officer (DPO) for EU users:
 
-- **Email:** dpo@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** dpo@nasta.app
+- **Website:** https://nasta.app/privacy
 
 
 You can contact our DPO for:
@@ -359,17 +359,17 @@ You can file a complaint if you believe we have not handled your personal data i
 ## 14. Contact Us
 
 For privacy-related questions or requests:
-- **Email:** privacy@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** privacy@nasta.app
+- **Website:** https://nasta.app/privacy
 - **Support Portal:** Available in the App
 
 
 ## 15. Data Protection Officer
 
 For EU users, you can contact our Data Protection Officer at:
-- **Email:** dpo@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** dpo@nasta.app
+- **Website:** https://nasta.app/privacy
 
 ---
 
-**By using Cumprido, you acknowledge that you have read and understood this Privacy Policy.**`;
+**By using Nasta, you acknowledge that you have read and understood this Privacy Policy.**`;

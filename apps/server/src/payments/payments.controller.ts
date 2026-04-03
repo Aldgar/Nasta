@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Headers,
+  Logger,
   Param,
   Post,
   Req,
@@ -35,6 +36,8 @@ interface RequestWithUser extends Request {
 
 @Controller('payments')
 export class PaymentsController {
+  private readonly logger = new Logger(PaymentsController.name);
+
   constructor(
     private readonly payments: PaymentsService,
     private readonly config: ConfigService,
@@ -145,10 +148,7 @@ export class PaymentsController {
     try {
       return await this.payments.handleWebhook(req.body as Buffer, signature);
     } catch (error: any) {
-      const logger = new (require('@nestjs/common').Logger)(
-        'PaymentsController',
-      );
-      logger.error(
+      this.logger.error(
         `❌ Webhook processing failed: ${error.message}`,
         error.stack,
       );
@@ -253,7 +253,7 @@ export class PaymentsController {
       req.socket?.remoteAddress ||
       (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
       '0.0.0.0';
-    console.log('[PaymentsController] Received bank account update:', {
+    this.logger.log('[PaymentsController] Received bank account update:', {
       userId,
       country: dto.country,
       countryType: typeof dto.country,
@@ -451,7 +451,7 @@ export class PaymentsController {
     const amountInCents = Math.round(dto.totalAmount * 100);
 
     // Log payment creation details
-    console.log('[PaymentsController] Creating payment:', {
+    this.logger.log('[PaymentsController] Creating payment:', {
       applicationId,
       paymentRequired: paymentStatus.paymentRequired,
       paymentCompleted: paymentStatus.paymentCompleted,
@@ -473,6 +473,8 @@ export class PaymentsController {
       amount: amountInCents,
       currency: application.job.currency || 'eur',
       selectedRates: dto.selectedRates,
+      platform: dto.platform,
+      clientOrigin: dto.clientOrigin,
     });
 
     return result;

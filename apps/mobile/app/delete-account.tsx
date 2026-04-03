@@ -168,15 +168,15 @@ export default function DeleteAccountScreen() {
             style={[
               styles.card,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.85)" : "#fff",
-                borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.82)" : "#FFFAF0",
+                borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
               },
             ]}
           >
             <Text
               style={[
                 styles.description,
-                { color: isDark ? "rgba(255,255,255,0.75)" : "#6b7280" },
+                { color: isDark ? "rgba(255,250,240,0.75)" : "#8A7B68" },
               ]}
             >
               {t("deleteAccount.description")}
@@ -197,12 +197,12 @@ export default function DeleteAccountScreen() {
                       styles.reasonRow,
                       {
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "rgba(0,0,0,0.1)",
+                          ? "rgba(255,250,240,0.12)"
+                          : "rgba(184,130,42,0.2)",
                         backgroundColor: selected
                           ? isDark
-                            ? "rgba(99, 102, 241, 0.2)"
-                            : "rgba(99, 102, 241, 0.1)"
+                            ? "rgba(201, 150, 63, 0.2)"
+                            : "rgba(201, 150, 63, 0.1)"
                           : isDark
                             ? "rgba(15, 23, 42, 0.35)"
                             : "rgba(243, 244, 246, 0.6)",
@@ -217,8 +217,8 @@ export default function DeleteAccountScreen() {
                           selected
                             ? colors.tint
                             : isDark
-                              ? "#94a3b8"
-                              : "#6b7280"
+                              ? "#9A8E7A"
+                              : "#8A7B68"
                         }
                         style={{ marginTop: 2 }}
                       />
@@ -245,7 +245,7 @@ export default function DeleteAccountScreen() {
               onChangeText={(val) => setDetails(val)}
               placeholder={t("deleteAccount.detailsPlaceholder")}
               placeholderTextColor={
-                isDark ? "rgba(255,255,255,0.35)" : "#9ca3af"
+                isDark ? "rgba(255,250,240,0.35)" : "#9A8E7A"
               }
               multiline
               style={[
@@ -253,8 +253,8 @@ export default function DeleteAccountScreen() {
                 {
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.2)",
                   backgroundColor: isDark
                     ? "rgba(15, 23, 42, 0.35)"
                     : "rgba(243, 244, 246, 0.6)",
@@ -270,8 +270,8 @@ export default function DeleteAccountScreen() {
                     remaining < 0
                       ? "#ef4444"
                       : isDark
-                        ? "rgba(255,255,255,0.55)"
-                        : "#6b7280",
+                        ? "rgba(255,250,240,0.55)"
+                        : "#8A7B68",
                 },
               ]}
             >
@@ -287,8 +287,8 @@ export default function DeleteAccountScreen() {
                 styles.confirmRow,
                 {
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.2)",
                   backgroundColor: isDark
                     ? "rgba(15, 23, 42, 0.35)"
                     : "rgba(243, 244, 246, 0.6)",
@@ -298,7 +298,7 @@ export default function DeleteAccountScreen() {
               <Feather
                 name={confirmed ? "check-square" : "square"}
                 size={18}
-                color={confirmed ? colors.tint : isDark ? "#94a3b8" : "#6b7280"}
+                color={confirmed ? colors.tint : isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text style={[styles.confirmText, { color: colors.text }]}>
                 {t("deleteAccount.confirmText")}
@@ -355,13 +355,13 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 20,
+    borderRadius: 4,
   },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
+  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
   content: { padding: 16, paddingBottom: 32 },
   card: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
   },
   description: {
@@ -370,19 +370,19 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 14, letterSpacing: 1.2, textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 10,
   },
   reasonRow: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
   },
   reasonText: { fontSize: 14, lineHeight: 18, flex: 1 },
   textArea: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
     minHeight: 110,
     textAlignVertical: "top",
@@ -397,14 +397,14 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
   },
   confirmText: { fontSize: 13, lineHeight: 18, flex: 1 },
   deleteBtn: {
     marginTop: 14,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     paddingVertical: 14,
     alignItems: "center",
   },

@@ -2,7 +2,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import VerificationSettings from "@/components/settings/VerificationSettings";
 import BackButton from "@/components/navigation/BackButton";
 
-export const metadata = { title: "Verification | Cumprido" };
+export const metadata = { title: "Verification | Nasta" };
 
 export default function VerificationPage() {
   return (

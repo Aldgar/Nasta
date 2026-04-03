@@ -142,11 +142,11 @@ export default function ReportAbuseTicketsScreen() {
       case "HIGH":
         return "#f59e0b";
       case "NORMAL":
-        return "#3b82f6";
+        return "#C9963F";
       case "LOW":
-        return "#64748b";
+        return "#8A7B68";
       default:
-        return "#64748b";
+        return "#8A7B68";
     }
   };
 
@@ -155,13 +155,13 @@ export default function ReportAbuseTicketsScreen() {
       case "RESOLVED":
         return "#22c55e";
       case "IN_PROGRESS":
-        return "#3b82f6";
+        return "#C9963F";
       case "CLOSED":
-        return "#64748b";
+        return "#8A7B68";
       case "OPEN":
         return "#f59e0b";
       default:
-        return "#64748b";
+        return "#8A7B68";
     }
   };
 
@@ -172,7 +172,7 @@ export default function ReportAbuseTicketsScreen() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.backButton, { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }]}
+            style={[styles.backButton, { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
           >
             <Feather name="arrow-left" size={20} color={colors.text} />
           </TouchableOpacity>
@@ -185,15 +185,15 @@ export default function ReportAbuseTicketsScreen() {
               style={[
                 styles.filterButton,
                 scope === "all" 
-                  ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                  : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                  ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                  : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
               ]}
               onPress={() => setScope("all")}
             >
               <Text
                 style={[
                   styles.filterText,
-                  { color: scope === "all" ? "#fff" : colors.text },
+                  { color: scope === "all" ? "#FFFAF0" : colors.text },
                 ]}
               >
                 All
@@ -203,15 +203,15 @@ export default function ReportAbuseTicketsScreen() {
               style={[
                 styles.filterButton,
                 scope === "mine" 
-                  ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                  : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                  ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                  : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
               ]}
               onPress={() => setScope("mine")}
             >
               <Text
                 style={[
                   styles.filterText,
-                  { color: scope === "mine" ? "#fff" : colors.text },
+                  { color: scope === "mine" ? "#FFFAF0" : colors.text },
                 ]}
               >
                 My Tickets
@@ -221,15 +221,15 @@ export default function ReportAbuseTicketsScreen() {
               style={[
                 styles.filterButton,
                 scope === "unassigned" 
-                  ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                  : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                  ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                  : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
               ]}
               onPress={() => setScope("unassigned")}
             >
               <Text
                 style={[
                   styles.filterText,
-                  { color: scope === "unassigned" ? "#fff" : colors.text },
+                  { color: scope === "unassigned" ? "#FFFAF0" : colors.text },
                 ]}
               >
                 Unassigned
@@ -263,11 +263,11 @@ export default function ReportAbuseTicketsScreen() {
                     styles.card,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "rgba(255,255,255,0.9)",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "rgba(255,250,240,0.92)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -282,7 +282,7 @@ export default function ReportAbuseTicketsScreen() {
                     <View style={{ flex: 1 }}>
                       {ticket.ticketNumber && (
                         <Text
-                          style={[styles.ticketNumber, { color: isDark ? "#818cf8" : "#6366f1" }]}
+                          style={[styles.ticketNumber, { color: isDark ? "#A78BFA" : "#7C3AED" }]}
                         >
                           {ticket.ticketNumber}
                         </Text>
@@ -294,7 +294,7 @@ export default function ReportAbuseTicketsScreen() {
                         {ticket.subject}
                       </Text>
                       <Text
-                        style={[styles.userInfo, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+                        style={[styles.userInfo, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
                       >
                         {ticket.user
                           ? `${ticket.user.firstName || ''} ${ticket.user.lastName || ''}`.trim() || ticket.user.email || t("admin.user")
@@ -349,7 +349,7 @@ export default function ReportAbuseTicketsScreen() {
 
                   {!ticket.assignedTo && ticket.status === "OPEN" && (
                     <TouchableOpacity
-                      style={[styles.assignButton, { backgroundColor: isDark ? "#6366f1" : colors.tint }]}
+                      style={[styles.assignButton, { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }]}
                       onPress={(e) => {
                         e.stopPropagation();
                         handleAssign(ticket.id);
@@ -399,12 +399,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
     backgroundColor: "transparent",
   },
   filterText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   center: {
     flex: 1,
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   assignButton: {
     paddingVertical: 10,
@@ -467,8 +467,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   assignButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
   },
 });
 

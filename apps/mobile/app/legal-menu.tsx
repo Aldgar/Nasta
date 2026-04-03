@@ -93,7 +93,7 @@ export default function LegalMenuScreen() {
             <Feather
               name="chevron-right"
               size={20}
-              color={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"}
+              color={isDark ? "rgba(201,150,63,0.3)" : "rgba(0,0,0,0.3)"}
             />
           </TouchableOpacity>
         ))}
@@ -105,12 +105,14 @@ export default function LegalMenuScreen() {
     text: { color: colors.text },
     backData: { color: colors.text },
     listBg: {
-      backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#fff",
-      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
+      backgroundColor: isDark ? "rgba(255,250,240,0.06)" : "#FFFAF0",
+      borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(0,0,0,0.08)",
       shadowColor: isDark ? "#000" : "#000",
     },
     itemBorder: {
-      borderBottomColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+      borderBottomColor: isDark
+        ? "rgba(255,250,240,0.06)"
+        : "rgba(184,130,42,0.06)",
     },
   };
 
@@ -165,18 +167,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
     marginBottom: 12,
     paddingHorizontal: 4,
   },
   menuList: {
-    borderRadius: 16,
+    borderRadius: 4,
     paddingVertical: 8,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
   },
   menuItem: {
     flexDirection: "row",

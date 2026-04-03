@@ -85,7 +85,7 @@ const DatePickerModal = ({
         <View
           style={[
             styles.modalContent,
-            { backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff" },
+            { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -120,20 +120,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedYear === year
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedYear === year ? 0 : 1,
                         borderColor:
                           selectedYear === year
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedYear(year)}
@@ -141,7 +141,10 @@ const DatePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedYear === year ? "#fff" : colors.text },
+                        {
+                          color:
+                            selectedYear === year ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {year}
@@ -169,20 +172,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedMonth === month
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedMonth === month ? 0 : 1,
                         borderColor:
                           selectedMonth === month
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedMonth(month)}
@@ -191,7 +194,8 @@ const DatePickerModal = ({
                       style={[
                         styles.datePickerOptionText,
                         {
-                          color: selectedMonth === month ? "#fff" : colors.text,
+                          color:
+                            selectedMonth === month ? "#FFFAF0" : colors.text,
                         },
                       ]}
                     >
@@ -222,20 +226,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedDay === day
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedDay === day ? 0 : 1,
                         borderColor:
                           selectedDay === day
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedDay(day)}
@@ -243,7 +247,9 @@ const DatePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedDay === day ? "#fff" : colors.text },
+                        {
+                          color: selectedDay === day ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {day}
@@ -260,10 +266,10 @@ const DatePickerModal = ({
                 styles.modalButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "#e2e8f0",
+                    ? "rgba(255,250,240,0.12)"
+                    : "#F0E8D5",
                   borderWidth: 1,
-                  borderColor: isDark ? "rgba(255,255,255,0.25)" : "#cbd5e1",
+                  borderColor: isDark ? "rgba(201,150,63,0.2)" : "#B8A88A",
                 },
               ]}
               onPress={onClose}
@@ -271,7 +277,7 @@ const DatePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: colors.text, fontWeight: "600" },
+                  { color: colors.text, fontWeight: "700" },
                 ]}
               >
                 {t("common.cancel")}
@@ -282,14 +288,14 @@ const DatePickerModal = ({
                 styles.modalButton,
                 styles.modalButtonPrimary,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
-                  shadowColor: isDark ? "#4f46e5" : "#6366f1",
+                  borderColor: isDark ? "#10B981" : "#059669",
+                  shadowColor: isDark ? "#C9963F" : "#B8822A",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 0,
                 },
               ]}
               onPress={handleConfirm}
@@ -297,7 +303,7 @@ const DatePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: "#fff", fontWeight: "700" },
+                  { color: "#FFFAF0", fontWeight: "700" },
                 ]}
               >
                 {t("common.confirm")}
@@ -358,7 +364,7 @@ const TimePickerModal = ({
         <View
           style={[
             styles.modalContent,
-            { backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff" },
+            { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -393,20 +399,20 @@ const TimePickerModal = ({
                         backgroundColor:
                           selectedHour === hour
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedHour === hour ? 0 : 1,
                         borderColor:
                           selectedHour === hour
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedHour(hour)}
@@ -414,7 +420,10 @@ const TimePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedHour === hour ? "#fff" : colors.text },
+                        {
+                          color:
+                            selectedHour === hour ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {hour.toString().padStart(2, "0")}
@@ -442,20 +451,20 @@ const TimePickerModal = ({
                         backgroundColor:
                           selectedMinute === minute
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedMinute === minute ? 0 : 1,
                         borderColor:
                           selectedMinute === minute
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedMinute(minute)}
@@ -465,7 +474,7 @@ const TimePickerModal = ({
                         styles.datePickerOptionText,
                         {
                           color:
-                            selectedMinute === minute ? "#fff" : colors.text,
+                            selectedMinute === minute ? "#FFFAF0" : colors.text,
                         },
                       ]}
                     >
@@ -483,10 +492,10 @@ const TimePickerModal = ({
                 styles.modalButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "#e2e8f0",
+                    ? "rgba(255,250,240,0.12)"
+                    : "#F0E8D5",
                   borderWidth: 1,
-                  borderColor: isDark ? "rgba(255,255,255,0.25)" : "#cbd5e1",
+                  borderColor: isDark ? "rgba(201,150,63,0.2)" : "#B8A88A",
                 },
               ]}
               onPress={onClose}
@@ -494,7 +503,7 @@ const TimePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: colors.text, fontWeight: "600" },
+                  { color: colors.text, fontWeight: "700" },
                 ]}
               >
                 {t("common.cancel")}
@@ -505,14 +514,14 @@ const TimePickerModal = ({
                 styles.modalButton,
                 styles.modalButtonPrimary,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
-                  shadowColor: isDark ? "#4f46e5" : "#6366f1",
+                  borderColor: isDark ? "#10B981" : "#059669",
+                  shadowColor: isDark ? "#C9963F" : "#B8822A",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 0,
                 },
               ]}
               onPress={handleConfirm}
@@ -520,7 +529,7 @@ const TimePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: "#fff", fontWeight: "700" },
+                  { color: "#FFFAF0", fontWeight: "700" },
                 ]}
               >
                 {t("common.confirm")}
@@ -561,7 +570,7 @@ export default function InstantJobRequest() {
   const [customCategory, setCustomCategory] = useState("");
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [workMode, setWorkMode] = useState<"ON_SITE" | "REMOTE" | "HYBRID">(
-    "ON_SITE"
+    "ON_SITE",
   );
   const [urgency, setUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
   const [loading, setLoading] = useState(false);
@@ -570,11 +579,25 @@ export default function InstantJobRequest() {
   const [phoneVerified, setPhoneVerified] = useState<boolean>(false);
   const [hasAddress, setHasAddress] = useState<boolean>(false);
 
+  // New fields matching web app
+  const [jobType, setJobType] = useState<string>("GIG");
+  const [showJobTypeModal, setShowJobTypeModal] = useState(false);
+  const [rateAmount, setRateAmount] = useState("");
+  const [currencyVal, setCurrencyVal] = useState("EUR");
+  const [paymentType, setPaymentType] = useState("HOURLY");
+  const [showPaymentTypeModal, setShowPaymentTypeModal] = useState(false);
+  const [requirements, setRequirements] = useState<string[]>([]);
+  const [responsibilities, setResponsibilities] = useState<string[]>([]);
+  const [newReq, setNewReq] = useState("");
+  const [newResp, setNewResp] = useState("");
+
   // Date/Time states
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   useEffect(() => {
     fetchEmployerInfo();
@@ -648,7 +671,7 @@ export default function InstantJobRequest() {
     if (category === "Other" && !customCategory.trim()) {
       Alert.alert(
         t("jobs.missingCategory"),
-        t("jobs.specifyCustomCategoryName")
+        t("jobs.specifyCustomCategoryName"),
       );
       return;
     }
@@ -656,8 +679,13 @@ export default function InstantJobRequest() {
     if (!location || !city || !country) {
       Alert.alert(
         t("jobs.missingLocation"),
-        t("jobs.provideCompleteLocationInfo")
+        t("jobs.provideCompleteLocationInfo"),
       );
+      return;
+    }
+
+    if (!startDate || !startTime) {
+      Alert.alert(t("common.error"), t("jobs.startDateTimeRequired"));
       return;
     }
 
@@ -679,7 +707,7 @@ export default function InstantJobRequest() {
             text: t("candidate.goToSettings"),
             onPress: () => router.push("/settings" as any),
           },
-        ]
+        ],
       );
       return;
     }
@@ -700,7 +728,7 @@ export default function InstantJobRequest() {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === "granted") {
           const locationData = await Location.geocodeAsync(
-            `${location}, ${city}, ${country}`
+            `${location}, ${city}, ${country}`,
           );
           if (locationData && locationData.length > 0) {
             lat = locationData[0].latitude;
@@ -729,14 +757,28 @@ export default function InstantJobRequest() {
         categoryName: category === "Other" ? customCategory : category,
         workMode,
         urgency,
+        type: jobType,
         location,
         city,
         country,
         lat,
         lng,
         startDate: startDateTime,
-        isInstantBook: true, // Mark as instant book
+        isInstantBook: true,
       };
+
+      if (endDate) {
+        payload.endDate = endDate.toISOString();
+      }
+      if (rateAmount && parseFloat(rateAmount) > 0) {
+        payload.rateAmount = Math.round(parseFloat(rateAmount) * 100);
+        payload.currency = currencyVal;
+        payload.paymentType = paymentType;
+      }
+      const filteredReqs = requirements.filter((r) => r.trim());
+      if (filteredReqs.length > 0) payload.requirements = filteredReqs;
+      const filteredResps = responsibilities.filter((r) => r.trim());
+      if (filteredResps.length > 0) payload.responsibilities = filteredResps;
 
       // Step 1: Create the job
       const jobRes = await fetch(`${base}/jobs`, {
@@ -779,7 +821,7 @@ export default function InstantJobRequest() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!applicationRes.ok) {
@@ -802,7 +844,7 @@ export default function InstantJobRequest() {
                 text: t("common.ok"),
                 onPress: () => router.back(),
               },
-            ]
+            ],
           );
           return;
         }
@@ -819,7 +861,7 @@ export default function InstantJobRequest() {
                 text: t("common.ok"),
                 onPress: () => router.back(),
               },
-            ]
+            ],
           );
           return;
         }
@@ -842,7 +884,7 @@ export default function InstantJobRequest() {
               text: "OK",
               onPress: () => router.back(),
             },
-          ]
+          ],
         );
       }
     } catch (err) {
@@ -877,8 +919,8 @@ export default function InstantJobRequest() {
               styles.backBtn,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.05)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.06)",
               },
             ]}
             onPress={() => router.back()}
@@ -909,10 +951,12 @@ export default function InstantJobRequest() {
                 styles.input,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
             >
@@ -931,7 +975,7 @@ export default function InstantJobRequest() {
                     : translated;
                 })()}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                  isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                 }
                 value={title}
                 onChangeText={setTitle}
@@ -953,10 +997,12 @@ export default function InstantJobRequest() {
                 styles.categoryInput,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
               onPress={() => setShowCategoryModal(true)}
@@ -968,7 +1014,7 @@ export default function InstantJobRequest() {
                     color: category
                       ? colors.text
                       : isDark
-                        ? "rgba(255,255,255,0.6)"
+                        ? "rgba(255,250,240,0.6)"
                         : "rgba(0,0,0,0.4)",
                   },
                 ]}
@@ -1008,7 +1054,7 @@ export default function InstantJobRequest() {
               <Feather
                 name="chevron-down"
                 size={20}
-                color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"}
+                color={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"}
               />
             </TouchableButton>
 
@@ -1018,11 +1064,11 @@ export default function InstantJobRequest() {
                   styles.input,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(255,255,255,0.95)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(255,250,240,0.95)",
                     borderWidth: isDark ? 1 : 0,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.2)"
+                      ? "rgba(255,250,240,0.15)"
                       : "transparent",
                   },
                 ]}
@@ -1042,7 +1088,7 @@ export default function InstantJobRequest() {
                       : translated;
                   })()}
                   placeholderTextColor={
-                    isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                    isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                   }
                   value={customCategory}
                   onChangeText={setCustomCategory}
@@ -1065,10 +1111,12 @@ export default function InstantJobRequest() {
                 styles.textArea,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
             >
@@ -1088,7 +1136,7 @@ export default function InstantJobRequest() {
                     : translated;
                 })()}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                  isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                 }
                 multiline
                 numberOfLines={5}
@@ -1105,6 +1153,7 @@ export default function InstantJobRequest() {
                 const translated = t(key);
                 return translated === key ? "Work Mode" : translated;
               })()}
+              required
             />
             <View style={styles.optionRow}>
               {(["ON_SITE", "REMOTE", "HYBRID"] as const).map((mode) => (
@@ -1117,19 +1166,19 @@ export default function InstantJobRequest() {
                       backgroundColor:
                         workMode === mode
                           ? isDark
-                            ? "#4f46e5"
+                            ? "#C9963F"
                             : colors.tint
                           : isDark
                             ? "transparent"
-                            : "rgba(0,0,0,0.05)",
+                            : "rgba(184,130,42,0.06)",
                       borderColor:
                         workMode === mode
                           ? isDark
-                            ? "#6366f1"
+                            ? "#C9963F"
                             : colors.tint
                           : isDark
-                            ? "rgba(255,255,255,0.3)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.25)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setWorkMode(mode)}
@@ -1137,7 +1186,7 @@ export default function InstantJobRequest() {
                   <Text
                     style={[
                       styles.optionText,
-                      { color: workMode === mode ? "#fff" : colors.text },
+                      { color: workMode === mode ? "#FFFAF0" : colors.text },
                     ]}
                   >
                     {(() => {
@@ -1181,21 +1230,21 @@ export default function InstantJobRequest() {
                           ? urg === "URGENT"
                             ? "#dc2626"
                             : isDark
-                              ? "#4f46e5"
+                              ? "#C9963F"
                               : colors.tint
                           : isDark
                             ? "transparent"
-                            : "rgba(0,0,0,0.05)",
+                            : "rgba(184,130,42,0.06)",
                       borderColor:
                         urgency === urg
                           ? urg === "URGENT"
                             ? "#ef4444"
                             : isDark
-                              ? "#6366f1"
+                              ? "#C9963F"
                               : colors.tint
                           : isDark
-                            ? "rgba(255,255,255,0.3)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.25)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setUrgency(urg)}
@@ -1203,7 +1252,7 @@ export default function InstantJobRequest() {
                   <Text
                     style={[
                       styles.optionText,
-                      { color: urgency === urg ? "#fff" : colors.text },
+                      { color: urgency === urg ? "#FFFAF0" : colors.text },
                     ]}
                   >
                     {(() => {
@@ -1221,91 +1270,73 @@ export default function InstantJobRequest() {
               ))}
             </View>
 
+            <InputLabel text="Job Type" />
+            <TouchableButton
+              style={[styles.input, styles.categoryInput, { backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
+              onPress={() => setShowJobTypeModal(true)}
+            >
+              <Text style={[styles.categoryText, { color: colors.text }]}>
+                {({ FULL_TIME: "Full Time", PART_TIME: "Part Time", CONTRACT: "Contract", TEMPORARY: "Temporary", FREELANCE: "Freelance", INTERNSHIP: "Internship", GIG: "Gig" } as Record<string, string>)[jobType] || jobType}
+              </Text>
+              <Feather name="chevron-down" size={20} color={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"} />
+            </TouchableButton>
+
+            <InputLabel text="Payment (Optional)" />
+            <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+              <View style={[styles.input, { flex: 1, backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}>
+                <TextInput
+                  style={{ flex: 1, color: colors.text, fontSize: 16, padding: 0 }}
+                  placeholder="0.00"
+                  placeholderTextColor={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"}
+                  value={rateAmount}
+                  onChangeText={setRateAmount}
+                  keyboardType="decimal-pad"
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+              <TouchableButton
+                style={[styles.input, styles.categoryInput, { flex: 1, backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
+                onPress={() => { const currencies = ["EUR", "USD", "GBP", "CHF", "SEK", "NOK", "DKK"]; const idx = currencies.indexOf(currencyVal); setCurrencyVal(currencies[(idx + 1) % currencies.length]); }}
+              >
+                <Text style={{ color: colors.text, fontSize: 16, fontWeight: "700" }}>{currencyVal}</Text>
+                <Feather name="refresh-cw" size={14} color={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"} />
+              </TouchableButton>
+            </View>
+            <TouchableButton
+              style={[styles.input, styles.categoryInput, { backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
+              onPress={() => setShowPaymentTypeModal(true)}
+            >
+              <Text style={[styles.categoryText, { color: colors.text }]}>
+                {({ HOURLY: "Per Hour", DAILY: "Per Day", WEEKLY: "Per Week", MONTHLY: "Per Month", FIXED: "Fixed Price" } as Record<string, string>)[paymentType] || paymentType}
+              </Text>
+              <Feather name="chevron-down" size={20} color={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"} />
+            </TouchableButton>
+
             <InputLabel
               text={(() => {
                 const key = "jobs.startDateAndTime";
                 const translated = t(key);
                 return translated === key ? "Start Date & Time" : translated;
               })()}
+              required
             />
             <View style={styles.dateTimeRow}>
               <TouchableButton
-                style={[
-                  styles.input,
-                  styles.dateTimeInput,
-                  {
-                    backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(255,255,255,0.95)",
-                    borderWidth: isDark ? 1 : 0,
-                    borderColor: isDark
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                  },
-                ]}
+                style={[styles.input, styles.dateTimeInput, { backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
                 onPress={() => setShowStartDatePicker(true)}
               >
                 <Feather name="calendar" size={18} color={colors.tint} />
-                <Text
-                  style={[
-                    styles.dateTimeText,
-                    {
-                      color: startDate
-                        ? colors.text
-                        : isDark
-                          ? "rgba(255,255,255,0.6)"
-                          : "rgba(0,0,0,0.4)",
-                    },
-                  ]}
-                >
-                  {startDate
-                    ? startDate.toLocaleDateString()
-                    : (() => {
-                        const key = "jobs.selectDate";
-                        const translated = t(key);
-                        return translated === key ? "Select Date" : translated;
-                      })()}
+                <Text style={[styles.dateTimeText, { color: startDate ? colors.text : isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)" }]}>
+                  {startDate ? startDate.toLocaleDateString() : "Select Date"}
                 </Text>
               </TouchableButton>
               <TouchableButton
-                style={[
-                  styles.input,
-                  styles.dateTimeInput,
-                  {
-                    backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(255,255,255,0.95)",
-                    borderWidth: isDark ? 1 : 0,
-                    borderColor: isDark
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                  },
-                ]}
+                style={[styles.input, styles.dateTimeInput, { backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
                 onPress={() => setShowStartTimePicker(true)}
               >
                 <Feather name="clock" size={18} color={colors.tint} />
-                <Text
-                  style={[
-                    styles.dateTimeText,
-                    {
-                      color: startTime
-                        ? colors.text
-                        : isDark
-                          ? "rgba(255,255,255,0.6)"
-                          : "rgba(0,0,0,0.4)",
-                    },
-                  ]}
-                >
-                  {startTime
-                    ? startTime.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : (() => {
-                        const key = "jobs.selectTime";
-                        const translated = t(key);
-                        return translated === key ? "Select Time" : translated;
-                      })()}
+                <Text style={[styles.dateTimeText, { color: startTime ? colors.text : isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)" }]}>
+                  {startTime ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Select Time"}
                 </Text>
               </TouchableButton>
             </View>
@@ -1323,10 +1354,12 @@ export default function InstantJobRequest() {
                 styles.input,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
             >
@@ -1343,7 +1376,7 @@ export default function InstantJobRequest() {
                   return translated === key ? "Street address" : translated;
                 })()}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                  isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                 }
                 value={location}
                 onChangeText={setLocation}
@@ -1356,10 +1389,12 @@ export default function InstantJobRequest() {
                 styles.input,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
             >
@@ -1376,7 +1411,7 @@ export default function InstantJobRequest() {
                   return translated === key ? "City" : translated;
                 })()}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                  isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                 }
                 value={city}
                 onChangeText={setCity}
@@ -1389,10 +1424,12 @@ export default function InstantJobRequest() {
                 styles.input,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(255,255,255,0.95)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(255,250,240,0.95)",
                   borderWidth: isDark ? 1 : 0,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "transparent",
+                  borderColor: isDark
+                    ? "rgba(255,250,240,0.15)"
+                    : "transparent",
                 },
               ]}
             >
@@ -1409,7 +1446,7 @@ export default function InstantJobRequest() {
                   return translated === key ? "Country" : translated;
                 })()}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)"
+                  isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"
                 }
                 value={country}
                 onChangeText={setCountry}
@@ -1417,13 +1454,91 @@ export default function InstantJobRequest() {
               />
             </View>
 
+            <InputLabel text="End Date (Optional)" />
+            <View style={styles.dateTimeRow}>
+              <TouchableButton
+                style={[styles.input, styles.dateTimeInput, { backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}
+                onPress={() => setShowEndDatePicker(true)}
+              >
+                <Feather name="calendar" size={18} color={colors.tint} />
+                <Text style={[styles.dateTimeText, { color: endDate ? colors.text : isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)" }]}>
+                  {endDate ? endDate.toLocaleDateString() : "Select End Date"}
+                </Text>
+              </TouchableButton>
+              {endDate && (
+                <TouchableButton style={{ justifyContent: "center", paddingHorizontal: 8 }} onPress={() => setEndDate(null)}>
+                  <Feather name="x" size={20} color={isDark ? "rgba(255,250,240,0.4)" : "rgba(0,0,0,0.3)"} />
+                </TouchableButton>
+              )}
+            </View>
+
+            <InputLabel text="Requirements (Optional)" />
+            <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+              <View style={[styles.input, { flex: 1, backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}>
+                <TextInput
+                  style={{ flex: 1, color: colors.text, fontSize: 16, padding: 0 }}
+                  placeholder="Add a requirement..."
+                  placeholderTextColor={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"}
+                  value={newReq}
+                  onChangeText={setNewReq}
+                  onSubmitEditing={() => { if (newReq.trim()) { setRequirements([...requirements, newReq.trim()]); setNewReq(""); } }}
+                  returnKeyType="done"
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+              <TouchableButton
+                style={[styles.optionButton, { flex: 0, paddingHorizontal: 16, backgroundColor: isDark ? "#C9963F" : colors.tint, borderColor: isDark ? "#C9963F" : colors.tint }]}
+                onPress={() => { if (newReq.trim()) { setRequirements([...requirements, newReq.trim()]); setNewReq(""); } }}
+              >
+                <Feather name="plus" size={20} color="#FFFAF0" />
+              </TouchableButton>
+            </View>
+            {requirements.map((req, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "center", marginBottom: 4, paddingLeft: 8 }}>
+                <Text style={{ flex: 1, color: colors.text, fontSize: 14 }}>• {req}</Text>
+                <TouchableButton onPress={() => setRequirements(requirements.filter((_, idx) => idx !== i))} style={{ padding: 4 }}>
+                  <Feather name="x" size={16} color={isDark ? "rgba(255,250,240,0.4)" : "rgba(0,0,0,0.3)"} />
+                </TouchableButton>
+              </View>
+            ))}
+
+            <InputLabel text="Responsibilities (Optional)" />
+            <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+              <View style={[styles.input, { flex: 1, backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(255,250,240,0.95)", borderWidth: isDark ? 1 : 0, borderColor: isDark ? "rgba(255,250,240,0.15)" : "transparent" }]}>
+                <TextInput
+                  style={{ flex: 1, color: colors.text, fontSize: 16, padding: 0 }}
+                  placeholder="Add a responsibility..."
+                  placeholderTextColor={isDark ? "rgba(255,250,240,0.6)" : "rgba(0,0,0,0.4)"}
+                  value={newResp}
+                  onChangeText={setNewResp}
+                  onSubmitEditing={() => { if (newResp.trim()) { setResponsibilities([...responsibilities, newResp.trim()]); setNewResp(""); } }}
+                  returnKeyType="done"
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+              <TouchableButton
+                style={[styles.optionButton, { flex: 0, paddingHorizontal: 16, backgroundColor: isDark ? "#C9963F" : colors.tint, borderColor: isDark ? "#C9963F" : colors.tint }]}
+                onPress={() => { if (newResp.trim()) { setResponsibilities([...responsibilities, newResp.trim()]); setNewResp(""); } }}
+              >
+                <Feather name="plus" size={20} color="#FFFAF0" />
+              </TouchableButton>
+            </View>
+            {responsibilities.map((resp, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "center", marginBottom: 4, paddingLeft: 8 }}>
+                <Text style={{ flex: 1, color: colors.text, fontSize: 14 }}>• {resp}</Text>
+                <TouchableButton onPress={() => setResponsibilities(responsibilities.filter((_, idx) => idx !== i))} style={{ padding: 4 }}>
+                  <Feather name="x" size={16} color={isDark ? "rgba(255,250,240,0.4)" : "rgba(0,0,0,0.3)"} />
+                </TouchableButton>
+              </View>
+            ))}
+
             <TouchableButton
               style={[
                 styles.submitBtn,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : colors.tint,
-                  borderColor: isDark ? "#6366f1" : colors.tint,
-                  shadowColor: isDark ? "#4f46e5" : colors.tint,
+                  backgroundColor: isDark ? "#10B981" : "#059669",
+                  borderColor: isDark ? "#10B981" : "#059669",
+                  shadowColor: isDark ? "#10B981" : "#059669",
                 },
                 loading && styles.submitBtnDisabled,
               ]}
@@ -1431,7 +1546,7 @@ export default function InstantJobRequest() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#FFFAF0" />
               ) : (
                 <Text style={styles.submitBtnText}>
                   {t("instantJob.continue")}
@@ -1454,7 +1569,7 @@ export default function InstantJobRequest() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
               },
             ]}
           >
@@ -1477,18 +1592,18 @@ export default function InstantJobRequest() {
                       backgroundColor:
                         category === cat.value
                           ? isDark
-                            ? "#6366f1"
-                            : "#4f46e5"
+                            ? "#C9963F"
+                            : "#C9963F"
                           : isDark
-                            ? "rgba(255,255,255,0.05)"
-                            : "rgba(0,0,0,0.05)",
+                            ? "rgba(255,250,240,0.06)"
+                            : "rgba(184,130,42,0.06)",
                       borderWidth: category === cat.value ? 0 : 1,
                       borderColor:
                         category === cat.value
                           ? "transparent"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -1500,7 +1615,7 @@ export default function InstantJobRequest() {
                     style={[
                       styles.categoryOptionText,
                       {
-                        color: category === cat.value ? "#fff" : colors.text,
+                        color: category === cat.value ? "#FFFAF0" : colors.text,
                         fontWeight: category === cat.value ? "600" : "500",
                       },
                     ]}
@@ -1537,6 +1652,80 @@ export default function InstantJobRequest() {
         colors={colors}
         isDark={isDark}
       />
+
+      <DatePickerModal
+        visible={showEndDatePicker}
+        onClose={() => setShowEndDatePicker(false)}
+        onSelect={(date) => setEndDate(date)}
+        minimumDate={startDate || new Date()}
+        value={endDate}
+        colors={colors}
+        isDark={isDark}
+      />
+
+      {/* Job Type Modal */}
+      <Modal visible={showJobTypeModal} transparent animationType="slide" onRequestClose={() => setShowJobTypeModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Select Job Type</Text>
+              <TouchableButton onPress={() => setShowJobTypeModal(false)}>
+                <Feather name="x" size={24} color={colors.text} />
+              </TouchableButton>
+            </View>
+            <ScrollView>
+              {([
+                { value: "FULL_TIME", label: "Full Time" },
+                { value: "PART_TIME", label: "Part Time" },
+                { value: "CONTRACT", label: "Contract" },
+                { value: "TEMPORARY", label: "Temporary" },
+                { value: "FREELANCE", label: "Freelance" },
+                { value: "INTERNSHIP", label: "Internship" },
+                { value: "GIG", label: "Gig" },
+              ]).map((jt) => (
+                <TouchableButton
+                  key={jt.value}
+                  style={[styles.categoryOption, { backgroundColor: jobType === jt.value ? (isDark ? "#C9963F" : "#C9963F") : isDark ? "rgba(255,250,240,0.06)" : "rgba(184,130,42,0.06)", borderWidth: jobType === jt.value ? 0 : 1, borderColor: jobType === jt.value ? "transparent" : isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
+                  onPress={() => { setJobType(jt.value); setShowJobTypeModal(false); }}
+                >
+                  <Text style={[styles.categoryOptionText, { color: jobType === jt.value ? "#FFFAF0" : colors.text, fontWeight: jobType === jt.value ? "600" : "500" }]}>{jt.label}</Text>
+                </TouchableButton>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Payment Type Modal */}
+      <Modal visible={showPaymentTypeModal} transparent animationType="slide" onRequestClose={() => setShowPaymentTypeModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Payment Type</Text>
+              <TouchableButton onPress={() => setShowPaymentTypeModal(false)}>
+                <Feather name="x" size={24} color={colors.text} />
+              </TouchableButton>
+            </View>
+            <ScrollView>
+              {([
+                { value: "HOURLY", label: "Per Hour" },
+                { value: "DAILY", label: "Per Day" },
+                { value: "WEEKLY", label: "Per Week" },
+                { value: "MONTHLY", label: "Per Month" },
+                { value: "FIXED", label: "Fixed Price" },
+              ]).map((pt) => (
+                <TouchableButton
+                  key={pt.value}
+                  style={[styles.categoryOption, { backgroundColor: paymentType === pt.value ? (isDark ? "#C9963F" : "#C9963F") : isDark ? "rgba(255,250,240,0.06)" : "rgba(184,130,42,0.06)", borderWidth: paymentType === pt.value ? 0 : 1, borderColor: paymentType === pt.value ? "transparent" : isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
+                  onPress={() => { setPaymentType(pt.value); setShowPaymentTypeModal(false); }}
+                >
+                  <Text style={[styles.categoryOptionText, { color: paymentType === pt.value ? "#FFFAF0" : colors.text, fontWeight: paymentType === pt.value ? "600" : "500" }]}>{pt.label}</Text>
+                </TouchableButton>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </GradientBackground>
   );
 }
@@ -1553,7 +1742,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1566,12 +1755,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     marginTop: 16,
   },
   input: {
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 0,
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -1606,17 +1795,17 @@ const styles = StyleSheet.create({
   optionButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     borderWidth: 0,
   },
   optionButtonActive: {},
   optionText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   submitBtn: {
-    borderRadius: 12,
+    borderRadius: 4,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 32,
@@ -1624,13 +1813,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 4,
+    elevation: 0,
   },
   submitBtnDisabled: {
     opacity: 0.6,
   },
   submitBtnText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -1685,7 +1874,7 @@ const styles = StyleSheet.create({
   },
   datePickerLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     textAlign: "center",
   },
@@ -1721,12 +1910,12 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
   },
   modalButtonPrimary: {},
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

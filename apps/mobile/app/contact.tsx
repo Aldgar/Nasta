@@ -130,8 +130,8 @@ export default function Contact() {
             style={[
               styles.card,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.85)" : "#ffffff",
-                borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.82)" : "#FFFAF0",
+                borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(0,0,0,0.08)",
               },
             ]}
           >
@@ -143,26 +143,26 @@ export default function Contact() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("contact.namePlaceholder")}
-              placeholderTextColor={isDark ? "#94a3b8" : "#9ca3af"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
             />
             <Text style={[styles.label, { color: colors.text }]}>{t("auth.email")}</Text>
             <TextInput
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("auth.emailPlaceholder")}
-              placeholderTextColor={isDark ? "#94a3b8" : "#9ca3af"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               autoCapitalize="none"
               keyboardType="email-address"
             />
@@ -172,13 +172,13 @@ export default function Contact() {
                 styles.input,
                 styles.textarea,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("contact.messagePlaceholder")}
-              placeholderTextColor={isDark ? "#94a3b8" : "#9ca3af"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               multiline
               textAlignVertical="top"
             />
@@ -186,11 +186,11 @@ export default function Contact() {
               style={[
                 styles.button,
                 {
-                  backgroundColor: isDark ? "#6366f1" : colors.tint,
+                  backgroundColor: isDark ? "#C9963F" : colors.tint,
                 },
               ]}
             >
-              <Text style={[styles.buttonLabel, { color: "#fff" }]}>{t("chat.send")}</Text>
+              <Text style={[styles.buttonLabel, { color: "#FFFAF0" }]}>{t("chat.send")}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -206,7 +206,7 @@ export default function Contact() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.backButton, { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }]}
+            style={[styles.backButton, { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
           >
             <Feather name="arrow-left" size={20} color={colors.text} />
           </TouchableOpacity>
@@ -218,15 +218,15 @@ export default function Contact() {
             style={[
               styles.filterButton,
               roleFilter === "all"
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#C9963F" : colors.tint }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setRoleFilter("all")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: roleFilter === "all" ? "#fff" : colors.text },
+                { color: roleFilter === "all" ? "#FFFAF0" : colors.text },
               ]}
             >
               {t("common.all")}
@@ -236,15 +236,15 @@ export default function Contact() {
             style={[
               styles.filterButton,
               roleFilter === "JOB_SEEKER"
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#C9963F" : colors.tint }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setRoleFilter("JOB_SEEKER")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: roleFilter === "JOB_SEEKER" ? "#fff" : colors.text },
+                { color: roleFilter === "JOB_SEEKER" ? "#FFFAF0" : colors.text },
               ]}
             >
               {t("auth.serviceProvider")}
@@ -254,15 +254,15 @@ export default function Contact() {
             style={[
               styles.filterButton,
               roleFilter === "EMPLOYER"
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#C9963F" : colors.tint }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setRoleFilter("EMPLOYER")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: roleFilter === "EMPLOYER" ? "#fff" : colors.text },
+                { color: roleFilter === "EMPLOYER" ? "#FFFAF0" : colors.text },
               ]}
             >
               {t("auth.employer")}
@@ -295,11 +295,11 @@ export default function Contact() {
                     styles.userCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "rgba(255,255,255,0.9)",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "rgba(255,250,240,0.92)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => handleUserPress(user)}
@@ -316,13 +316,13 @@ export default function Contact() {
                         style={[
                           styles.avatar,
                           styles.avatarPlaceholder,
-                          { backgroundColor: isDark ? "#374151" : "#d1d5db" },
+                          { backgroundColor: isDark ? "#5C5548" : "#D4C0A0" },
                         ]}
                       >
                         <Feather
                           name="user"
                           size={24}
-                          color={isDark ? "#9ca3af" : "#6b7280"}
+                          color={isDark ? "#9A8E7A" : "#8A7B68"}
                         />
                       </View>
                     )}
@@ -331,7 +331,7 @@ export default function Contact() {
                         {user.firstName} {user.lastName}
                       </Text>
                       <Text
-                        style={[styles.userEmail, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+                        style={[styles.userEmail, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
                       >
                         {user.email}
                       </Text>
@@ -343,8 +343,8 @@ export default function Contact() {
                               backgroundColor:
                                 user.role === "EMPLOYER"
                                   ? isDark
-                                    ? "rgba(59, 130, 246, 0.2)"
-                                    : "rgba(59, 130, 246, 0.1)"
+                                    ? "rgba(201, 150, 63, 0.2)"
+                                    : "rgba(201, 150, 63, 0.1)"
                                   : isDark
                                     ? "rgba(34, 197, 94, 0.2)"
                                     : "rgba(34, 197, 94, 0.1)",
@@ -356,7 +356,7 @@ export default function Contact() {
                               styles.roleText,
                               {
                                 color:
-                                  user.role === "EMPLOYER" ? "#3b82f6" : "#22c55e",
+                                  user.role === "EMPLOYER" ? "#C9963F" : "#22c55e",
                               },
                             ]}
                           >
@@ -367,7 +367,7 @@ export default function Contact() {
                           <Text
                             style={[
                               styles.locationText,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {[user.city, user.country].filter(Boolean).join(", ")}
@@ -378,7 +378,7 @@ export default function Contact() {
                     <Feather
                       name="chevron-right"
                       size={20}
-                      color={isDark ? "#cbd5e1" : "#64748b"}
+                      color={isDark ? "#B8A88A" : "#8A7B68"}
                     />
                   </View>
                 </TouchableOpacity>
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: "800" },
   card: {
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 4,
     padding: 20,
     marginHorizontal: 20,
     marginTop: 20,
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginTop: 16,
     marginBottom: 8,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     paddingVertical: 16,
   },
@@ -453,11 +453,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
   },
   filterText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   center: {
     flex: 1,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   userCard: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   locationText: {
     fontSize: 12,

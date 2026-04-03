@@ -34,6 +34,7 @@ export default function OnboardingScreen() {
   interface RateEntry {
     id: string;
     rate: string;
+    description: string;
     paymentType: "HOUR" | "DAY" | "WEEK" | "MONTH" | "OTHER";
     otherSpecification?: string;
   }
@@ -115,7 +116,7 @@ export default function OnboardingScreen() {
     string | null
   >(null);
   const [showOtherInputModal, setShowOtherInputModal] = useState<string | null>(
-    null
+    null,
   );
   const [otherInputValue, setOtherInputValue] = useState("");
 
@@ -136,7 +137,7 @@ export default function OnboardingScreen() {
     string | null
   >(null);
   const [showEducationModal, setShowEducationModal] = useState<string | null>(
-    null
+    null,
   );
   const [showProjectModal, setShowProjectModal] = useState<string | null>(null);
 
@@ -177,6 +178,7 @@ export default function OnboardingScreen() {
                   cvUrl?: string;
                   rates?: Array<{
                     rate: number;
+                    description?: string;
                     paymentType: string;
                     otherSpecification?: string;
                   }>;
@@ -250,6 +252,7 @@ export default function OnboardingScreen() {
               rates = links.rates.map((r, index) => ({
                 id: `${Date.now()}_${index}`,
                 rate: r.rate.toString(),
+                description: r.description || "",
                 paymentType: (r.paymentType ||
                   "HOUR") as RateEntry["paymentType"],
                 otherSpecification: r.otherSpecification || "",
@@ -259,6 +262,7 @@ export default function OnboardingScreen() {
                 {
                   id: Date.now().toString(),
                   rate: hourlyRate,
+                  description: "",
                   paymentType: "HOUR" as const,
                   otherSpecification: "",
                 },
@@ -268,6 +272,7 @@ export default function OnboardingScreen() {
                 {
                   id: Date.now().toString(),
                   rate: "",
+                  description: "",
                   paymentType: "HOUR" as const,
                   otherSpecification: "",
                 },
@@ -429,12 +434,12 @@ export default function OnboardingScreen() {
 
     // Check if language already exists
     const exists = formData.languages.find(
-      (l) => l.language === selectedLanguageForAdd
+      (l) => l.language === selectedLanguageForAdd,
     );
     if (exists) {
       Alert.alert(
         t("onboarding.languageAlreadyAdded"),
-        t("onboarding.languageAlreadyInList")
+        t("onboarding.languageAlreadyInList"),
       );
       return;
     }
@@ -483,7 +488,7 @@ export default function OnboardingScreen() {
     if (exists) {
       Alert.alert(
         t("onboarding.skillAlreadyAdded"),
-        t("onboarding.skillAlreadyInList")
+        t("onboarding.skillAlreadyInList"),
       );
       setShowSkillSelectModal(false);
       return;
@@ -507,7 +512,7 @@ export default function OnboardingScreen() {
     setFormData((prev) => ({
       ...prev,
       skills: prev.skills.map((s) =>
-        s.name === skillName ? { ...s, yearsExperience: years } : s
+        s.name === skillName ? { ...s, yearsExperience: years } : s,
       ),
     }));
   };
@@ -542,12 +547,12 @@ export default function OnboardingScreen() {
   const updateWorkExperience = (
     id: string,
     field: keyof WorkExperienceEntry,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
       workExperience: prev.workExperience.map((we) =>
-        we.id === id ? { ...we, [field]: value } : we
+        we.id === id ? { ...we, [field]: value } : we,
       ),
     }));
   };
@@ -581,12 +586,12 @@ export default function OnboardingScreen() {
   const updateCertification = (
     id: string,
     field: keyof CertificationEntry,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
       certifications: prev.certifications.map((c) =>
-        c.id === id ? { ...c, [field]: value } : c
+        c.id === id ? { ...c, [field]: value } : c,
       ),
     }));
   };
@@ -620,12 +625,12 @@ export default function OnboardingScreen() {
   const updateEducation = (
     id: string,
     field: keyof EducationEntry,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
       education: prev.education.map((e) =>
-        e.id === id ? { ...e, [field]: value } : e
+        e.id === id ? { ...e, [field]: value } : e,
       ),
     }));
   };
@@ -656,12 +661,12 @@ export default function OnboardingScreen() {
   const updateProject = (
     id: string,
     field: keyof ProjectEntry,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
       projects: prev.projects.map((p) =>
-        p.id === id ? { ...p, [field]: value } : p
+        p.id === id ? { ...p, [field]: value } : p,
       ),
     }));
   };
@@ -714,6 +719,7 @@ export default function OnboardingScreen() {
         {
           id: Date.now().toString(),
           rate: "",
+          description: "",
           paymentType: "HOUR" as const,
           otherSpecification: "",
         },
@@ -725,7 +731,7 @@ export default function OnboardingScreen() {
     if (formData.rates.length === 1) {
       Alert.alert(
         t("onboarding.cannotRemove"),
-        t("onboarding.mustHaveOneRate")
+        t("onboarding.mustHaveOneRate"),
       );
       return;
     }
@@ -738,19 +744,19 @@ export default function OnboardingScreen() {
   const updateRateEntry = (
     id: string,
     field: keyof RateEntry,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
       rates: prev.rates.map((rate) =>
-        rate.id === id ? { ...rate, [field]: value } : rate
+        rate.id === id ? { ...rate, [field]: value } : rate,
       ),
     }));
   };
 
   const handlePaymentTypeSelect = (
     rateId: string,
-    paymentType: RateEntry["paymentType"]
+    paymentType: RateEntry["paymentType"],
   ) => {
     updateRateEntry(rateId, "paymentType", paymentType);
     setShowPaymentTypeModal(null);
@@ -793,7 +799,7 @@ export default function OnboardingScreen() {
         t("onboarding.missingInformation"),
         t("onboarding.fillRequiredFields", {
           fields: missingFields.join("\n• "),
-        })
+        }),
       );
       return;
     }
@@ -816,8 +822,8 @@ export default function OnboardingScreen() {
           ? Math.round(
               validSkills.reduce(
                 (sum, s) => sum + (parseFloat(s.yearsExperience) || 0),
-                0
-              ) / validSkills.length
+                0,
+              ) / validSkills.length,
             )
           : 0;
 
@@ -839,6 +845,7 @@ export default function OnboardingScreen() {
         projects: formData.projects,
         rates: validRates.map((rate) => ({
           rate: parseFloat(rate.rate),
+          description: rate.description.trim() || undefined,
           paymentType: rate.paymentType,
           otherSpecification:
             rate.paymentType === "OTHER" ? rate.otherSpecification : undefined,
@@ -862,7 +869,7 @@ export default function OnboardingScreen() {
         const err = await res.json();
         Alert.alert(
           t("common.error"),
-          err.message || t("onboarding.failedToUpdateProfile")
+          err.message || t("onboarding.failedToUpdateProfile"),
         );
       }
     } catch (error) {
@@ -885,8 +892,8 @@ export default function OnboardingScreen() {
                 step <= activeStep
                   ? colors.tint
                   : isDark
-                    ? "#374151"
-                    : "#e5e7eb",
+                    ? "#5C5548"
+                    : "#E8D8B8",
             },
           ]}
         />
@@ -933,17 +940,19 @@ export default function OnboardingScreen() {
             <View
               style={[
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "#ffffff",
-                  borderRadius: 16,
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "#FFFAF0",
+                  borderRadius: 4,
                   padding: 20,
                   marginBottom: 20,
                   borderWidth: 1.5,
-                  borderColor: isDark ? "rgba(255, 255, 255, 0.15)" : "#e2e8f0",
+                  borderColor: isDark ? "rgba(255, 250, 240, 0.12)" : "#F0E8D5",
                   shadowColor: isDark ? "#000" : "#000",
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: isDark ? 0.3 : 0.08,
                   shadowRadius: 12,
-                  elevation: 4,
+                  elevation: 0,
                 },
               ]}
             >
@@ -966,17 +975,17 @@ export default function OnboardingScreen() {
                   {
                     backgroundColor: isDark
                       ? "rgba(15, 23, 42, 0.5)"
-                      : "#f8fafc",
+                      : "#FFF8F0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e2e8f0",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#F0E8D5",
                     borderWidth: 1.5,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     padding: 16,
                     minHeight: 120,
                   },
                 ]}
                 placeholder={t("onboarding.tellUsAboutExperience")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3af"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#94a3af"}
                 multiline
                 numberOfLines={4}
                 value={formData.aboutMe}
@@ -993,20 +1002,20 @@ export default function OnboardingScreen() {
                 style={[
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.8)"
-                      : "#ffffff",
-                    borderRadius: 16,
+                      ? "rgba(12, 22, 42, 0.80)"
+                      : "#FFFAF0",
+                    borderRadius: 4,
                     padding: 20,
                     marginBottom: 16,
                     borderWidth: 1.5,
                     borderColor: isDark
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "#e2e8f0",
+                      ? "rgba(255, 250, 240, 0.12)"
+                      : "#F0E8D5",
                     shadowColor: isDark ? "#000" : "#000",
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: isDark ? 0.3 : 0.08,
                     shadowRadius: 12,
-                    elevation: 4,
+                    elevation: 0,
                   },
                 ]}
               >
@@ -1050,7 +1059,7 @@ export default function OnboardingScreen() {
                       <Text
                         style={{
                           color: "#ef4444",
-                          fontWeight: "600",
+                          fontWeight: "700",
                           fontSize: 13,
                         }}
                       >
@@ -1066,10 +1075,10 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                         fontSize: 14,
-                        fontWeight: "600",
+                        fontWeight: "700",
                       },
                     ]}
                   >
@@ -1081,24 +1090,66 @@ export default function OnboardingScreen() {
                       {
                         backgroundColor: isDark
                           ? "rgba(15, 23, 42, 0.5)"
-                          : "#f8fafc",
+                          : "#FFF8F0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         paddingVertical: 14,
                         paddingHorizontal: 16,
                         fontSize: 16,
                       },
                     ]}
                     placeholder={t("onboarding.ratePlaceholder")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3af"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#94a3af"}
                     keyboardType="numeric"
                     value={rateEntry.rate}
                     onChangeText={(t) =>
                       updateRateEntry(rateEntry.id, "rate", t)
+                    }
+                  />
+                </View>
+
+                {/* Description Input */}
+                <View style={{ marginBottom: 16 }}>
+                  <Text
+                    style={[
+                      styles.inputLabel,
+                      {
+                        color: isDark ? "#B8A88A" : "#8A7B68",
+                        marginBottom: 8,
+                        fontSize: 14,
+                        fontWeight: "700",
+                      },
+                    ]}
+                  >
+                    {t("onboarding.rateDescription")}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: isDark
+                          ? "rgba(15, 23, 42, 0.5)"
+                          : "#FFF8F0",
+                        color: colors.text,
+                        borderColor: isDark
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        paddingVertical: 14,
+                        paddingHorizontal: 16,
+                        fontSize: 16,
+                      },
+                    ]}
+                    placeholder={t("onboarding.rateDescriptionPlaceholder")}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#94a3af"}
+                    value={rateEntry.description}
+                    onChangeText={(t) =>
+                      updateRateEntry(rateEntry.id, "description", t)
                     }
                   />
                 </View>
@@ -1109,10 +1160,10 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                         fontSize: 14,
-                        fontWeight: "600",
+                        fontWeight: "700",
                       },
                     ]}
                   >
@@ -1125,12 +1176,12 @@ export default function OnboardingScreen() {
                       {
                         backgroundColor: isDark
                           ? "rgba(15, 23, 42, 0.5)"
-                          : "#f8fafc",
+                          : "#FFF8F0",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
-                        borderRadius: 12,
+                        borderRadius: 4,
                         paddingVertical: 14,
                         paddingHorizontal: 16,
                         paddingRight: 12,
@@ -1167,7 +1218,7 @@ export default function OnboardingScreen() {
                     <Feather
                       name="chevron-down"
                       size={18}
-                      color={isDark ? "#cbd5e1" : "#64748b"}
+                      color={isDark ? "#B8A88A" : "#8A7B68"}
                     />
                   </TouchableButton>
                 </View>
@@ -1181,16 +1232,16 @@ export default function OnboardingScreen() {
                 styles.addRateButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(99, 102, 241, 0.5)"
-                    : "#c7d2fe",
-                  borderColor: isDark ? "rgba(99, 102, 241, 0.8)" : "#818cf8",
+                    ? "rgba(201, 150, 63, 0.5)"
+                    : "#D4A24E",
+                  borderColor: isDark ? "rgba(201, 150, 63, 0.8)" : "#E8B86D",
                   borderWidth: 2,
                   borderStyle: "dashed",
-                  shadowColor: isDark ? "#6366f1" : "#6366f1",
+                  shadowColor: isDark ? "#C9963F" : "#C9963F",
                   shadowOffset: { width: 0, height: 3 },
                   shadowOpacity: 0.3,
                   shadowRadius: 6,
-                  elevation: 3,
+                  elevation: 0,
                   marginBottom: 24,
                 },
               ]}
@@ -1198,13 +1249,13 @@ export default function OnboardingScreen() {
               <Feather
                 name="plus"
                 size={22}
-                color={isDark ? "#e0e7ff" : "#4f46e5"}
+                color={isDark ? "#F0E8D5" : "#C9963F"}
               />
               <Text
                 style={[
                   styles.addRateText,
                   {
-                    color: isDark ? "#e0e7ff" : "#4f46e5",
+                    color: isDark ? "#F0E8D5" : "#C9963F",
                     fontWeight: "700",
                     fontSize: 16,
                   },
@@ -1219,14 +1270,16 @@ export default function OnboardingScreen() {
               style={[
                 styles.section,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "#ffffff",
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.75)"
+                    : "#FFFAF0",
                   borderWidth: 1.5,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                  borderColor: isDark ? "rgba(255,250,240,0.15)" : "#F0E8D5",
                   shadowColor: isDark ? "#000" : "#000",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: isDark ? 0.3 : 0.05,
                   shadowRadius: 8,
-                  elevation: 2,
+                  elevation: 0,
                 },
               ]}
             >
@@ -1251,10 +1304,10 @@ export default function OnboardingScreen() {
                   {
                     backgroundColor: isDark
                       ? "rgba(15, 23, 42, 0.3)"
-                      : "#f8fafc",
-                    borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                      : "#FFF8F0",
+                    borderColor: isDark ? "rgba(201,150,63,0.12)" : "#F0E8D5",
                     borderWidth: 1.5,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     padding: 16,
                     marginBottom: 16,
                   },
@@ -1266,7 +1319,7 @@ export default function OnboardingScreen() {
                       style={[
                         styles.inputLabel,
                         {
-                          color: isDark ? "#cbd5e1" : "#64748b",
+                          color: isDark ? "#B8A88A" : "#8A7B68",
                           marginBottom: 8,
                         },
                       ]}
@@ -1279,11 +1332,11 @@ export default function OnboardingScreen() {
                         styles.dropdownButton,
                         {
                           backgroundColor: isDark
-                            ? "rgba(30, 41, 59, 0.8)"
-                            : "#ffffff",
+                            ? "rgba(12, 22, 42, 0.80)"
+                            : "#FFFAF0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.2)"
-                            : "#e2e8f0",
+                            ? "rgba(255,250,240,0.15)"
+                            : "#F0E8D5",
                           borderWidth: 1.5,
                           paddingRight: 12,
                         },
@@ -1296,8 +1349,8 @@ export default function OnboardingScreen() {
                             color: selectedLanguageForAdd
                               ? colors.text
                               : isDark
-                                ? "#94a3b8"
-                                : "#94a3b8",
+                                ? "#9A8E7A"
+                                : "#9A8E7A",
                             fontWeight: "500",
                             flex: 1,
                             marginRight: 8,
@@ -1312,7 +1365,7 @@ export default function OnboardingScreen() {
                       <Feather
                         name="chevron-down"
                         size={18}
-                        color={isDark ? "#cbd5e1" : "#64748b"}
+                        color={isDark ? "#B8A88A" : "#8A7B68"}
                       />
                     </TouchableButton>
                   </View>
@@ -1321,7 +1374,7 @@ export default function OnboardingScreen() {
                       style={[
                         styles.inputLabel,
                         {
-                          color: isDark ? "#cbd5e1" : "#64748b",
+                          color: isDark ? "#B8A88A" : "#8A7B68",
                           marginBottom: 8,
                         },
                       ]}
@@ -1334,11 +1387,11 @@ export default function OnboardingScreen() {
                         styles.dropdownButton,
                         {
                           backgroundColor: isDark
-                            ? "rgba(30, 41, 59, 0.8)"
-                            : "#ffffff",
+                            ? "rgba(12, 22, 42, 0.80)"
+                            : "#FFFAF0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.2)"
-                            : "#e2e8f0",
+                            ? "rgba(255,250,240,0.15)"
+                            : "#F0E8D5",
                           borderWidth: 1.5,
                           paddingRight: 12,
                         },
@@ -1351,8 +1404,8 @@ export default function OnboardingScreen() {
                             color: selectedLanguageLevel
                               ? colors.text
                               : isDark
-                                ? "#94a3b8"
-                                : "#94a3b8",
+                                ? "#9A8E7A"
+                                : "#9A8E7A",
                             fontWeight: "500",
                             flex: 1,
                             marginRight: 8,
@@ -1363,14 +1416,14 @@ export default function OnboardingScreen() {
                       >
                         {selectedLanguageLevel
                           ? t(
-                              `onboarding.languageLevel.${selectedLanguageLevel.toLowerCase()}`
+                              `onboarding.languageLevel.${selectedLanguageLevel.toLowerCase()}`,
                             )
                           : t("onboarding.chooseLevel")}
                       </Text>
                       <Feather
                         name="chevron-down"
                         size={18}
-                        color={isDark ? "#cbd5e1" : "#64748b"}
+                        color={isDark ? "#B8A88A" : "#8A7B68"}
                       />
                     </TouchableButton>
                   </View>
@@ -1383,11 +1436,11 @@ export default function OnboardingScreen() {
                       backgroundColor:
                         !selectedLanguageForAdd || !selectedLanguageLevel
                           ? isDark
-                            ? "rgba(99, 102, 241, 0.25)"
-                            : "#c7d2fe"
+                            ? "rgba(201, 150, 63, 0.25)"
+                            : "#D4A24E"
                           : isDark
-                            ? "#6366f1"
-                            : "#4f46e5",
+                            ? "#C9963F"
+                            : "#C9963F",
                       marginTop: 16,
                       opacity:
                         !selectedLanguageForAdd || !selectedLanguageLevel
@@ -1397,15 +1450,12 @@ export default function OnboardingScreen() {
                         !selectedLanguageForAdd || !selectedLanguageLevel
                           ? "transparent"
                           : isDark
-                            ? "#6366f1"
-                            : "#4f46e5",
+                            ? "#C9963F"
+                            : "#C9963F",
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.25,
                       shadowRadius: 8,
-                      elevation:
-                        !selectedLanguageForAdd || !selectedLanguageLevel
-                          ? 0
-                          : 4,
+                      elevation: 0,
                     },
                   ]}
                   disabled={!selectedLanguageForAdd || !selectedLanguageLevel}
@@ -1413,13 +1463,13 @@ export default function OnboardingScreen() {
                   <Feather
                     name="plus"
                     size={18}
-                    color="#fff"
+                    color="#FFFAF0"
                     style={{ marginRight: 4 }}
                   />
                   <Text
                     style={[
                       styles.addLanguageButtonText,
-                      { color: "#fff", fontWeight: "600", fontSize: 15 },
+                      { color: "#FFFAF0", fontWeight: "700", fontSize: 15 },
                     ]}
                   >
                     {t("onboarding.addLanguage")}
@@ -1437,13 +1487,13 @@ export default function OnboardingScreen() {
                         styles.languageListItem,
                         {
                           backgroundColor: isDark
-                            ? "rgba(30, 41, 59, 0.5)"
-                            : "#f8fafc",
+                            ? "rgba(12, 22, 42, 0.55)"
+                            : "#FFF8F0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.2)"
-                            : "#e2e8f0",
+                            ? "rgba(255,250,240,0.15)"
+                            : "#F0E8D5",
                           borderWidth: 1.5,
-                          borderRadius: 12,
+                          borderRadius: 4,
                           padding: 14,
                           marginBottom:
                             index < formData.languages.length - 1 ? 12 : 0,
@@ -1454,21 +1504,21 @@ export default function OnboardingScreen() {
                         <Text
                           style={[
                             styles.languageListItemName,
-                            { color: colors.text, fontWeight: "600" },
+                            { color: colors.text, fontWeight: "700" },
                           ]}
                         >
                           {t(
-                            `onboarding.language.${langEntry.language.toLowerCase()}`
+                            `onboarding.language.${langEntry.language.toLowerCase()}`,
                           )}
                         </Text>
                         <Text
                           style={[
                             styles.languageListItemLevel,
-                            { color: isDark ? "#a5b4fc" : "#6366f1" },
+                            { color: isDark ? "#E8B86D" : "#B8822A" },
                           ]}
                         >
                           {t(
-                            `onboarding.languageLevel.${langEntry.level.toLowerCase()}`
+                            `onboarding.languageLevel.${langEntry.level.toLowerCase()}`,
                           )}
                         </Text>
                       </View>
@@ -1502,14 +1552,16 @@ export default function OnboardingScreen() {
               style={[
                 styles.section,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "#ffffff",
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.75)"
+                    : "#FFFAF0",
                   borderWidth: 1.5,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                  borderColor: isDark ? "rgba(255,250,240,0.15)" : "#F0E8D5",
                   shadowColor: isDark ? "#000" : "#000",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: isDark ? 0.4 : 0.05,
                   shadowRadius: 8,
-                  elevation: 3,
+                  elevation: 0,
                 },
               ]}
             >
@@ -1532,7 +1584,7 @@ export default function OnboardingScreen() {
                 <Text
                   style={[
                     styles.inputLabel,
-                    { color: isDark ? "#cbd5e1" : "#64748b", marginBottom: 8 },
+                    { color: isDark ? "#B8A88A" : "#8A7B68", marginBottom: 8 },
                   ]}
                 >
                   {t("onboarding.selectSkill")}
@@ -1543,9 +1595,11 @@ export default function OnboardingScreen() {
                     styles.dropdownButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.8)"
-                        : "#ffffff",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                        ? "rgba(12, 22, 42, 0.80)"
+                        : "#FFFAF0",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#F0E8D5",
                       borderWidth: 1.5,
                       paddingRight: 12,
                     },
@@ -1555,7 +1609,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.dropdownText,
                       {
-                        color: isDark ? "#94a3b8" : "#94a3b8",
+                        color: isDark ? "#9A8E7A" : "#9A8E7A",
                         fontWeight: "500",
                         flex: 1,
                         marginRight: 8,
@@ -1569,7 +1623,7 @@ export default function OnboardingScreen() {
                   <Feather
                     name="chevron-down"
                     size={18}
-                    color={isDark ? "#cbd5e1" : "#64748b"}
+                    color={isDark ? "#B8A88A" : "#8A7B68"}
                   />
                 </TouchableButton>
               </View>
@@ -1584,13 +1638,13 @@ export default function OnboardingScreen() {
                         styles.skillListItem,
                         {
                           backgroundColor: isDark
-                            ? "rgba(30, 41, 59, 0.5)"
-                            : "#f8fafc",
+                            ? "rgba(12, 22, 42, 0.55)"
+                            : "#FFF8F0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.2)"
-                            : "#e2e8f0",
+                            ? "rgba(255,250,240,0.15)"
+                            : "#F0E8D5",
                           borderWidth: 1.5,
-                          borderRadius: 12,
+                          borderRadius: 4,
                           padding: 14,
                           marginBottom:
                             index < formData.skills.length - 1 ? 12 : 0,
@@ -1603,7 +1657,7 @@ export default function OnboardingScreen() {
                             styles.skillListItemName,
                             {
                               color: colors.text,
-                              fontWeight: "600",
+                              fontWeight: "700",
                               marginBottom: 8,
                             },
                           ]}
@@ -1615,17 +1669,17 @@ export default function OnboardingScreen() {
                             styles.skillYearsInputList,
                             {
                               backgroundColor: isDark
-                                ? "rgba(30, 41, 59, 0.6)"
-                                : "#ffffff",
+                                ? "rgba(12, 22, 42, 0.65)"
+                                : "#FFFAF0",
                               borderColor: isDark
-                                ? "rgba(99, 102, 241, 0.4)"
-                                : "#c7d2fe",
+                                ? "rgba(201, 150, 63, 0.4)"
+                                : "#D4A24E",
                               borderWidth: 1.5,
                               color: colors.text,
                             },
                           ]}
                           placeholder={t("onboarding.years")}
-                          placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                          placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                           keyboardType="numeric"
                           value={skillEntry.yearsExperience}
                           onChangeText={(t) =>
@@ -1662,7 +1716,11 @@ export default function OnboardingScreen() {
             <View
               style={[
                 styles.section,
-                { backgroundColor: isDark ? "rgba(30, 41, 59, 0.6)" : "#fff" },
+                {
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.65)"
+                    : "#FFFAF0",
+                },
               ]}
             >
               <Text style={[styles.label, { color: colors.text }]}>
@@ -1675,9 +1733,9 @@ export default function OnboardingScreen() {
                     styles.workExpCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.5)"
+                        ? "rgba(12, 22, 42, 0.55)"
                         : "#f9fafb",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                       marginBottom:
                         index < formData.workExperience.length - 1 ? 12 : 0,
                     },
@@ -1700,7 +1758,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -1712,18 +1770,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.enterCompanyName")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={exp.company}
                     onChangeText={(t) =>
                       updateWorkExperience(exp.id, "company", t)
@@ -1735,7 +1793,7 @@ export default function OnboardingScreen() {
                         style={[
                           styles.inputLabel,
                           {
-                            color: isDark ? "#cbd5e1" : "#64748b",
+                            color: isDark ? "#B8A88A" : "#8A7B68",
                             marginBottom: 8,
                           },
                         ]}
@@ -1747,17 +1805,17 @@ export default function OnboardingScreen() {
                           styles.input,
                           {
                             backgroundColor: isDark
-                              ? "rgba(30, 41, 59, 0.6)"
-                              : "#ffffff",
+                              ? "rgba(12, 22, 42, 0.65)"
+                              : "#FFFAF0",
                             color: colors.text,
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#e2e8f0",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#F0E8D5",
                             borderWidth: 1.5,
                           },
                         ]}
                         placeholder={t("onboarding.datePlaceholder")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={exp.fromDate}
                         onChangeText={(t) =>
                           updateWorkExperience(exp.id, "fromDate", t)
@@ -1769,7 +1827,7 @@ export default function OnboardingScreen() {
                         style={[
                           styles.inputLabel,
                           {
-                            color: isDark ? "#cbd5e1" : "#64748b",
+                            color: isDark ? "#B8A88A" : "#8A7B68",
                             marginBottom: 8,
                           },
                         ]}
@@ -1781,18 +1839,18 @@ export default function OnboardingScreen() {
                           styles.input,
                           {
                             backgroundColor: isDark
-                              ? "rgba(30, 41, 59, 0.6)"
-                              : "#ffffff",
+                              ? "rgba(12, 22, 42, 0.65)"
+                              : "#FFFAF0",
                             color: colors.text,
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#e2e8f0",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#F0E8D5",
                             borderWidth: 1.5,
                             opacity: exp.isCurrent ? 0.6 : 1,
                           },
                         ]}
                         placeholder={t("onboarding.datePlaceholder")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={exp.toDate}
                         onChangeText={(t) =>
                           updateWorkExperience(exp.id, "toDate", t)
@@ -1812,7 +1870,7 @@ export default function OnboardingScreen() {
                         updateWorkExperience(
                           exp.id,
                           "isCurrent",
-                          !exp.isCurrent
+                          !exp.isCurrent,
                         )
                       }
                       style={[
@@ -1820,23 +1878,23 @@ export default function OnboardingScreen() {
                         {
                           backgroundColor: exp.isCurrent
                             ? isDark
-                              ? "#4f46e5"
+                              ? "#C9963F"
                               : colors.tint
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
+                              ? "rgba(201,150,63,0.12)"
                               : "#f9fafb",
                           borderColor: exp.isCurrent
                             ? isDark
-                              ? "#6366f1"
+                              ? "#C9963F"
                               : colors.tint
                             : isDark
-                              ? "rgba(255,255,255,0.3)"
-                              : "#d1d5db",
+                              ? "rgba(201,150,63,0.25)"
+                              : "#D4C0A0",
                         },
                       ]}
                     >
                       {exp.isCurrent && (
-                        <Feather name="check" size={16} color="#fff" />
+                        <Feather name="check" size={16} color="#FFFAF0" />
                       )}
                     </TouchableButton>
                     <Text
@@ -1849,7 +1907,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                         marginTop: 12,
                       },
@@ -1862,18 +1920,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.egSoftwareDevelopment")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={exp.category}
                     onChangeText={(t) =>
                       updateWorkExperience(exp.id, "category", t)
@@ -1883,7 +1941,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -1895,18 +1953,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.eg3")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     keyboardType="numeric"
                     value={exp.years}
                     onChangeText={(t) =>
@@ -1917,7 +1975,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -1929,18 +1987,18 @@ export default function OnboardingScreen() {
                       styles.textArea,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         minHeight: 100,
                       },
                     ]}
                     placeholder={t("onboarding.describeResponsibilities")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     multiline
                     numberOfLines={4}
                     value={exp.description}
@@ -1956,9 +2014,9 @@ export default function OnboardingScreen() {
                   styles.addButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "#eef2ff",
-                    borderColor: isDark ? "rgba(99, 102, 241, 0.4)" : "#c7d2fe",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(255,250,240,0.92)",
+                    borderColor: isDark ? "rgba(201, 150, 63, 0.4)" : "#D4A24E",
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                   },
@@ -1967,14 +2025,14 @@ export default function OnboardingScreen() {
                 <Feather
                   name="plus"
                   size={18}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#E8B86D" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.addButtonText,
                     {
-                      color: isDark ? "#a5b4fc" : "#6366f1",
-                      fontWeight: "600",
+                      color: isDark ? "#E8B86D" : "#B8822A",
+                      fontWeight: "700",
                     },
                   ]}
                 >
@@ -1987,7 +2045,11 @@ export default function OnboardingScreen() {
             <View
               style={[
                 styles.section,
-                { backgroundColor: isDark ? "rgba(30, 41, 59, 0.6)" : "#fff" },
+                {
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.65)"
+                    : "#FFFAF0",
+                },
               ]}
             >
               <Text style={[styles.label, { color: colors.text }]}>
@@ -2000,9 +2062,9 @@ export default function OnboardingScreen() {
                     styles.certCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.5)"
+                        ? "rgba(12, 22, 42, 0.55)"
                         : "#f9fafb",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                       marginBottom:
                         index < formData.certifications.length - 1 ? 12 : 0,
                     },
@@ -2025,7 +2087,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2037,18 +2099,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.egBscComputerScience")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={cert.title}
                     onChangeText={(t) =>
                       updateCertification(cert.id, "title", t)
@@ -2058,7 +2120,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2070,18 +2132,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.egUniversityOfLondon")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={cert.institution}
                     onChangeText={(t) =>
                       updateCertification(cert.id, "institution", t)
@@ -2093,7 +2155,7 @@ export default function OnboardingScreen() {
                         style={[
                           styles.inputLabel,
                           {
-                            color: isDark ? "#cbd5e1" : "#64748b",
+                            color: isDark ? "#B8A88A" : "#8A7B68",
                             marginBottom: 8,
                           },
                         ]}
@@ -2105,18 +2167,18 @@ export default function OnboardingScreen() {
                           styles.input,
                           {
                             backgroundColor: isDark
-                              ? "rgba(30, 41, 59, 0.6)"
-                              : "#ffffff",
+                              ? "rgba(12, 22, 42, 0.65)"
+                              : "#FFFAF0",
                             color: colors.text,
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#e2e8f0",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#F0E8D5",
                             borderWidth: 1.5,
                             opacity: cert.isStillStudying ? 0.6 : 1,
                           },
                         ]}
                         placeholder={t("onboarding.datePlaceholder")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={cert.graduationDate}
                         onChangeText={(t) =>
                           updateCertification(cert.id, "graduationDate", t)
@@ -2135,7 +2197,7 @@ export default function OnboardingScreen() {
                           updateCertification(
                             cert.id,
                             "isStillStudying",
-                            !cert.isStillStudying
+                            !cert.isStillStudying,
                           )
                         }
                         style={[
@@ -2143,23 +2205,23 @@ export default function OnboardingScreen() {
                           {
                             backgroundColor: cert.isStillStudying
                               ? isDark
-                                ? "#4f46e5"
+                                ? "#C9963F"
                                 : colors.tint
                               : isDark
-                                ? "rgba(255,255,255,0.1)"
+                                ? "rgba(201,150,63,0.12)"
                                 : "#f9fafb",
                             borderColor: cert.isStillStudying
                               ? isDark
-                                ? "#6366f1"
+                                ? "#C9963F"
                                 : colors.tint
                               : isDark
-                                ? "rgba(255,255,255,0.3)"
-                                : "#d1d5db",
+                                ? "rgba(201,150,63,0.25)"
+                                : "#D4C0A0",
                           },
                         ]}
                       >
                         {cert.isStillStudying && (
-                          <Feather name="check" size={16} color="#fff" />
+                          <Feather name="check" size={16} color="#FFFAF0" />
                         )}
                       </TouchableButton>
                       <Text
@@ -2177,9 +2239,9 @@ export default function OnboardingScreen() {
                   styles.addButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "#eef2ff",
-                    borderColor: isDark ? "rgba(99, 102, 241, 0.4)" : "#c7d2fe",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(255,250,240,0.92)",
+                    borderColor: isDark ? "rgba(201, 150, 63, 0.4)" : "#D4A24E",
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                   },
@@ -2188,14 +2250,14 @@ export default function OnboardingScreen() {
                 <Feather
                   name="plus"
                   size={18}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#E8B86D" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.addButtonText,
                     {
-                      color: isDark ? "#a5b4fc" : "#6366f1",
-                      fontWeight: "600",
+                      color: isDark ? "#E8B86D" : "#B8822A",
+                      fontWeight: "700",
                     },
                   ]}
                 >
@@ -2208,7 +2270,11 @@ export default function OnboardingScreen() {
             <View
               style={[
                 styles.section,
-                { backgroundColor: isDark ? "rgba(30, 41, 59, 0.6)" : "#fff" },
+                {
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.65)"
+                    : "#FFFAF0",
+                },
               ]}
             >
               <Text style={[styles.label, { color: colors.text }]}>
@@ -2221,9 +2287,9 @@ export default function OnboardingScreen() {
                     styles.certCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.5)"
+                        ? "rgba(12, 22, 42, 0.55)"
                         : "#f9fafb",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                       marginBottom:
                         index < formData.education.length - 1 ? 12 : 0,
                     },
@@ -2246,7 +2312,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2258,18 +2324,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.egBscComputerScience")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={edu.title}
                     onChangeText={(t) => updateEducation(edu.id, "title", t)}
                   />
@@ -2277,7 +2343,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2289,18 +2355,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.egUniversityOfLondon")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={edu.institution}
                     onChangeText={(t) =>
                       updateEducation(edu.id, "institution", t)
@@ -2312,7 +2378,7 @@ export default function OnboardingScreen() {
                         style={[
                           styles.inputLabel,
                           {
-                            color: isDark ? "#cbd5e1" : "#64748b",
+                            color: isDark ? "#B8A88A" : "#8A7B68",
                             marginBottom: 8,
                           },
                         ]}
@@ -2324,18 +2390,18 @@ export default function OnboardingScreen() {
                           styles.input,
                           {
                             backgroundColor: isDark
-                              ? "rgba(30, 41, 59, 0.6)"
-                              : "#ffffff",
+                              ? "rgba(12, 22, 42, 0.65)"
+                              : "#FFFAF0",
                             color: colors.text,
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#e2e8f0",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#F0E8D5",
                             borderWidth: 1.5,
                             opacity: edu.isStillStudying ? 0.6 : 1,
                           },
                         ]}
                         placeholder={t("onboarding.datePlaceholder")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={edu.graduationDate}
                         onChangeText={(t) =>
                           updateEducation(edu.id, "graduationDate", t)
@@ -2354,7 +2420,7 @@ export default function OnboardingScreen() {
                           updateEducation(
                             edu.id,
                             "isStillStudying",
-                            !edu.isStillStudying
+                            !edu.isStillStudying,
                           )
                         }
                         style={[
@@ -2362,23 +2428,23 @@ export default function OnboardingScreen() {
                           {
                             backgroundColor: edu.isStillStudying
                               ? isDark
-                                ? "#4f46e5"
+                                ? "#C9963F"
                                 : colors.tint
                               : isDark
-                                ? "rgba(255,255,255,0.1)"
+                                ? "rgba(201,150,63,0.12)"
                                 : "#f9fafb",
                             borderColor: edu.isStillStudying
                               ? isDark
-                                ? "#6366f1"
+                                ? "#C9963F"
                                 : colors.tint
                               : isDark
-                                ? "rgba(255,255,255,0.3)"
-                                : "#d1d5db",
+                                ? "rgba(201,150,63,0.25)"
+                                : "#D4C0A0",
                           },
                         ]}
                       >
                         {edu.isStillStudying && (
-                          <Feather name="check" size={16} color="#fff" />
+                          <Feather name="check" size={16} color="#FFFAF0" />
                         )}
                       </TouchableButton>
                       <Text
@@ -2396,9 +2462,9 @@ export default function OnboardingScreen() {
                   styles.addButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "#eef2ff",
-                    borderColor: isDark ? "rgba(99, 102, 241, 0.4)" : "#c7d2fe",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(255,250,240,0.92)",
+                    borderColor: isDark ? "rgba(201, 150, 63, 0.4)" : "#D4A24E",
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                   },
@@ -2407,14 +2473,14 @@ export default function OnboardingScreen() {
                 <Feather
                   name="plus"
                   size={18}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#E8B86D" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.addButtonText,
                     {
-                      color: isDark ? "#a5b4fc" : "#6366f1",
-                      fontWeight: "600",
+                      color: isDark ? "#E8B86D" : "#B8822A",
+                      fontWeight: "700",
                     },
                   ]}
                 >
@@ -2427,7 +2493,11 @@ export default function OnboardingScreen() {
             <View
               style={[
                 styles.section,
-                { backgroundColor: isDark ? "rgba(30, 41, 59, 0.6)" : "#fff" },
+                {
+                  backgroundColor: isDark
+                    ? "rgba(12, 22, 42, 0.65)"
+                    : "#FFFAF0",
+                },
               ]}
             >
               <Text style={[styles.label, { color: colors.text }]}>
@@ -2440,9 +2510,9 @@ export default function OnboardingScreen() {
                     styles.projectCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.5)"
+                        ? "rgba(12, 22, 42, 0.55)"
                         : "#f9fafb",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                       marginBottom:
                         index < formData.projects.length - 1 ? 12 : 0,
                     },
@@ -2465,7 +2535,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2477,18 +2547,18 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                       },
                     ]}
                     placeholder={t("onboarding.enterProjectTitle")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={project.title}
                     onChangeText={(t) => updateProject(project.id, "title", t)}
                   />
@@ -2496,7 +2566,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2508,19 +2578,19 @@ export default function OnboardingScreen() {
                       styles.textArea,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                         marginBottom: 12,
                         minHeight: 100,
                       },
                     ]}
                     placeholder={t("onboarding.describeProject")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     multiline
                     numberOfLines={4}
                     value={project.description}
@@ -2532,7 +2602,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.inputLabel,
                       {
-                        color: isDark ? "#cbd5e1" : "#64748b",
+                        color: isDark ? "#B8A88A" : "#8A7B68",
                         marginBottom: 8,
                       },
                     ]}
@@ -2544,17 +2614,17 @@ export default function OnboardingScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.6)"
-                          : "#ffffff",
+                          ? "rgba(12, 22, 42, 0.65)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#F0E8D5",
                         borderWidth: 1.5,
                       },
                     ]}
                     placeholder={t("onboarding.projectUrlPlaceholder")}
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     value={project.url}
                     onChangeText={(t) => updateProject(project.id, "url", t)}
                   />
@@ -2566,9 +2636,9 @@ export default function OnboardingScreen() {
                   styles.addButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "#eef2ff",
-                    borderColor: isDark ? "rgba(99, 102, 241, 0.4)" : "#c7d2fe",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(255,250,240,0.92)",
+                    borderColor: isDark ? "rgba(201, 150, 63, 0.4)" : "#D4A24E",
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                   },
@@ -2577,14 +2647,14 @@ export default function OnboardingScreen() {
                 <Feather
                   name="plus"
                   size={18}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#E8B86D" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.addButtonText,
                     {
-                      color: isDark ? "#a5b4fc" : "#6366f1",
-                      fontWeight: "600",
+                      color: isDark ? "#E8B86D" : "#B8822A",
+                      fontWeight: "700",
                     },
                   ]}
                 >
@@ -2597,8 +2667,8 @@ export default function OnboardingScreen() {
               style={[
                 styles.submitBtn,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : colors.tint,
-                  borderColor: isDark ? "#6366f1" : colors.tint,
+                  backgroundColor: isDark ? "#C9963F" : colors.tint,
+                  borderColor: isDark ? "#C9963F" : colors.tint,
                   borderWidth: 1,
                 },
                 loading && { opacity: 0.7 },
@@ -2631,7 +2701,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
                 maxHeight: "80%",
               },
             ]}
@@ -2653,7 +2723,8 @@ export default function OnboardingScreen() {
             >
               {availableLanguages
                 .filter(
-                  (lang) => !formData.languages.find((l) => l.language === lang)
+                  (lang) =>
+                    !formData.languages.find((l) => l.language === lang),
                 )
                 .map((lang) => {
                   const isSelected = selectedLanguageForAdd === lang;
@@ -2669,18 +2740,18 @@ export default function OnboardingScreen() {
                         {
                           backgroundColor: isSelected
                             ? isDark
-                              ? "rgba(99, 102, 241, 0.2)"
-                              : "#eef2ff"
+                              ? "rgba(201, 150, 63, 0.2)"
+                              : "rgba(255,250,240,0.92)"
                             : isDark
-                              ? "rgba(255,255,255,0.08)"
-                              : "#f8fafc",
+                              ? "rgba(255,250,240,0.10)"
+                              : "#FFF8F0",
                           borderColor: isSelected
                             ? isDark
-                              ? "#6366f1"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#e2e8f0",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#F0E8D5",
                           borderWidth: 1.5,
                           marginBottom: 8,
                         },
@@ -2692,8 +2763,8 @@ export default function OnboardingScreen() {
                           {
                             color: isSelected
                               ? isDark
-                                ? "#a5b4fc"
-                                : "#6366f1"
+                                ? "#E8B86D"
+                                : "#C9963F"
                               : colors.text,
                             fontWeight: isSelected ? "600" : "500",
                           },
@@ -2705,7 +2776,7 @@ export default function OnboardingScreen() {
                         <Feather
                           name="check"
                           size={18}
-                          color={isDark ? "#a5b4fc" : "#6366f1"}
+                          color={isDark ? "#E8B86D" : "#B8822A"}
                         />
                       )}
                     </TouchableButton>
@@ -2733,7 +2804,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
               },
             ]}
           >
@@ -2764,18 +2835,18 @@ export default function OnboardingScreen() {
                     {
                       backgroundColor: isSelected
                         ? isDark
-                          ? "#4f46e5"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "rgba(255,255,255,0.1)"
+                          ? "rgba(201,150,63,0.12)"
                           : "#f9fafb",
                       borderColor: isSelected
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "rgba(255,255,255,0.2)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.15)"
+                          : "#E8D8B8",
                       borderWidth: 1.5,
                       marginBottom: 8,
                     },
@@ -2785,7 +2856,7 @@ export default function OnboardingScreen() {
                     style={[
                       styles.paymentTypeText,
                       {
-                        color: isSelected ? "#fff" : colors.text,
+                        color: isSelected ? "#FFFAF0" : colors.text,
                         fontWeight: isSelected ? "600" : "500",
                       },
                     ]}
@@ -2793,7 +2864,7 @@ export default function OnboardingScreen() {
                     {t(`onboarding.languageLevel.${level.toLowerCase()}`)}
                   </Text>
                   {isSelected && (
-                    <Feather name="check" size={20} color="#fff" />
+                    <Feather name="check" size={20} color="#FFFAF0" />
                   )}
                 </TouchableButton>
               );
@@ -2819,7 +2890,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
               },
             ]}
           >
@@ -2834,7 +2905,7 @@ export default function OnboardingScreen() {
             {["HOUR", "DAY", "WEEK", "MONTH", "OTHER"].map((type) => {
               const paymentType = type as RateEntry["paymentType"];
               const currentRate = formData.rates.find(
-                (r) => r.id === showPaymentTypeModal
+                (r) => r.id === showPaymentTypeModal,
               );
               const isSelected = currentRate?.paymentType === paymentType;
 
@@ -2849,25 +2920,25 @@ export default function OnboardingScreen() {
                     {
                       backgroundColor: isSelected
                         ? isDark
-                          ? "#4f46e5"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "rgba(255,255,255,0.1)"
+                          ? "rgba(201,150,63,0.12)"
                           : "#f9fafb",
                       borderColor: isSelected
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "rgba(255,255,255,0.2)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.15)"
+                          : "#E8D8B8",
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.paymentTypeText,
-                      { color: isSelected ? "#ffffff" : colors.text },
+                      { color: isSelected ? "#FFFAF0" : colors.text },
                     ]}
                   >
                     {type === "HOUR"
@@ -2881,7 +2952,7 @@ export default function OnboardingScreen() {
                             : t("onboarding.other")}
                   </Text>
                   {isSelected && (
-                    <Feather name="check" size={20} color="#ffffff" />
+                    <Feather name="check" size={20} color="#FFFAF0" />
                   )}
                 </TouchableButton>
               );
@@ -2910,7 +2981,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
               },
             ]}
           >
@@ -2934,13 +3005,13 @@ export default function OnboardingScreen() {
               style={[
                 styles.modalInput,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                  borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                 },
               ]}
               placeholder={t("onboarding.egProjectMilestone")}
-              placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+              placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
               value={otherInputValue}
               onChangeText={setOtherInputValue}
               autoFocus
@@ -2952,11 +3023,11 @@ export default function OnboardingScreen() {
                   styles.modalButtonCancel,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "#f3f4f6",
+                      ? "rgba(255,250,240,0.12)"
+                      : "#F5ECD8",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.3)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.25)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 onPress={() => {
@@ -2973,8 +3044,8 @@ export default function OnboardingScreen() {
                   styles.modalButton,
                   styles.modalButtonSave,
                   {
-                    backgroundColor: isDark ? "#6366f1" : colors.tint,
-                    borderColor: isDark ? "#6366f1" : colors.tint,
+                    backgroundColor: isDark ? "#C9963F" : colors.tint,
+                    borderColor: isDark ? "#C9963F" : colors.tint,
                   },
                 ]}
                 onPress={() => {
@@ -2982,14 +3053,14 @@ export default function OnboardingScreen() {
                     updateRateEntry(
                       showOtherInputModal,
                       "otherSpecification",
-                      otherInputValue.trim()
+                      otherInputValue.trim(),
                     );
                     setShowOtherInputModal(null);
                     setOtherInputValue("");
                   }
                 }}
               >
-                <Text style={[styles.modalButtonText, { color: "#ffffff" }]}>
+                <Text style={[styles.modalButtonText, { color: "#FFFAF0" }]}>
                   {t("common.save")}
                 </Text>
               </TouchableButton>
@@ -3015,7 +3086,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
                 maxHeight: "80%",
               },
             ]}
@@ -3035,7 +3106,7 @@ export default function OnboardingScreen() {
             >
               {availableSkills
                 .filter(
-                  (skill) => !formData.skills.find((s) => s.name === skill)
+                  (skill) => !formData.skills.find((s) => s.name === skill),
                 )
                 .map((skill) => {
                   return (
@@ -3049,11 +3120,11 @@ export default function OnboardingScreen() {
                         styles.paymentTypeOption,
                         {
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.08)"
-                            : "#f8fafc",
+                            ? "rgba(255,250,240,0.10)"
+                            : "#FFF8F0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.15)"
-                            : "#e2e8f0",
+                            ? "rgba(255,250,240,0.12)"
+                            : "#F0E8D5",
                           borderWidth: 1.5,
                           marginBottom: 8,
                         },
@@ -3073,7 +3144,7 @@ export default function OnboardingScreen() {
                       <Feather
                         name="chevron-right"
                         size={18}
-                        color={isDark ? "#94a3b8" : "#64748b"}
+                        color={isDark ? "#9A8E7A" : "#8A7B68"}
                       />
                     </TouchableButton>
                   );
@@ -3087,9 +3158,9 @@ export default function OnboardingScreen() {
                   styles.paymentTypeOption,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "#eef2ff",
-                    borderColor: isDark ? "rgba(99, 102, 241, 0.4)" : "#c7d2fe",
+                      ? "rgba(201, 150, 63, 0.15)"
+                      : "rgba(255,250,240,0.92)",
+                    borderColor: isDark ? "rgba(201, 150, 63, 0.4)" : "#D4A24E",
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                     marginTop: 8,
@@ -3099,14 +3170,14 @@ export default function OnboardingScreen() {
                 <Feather
                   name="plus"
                   size={18}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#E8B86D" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.paymentTypeText,
                     {
-                      color: isDark ? "#a5b4fc" : "#6366f1",
-                      fontWeight: "600",
+                      color: isDark ? "#E8B86D" : "#B8822A",
+                      fontWeight: "700",
                     },
                   ]}
                 >
@@ -3138,7 +3209,7 @@ export default function OnboardingScreen() {
             style={[
               styles.modalContent,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
               },
             ]}
           >
@@ -3162,13 +3233,13 @@ export default function OnboardingScreen() {
               style={[
                 styles.modalInput,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                  borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                 },
               ]}
               placeholder={t("onboarding.egWeldingLandscaping")}
-              placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+              placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
               value={customSkillInput}
               onChangeText={setCustomSkillInput}
               autoFocus
@@ -3180,11 +3251,11 @@ export default function OnboardingScreen() {
                   styles.modalButtonCancel,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "#f3f4f6",
+                      ? "rgba(255,250,240,0.12)"
+                      : "#F5ECD8",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.3)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.25)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 onPress={() => {
@@ -3201,13 +3272,13 @@ export default function OnboardingScreen() {
                   styles.modalButton,
                   styles.modalButtonSave,
                   {
-                    backgroundColor: isDark ? "#6366f1" : colors.tint,
-                    borderColor: isDark ? "#6366f1" : colors.tint,
+                    backgroundColor: isDark ? "#C9963F" : colors.tint,
+                    borderColor: isDark ? "#C9963F" : colors.tint,
                   },
                 ]}
                 onPress={handleAddCustomSkill}
               >
-                <Text style={[styles.modalButtonText, { color: "#ffffff" }]}>
+                <Text style={[styles.modalButtonText, { color: "#FFFAF0" }]}>
                   {t("common.add")}
                 </Text>
               </TouchableButton>
@@ -3228,7 +3299,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  headerTitle: { fontSize: 20, fontWeight: "bold" },
+  headerTitle: { fontSize: 20, fontWeight: "800", letterSpacing: 1.5 },
   backBtn: { padding: 4 },
   content: { padding: 16, paddingBottom: 40 },
   loadingContainer: {
@@ -3241,14 +3312,14 @@ const styles = StyleSheet.create({
   },
   introText: { fontSize: 16, marginBottom: 24, paddingHorizontal: 4 },
   section: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
   },
   label: { fontSize: 16, fontWeight: "700", marginBottom: 12 },
   inputLabel: {},
   textArea: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 14,
     borderWidth: 1.5,
     minHeight: 100,
@@ -3260,31 +3331,31 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 1.5,
   },
-  chipText: { fontWeight: "600", fontSize: 14 },
+  chipText: { fontWeight: "700", fontSize: 14 },
   submitBtn: {
     marginTop: 16,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
-  submitBtnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  submitBtnText: { color: "#FFFAF0", fontWeight: "800", fontSize: 16 },
   uploadBtn: {
     borderWidth: 2,
     borderStyle: "dashed",
-    borderRadius: 12,
+    borderRadius: 4,
     height: 80,
     alignItems: "center",
     justifyContent: "center",
   },
-  uploadText: { marginTop: 8, fontWeight: "600" },
+  uploadText: { marginTop: 8, fontWeight: "700" },
   filePreview: {
     flexDirection: "row",
     alignItems: "center",
@@ -3314,7 +3385,7 @@ const styles = StyleSheet.create({
   levelChip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -3322,7 +3393,7 @@ const styles = StyleSheet.create({
   },
   levelChipText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   skillChipContainer: {
     flexDirection: "row",
@@ -3334,14 +3405,14 @@ const styles = StyleSheet.create({
     width: 70,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
   },
   workExpCard: {
-    borderRadius: 14,
+    borderRadius: 4,
     padding: 18,
     borderWidth: 1.5,
     marginBottom: 16,
@@ -3360,7 +3431,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   certCard: {
-    borderRadius: 14,
+    borderRadius: 4,
     padding: 18,
     borderWidth: 1.5,
     marginBottom: 16,
@@ -3379,7 +3450,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   projectCard: {
-    borderRadius: 14,
+    borderRadius: 4,
     padding: 18,
     borderWidth: 1.5,
     marginBottom: 16,
@@ -3416,24 +3487,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 14,
     paddingHorizontal: 18,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     marginTop: 16,
     gap: 10,
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 14,
     borderWidth: 1.5,
     fontSize: 16,
     fontWeight: "500",
   },
   dropdownButton: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 14,
     borderWidth: 1.5,
     flexDirection: "row",
@@ -3448,7 +3519,7 @@ const styles = StyleSheet.create({
   removeButton: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -3460,7 +3531,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     marginTop: 12,
     marginBottom: 0,
@@ -3468,14 +3539,14 @@ const styles = StyleSheet.create({
   },
   addRateText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentTypeOption: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     marginBottom: 8,
   },
@@ -3502,15 +3573,15 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   modalLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   modalInput: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1,
     fontSize: 16,
@@ -3523,7 +3594,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     borderWidth: 1,
   },
@@ -3531,7 +3602,7 @@ const styles = StyleSheet.create({
   modalButtonSave: {},
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   addLanguageForm: {
     marginBottom: 16,
@@ -3542,13 +3613,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 15,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
     minHeight: 50,
   },
   addLanguageButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   languagesList: {
     marginTop: 8,
@@ -3561,7 +3632,7 @@ const styles = StyleSheet.create({
   languageListItemName: {
     fontSize: 16,
     marginBottom: 6,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   languageListItemLevel: {
     fontSize: 13,
@@ -3587,7 +3658,7 @@ const styles = StyleSheet.create({
     width: 100,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     fontSize: 14,
     fontWeight: "500",

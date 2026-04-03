@@ -18,6 +18,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailTranslationsService } from '../notifications/email-translations.service';
 import { RatingsService } from '../ratings/ratings.service';
+import { ChatService } from '../chat/chat.service';
 import { AuthorizeHoldDto } from './dto/authorize-hold.dto';
 import { CaptureBookingDto } from './dto/capture-booking.dto';
 import { randomUUID } from 'crypto';
@@ -68,6 +69,7 @@ export class PaymentsService {
     private readonly notifications: NotificationsService,
     private readonly emailTranslations: EmailTranslationsService,
     private readonly ratings: RatingsService,
+    private readonly chatService: ChatService,
   ) {
     const secret = this.config.get<string>('STRIPE_SECRET_KEY');
     this.stripeConfigured = Boolean(secret);
@@ -109,7 +111,7 @@ export class PaymentsService {
     amount?: number;
     currency?: string;
     quantity?: number;
-    mode?: 'payment' | 'subscription';
+    mode?: 'payment' | 'subscription' | 'setup';
     successUrl: string;
     cancelUrl: string;
     metadata?: Record<string, string>;
@@ -128,11 +130,23 @@ export class PaymentsService {
     } = params;
 
     try {
-      const session = await this.stripe.checkout.sessions.create({
+      const { customerId } = await this.ensureCustomer(userId);
+
+      const sessionParams: any = {
         mode: mode ?? (priceId ? 'payment' : 'payment'),
         success_url: successUrl,
         cancel_url: cancelUrl,
-        line_items: priceId
+        customer: customerId,
+        metadata: {
+          userId,
+          ...metadata,
+        },
+      };
+
+      if (mode === 'setup') {
+        sessionParams.payment_method_types = ['card'];
+      } else {
+        sessionParams.line_items = priceId
           ? [
               {
                 price: priceId,
@@ -144,18 +158,18 @@ export class PaymentsService {
                 {
                   price_data: {
                     currency,
-                    product_data: { name: metadata?.description ?? 'Payment' },
+                    product_data: {
+                      name: metadata?.description ?? 'Payment',
+                    },
                     unit_amount: amount,
                   },
                   quantity: quantity ?? 1,
                 },
               ]
-            : undefined,
-        metadata: {
-          userId,
-          ...metadata,
-        },
-      });
+            : undefined;
+      }
+
+      const session = await this.stripe.checkout.sessions.create(sessionParams);
 
       await this.prisma.payment.create({
         data: {
@@ -184,6 +198,7 @@ export class PaymentsService {
     currency: string;
     metadata?: Record<string, string>;
     applicationId?: string;
+    platform?: string;
   }) {
     try {
       // Check if payment already exists for this application
@@ -291,6 +306,44 @@ export class PaymentsService {
         `Creating payment intent with idempotency key: ${idempotencyKey.substring(0, 30)}...`,
       );
 
+      // For web platform, find the customer's default payment method to auto-confirm
+      let defaultPaymentMethodId: string | null = null;
+      if (params.platform === 'web') {
+        const customer = await this.stripe.customers.retrieve(customerId);
+        if (
+          typeof customer === 'object' &&
+          !customer.deleted &&
+          'invoice_settings' in customer
+        ) {
+          const defaultPm = customer.invoice_settings?.default_payment_method;
+          if (typeof defaultPm === 'string') {
+            defaultPaymentMethodId = defaultPm;
+          } else if (
+            defaultPm &&
+            typeof defaultPm === 'object' &&
+            'id' in defaultPm
+          ) {
+            defaultPaymentMethodId = defaultPm.id;
+          }
+        }
+        // If no default, try to get the first available card
+        if (!defaultPaymentMethodId) {
+          const methods = await this.stripe.paymentMethods.list({
+            customer: customerId,
+            type: 'card',
+            limit: 1,
+          });
+          if (methods.data.length > 0) {
+            defaultPaymentMethodId = methods.data[0].id;
+          }
+        }
+        if (!defaultPaymentMethodId) {
+          throw new BadRequestException(
+            'No payment method found. Please add a payment method before making a payment.',
+          );
+        }
+      }
+
       const pi = await this.stripe.paymentIntents.create(
         {
           amount: params.amount,
@@ -312,6 +365,14 @@ export class PaymentsService {
             params.metadata?.type === 'application_payment'
               ? 'automatic'
               : 'manual',
+          // For web: auto-confirm with saved payment method
+          ...(defaultPaymentMethodId && {
+            payment_method: defaultPaymentMethodId,
+            confirm: true,
+            return_url:
+              (this.config.get<string>('CLIENT_BASE_URL') ||
+                'https://nasta.app') + '/dashboard/employer/applications',
+          }),
         },
         {
           idempotencyKey,
@@ -531,6 +592,8 @@ export class PaymentsService {
       paymentType: string;
       otherSpecification?: string;
     }>;
+    platform?: string;
+    clientOrigin?: string;
   }) {
     // PaymentSheet saved-payment-methods support:
     // Provide customer + ephemeral key so the mobile PaymentSheet can display existing cards.
@@ -605,11 +668,110 @@ export class PaymentsService {
     // Stripe fees are ~2.9% + $0.30 (calculated at capture time)
     // For now, we hold the full amount and calculate fees at payout
 
+    // For web platform, use Stripe Checkout Session (redirect to Stripe hosted page)
+    if (params.platform === 'web') {
+      const clientBaseUrl =
+        params.clientOrigin ||
+        this.config.get<string>('CLIENT_BASE_URL') ||
+        'https://nasta.app';
+      const successUrl = `${clientBaseUrl}/dashboard/employer/applications/${params.applicationId}?payment=success`;
+      const cancelUrl = `${clientBaseUrl}/dashboard/employer/applications/${params.applicationId}?payment=cancelled`;
+
+      const metadata: Record<string, string> = {
+        applicationId: params.applicationId,
+        type: 'application_payment',
+        userId: params.employerId,
+        platformFeePercent: platformFeePercent.toString(),
+        isAdditionalPayment: isAdditionalPayment ? 'true' : 'false',
+      };
+      if (params.selectedRates) {
+        metadata.selectedRates = JSON.stringify(params.selectedRates);
+      }
+      if (paidNegotiations.length > 0) {
+        metadata.paidNegotiations = JSON.stringify(paidNegotiations);
+      }
+      if (isAdditionalPayment && application?.payment?.amount) {
+        metadata.originalAmount = application.payment.amount.toString();
+      }
+
+      const session = await this.stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer: customerId,
+        customer_update: { name: 'auto', address: 'auto' },
+        saved_payment_method_options: {
+          payment_method_save: 'enabled',
+          allow_redisplay_filters: ['always', 'limited'],
+        },
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        line_items: [
+          {
+            price_data: {
+              currency: params.currency,
+              product_data: {
+                name: 'Service Payment',
+                description: `Application payment${isAdditionalPayment ? ' (additional)' : ''}`,
+              },
+              unit_amount: totalAmount,
+            },
+            quantity: 1,
+          },
+        ],
+        payment_intent_data: {
+          setup_future_usage: 'off_session',
+          metadata,
+        },
+        metadata,
+      });
+
+      // Create or update payment record
+      let payment;
+      if (isAdditionalPayment && application?.payment) {
+        payment = await this.prisma.payment.update({
+          where: { id: application.payment.id },
+          data: {
+            stripeSessionId: session.id,
+            status: PaymentStatusDb.CREATED,
+            metadata,
+          },
+        });
+      } else {
+        payment = await this.prisma.payment.create({
+          data: {
+            userId: params.employerId,
+            type: StripePaymentType.CHECKOUT_SESSION,
+            status: PaymentStatusDb.CREATED,
+            amount: totalAmount,
+            currency: params.currency,
+            stripeSessionId: session.id,
+            metadata,
+          },
+        });
+        await this.prisma.application.update({
+          where: { id: params.applicationId },
+          data: { paymentId: payment.id },
+        });
+      }
+
+      return {
+        checkoutUrl: session.url,
+        sessionId: session.id,
+        amount: totalAmount,
+        currency: params.currency,
+        platformFee,
+        paymentId: payment.id,
+        customer: customerId,
+        ephemeralKey,
+      };
+    }
+
+    // For mobile / other platforms, use PaymentIntent with auto-confirm
     const paymentIntent = await this.createPaymentIntent({
       userId: params.employerId,
       amount: totalAmount,
       currency: params.currency,
       applicationId: params.applicationId,
+      platform: params.platform,
       metadata: {
         applicationId: params.applicationId,
         type: 'application_payment',
@@ -639,6 +801,8 @@ export class PaymentsService {
       paymentId: paymentIntent.payment.id,
       customer: customerId,
       ephemeralKey,
+      status: paymentIntent.paymentIntent.status,
+      nextAction: paymentIntent.paymentIntent.next_action ?? null,
     };
   }
 
@@ -1312,17 +1476,49 @@ export class PaymentsService {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        // session.amount_total is already in cents, store as-is
+        const meta = session.metadata ?? {};
+        const receivedAmount = session.amount_total
+          ? Math.round(session.amount_total)
+          : undefined;
+
+        const isAdditional = meta['isAdditionalPayment'] === 'true';
+
+        const payment = await this.prisma.payment.findFirst({
+          where: { stripeSessionId: session.id },
+        });
+
+        let paidAmount = receivedAmount;
+        if (isAdditional && payment && receivedAmount !== undefined) {
+          const originalAmount =
+            Number.parseInt(meta['originalAmount'] || '0', 10) ||
+            payment.amount ||
+            0;
+          paidAmount = Math.max(0, originalAmount + receivedAmount);
+        }
+
+        // Store the underlying PaymentIntent ID so the payment record
+        // is linked to the Stripe payment method / charge.
+        const piId =
+          typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : (session.payment_intent?.id ?? undefined);
+
         await this.prisma.payment.updateMany({
           where: { stripeSessionId: session.id },
           data: {
             status: PaymentStatusDb.SUCCEEDED,
-            amount: session.amount_total
-              ? Math.round(session.amount_total)
-              : undefined, // Store in cents (Int)
+            amount: paidAmount, // Store in cents (Int)
             currency: session.currency ?? undefined,
+            ...(piId ? { stripePaymentIntentId: piId } : {}),
           },
         });
+
+        const applicationId = meta['applicationId'];
+        if (applicationId) {
+          this.logger.log(
+            `💰 Checkout session completed for application ${applicationId}. Amount: ${paidAmount} cents, PI: ${piId}`,
+          );
+        }
         break;
       }
       case 'payment_intent.succeeded': {
@@ -1671,7 +1867,7 @@ export class PaymentsService {
 
     // Always update the account with latest profile information when checking status
     // This ensures any new profile updates are synced to Stripe
-    console.log(
+    this.logger.log(
       '[PaymentsService] getConnectAccountStatus - Syncing profile information to Stripe:',
       {
         userId,
@@ -1738,7 +1934,7 @@ export class PaymentsService {
     const disabledReason = account.requirements?.disabled_reason;
 
     // Log account status for debugging
-    console.log('[PaymentsService] Account status check:', {
+    this.logger.log('[PaymentsService] Account status check:', {
       accountId: account.id.substring(0, 12) + '...',
       payoutsEnabled: account.payouts_enabled,
       chargesEnabled: account.charges_enabled,
@@ -1802,7 +1998,7 @@ export class PaymentsService {
         if (/^[A-Z]{2}$/.test(userCountryUpper)) {
           accountCountry = userCountryUpper;
         } else {
-          console.warn(
+          this.logger.warn(
             `[PaymentsService] User country "${user.country}" is not a 2-letter code, defaulting to PT`,
           );
           accountCountry = 'PT';
@@ -1816,7 +2012,7 @@ export class PaymentsService {
         }
       }
 
-      console.log(
+      this.logger.log(
         '[PaymentsService] Creating Connect account with country:',
         accountCountry,
       );
@@ -1899,7 +2095,7 @@ export class PaymentsService {
         // Set minimal business_profile values for individual accounts to prevent Stripe requirements
         // Using placeholder values that don't require actual business information
         business_profile: {
-          url: 'https://cumprido.com', // Placeholder website - using platform URL
+          url: 'https://nasta.app', // Placeholder website - using platform URL
           mcc: '7372', // Generic MCC code for "Programming Services" - appropriate for service providers
         },
         // Accept TOS on behalf of the user (required for Connect accounts)
@@ -1913,7 +2109,7 @@ export class PaymentsService {
         data: { connectedAccountId: acct.id },
       });
 
-      console.log(
+      this.logger.log(
         '[PaymentsService] ✅ Stripe Connect account created:',
         acct.id,
       );
@@ -2044,11 +2240,11 @@ export class PaymentsService {
         // Always set business_profile for individual accounts to prevent future requirements
         // Use minimal placeholder values that don't require actual business information
         updateData.business_profile = {
-          url: 'https://cumprido.com', // Placeholder website - using platform URL
+          url: 'https://nasta.app', // Placeholder website - using platform URL
           mcc: '7372', // Generic MCC code for "Programming Services" - appropriate for service providers
         };
         needsUpdate = true;
-        console.log(
+        this.logger.log(
           '[PaymentsService] Setting minimal business_profile values for all individual accounts to prevent Stripe requirements',
         );
       }
@@ -2062,7 +2258,7 @@ export class PaymentsService {
       needsUpdate = true;
 
       if (needsUpdate) {
-        console.log(
+        this.logger.log(
           '[PaymentsService] Updating Connect account with profile information:',
           {
             accountId: accountId.substring(0, 12) + '...',
@@ -2086,7 +2282,7 @@ export class PaymentsService {
         );
 
         await this.stripe.accounts.update(accountId, updateData);
-        console.log(
+        this.logger.log(
           '[PaymentsService] ✅ Updated Connect account with all available profile information:',
           accountId,
         );
@@ -2095,7 +2291,7 @@ export class PaymentsService {
         const updatedAccount = await this.stripe.accounts.retrieve(accountId);
         const remainingRequirements =
           updatedAccount.requirements?.currently_due || [];
-        console.log(
+        this.logger.log(
           '[PaymentsService] Remaining verification requirements after update:',
           {
             count: remainingRequirements.length,
@@ -2123,7 +2319,7 @@ export class PaymentsService {
           updatedAccount.requirements?.disabled_reason === 'listed'
         ) {
           try {
-            console.log(
+            this.logger.log(
               '[PaymentsService] All requirements met but payouts disabled. Requesting account review...',
             );
             // Request a review - this tells Stripe the account is ready for verification
@@ -2133,11 +2329,11 @@ export class PaymentsService {
                 ip: clientIp || '0.0.0.0',
               },
             });
-            console.log(
+            this.logger.log(
               '[PaymentsService] ✅ Account review requested. Stripe will process the account shortly.',
             );
           } catch (reviewError: any) {
-            console.warn(
+            this.logger.warn(
               '[PaymentsService] Could not request account review:',
               reviewError?.message,
             );
@@ -2146,11 +2342,11 @@ export class PaymentsService {
         }
       }
     } catch (error: any) {
-      console.error(
+      this.logger.error(
         '[PaymentsService] Error updating Connect account:',
         error?.message,
       );
-      console.error('[PaymentsService] Error details:', {
+      this.logger.error('[PaymentsService] Error details:', {
         type: error?.type,
         code: error?.code,
         param: error?.param,
@@ -2213,7 +2409,7 @@ export class PaymentsService {
 
     try {
       // Validate country code - must be exactly 2 uppercase letters
-      console.log(
+      this.logger.log(
         '[PaymentsService] updateBankAccount - Received country:',
         bankDetails.country,
         'Type:',
@@ -2227,7 +2423,7 @@ export class PaymentsService {
       }
 
       const countryCode = bankDetails.country.trim().toUpperCase();
-      console.log(
+      this.logger.log(
         '[PaymentsService] updateBankAccount - Normalized country:',
         countryCode,
         'Length:',
@@ -2235,7 +2431,7 @@ export class PaymentsService {
       );
 
       if (countryCode.length !== 2 || !/^[A-Z]{2}$/.test(countryCode)) {
-        console.error(
+        this.logger.error(
           '[PaymentsService] Invalid country code format:',
           countryCode,
         );
@@ -2259,7 +2455,7 @@ export class PaymentsService {
         externalAccountData.country !== countryCode ||
         !/^[A-Z]{2}$/.test(externalAccountData.country)
       ) {
-        console.error(
+        this.logger.error(
           '[PaymentsService] CRITICAL ERROR: Country mismatch in externalAccountData!',
           {
             expected: countryCode,
@@ -2277,7 +2473,7 @@ export class PaymentsService {
       // The IBAN itself is used as the account_number for European bank accounts
       if (bankDetails.iban) {
         const cleanedIban = bankDetails.iban.replace(/\s/g, '').toUpperCase(); // Remove spaces and uppercase
-        console.log('[PaymentsService] IBAN processing:', {
+        this.logger.log('[PaymentsService] IBAN processing:', {
           original: bankDetails.iban,
           cleaned: cleanedIban,
           length: cleanedIban.length,
@@ -2318,7 +2514,7 @@ export class PaymentsService {
       }
 
       // Log exactly what we're sending to Stripe
-      console.log(
+      this.logger.log(
         '[PaymentsService] Sending to Stripe createExternalAccount:',
         {
           accountId,
@@ -2340,7 +2536,7 @@ export class PaymentsService {
         !externalAccountData.country ||
         !/^[A-Z]{2}$/.test(externalAccountData.country)
       ) {
-        console.error(
+        this.logger.error(
           '[PaymentsService] CRITICAL: Invalid country code before Stripe call:',
           externalAccountData.country,
         );
@@ -2356,7 +2552,7 @@ export class PaymentsService {
         // For European IBAN accounts in Stripe Connect Custom accounts:
         // - Use account_number field with the IBAN value
         // - Stripe will automatically create the bank account in the Connect account
-        console.log(
+        this.logger.log(
           '[PaymentsService] Creating external account (AUTOMATIC - no manual setup needed):',
           {
             accountId: accountId.substring(0, 12) + '...',
@@ -2373,7 +2569,7 @@ export class PaymentsService {
           },
         );
 
-        console.log(
+        this.logger.log(
           '[PaymentsService] ✅ Bank account AUTOMATICALLY created in Stripe:',
           {
             externalAccountId: externalAccount.id,
@@ -2397,7 +2593,7 @@ export class PaymentsService {
               accountId,
               externalAccount.id,
             );
-          console.log(
+          this.logger.log(
             '[PaymentsService] ✅ Verified bank account exists in Stripe:',
             {
               id: verifyAccount.id,
@@ -2413,13 +2609,13 @@ export class PaymentsService {
             },
           );
         } catch (verifyError: any) {
-          console.error(
+          this.logger.error(
             '[PaymentsService] ⚠️ WARNING: Could not verify bank account after creation:',
             verifyError?.message,
           );
         }
       } catch (stripeError: any) {
-        console.error('[PaymentsService] Stripe error details:', {
+        this.logger.error('[PaymentsService] Stripe error details:', {
           type: stripeError?.type,
           message: stripeError?.message,
           code: stripeError?.code,
@@ -2448,12 +2644,12 @@ export class PaymentsService {
             default_for_currency: true,
           },
         );
-        console.log(
+        this.logger.log(
           '[PaymentsService] ✅ Set bank account as default for currency:',
           bankDetails.currency,
         );
       } catch (defaultError: any) {
-        console.warn(
+        this.logger.warn(
           '[PaymentsService] Could not set bank account as default:',
           defaultError?.message,
         );
@@ -2477,7 +2673,7 @@ export class PaymentsService {
         );
         if (foundAccount) {
           const isBankAccount = foundAccount.object === 'bank_account';
-          console.log(
+          this.logger.log(
             '[PaymentsService] ✅ Verified bank account is visible in Stripe external accounts list:',
             {
               id: foundAccount.id,
@@ -2491,12 +2687,12 @@ export class PaymentsService {
             },
           );
         } else {
-          console.error(
+          this.logger.error(
             '[PaymentsService] ⚠️ WARNING: Bank account was created but not found in external accounts list!',
           );
         }
       } catch (verifyError: any) {
-        console.error(
+        this.logger.error(
           '[PaymentsService] ⚠️ WARNING: Could not verify bank account in list:',
           verifyError?.message,
         );
@@ -2558,7 +2754,7 @@ export class PaymentsService {
           error.message ||
           'Failed to add bank account. Please check your details and try again.';
 
-        console.error('[PaymentsService] Stripe validation error:', {
+        this.logger.error('[PaymentsService] Stripe validation error:', {
           message: error.message,
           code: error.code,
           param: error.param,
@@ -3038,6 +3234,15 @@ export class PaymentsService {
         data: { status: 'COMPLETED' },
       });
 
+      // Lock chat conversations for completed job
+      try {
+        await this.chatService.lockConversationsByJobId(application.job.id);
+      } catch (chatErr) {
+        this.logger.warn(
+          `[Chat] Failed to lock conversations for platform-revenue job ${application.job.id}: ${chatErr}`,
+        );
+      }
+
       // Employer receipt is still crucial even in platform-revenue cases.
       try {
         const employer = await this.prisma.user.findUnique({
@@ -3136,7 +3341,7 @@ export class PaymentsService {
           code?: string;
           payment_intent?: { status?: string };
         };
-        console.error('[PaymentsService] Error capturing payment:', {
+        this.logger.error('[PaymentsService] Error capturing payment:', {
           code: stripeError?.code,
           message: stripeError?.message,
           type: stripeError?.type,
@@ -3377,7 +3582,7 @@ export class PaymentsService {
           serviceProviderAmount,
           serviceProviderId: application.applicant.id,
         });
-        console.error('[PaymentsService] Full transfer error:', error);
+        this.logger.error('[PaymentsService] Full transfer error:', error);
         this.logger.warn(
           `⚠️ Failed to transfer funds to service provider: ${error?.message || 'Unknown error'}. Payment was captured but transfer needs to be created manually.`,
         );
@@ -3443,6 +3648,20 @@ export class PaymentsService {
       this.logger.log(
         `[Job Status] Job ${application.job.id} has been set to COMPLETED`,
       );
+
+      // Lock all chat conversations for this job to prevent off-platform deals
+      try {
+        const lockedCount = await this.chatService.lockConversationsByJobId(
+          application.job.id,
+        );
+        this.logger.log(
+          `[Chat] Locked ${lockedCount} conversation(s) for completed job ${application.job.id}`,
+        );
+      } catch (chatErr) {
+        this.logger.warn(
+          `[Chat] Failed to lock conversations for job ${application.job.id}: ${chatErr}`,
+        );
+      }
     } catch (err) {
       this.logger.warn(
         `[Job Status] Failed to update job status to COMPLETED: ${err}`,
@@ -3787,13 +4006,13 @@ export class PaymentsService {
     };
 
     let content = `
-      <div style="background-color: #d1fae5; padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #10b981;">
-        <p style="margin: 0; color: #065f46; font-weight: 600; font-size: 16px;">
+      <div style="background-color: rgba(16, 185, 129, 0.12); padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #10b981;">
+        <p style="margin: 0; color: #34d399; font-weight: 600; font-size: 16px;">
           ${t('email.payments.jobCompletedSuccessfullyMessage', { jobTitle })}
         </p>
       </div>
       
-      <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+      <p style="margin: 0 0 20px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
         ${t('email.payments.jobCompletedPaymentInfo', {
           amount: amount.toFixed(2),
           currency,
@@ -3805,8 +4024,8 @@ export class PaymentsService {
     // Add ratings section if ratings exist
     if (recipientRating || otherPartyRating) {
       content += `
-        <div style="margin: 32px 0; padding: 24px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-          <h3 style="margin: 0 0 20px; color: #1f2937; font-size: 18px; font-weight: 600;">
+        <div style="margin: 32px 0; padding: 24px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+          <h3 style="margin: 0 0 20px; color: #F5E6C8; font-size: 18px; font-weight: 600;">
             ${t('email.payments.ratingsSection')}
           </h3>
       `;
@@ -3814,34 +4033,34 @@ export class PaymentsService {
       // Show recipient's rating if they rated
       if (recipientRating) {
         content += `
-          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
-            <p style="margin: 0 0 8px; color: #374151; font-size: 14px; font-weight: 600;">
+          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #1E3048;">
+            <p style="margin: 0 0 8px; color: #D4A853; font-size: 14px; font-weight: 600;">
               ${t('email.payments.yourRatings')}
             </p>
             ${
               isEmployer
                 ? `
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.platformRating')}:</strong> ${renderStars(recipientRating.platformRating)}
               </p>
               ${
                 recipientRating.easeOfServiceRating
                   ? `
-                <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+                <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                   <strong>${t('email.payments.easeOfServiceRating')}:</strong> ${renderStars(recipientRating.easeOfServiceRating)}
                 </p>
               `
                   : ''
               }
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.serviceProviderRating')}:</strong> ${renderStars(recipientRating.otherPartyRating)}
               </p>
             `
                 : `
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.platformRating')}:</strong> ${renderStars(recipientRating.platformRating)}
               </p>
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.employerRating')}:</strong> ${renderStars(recipientRating.otherPartyRating)}
               </p>
             `
@@ -3854,33 +4073,33 @@ export class PaymentsService {
       if (otherPartyRating) {
         content += `
           <div>
-            <p style="margin: 0 0 8px; color: #374151; font-size: 14px; font-weight: 600;">
+            <p style="margin: 0 0 8px; color: #D4A853; font-size: 14px; font-weight: 600;">
               ${t('email.payments.otherPartyRatings', { name: otherPartyName })}
             </p>
             ${
               !isEmployer
                 ? `
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.platformRating')}:</strong> ${renderStars(otherPartyRating.platformRating)}
               </p>
               ${
                 otherPartyRating.easeOfServiceRating
                   ? `
-                <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+                <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                   <strong>${t('email.payments.easeOfServiceRating')}:</strong> ${renderStars(otherPartyRating.easeOfServiceRating)}
                 </p>
               `
                   : ''
               }
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.serviceProviderRating')}:</strong> ${renderStars(otherPartyRating.otherPartyRating)}
               </p>
             `
                 : `
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.platformRating')}:</strong> ${renderStars(otherPartyRating.platformRating)}
               </p>
-              <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
+              <p style="margin: 4px 0; color: #8B7A5E; font-size: 14px;">
                 <strong>${t('email.payments.employerRating')}:</strong> ${renderStars(otherPartyRating.otherPartyRating)}
               </p>
             `
@@ -3889,7 +4108,7 @@ export class PaymentsService {
         `;
       } else {
         content += `
-          <p style="margin: 0; color: #6b7280; font-size: 14px;">
+          <p style="margin: 0; color: #8B7A5E; font-size: 14px;">
             ${t('email.payments.otherPartyNotRatedYet', { name: otherPartyName })}
           </p>
         `;
@@ -3899,11 +4118,11 @@ export class PaymentsService {
     } else {
       // No ratings yet - encourage rating
       content += `
-        <div style="margin: 32px 0; padding: 24px; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0 0 12px; color: #92400e; font-size: 14px; font-weight: 600;">
+        <div style="margin: 32px 0; padding: 24px; background-color: rgba(245, 158, 11, 0.12); border-radius: 8px; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0 0 12px; color: #fbbf24; font-size: 14px; font-weight: 600;">
             ${t('email.payments.rateYourExperience')}
           </p>
-          <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.6;">
+          <p style="margin: 0; color: #D4A853; font-size: 14px; line-height: 1.6;">
             ${t('email.payments.rateYourExperienceMessage')}
           </p>
         </div>
@@ -4414,10 +4633,10 @@ export class PaymentsService {
         bankAccountId,
       );
 
-      console.log('[PaymentsService] ✅ Bank account deleted:', bankAccountId);
+      this.logger.log('[PaymentsService] ✅ Bank account deleted:', bankAccountId);
       return { success: true, message: 'Bank account deleted successfully' };
     } catch (error: any) {
-      console.error(
+      this.logger.error(
         '[PaymentsService] Error deleting bank account:',
         error?.message,
       );
@@ -4466,7 +4685,7 @@ export class PaymentsService {
         },
       );
 
-      console.log(
+      this.logger.log(
         '[PaymentsService] ✅ Bank account set as default:',
         bankAccountId,
       );
@@ -4475,7 +4694,7 @@ export class PaymentsService {
         message: 'Default bank account updated successfully',
       };
     } catch (error: any) {
-      console.error(
+      this.logger.error(
         '[PaymentsService] Error setting default bank account:',
         error?.message,
       );
@@ -5888,58 +6107,58 @@ export class PaymentsService {
       `${currencySymbol}${amount.toFixed(2)}`;
 
     return `
-      <div style="background-color: #ffffff; padding: 32px; border-radius: 8px; border: 1px solid #e5e7eb;">
+      <div style="background-color: #0D1A30; padding: 32px; border-radius: 8px; border: 1px solid #1E3048;">
         <!-- Receipt Header -->
-        <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #6366f1;">
-          <h2 style="margin: 0 0 8px; color: #1f2937; font-size: 24px; font-weight: 700;">${t('email.receipts.receipt')}</h2>
-          <p style="margin: 0; color: #6b7280; font-size: 14px; font-weight: 600;">${receiptNumber}</p>
+        <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #C9963F;">
+          <h2 style="margin: 0 0 8px; color: #F5E6C8; font-size: 24px; font-weight: 700;">${t('email.receipts.receipt')}</h2>
+          <p style="margin: 0; color: #8B7A5E; font-size: 14px; font-weight: 600;">${receiptNumber}</p>
         </div>
 
         <!-- Service Details -->
         <div style="margin-bottom: 32px;">
-          <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.receipts.serviceDetails')}</h3>
-          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+          <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.receipts.serviceDetails')}</h3>
+          <div style="background-color: #0E1B32; padding: 20px; border-radius: 8px;">
             <div style="margin-bottom: 12px;">
-              <p style="margin: 0 0 4px; color: #6b7280; font-size: 14px; font-weight: 500;">${t('email.receipts.service')}</p>
-              <p style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">${jobTitle}</p>
+              <p style="margin: 0 0 4px; color: #8B7A5E; font-size: 14px; font-weight: 500;">${t('email.receipts.service')}</p>
+              <p style="margin: 0; color: #F5E6C8; font-size: 16px; font-weight: 600;">${jobTitle}</p>
             </div>
             <div style="margin-bottom: 12px;">
-              <p style="margin: 0 0 4px; color: #6b7280; font-size: 14px; font-weight: 500;">${isServiceProvider ? t('email.common.employer') : t('email.common.serviceProvider')}</p>
-              <p style="margin: 0; color: #1f2937; font-size: 16px;">${otherPartyName}</p>
+              <p style="margin: 0 0 4px; color: #8B7A5E; font-size: 14px; font-weight: 500;">${isServiceProvider ? t('email.common.employer') : t('email.common.serviceProvider')}</p>
+              <p style="margin: 0; color: #F5E6C8; font-size: 16px;">${otherPartyName}</p>
             </div>
             <div style="margin-bottom: 12px;">
-              <p style="margin: 0 0 4px; color: #6b7280; font-size: 14px; font-weight: 500;">${t('email.receipts.serviceDate')}</p>
-              <p style="margin: 0; color: #1f2937; font-size: 16px;">${serviceDate}</p>
+              <p style="margin: 0 0 4px; color: #8B7A5E; font-size: 14px; font-weight: 500;">${t('email.receipts.serviceDate')}</p>
+              <p style="margin: 0; color: #F5E6C8; font-size: 16px;">${serviceDate}</p>
             </div>
             <div>
-              <p style="margin: 0 0 4px; color: #6b7280; font-size: 14px; font-weight: 500;">${t('email.receipts.paymentDate')}</p>
-              <p style="margin: 0; color: #1f2937; font-size: 16px;">${paymentDate}</p>
+              <p style="margin: 0 0 4px; color: #8B7A5E; font-size: 14px; font-weight: 500;">${t('email.receipts.paymentDate')}</p>
+              <p style="margin: 0; color: #F5E6C8; font-size: 16px;">${paymentDate}</p>
             </div>
           </div>
         </div>
 
         <!-- Payment Breakdown -->
         <div style="margin-bottom: 32px;">
-          <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.receipts.paymentBreakdown')}</h3>
-          <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.receipts.paymentBreakdown')}</h3>
+          <div style="border: 1px solid #1E3048; border-radius: 8px; overflow: hidden;">
             <table style="width: 100%; border-collapse: collapse;">
-              <tr style="background-color: #f9fafb;">
-                <td style="padding: 16px; color: #4b5563; font-size: 15px; border-bottom: 1px solid #e5e7eb;">${t('email.receipts.subtotal')}</td>
-                <td style="padding: 16px; text-align: right; color: #1f2937; font-size: 15px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${formatAmount(subtotal)}</td>
+              <tr style="background-color: #0E1B32;">
+                <td style="padding: 16px; color: #B8A88A; font-size: 15px; border-bottom: 1px solid #1E3048;">${t('email.receipts.subtotal')}</td>
+                <td style="padding: 16px; text-align: right; color: #F5E6C8; font-size: 15px; font-weight: 600; border-bottom: 1px solid #1E3048;">${formatAmount(subtotal)}</td>
               </tr>
               ${
                 platformFee > 0 && !isServiceProvider
                   ? `
               <tr>
-                <td style="padding: 16px; color: #4b5563; font-size: 15px; border-bottom: 1px solid #e5e7eb;">${t('email.receipts.platformFee', { percentage: String(this.getPlatformFeePercent()) })}</td>
-                <td style="padding: 16px; text-align: right; color: #1f2937; font-size: 15px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${formatAmount(platformFee)}</td>
+                <td style="padding: 16px; color: #B8A88A; font-size: 15px; border-bottom: 1px solid #1E3048;">${t('email.receipts.platformFee', { percentage: String(this.getPlatformFeePercent()) })}</td>
+                <td style="padding: 16px; text-align: right; color: #F5E6C8; font-size: 15px; font-weight: 600; border-bottom: 1px solid #1E3048;">${formatAmount(platformFee)}</td>
               </tr>
               `
                   : ''
               }
-              <tr style="background-color: #f0fdf4; border-top: 2px solid #22c55e;">
-                <td style="padding: 16px; color: #1f2937; font-size: 18px; font-weight: 700;">${t('email.receipts.total')}</td>
-                <td style="padding: 16px; text-align: right; color: #1f2937; font-size: 18px; font-weight: 700;">${formatAmount(total)}</td>
+              <tr style="background-color: rgba(16, 185, 129, 0.08); border-top: 2px solid #10b981;">
+                <td style="padding: 16px; color: #F5E6C8; font-size: 18px; font-weight: 700;">${t('email.receipts.total')}</td>
+                <td style="padding: 16px; text-align: right; color: #F5E6C8; font-size: 18px; font-weight: 700;">${formatAmount(total)}</td>
               </tr>
             </table>
           </div>
@@ -5949,12 +6168,12 @@ export class PaymentsService {
           isServiceProvider && transferId
             ? `
         <!-- Payout Information -->
-        <div style="margin-bottom: 32px; padding: 20px; background-color: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
-          <p style="margin: 0 0 8px; color: #1e40af; font-size: 14px; font-weight: 600;">${t('email.receipts.payoutInformation')}</p>
-          <p style="margin: 0; color: #1e3a8a; font-size: 14px; line-height: 1.6;">
+        <div style="margin-bottom: 32px; padding: 20px; background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; border-left: 4px solid #60a5fa;">
+          <p style="margin: 0 0 8px; color: #60a5fa; font-size: 14px; font-weight: 600;">${t('email.receipts.payoutInformation')}</p>
+          <p style="margin: 0; color: #93c5fd; font-size: 14px; line-height: 1.6;">
             ${t('email.receipts.payoutMessage', { amount: formatAmount(total), transferId })}
           </p>
-          <p style="margin: 8px 0 0; color: #1e3a8a; font-size: 13px; line-height: 1.6;">
+          <p style="margin: 8px 0 0; color: #93c5fd; font-size: 13px; line-height: 1.6;">
             ${t('email.receipts.payoutTimeline')}
           </p>
         </div>
@@ -5963,8 +6182,8 @@ export class PaymentsService {
         }
 
         <!-- Footer Note -->
-        <div style="padding: 20px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-          <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+        <div style="padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+          <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
             ${t('email.receipts.footerNote')}
           </p>
         </div>

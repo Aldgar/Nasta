@@ -44,7 +44,7 @@ export default function ServiceProviderRatingScreen() {
       <Feather
         name="star"
         size={36}
-        color={filled ? "#fbbf24" : isDark ? "#4b5563" : "#d1d5db"}
+        color={filled ? "#fbbf24" : isDark ? "#6B6355" : "#D4C0A0"}
         style={{ marginHorizontal: 4 }}
       />
     </TouchableOpacity>
@@ -125,7 +125,7 @@ export default function ServiceProviderRatingScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               {t("ratings.ratePlatform")}
             </Text>
-            <Text style={[styles.sectionSubtitle, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+            <Text style={[styles.sectionSubtitle, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
               {t("ratings.howWasPlatformExperience")}
             </Text>
             <View style={styles.starsContainer}>
@@ -142,13 +142,13 @@ export default function ServiceProviderRatingScreen() {
               style={[
                 styles.commentInput,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#fff",
+                  backgroundColor: isDark ? "rgba(255,250,240,0.06)" : "#FFFAF0",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                 },
               ]}
               placeholder={t("ratings.optionalComment")}
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#9A8E7A"
               multiline
               numberOfLines={3}
               value={platformComment}
@@ -161,7 +161,7 @@ export default function ServiceProviderRatingScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               {t("ratings.rateEmployer")}
             </Text>
-            <Text style={[styles.sectionSubtitle, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+            <Text style={[styles.sectionSubtitle, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
               {t("ratings.howWasEmployer", { name: employerName || t("auth.employer") })}
             </Text>
             <View style={styles.starsContainer}>
@@ -178,13 +178,13 @@ export default function ServiceProviderRatingScreen() {
               style={[
                 styles.commentInput,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#fff",
+                  backgroundColor: isDark ? "rgba(255,250,240,0.06)" : "#FFFAF0",
                   color: colors.text,
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8",
                 },
               ]}
               placeholder={t("ratings.optionalComment")}
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#9A8E7A"
               multiline
               numberOfLines={3}
               value={employerComment}
@@ -196,7 +196,7 @@ export default function ServiceProviderRatingScreen() {
             style={[
               styles.submitBtn,
               {
-                backgroundColor: isDark ? "#6366f1" : "#4f46e5",
+                backgroundColor: isDark ? "#38BDF8" : "#0284C7",
                 opacity: submitting ? 0.7 : 1,
               },
             ]}
@@ -204,7 +204,7 @@ export default function ServiceProviderRatingScreen() {
             disabled={submitting}
           >
             {submitting ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#FFFAF0" />
             ) : (
               <Text style={styles.submitBtnText}>{t("ratings.submitRating")}</Text>
             )}
@@ -224,14 +224,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  headerTitle: { fontSize: 18, fontWeight: "bold" },
+  headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: 1.5 },
   backBtn: { padding: 4 },
   content: { padding: 24 },
   ratingSection: {
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 18, letterSpacing: 1.2, textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 8,
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   commentInput: {
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     padding: 12,
     minHeight: 80,
@@ -255,18 +255,18 @@ const styles = StyleSheet.create({
   submitBtn: {
     width: "100%",
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     marginTop: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   submitBtnText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFAF0",
+    fontWeight: "800",
     fontSize: 16,
   },
 });

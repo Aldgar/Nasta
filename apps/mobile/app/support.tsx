@@ -56,6 +56,8 @@ interface IssueFormData {
   verificationType?: string;
 }
 
+const MAX_ATTACHMENTS = 5;
+
 const getIssueTypes = (t: any) => [
   { label: t("support.generalSupport"), value: "GENERAL" as IssueType },
   { label: t("support.reportBug"), value: "REPORT" as IssueType },
@@ -125,6 +127,14 @@ export default function SupportScreen() {
   // File upload functions
   const takePhoto = async () => {
     try {
+      if (attachedFiles.length >= MAX_ATTACHMENTS) {
+        Alert.alert(
+          t("common.error"),
+          t("support.maximumAttachmentsReached", { count: MAX_ATTACHMENTS })
+        );
+        return;
+      }
+
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
@@ -159,6 +169,14 @@ export default function SupportScreen() {
 
   const pickImage = async () => {
     try {
+      if (attachedFiles.length >= MAX_ATTACHMENTS) {
+        Alert.alert(
+          t("common.error"),
+          t("support.maximumAttachmentsReached", { count: MAX_ATTACHMENTS })
+        );
+        return;
+      }
+
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
@@ -169,20 +187,65 @@ export default function SupportScreen() {
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.8,
-        allowsMultipleSelection: true,
-      });
+      const remainingSlots = Math.max(
+        0,
+        MAX_ATTACHMENTS - attachedFiles.length
+      );
+
+      const tryPick = async (opts: any) =>
+        ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.8,
+          ...opts,
+        });
+
+      let result: ImagePicker.ImagePickerResult;
+      try {
+        // iOS: multi-select can fail when Photos can't export a usable representation.
+        // We keep it single-select and allow repeated picks to attach multiple images.
+        if (Platform.OS === "ios") {
+          result = await tryPick({
+            allowsMultipleSelection: false,
+            selectionLimit: 1,
+            allowsEditing: true,
+            preferredAssetRepresentationMode: "compatible",
+          });
+        } else {
+          result = await tryPick({
+            allowsMultipleSelection: true,
+            selectionLimit: remainingSlots,
+            allowsEditing: false,
+          });
+        }
+      } catch (e: any) {
+        const msg = String(e?.message || e);
+        // Fallback: retry with a different representation mode.
+        if (
+          Platform.OS === "ios" &&
+          msg.includes("Cannot load representation")
+        ) {
+          result = await tryPick({
+            allowsMultipleSelection: false,
+            selectionLimit: 1,
+            allowsEditing: true,
+            preferredAssetRepresentationMode: "current",
+          });
+        } else {
+          throw e;
+        }
+      }
 
       if (!result.canceled && result.assets) {
-        const newFiles: AttachedFile[] = result.assets.map((asset) => ({
-          uri: asset.uri,
-          name: asset.fileName || `image_${Date.now()}.jpg`,
-          type: "image" as const,
-          mimeType: asset.mimeType || "image/jpeg",
-        }));
+        const newFiles: AttachedFile[] = result.assets
+          .slice(0, remainingSlots)
+          .map((asset, i) => ({
+            uri: asset.uri,
+            name:
+              asset.fileName ||
+              `image_${Date.now()}_${i}_${Math.random().toString(16).slice(2, 8)}.jpg`,
+            type: "image" as const,
+            mimeType: asset.mimeType || "image/jpeg",
+          }));
         setAttachedFiles((prev) => [...prev, ...newFiles]);
       }
     } catch (error) {
@@ -193,6 +256,14 @@ export default function SupportScreen() {
 
   const pickDocument = async () => {
     try {
+      if (attachedFiles.length >= MAX_ATTACHMENTS) {
+        Alert.alert(
+          t("common.error"),
+          t("support.maximumAttachmentsReached", { count: MAX_ATTACHMENTS })
+        );
+        return;
+      }
+
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
         copyToCacheDirectory: true,
@@ -200,12 +271,20 @@ export default function SupportScreen() {
       });
 
       if (!result.canceled && result.assets) {
-        const newFiles: AttachedFile[] = result.assets.map((asset) => ({
-          uri: asset.uri,
-          name: asset.name,
-          type: "document" as const,
-          mimeType: asset.mimeType || "application/octet-stream",
-        }));
+        const remainingSlots = Math.max(
+          0,
+          MAX_ATTACHMENTS - attachedFiles.length
+        );
+        const newFiles: AttachedFile[] = result.assets
+          .slice(0, remainingSlots)
+          .map((asset, i) => ({
+            uri: asset.uri,
+            name:
+              asset.name ||
+              `file_${Date.now()}_${i}_${Math.random().toString(16).slice(2, 8)}`,
+            type: "document" as const,
+            mimeType: asset.mimeType || "application/octet-stream",
+          }));
         setAttachedFiles((prev) => [...prev, ...newFiles]);
       }
     } catch (error) {
@@ -289,6 +368,7 @@ export default function SupportScreen() {
       let requestBody: any;
       let headers: any = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        Accept: "application/json",
       };
 
       if (attachedFiles.length > 0) {
@@ -307,8 +387,15 @@ export default function SupportScreen() {
 
         // Append files
         attachedFiles.forEach((file, index) => {
-          const fileExtension = file.uri.split(".").pop() || "";
-          const fileName = file.name || `file_${index}.${fileExtension}`;
+          const inferredExt = file.name?.includes(".")
+            ? file.name.split(".").pop()
+            : file.uri.includes(".")
+              ? file.uri.split(".").pop()
+              : undefined;
+          const safeExt = inferredExt ? `.${inferredExt}` : "";
+          const fileName =
+            file.name ||
+            `file_${Date.now()}_${index}_${Math.random().toString(16).slice(2, 8)}${safeExt}`;
 
           formData.append("files", {
             uri: file.uri,
@@ -340,10 +427,18 @@ export default function SupportScreen() {
         body: requestBody,
       });
 
+      const responseText = await response.text();
+      const parsed = (() => {
+        try {
+          return responseText ? JSON.parse(responseText) : null;
+        } catch {
+          return null;
+        }
+      })();
+
       if (response.ok) {
-        const result = await response.json();
         const ticketNumber =
-          result.ticket?.ticketNumber || t("support.notAvailable");
+          parsed?.ticket?.ticketNumber || t("support.notAvailable");
         Alert.alert(
           t("support.ticketCreatedSuccessfully"),
           t("support.ticketCreatedMessage", {
@@ -353,11 +448,11 @@ export default function SupportScreen() {
           [{ text: t("common.ok"), onPress: () => router.back() }]
         );
       } else {
-        const error = await response.json();
-        Alert.alert(
-          t("common.error"),
-          error.message || t("support.failedToSubmitTicket")
-        );
+        const errorMessage =
+          parsed?.message ||
+          parsed?.error ||
+          (responseText ? responseText : t("support.failedToSubmitTicket"));
+        Alert.alert(t("common.error"), errorMessage);
       }
     } catch (error) {
       console.error("Error submitting support ticket:", error);
@@ -381,17 +476,17 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               multiline
               numberOfLines={4}
               placeholder={t("support.describeStepsToReproduce")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               textAlignVertical="top"
               value={formData.stepsToReproduce || ""}
               onChangeText={(text) => updateFormData("stepsToReproduce", text)}
@@ -406,17 +501,17 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               multiline
               numberOfLines={3}
               placeholder={t("support.whatShouldHappen")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               textAlignVertical="top"
               value={formData.expectedBehavior || ""}
               onChangeText={(text) => updateFormData("expectedBehavior", text)}
@@ -431,17 +526,17 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               multiline
               numberOfLines={3}
               placeholder={t("support.whatActuallyHappens")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               textAlignVertical="top"
               value={formData.actualBehavior || ""}
               onChangeText={(text) => updateFormData("actualBehavior", text)}
@@ -459,15 +554,15 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("support.enterTransactionId")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               value={formData.transactionId || ""}
               onChangeText={(text) => updateFormData("transactionId", text)}
             />
@@ -481,15 +576,15 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("support.enterAmount")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               keyboardType="decimal-pad"
               value={formData.amount || ""}
               onChangeText={(text) => updateFormData("amount", text)}
@@ -507,15 +602,15 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("support.enterYourEmail")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               keyboardType="email-address"
               autoCapitalize="none"
               value={formData.email || ""}
@@ -531,15 +626,15 @@ export default function SupportScreen() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   color: colors.text,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               placeholder={t("support.whenDidThisIssueStartPlaceholder")}
-              placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
               value={formData.whenStarted || ""}
               onChangeText={(text) => updateFormData("whenStarted", text)}
             />
@@ -556,10 +651,10 @@ export default function SupportScreen() {
               style={[
                 styles.pickerButton,
                 {
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => {
@@ -588,8 +683,8 @@ export default function SupportScreen() {
                     color: formData.verificationType
                       ? colors.text
                       : isDark
-                        ? "#9ca3af"
-                        : "#94a3b8",
+                        ? "#9A8E7A"
+                        : "#9A8E7A",
                   },
                 ]}
               >
@@ -599,7 +694,7 @@ export default function SupportScreen() {
               <Feather
                 name="chevron-down"
                 size={20}
-                color={isDark ? "#9ca3af" : "#94a3b8"}
+                color={isDark ? "#9A8E7A" : "#9A8E7A"}
               />
             </TouchableOpacity>
           </View>
@@ -642,10 +737,10 @@ export default function SupportScreen() {
             style={[
               styles.pickerButton,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => setShowIssueTypePicker(true)}
@@ -657,8 +752,8 @@ export default function SupportScreen() {
                   color: issueType
                     ? colors.text
                     : isDark
-                      ? "#9ca3af"
-                      : "#94a3b8",
+                      ? "#9A8E7A"
+                      : "#9A8E7A",
                 },
               ]}
             >
@@ -670,7 +765,7 @@ export default function SupportScreen() {
             <Feather
               name="chevron-down"
               size={20}
-              color={isDark ? "#9ca3af" : "#94a3b8"}
+              color={isDark ? "#9A8E7A" : "#9A8E7A"}
             />
           </TouchableOpacity>
 
@@ -685,17 +780,17 @@ export default function SupportScreen() {
               styles.input,
               styles.textArea,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                 color: colors.text,
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             multiline
             numberOfLines={6}
             placeholder={t("support.provideDetailsAboutIssue")}
-            placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+            placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
             textAlignVertical="top"
             value={formData.description}
             onChangeText={(text) => updateFormData("description", text)}
@@ -714,7 +809,7 @@ export default function SupportScreen() {
             <Text
               style={[
                 styles.hintText,
-                { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 12 },
+                { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 12 },
               ]}
             >
               {t("support.attachmentsHint")}
@@ -727,16 +822,16 @@ export default function SupportScreen() {
                   styles.fileButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(255,255,255,0.95)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(255,250,240,0.95)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.25)"
+                      ? "rgba(201,150,63,0.2)"
                       : "rgba(0,0,0,0.08)",
                     shadowColor: isDark ? "#000" : "#000",
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: isDark ? 0.3 : 0.1,
                     shadowRadius: 4,
-                    elevation: Platform.OS === "android" ? 2 : 0,
+                    elevation: 0,
                   },
                 ]}
                 onPress={takePhoto}
@@ -746,8 +841,8 @@ export default function SupportScreen() {
                     styles.fileButtonIconContainer,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.2)"
-                        : "rgba(99, 102, 241, 0.1)",
+                        ? "rgba(201, 150, 63, 0.2)"
+                        : "rgba(201, 150, 63, 0.1)",
                     },
                   ]}
                 >
@@ -766,16 +861,16 @@ export default function SupportScreen() {
                   styles.fileButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(255,255,255,0.95)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(255,250,240,0.95)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.25)"
+                      ? "rgba(201,150,63,0.2)"
                       : "rgba(0,0,0,0.08)",
                     shadowColor: isDark ? "#000" : "#000",
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: isDark ? 0.3 : 0.1,
                     shadowRadius: 4,
-                    elevation: Platform.OS === "android" ? 2 : 0,
+                    elevation: 0,
                   },
                 ]}
                 onPress={pickImage}
@@ -785,8 +880,8 @@ export default function SupportScreen() {
                     styles.fileButtonIconContainer,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.2)"
-                        : "rgba(99, 102, 241, 0.1)",
+                        ? "rgba(201, 150, 63, 0.2)"
+                        : "rgba(201, 150, 63, 0.1)",
                     },
                   ]}
                 >
@@ -805,16 +900,16 @@ export default function SupportScreen() {
                   styles.fileButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(255,255,255,0.95)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(255,250,240,0.95)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.25)"
+                      ? "rgba(201,150,63,0.2)"
                       : "rgba(0,0,0,0.08)",
                     shadowColor: isDark ? "#000" : "#000",
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: isDark ? 0.3 : 0.1,
                     shadowRadius: 4,
-                    elevation: Platform.OS === "android" ? 2 : 0,
+                    elevation: 0,
                   },
                 ]}
                 onPress={pickDocument}
@@ -824,8 +919,8 @@ export default function SupportScreen() {
                     styles.fileButtonIconContainer,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.2)"
-                        : "rgba(99, 102, 241, 0.1)",
+                        ? "rgba(201, 150, 63, 0.2)"
+                        : "rgba(201, 150, 63, 0.1)",
                     },
                   ]}
                 >
@@ -850,11 +945,11 @@ export default function SupportScreen() {
                       styles.attachedFileItem,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "rgba(0,0,0,0.05)",
+                          ? "rgba(201,150,63,0.12)"
+                          : "rgba(184,130,42,0.06)",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.2)"
-                          : "rgba(0,0,0,0.1)",
+                          ? "rgba(255,250,240,0.15)"
+                          : "rgba(184,130,42,0.2)",
                       },
                     ]}
                   >
@@ -871,7 +966,7 @@ export default function SupportScreen() {
                           { backgroundColor: colors.tint },
                         ]}
                       >
-                        <Feather name="file" size={24} color="#fff" />
+                        <Feather name="file" size={24} color="#FFFAF0" />
                       </View>
                     )}
                     <View style={styles.attachedFileInfo}>
@@ -888,7 +983,7 @@ export default function SupportScreen() {
                       <Text
                         style={[
                           styles.attachedFileType,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {file.type === "image"
@@ -916,7 +1011,7 @@ export default function SupportScreen() {
             style={[
               styles.btn,
               {
-                backgroundColor: isDark ? "#4f46e5" : colors.tint,
+                backgroundColor: isDark ? "#FB7185" : "#E11D48",
                 opacity: submitting ? 0.6 : 1,
               },
             ]}
@@ -924,12 +1019,12 @@ export default function SupportScreen() {
             disabled={submitting}
           >
             {submitting ? (
-              <ActivityIndicator color={isDark ? "#e0e7ff" : "#ffffff"} />
+              <ActivityIndicator color={isDark ? "#F0E8D5" : "#FFFAF0"} />
             ) : (
               <Text
                 style={[
                   styles.btnText,
-                  { color: isDark ? "#e0e7ff" : "#ffffff" },
+                  { color: isDark ? "#F0E8D5" : "#FFFAF0" },
                 ]}
               >
                 {t("support.submitTicket")}
@@ -951,8 +1046,8 @@ export default function SupportScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -976,8 +1071,8 @@ export default function SupportScreen() {
                         backgroundColor:
                           issueType === type.value
                             ? isDark
-                              ? "rgba(79, 70, 229, 0.3)"
-                              : "rgba(79, 70, 229, 0.1)"
+                              ? "rgba(201, 150, 63, 0.3)"
+                              : "rgba(201, 150, 63, 0.1)"
                             : "transparent",
                       },
                     ]}
@@ -1003,7 +1098,7 @@ export default function SupportScreen() {
                       <Feather
                         name="check"
                         size={20}
-                        color={isDark ? "#818cf8" : "#4f46e5"}
+                        color={isDark ? "#FB7185" : "#E11D48"}
                       />
                     )}
                   </TouchableOpacity>
@@ -1025,18 +1120,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
   },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
+  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
   scrollView: { flex: 1 },
   contentContainer: { padding: 20, paddingBottom: 32 },
-  label: { marginBottom: 12, fontSize: 16, fontWeight: "600" },
+  label: { marginBottom: 12, fontSize: 16, fontWeight: "700" },
   fieldLabel: {
     marginBottom: 8,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginTop: 16,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -1044,13 +1139,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: Platform.OS === "android" ? 0 : 1,
+    elevation: 0,
   },
   textArea: {
     minHeight: 120,
   },
   pickerButton: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -1060,7 +1155,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: Platform.OS === "android" ? 0 : 1,
+    elevation: 0,
   },
   pickerButtonText: {
     fontSize: 16,
@@ -1071,13 +1166,13 @@ const styles = StyleSheet.create({
   },
   btn: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     marginTop: 24,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
   },
   btnText: { fontWeight: "700", fontSize: 16 },
   modalOverlay: {
@@ -1097,7 +1192,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    borderBottomColor: "rgba(184,130,42,0.2)",
   },
   modalTitle: {
     fontSize: 18,
@@ -1113,7 +1208,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    borderBottomColor: "rgba(184,130,42,0.06)",
   },
   modalItemSelected: {
     // Additional styling handled inline
@@ -1141,7 +1236,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 12,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 4,
     borderWidth: 1.5,
     flex: 1,
     minWidth: "30%",
@@ -1157,7 +1252,7 @@ const styles = StyleSheet.create({
   },
   fileButtonText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
     lineHeight: 16,
   },
@@ -1169,7 +1264,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 8,
   },
@@ -1193,7 +1288,7 @@ const styles = StyleSheet.create({
   },
   attachedFileName: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   attachedFileType: {

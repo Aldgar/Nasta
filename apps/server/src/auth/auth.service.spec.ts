@@ -13,6 +13,11 @@ const prismaMock = {
     create: jest.fn(),
     update: jest.fn(),
   },
+  verificationToken: {
+    create: jest.fn().mockResolvedValue({ token: 'mock-token' }),
+    findUnique: jest.fn(),
+    update: jest.fn(),
+  },
 };
 
 const jwtMock = {
@@ -33,6 +38,7 @@ const notificationsMock = {
   emitPhoneOtp: jest.fn(),
   emitPasswordResetToken: jest.fn(),
   emitEmailChangeToken: jest.fn(),
+  sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
 };
 
 describe('AuthService (unit)', () => {

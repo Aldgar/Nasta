@@ -44,7 +44,7 @@ export default function EmployerNotifications() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const fetchNotifications = useCallback(async () => {
@@ -105,7 +105,7 @@ export default function EmployerNotifications() {
     useCallback(() => {
       setLoading(true);
       fetchNotifications();
-    }, [fetchNotifications])
+    }, [fetchNotifications]),
   );
 
   const onRefresh = useCallback(() => {
@@ -127,8 +127,8 @@ export default function EmployerNotifications() {
       // Update local state
       setNotifications((prev) =>
         prev.map((n) =>
-          n.id === id ? { ...n, readAt: new Date().toISOString() } : n
-        )
+          n.id === id ? { ...n, readAt: new Date().toISOString() } : n,
+        ),
       );
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
@@ -159,7 +159,7 @@ export default function EmployerNotifications() {
         case "JOB_MESSAGE":
           if (payload?.conversationId) {
             router.push(
-              `/chat/room?conversationId=${payload.conversationId}` as any
+              `/chat/room?conversationId=${payload.conversationId}` as any,
             );
           }
           break;
@@ -240,15 +240,15 @@ export default function EmployerNotifications() {
       case "APPLICATION_UPDATE":
         return "#F59E0B";
       case "SYSTEM":
-        return colors.tint;
+        return isDark ? "#22D3EE" : "#06B6D4";
       case "LEGAL_ACTION":
-        return "#8b5cf6";
+        return "#E8B86D";
       case "WARNING":
         return "#f59e0b";
       case "ACTION_FORM":
         return "#10b981";
       default:
-        return colors.tint;
+        return isDark ? "#22D3EE" : "#06B6D4";
     }
   };
 
@@ -319,7 +319,7 @@ export default function EmployerNotifications() {
       type,
       data: items.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
     }));
 
@@ -341,7 +341,10 @@ export default function EmployerNotifications() {
             </Text>
           </View>
           <View style={styles.center}>
-            <ActivityIndicator size="large" color={colors.tint} />
+            <ActivityIndicator
+              size="large"
+              color={isDark ? "#22D3EE" : "#06B6D4"}
+            />
           </View>
         </SafeAreaView>
       </GradientBackground>
@@ -367,8 +370,8 @@ export default function EmployerNotifications() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={colors.tint}
-              colors={[colors.tint]}
+              tintColor={isDark ? "#22D3EE" : "#06B6D4"}
+              colors={[isDark ? "#22D3EE" : "#06B6D4"]}
             />
           }
           renderSectionHeader={({ section }) => {
@@ -380,8 +383,8 @@ export default function EmployerNotifications() {
                   styles.sectionHeader,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.4)"
-                      : "rgba(255,255,255,0.5)",
+                      ? "rgba(12, 22, 42, 0.45)"
+                      : "rgba(255,250,240,0.5)",
                     borderLeftColor: iconColor,
                   },
                 ]}
@@ -410,7 +413,7 @@ export default function EmployerNotifications() {
                 <Text
                   style={[
                     styles.sectionCount,
-                    { color: isDark ? "rgba(255,255,255,0.5)" : "#94a3b8" },
+                    { color: isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A" },
                   ]}
                 >
                   {section.data.length}
@@ -418,7 +421,7 @@ export default function EmployerNotifications() {
                 <Ionicons
                   name={isExpanded ? "chevron-up" : "chevron-down"}
                   size={20}
-                  color={isDark ? "rgba(255,255,255,0.6)" : "#64748b"}
+                  color={isDark ? "rgba(255,250,240,0.6)" : "#8A7B68"}
                   style={{ marginLeft: 8 }}
                 />
               </TouchableOpacity>
@@ -437,17 +440,17 @@ export default function EmployerNotifications() {
                   {
                     backgroundColor: isDark
                       ? isRead
-                        ? "rgba(30, 41, 59, 0.6)"
-                        : "rgba(30, 41, 59, 0.85)"
+                        ? "rgba(12, 22, 42, 0.65)"
+                        : "rgba(12, 22, 42, 0.82)"
                       : isRead
-                        ? "rgba(255,255,255,0.7)"
-                        : "#ffffff",
+                        ? "rgba(240,232,213,0.7)"
+                        : "#FFFAF0",
                     borderColor: isDark
                       ? isRead
-                        ? "rgba(255,255,255,0.08)"
-                        : "rgba(255,255,255,0.15)"
+                        ? "rgba(255,250,240,0.10)"
+                        : "rgba(255,250,240,0.12)"
                       : isRead
-                        ? "rgba(0,0,0,0.05)"
+                        ? "rgba(184,130,42,0.06)"
                         : "rgba(0,0,0,0.08)",
                     borderLeftWidth: isRead ? 0 : 3,
                     borderLeftColor: isRead ? "transparent" : iconColor,
@@ -489,7 +492,7 @@ export default function EmployerNotifications() {
                     style={[
                       styles.cardMessage,
                       {
-                        color: isDark ? "rgba(255,255,255,0.7)" : "#64748b",
+                        color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68",
                         opacity: isRead ? 0.7 : 1,
                       },
                     ]}
@@ -500,7 +503,7 @@ export default function EmployerNotifications() {
                     style={[
                       styles.time,
                       {
-                        color: isDark ? "rgba(255,255,255,0.5)" : "#94a3b8",
+                        color: isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A",
                       },
                     ]}
                   >
@@ -520,13 +523,13 @@ export default function EmployerNotifications() {
               <Ionicons
                 name="notifications-outline"
                 size={64}
-                color={isDark ? "rgba(255,255,255,0.3)" : "#94a3b8"}
+                color={isDark ? "rgba(201,150,63,0.25)" : "#9A8E7A"}
               />
               <Text
                 style={[
                   styles.empty,
                   {
-                    color: isDark ? "rgba(255,255,255,0.5)" : "#64748b",
+                    color: isDark ? "rgba(255,250,240,0.5)" : "#8A7B68",
                   },
                 ]}
               >
@@ -543,7 +546,7 @@ export default function EmployerNotifications() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { padding: 20, paddingBottom: 10 },
-  title: { fontSize: 28, fontWeight: "bold" },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: 2 },
   listContent: { paddingHorizontal: 20, paddingBottom: 20 },
   center: {
     flex: 1,
@@ -553,14 +556,14 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     marginBottom: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     alignItems: "flex-start",
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
   },
   iconContainer: {
     padding: 8,
@@ -605,12 +608,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
     flex: 1,
   },
   sectionCount: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginLeft: 8,
   },
 });

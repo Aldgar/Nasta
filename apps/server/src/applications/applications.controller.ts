@@ -91,6 +91,39 @@ export class ApplicationsController {
     });
   }
 
+  @Get('/employer/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get application stats for employer' })
+  async employerStats(@Req() req: Request) {
+    const user = req.user as {
+      id: string;
+      role?: 'EMPLOYER' | 'JOB_SEEKER' | 'ADMIN';
+    };
+    if (user.role !== 'EMPLOYER') {
+      throw new ForbiddenException('Only employers can access this endpoint');
+    }
+    return this.service.getEmployerApplicationStats(user.id);
+  }
+
+  @Get('/employer/recent')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get recent applications for employer' })
+  async employerRecent(@Req() req: Request, @Query('limit') limit = '5') {
+    const user = req.user as {
+      id: string;
+      role?: 'EMPLOYER' | 'JOB_SEEKER' | 'ADMIN';
+    };
+    if (user.role !== 'EMPLOYER') {
+      throw new ForbiddenException('Only employers can access this endpoint');
+    }
+    return this.service.listEmployerApplications(user.id, {
+      page: 1,
+      limit: Math.min(Number(limit) || 5, 20),
+    });
+  }
+
   // Get application detail (role-based visibility)
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -488,7 +521,9 @@ export class ApplicationsController {
   @Post(':id/additional-time/respond')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Respond to additional time request (service provider)' })
+  @ApiOperation({
+    summary: 'Respond to additional time request (service provider)',
+  })
   @ApiBody({ type: RespondAdditionalTimeDto })
   async respondToAdditionalTimeRequest(
     @Req() req: Request,

@@ -1,6 +1,7 @@
 import {
   Injectable,
   ForbiddenException,
+  Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import {
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailTranslationsService } from '../notifications/email-translations.service';
 import { PaymentsService } from '../payments/payments.service';
+import { NoShowService } from '../no-show/no-show.service';
+import { ChatService } from '../chat/chat.service';
 
 type ApplicationStatus =
   | 'PENDING'
@@ -25,11 +28,15 @@ type ApplicationStatus =
 
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsService,
     private emailTranslations: EmailTranslationsService,
     private payments: PaymentsService,
+    private noShowService: NoShowService,
+    private chatService: ChatService,
   ) {}
 
   private generate4DigitVerificationCode(exclude?: string | null): string {
@@ -433,6 +440,23 @@ export class ApplicationsService {
     });
   }
 
+  async getEmployerApplicationStats(employerId: string) {
+    const apps = await this.prisma.application.findMany({
+      where: { job: { employerId } },
+      select: { status: true },
+    });
+    const pending = apps.filter(
+      (a) =>
+        a.status === 'PENDING' ||
+        a.status === 'REVIEWING' ||
+        a.status === 'SHORTLISTED',
+    ).length;
+    const accepted = apps.filter((a) => a.status === 'ACCEPTED').length;
+    const rejected = apps.filter((a) => a.status === 'REJECTED').length;
+    const total = apps.length;
+    return { pending, accepted, rejected, total };
+  }
+
   async listEmployerApplications(
     employerId: string,
     opts?: {
@@ -458,8 +482,35 @@ export class ApplicationsService {
         id: true,
         status: true,
         appliedAt: true,
-        job: { select: { id: true, title: true, isInstantBook: true } },
-        applicant: { select: { id: true, firstName: true, lastName: true } },
+        completedAt: true,
+        verificationCodeVerifiedAt: true,
+        job: {
+          select: {
+            id: true,
+            title: true,
+            isInstantBook: true,
+            startDate: true,
+            location: true,
+            city: true,
+            country: true,
+            type: true,
+            workMode: true,
+            rateAmount: true,
+            currency: true,
+            paymentType: true,
+            category: { select: { id: true, name: true } },
+          },
+        },
+        applicant: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            city: true,
+            country: true,
+          },
+        },
       },
     });
   }
@@ -534,6 +585,7 @@ export class ApplicationsService {
               select: {
                 firstName: true,
                 lastName: true,
+                email: true,
               },
             },
             paymentType: true,
@@ -553,10 +605,10 @@ export class ApplicationsService {
     if (!app) throw new NotFoundException('Application not found');
     if (!app.job) throw new NotFoundException('Job not found for application');
 
-    console.log(
+    this.logger.log(
       `[Application Update] employerId from request: ${employerId}, job.employerId: ${app.job.employerId}`,
     );
-    console.log(
+    this.logger.log(
       `[Application Update] IDs match: ${app.job.employerId === employerId}`,
     );
 
@@ -634,7 +686,10 @@ export class ApplicationsService {
           'Employer rejected application (pre-acceptance)',
         );
       } catch (error: any) {
-        console.error('[ApplicationsService] Error processing refund:', error);
+        this.logger.error(
+          '[ApplicationsService] Error processing refund:',
+          error,
+        );
         // Continue with status update even if refund fails - log the error
       }
     }
@@ -671,14 +726,14 @@ export class ApplicationsService {
           },
         });
 
-        console.log(
+        this.logger.log(
           `[Job Status] Job ${app.job.id} has been set to ASSIGNED due to accepted application`,
         );
-        console.log(
+        this.logger.log(
           `[Verification Code] Generated code ${verificationCode} for application ${applicationId}`,
         );
       } catch (err) {
-        console.error(
+        this.logger.error(
           '[Job Status] Failed to update job status to ASSIGNED:',
           err,
         );
@@ -690,7 +745,7 @@ export class ApplicationsService {
     let createdBookingId: string | null = null;
     if (status === 'ACCEPTED') {
       try {
-        console.log(
+        this.logger.log(
           `[Booking Creation] Creating booking for application ${applicationId}, job ${app.job.id}, applicant ${app.applicantId}, employer ${app.job.employerId}`,
         );
 
@@ -710,7 +765,7 @@ export class ApplicationsService {
         });
 
         if (existingBooking) {
-          console.log(
+          this.logger.log(
             `[Booking Creation] Booking already exists: ${existingBooking.id}`,
           );
           createdBookingId = existingBooking.id;
@@ -750,7 +805,7 @@ export class ApplicationsService {
           const paymentType =
             (app.job.paymentType as PaymentType) || PaymentType.HOURLY;
 
-          console.log(
+          this.logger.log(
             `[Booking Creation] Creating booking with: jobId=${app.job.id}, jobSeekerId=${app.applicantId}, employerId=${app.job.employerId}, status=CONFIRMED, startTime=${startTime.toISOString()}, endTime=${endTime.toISOString()}`,
           );
 
@@ -769,7 +824,7 @@ export class ApplicationsService {
             notes: `Booking created from accepted application for "${app.job.title}"`,
           };
 
-          console.log(
+          this.logger.log(
             `[Booking Creation] Booking data:`,
             JSON.stringify(bookingData, null, 2),
           );
@@ -778,10 +833,10 @@ export class ApplicationsService {
             data: bookingData,
           });
           createdBookingId = booking.id;
-          console.log(
+          this.logger.log(
             `[Booking Creation] ✅ Booking created successfully: ${booking.id}`,
           );
-          console.log(`[Booking Creation] Created booking details:`, {
+          this.logger.log(`[Booking Creation] Created booking details:`, {
             id: booking.id,
             jobId: booking.jobId,
             jobSeekerId: booking.jobSeekerId,
@@ -791,21 +846,72 @@ export class ApplicationsService {
         }
       } catch (err) {
         // Log but don't fail the request if booking creation fails
-        console.error(
+        this.logger.error(
           '[Booking Creation] ❌ Failed to create booking for accepted application:',
           err,
         );
         if (err instanceof Error) {
-          console.error(
+          this.logger.error(
             '[Booking Creation] Error details:',
             err.message,
             err.stack,
           );
         }
         // Also log the full error object
-        console.error(
+        this.logger.error(
           '[Booking Creation] Full error:',
           JSON.stringify(err, Object.getOwnPropertyNames(err)),
+        );
+      }
+    }
+
+    // Auto-create chat conversation when application is accepted
+    if (status === 'ACCEPTED') {
+      try {
+        // Check if a conversation already exists for this job between these two users
+        const existingConversation = await this.prisma.conversation.findFirst({
+          where: {
+            jobId: app.job.id,
+            type: 'JOB',
+            participants: {
+              every: {
+                userId: { in: [app.job.employerId, app.applicantId] },
+              },
+            },
+          },
+          include: { participants: true },
+        });
+
+        if (existingConversation) {
+          // If conversation exists and is locked (from a previous cycle), unlock it
+          if (existingConversation.locked) {
+            await this.prisma.conversation.update({
+              where: { id: existingConversation.id },
+              data: { locked: false },
+            });
+          }
+          this.logger.log(
+            `[Chat] Conversation already exists for job ${app.job.id}: ${existingConversation.id}`,
+          );
+        } else {
+          // Create a new conversation
+          const convo = await this.chatService.createConversation(
+            app.job.employerId,
+            {
+              type: 'JOB' as any,
+              title: app.job.title || null,
+              jobId: app.job.id,
+              participantIds: [app.applicantId],
+            },
+          );
+          this.logger.log(
+            `[Chat] ✅ Created conversation ${convo.id} for job ${app.job.id} between employer ${app.job.employerId} and applicant ${app.applicantId}`,
+          );
+        }
+      } catch (err) {
+        this.logger.error(
+          '[Chat] Failed to create conversation for accepted application:',
+          err,
         );
       }
     }
@@ -860,6 +966,26 @@ export class ApplicationsService {
           emailMessage,
           app.applicantId,
         );
+      } else if (status === 'REVIEWING') {
+        const t = await this.emailTranslations.getTranslatorForUser(
+          app.applicantId,
+        );
+        emailSubject = t('email.jobs.applicationUnderReviewEmailSubject', {
+          jobTitle: app.job.title,
+        });
+        const content = `
+          <div style="background-color: rgba(201, 150, 63, 0.12); padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #C9963F;">
+            <p style="margin: 0; color: #E8B86D; font-weight: 600; font-size: 16px;">
+              ${t('email.jobs.applicationUnderReviewMessage', { jobTitle: app.job.title })}
+            </p>
+          </div>
+        `;
+        emailHtml = this.notifications.getBrandedEmailTemplate(
+          t('email.jobs.applicationUnderReviewTitle'),
+          t('email.jobs.applicationUnderReviewGreeting', { firstName }),
+          content,
+          '',
+        );
       } else if (status === 'REJECTED') {
         const rejectionMessage = message || '';
         const t = await this.emailTranslations.getTranslatorForUser(
@@ -887,7 +1013,7 @@ export class ApplicationsService {
           );
         } catch (err) {
           // Log but don't fail the request
-          console.error('Failed to send application status email:', err);
+          this.logger.error('Failed to send application status email:', err);
         }
       }
     }
@@ -954,7 +1080,17 @@ export class ApplicationsService {
       notificationBody = t('notifications.templates.applicationRejectedBody', {
         jobTitle: app.job.title,
       });
-      // No cancellation fee applied
+    } else if (status === 'REVIEWING') {
+      const t = await this.emailTranslations.getTranslatorForUser(
+        app.applicantId,
+      );
+      notificationTitle = t(
+        'notifications.templates.applicationUnderReviewTitle',
+      );
+      notificationBody = t(
+        'notifications.templates.applicationUnderReviewBody',
+        { jobTitle: app.job.title },
+      );
     } else {
       const t = await this.emailTranslations.getTranslatorForUser(
         app.applicantId,
@@ -987,6 +1123,148 @@ export class ApplicationsService {
         ...(createdBookingId ? { bookingId: createdBookingId } : {}),
       },
     });
+
+    // Send obligation reminder to service provider on acceptance
+    if (status === 'ACCEPTED') {
+      try {
+        await this.noShowService.sendAcceptanceObligationReminder(
+          app.applicantId,
+          app.applicant.email || null,
+          app.applicant.firstName || 'there',
+          app.job.title,
+          app.job.startDate ? new Date(app.job.startDate) : null,
+          app.id,
+          app.job.id,
+        );
+      } catch (err) {
+        this.logger.error(
+          '[Application] Failed to send obligation reminder:',
+          err,
+        );
+      }
+
+      // Send acceptance thank-you notification + email to employer
+      try {
+        const employerT = await this.emailTranslations.getTranslatorForUser(
+          app.job.employerId,
+        );
+        const employerLang =
+          (await this.emailTranslations.getUserLanguage(app.job.employerId)) ===
+          'pt'
+            ? 'pt'
+            : 'en';
+
+        // Calculate auto-complete date (48h after job start)
+        const startDate = app.job.startDate
+          ? new Date(app.job.startDate)
+          : null;
+        const autoCompleteDate = startDate
+          ? new Date(startDate.getTime() + 48 * 60 * 60 * 1000)
+          : null;
+        const autoCompleteDateStr = autoCompleteDate
+          ? autoCompleteDate.toLocaleDateString(
+              employerLang === 'pt' ? 'pt-PT' : 'en-GB',
+              {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              },
+            )
+          : employerLang === 'pt'
+            ? 'a data agendada + 48 horas'
+            : 'the scheduled date + 48 hours';
+
+        const empTitle = employerT(
+          'notifications.templates.employerAcceptanceThankYouTitle',
+        );
+        const empBody = employerT(
+          'notifications.templates.employerAcceptanceThankYouBody',
+          { jobTitle: app.job.title, autoCompleteDate: autoCompleteDateStr },
+        );
+
+        // In-app notification
+        await this.notifications.createNotification({
+          userId: app.job.employerId,
+          type: 'APPLICATION_UPDATE',
+          title: empTitle,
+          body: empBody,
+          payload: {
+            applicationId: app.id,
+            jobId: app.job.id,
+            type: 'employer_acceptance_reminder',
+          },
+        });
+
+        // Push notification
+        await this.notifications.sendPushNotification(
+          app.job.employerId,
+          empTitle,
+          employerT(
+            'notifications.templates.employerAcceptanceThankYouPushBody',
+            { jobTitle: app.job.title },
+          ),
+          {
+            type: 'APPLICATION_UPDATE',
+            applicationId: app.id,
+            jobId: app.job.id,
+          },
+        );
+
+        // Email
+        const employerEmail = app.job.employer?.email;
+        if (employerEmail) {
+          const employerFirstName =
+            app.job.employer?.firstName || employerT('email.common.there');
+          const emailHtml = this.notifications.getBrandedEmailTemplate(
+            empTitle,
+            employerT('email.common.greeting', {
+              name: employerFirstName,
+            }),
+            `
+              <p style="margin: 0 0 16px; color: #F5E6C8;">
+                ${employerLang === 'pt' ? 'Obrigado por aceitar a candidatura para' : 'Thank you for accepting the application for'} <strong>"${app.job.title}"</strong>.
+              </p>
+              <div style="padding: 16px; background-color: #1A2A44; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px; color: #F5E6C8; font-weight: 600;">✅ ${employerLang === 'pt' ? 'O que fazer a seguir' : 'What to do next'}</p>
+                <p style="margin: 0; color: #B8A88A;">
+                  ${employerLang === 'pt' ? 'Quando o prestador de serviços marcar o trabalho como feito, por favor reveja e marque-o como <strong>concluído</strong>.' : 'Once the service provider marks the job as done, please review and mark it as <strong>complete</strong>.'}
+                </p>
+              </div>
+              <div style="padding: 16px; background-color: #2A2A1A; border-radius: 8px; border-left: 4px solid #C9963F; margin-bottom: 16px;">
+                <p style="margin: 0 0 8px; color: #F5E6C8; font-weight: 600;">⏰ ${employerLang === 'pt' ? 'Conclusão Automática' : 'Auto-Completion'}</p>
+                <p style="margin: 0; color: #B8A88A;">
+                  ${employerLang === 'pt' ? 'Se não for marcado como concluído manualmente, o trabalho será automaticamente concluído a' : 'If not marked as complete manually, the job will auto-complete on'} <strong>${autoCompleteDateStr}</strong>.
+                </p>
+              </div>
+            `,
+            employerLang === 'pt'
+              ? 'Este é um lembrete automático enviado após aceitar uma candidatura.'
+              : 'This is an automated reminder sent upon accepting an application.',
+            employerT,
+            employerLang as 'en' | 'pt',
+          );
+
+          await this.notifications.sendEmail(
+            employerEmail,
+            empTitle,
+            employerT(
+              'notifications.templates.employerAcceptanceThankYouPushBody',
+              { jobTitle: app.job.title },
+            ),
+            emailHtml,
+          );
+        }
+      } catch (err) {
+        this.logger.error(
+          '[Application] Failed to send employer acceptance notification:',
+          err,
+        );
+      }
+    }
+
     return { application: updated, message: 'Status updated' };
   }
 
@@ -1214,15 +1492,15 @@ export class ApplicationsService {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #4f46e5;">${t('email.jobs.applicationWithdrawnTitle')}</h2>
+      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #080F1E; color: #B8A88A;">
+        <h2 style="color: #C9963F;">${t('email.jobs.applicationWithdrawnTitle')}</h2>
         <p>${t('email.jobs.greeting', { employerName })}</p>
         <p>${t('email.jobs.applicationWithdrawnMessage', { applicantName, jobTitle })}</p>
-        <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+        <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0;"><strong>${t('email.jobs.reason')}:</strong> ${reason}</p>
         </div>
         <p>${t('email.jobs.applicationWithdrawnBrowse')}</p>
-        <p>${t('email.common.bestRegards')}<br>${t('email.common.cumpridoTeam')}</p>
+        <p>${t('email.common.bestRegards')}<br>${t('email.common.nestaTeam')}</p>
       </body>
       </html>
     `;
@@ -1287,11 +1565,11 @@ export class ApplicationsService {
                 application.payment.amount,
                 'Job reset due to incomplete payment - non-refundable per policy',
               );
-              console.log(
+              this.logger.log(
                 `[Payment Enforcement] Captured paid amount ${application.payment.amount} as platform revenue (non-refundable) for job ${jobId} reset.`,
               );
             } catch (err) {
-              console.error(
+              this.logger.error(
                 `[Payment Enforcement] Failed to capture paid amount as platform revenue: ${err}`,
               );
               // Continue with reset even if capture fails
@@ -1307,18 +1585,20 @@ export class ApplicationsService {
           if (application && application.status === 'ACCEPTED') {
             // Don't reset to PENDING, but log a warning
             // The application stays ACCEPTED but job is reset to ACTIVE
-            console.log(
+            this.logger.log(
               `[Payment Enforcement] Job ${jobId} reset to ACTIVE due to incomplete payment. Application ${applicationId} remains ACCEPTED but service provider is not obligated until payment is complete.`,
             );
           }
 
-          console.log(
+          this.logger.log(
             `[Payment Enforcement] Job ${jobId} has been reset to ACTIVE status due to incomplete payment. Unpaid amount: ${paymentVerification.unpaidAmount.toFixed(2)}`,
           );
         }
       }
     } catch (err) {
-      console.error(`[Payment Enforcement] Failed to reset job status: ${err}`);
+      this.logger.error(
+        `[Payment Enforcement] Failed to reset job status: ${err}`,
+      );
       // Don't throw - this is a background enforcement check
     }
   }
@@ -1569,7 +1849,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
       // Don't fail the request if email fails
     }
 
@@ -1704,7 +1984,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return requests[requestIndex];
@@ -1850,16 +2130,19 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
-    console.log(`[ApplicationsService] Negotiation suggested by employer:`, {
-      applicationId: app.id,
-      employerId,
-      requestId: newRequest.id,
-      totalAmount,
-      ratesCount: rates.length,
-    });
+    this.logger.log(
+      `[ApplicationsService] Negotiation suggested by employer:`,
+      {
+        applicationId: app.id,
+        employerId,
+        requestId: newRequest.id,
+        totalAmount,
+        ratesCount: rates.length,
+      },
+    );
 
     return {
       application: updated,
@@ -2005,23 +2288,23 @@ export class ApplicationsService {
       const content = `
         <p style="margin: 0 0 20px;"><strong>${applicantName}</strong> has requested a negotiation for the job "<strong>${jobTitle}</strong>".</p>
         
-        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 12px; color: #1f2937; font-weight: 600; font-size: 15px;">Requested Rates:</p>
-          <div style="color: #4b5563; font-size: 15px; line-height: 1.8;">
+        <div style="background-color: #0E1B32; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 12px; color: #F5E6C8; font-weight: 600; font-size: 15px;">Requested Rates:</p>
+          <div style="color: #B8A88A; font-size: 15px; line-height: 1.8;">
             ${ratesList}
           </div>
-          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-            <strong style="color: #1f2937;">Total Amount:</strong> 
-            <span style="color: #6366f1; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
+          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #1E3048;">
+            <strong style="color: #F5E6C8;">Total Amount:</strong> 
+            <span style="color: #C9963F; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
           </p>
         </div>
         
-        <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0 0 8px; color: #92400e; font-weight: 600; font-size: 14px;">Message from Service Provider:</p>
-          <p style="margin: 0; color: #78350f; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: rgba(245, 158, 11, 0.12); padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0 0 8px; color: #fbbf24; font-weight: 600; font-size: 14px;">Message from Service Provider:</p>
+          <p style="margin: 0; color: #D4A853; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         
-        <p style="margin: 24px 0 0; color: #4b5563; font-size: 16px;">Please review the request and respond accordingly.</p>
+        <p style="margin: 24px 0 0; color: #B8A88A; font-size: 16px;">Please review the request and respond accordingly.</p>
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -2038,7 +2321,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -2178,8 +2461,11 @@ export class ApplicationsService {
       const emailText = `Hello ${employerName},\n\nThe service provider has ${status.toLowerCase()} your negotiation suggestion for the job "${jobTitle}".\n${message ? `Response message: ${message}\n` : ''}${status === 'ACCEPTED' ? 'You can proceed with the updated payment amount.\n' : ''}`;
 
       const statusColor = status === 'ACCEPTED' ? '#10b981' : '#ef4444';
-      const statusBg = status === 'ACCEPTED' ? '#d1fae5' : '#fee2e2';
-      const statusText = status === 'ACCEPTED' ? '#065f46' : '#991b1b';
+      const statusBg =
+        status === 'ACCEPTED'
+          ? 'rgba(16, 185, 129, 0.12)'
+          : 'rgba(239, 68, 68, 0.12)';
+      const statusText = status === 'ACCEPTED' ? '#34d399' : '#f87171';
 
       const content = `
         <div style="background-color: ${statusBg}; padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid ${statusColor};">
@@ -2190,14 +2476,14 @@ export class ApplicationsService {
         ${
           message
             ? `
-        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 8px; color: #1f2937; font-weight: 600; font-size: 14px;">Response Message:</p>
-          <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 8px; color: #F5E6C8; font-weight: 600; font-size: 14px;">Response Message:</p>
+          <p style="margin: 0; color: #B8A88A; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         `
             : ''
         }
-        ${status === 'ACCEPTED' ? '<p style="margin: 0; color: #4b5563; font-size: 16px;">You can proceed with the updated payment amount.</p>' : ''}
+        ${status === 'ACCEPTED' ? '<p style="margin: 0; color: #B8A88A; font-size: 16px;">You can proceed with the updated payment amount.</p>' : ''}
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -2216,10 +2502,10 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
-    console.log(
+    this.logger.log(
       `[ApplicationsService] Negotiation responded by service provider:`,
       {
         applicationId: app.id,
@@ -2360,8 +2646,11 @@ export class ApplicationsService {
       const emailText = `Hello ${applicantName},\n\nThe employer has ${status.toLowerCase()} your negotiation request for the job "${jobTitle}".\n${message ? `Response message: ${message}\n` : ''}${status === 'ACCEPTED' ? 'The employer will proceed with the updated payment amount.\n' : ''}`;
 
       const statusColor = status === 'ACCEPTED' ? '#10b981' : '#ef4444';
-      const statusBg = status === 'ACCEPTED' ? '#d1fae5' : '#fee2e2';
-      const statusText = status === 'ACCEPTED' ? '#065f46' : '#991b1b';
+      const statusBg =
+        status === 'ACCEPTED'
+          ? 'rgba(16, 185, 129, 0.12)'
+          : 'rgba(239, 68, 68, 0.12)';
+      const statusText = status === 'ACCEPTED' ? '#34d399' : '#f87171';
 
       const content = `
         <div style="background-color: ${statusBg}; padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid ${statusColor};">
@@ -2372,14 +2661,14 @@ export class ApplicationsService {
         ${
           message
             ? `
-        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 8px; color: #1f2937; font-weight: 600; font-size: 14px;">Response Message:</p>
-          <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 8px; color: #F5E6C8; font-weight: 600; font-size: 14px;">Response Message:</p>
+          <p style="margin: 0; color: #B8A88A; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         `
             : ''
         }
-        ${status === 'ACCEPTED' ? '<p style="margin: 0; color: #4b5563; font-size: 16px;">The employer will proceed with the updated payment amount.</p>' : ''}
+        ${status === 'ACCEPTED' ? '<p style="margin: 0; color: #B8A88A; font-size: 16px;">The employer will proceed with the updated payment amount.</p>' : ''}
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -2398,7 +2687,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return requests[requestIndex];
@@ -2547,29 +2836,29 @@ export class ApplicationsService {
       const content = `
         <p style="margin: 0 0 20px;">The service provider has sent a counter offer for your negotiation suggestion on the job "<strong>${jobTitle}</strong>".</p>
         
-        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 12px; color: #1f2937; font-weight: 600; font-size: 15px;">Counter Offer Rates:</p>
-          <div style="color: #4b5563; font-size: 15px; line-height: 1.8;">
+        <div style="background-color: #0E1B32; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 12px; color: #F5E6C8; font-weight: 600; font-size: 15px;">Counter Offer Rates:</p>
+          <div style="color: #B8A88A; font-size: 15px; line-height: 1.8;">
             ${ratesList}
           </div>
-          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-            <strong style="color: #1f2937;">Total Amount:</strong> 
-            <span style="color: #6366f1; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
+          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #1E3048;">
+            <strong style="color: #F5E6C8;">Total Amount:</strong> 
+            <span style="color: #C9963F; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
           </p>
         </div>
         
         ${
           message
             ? `
-        <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0 0 8px; color: #92400e; font-weight: 600; font-size: 14px;">Message from Service Provider:</p>
-          <p style="margin: 0; color: #78350f; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: rgba(245, 158, 11, 0.12); padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0 0 8px; color: #fbbf24; font-weight: 600; font-size: 14px;">Message from Service Provider:</p>
+          <p style="margin: 0; color: #D4A853; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         `
             : ''
         }
         
-        <p style="margin: 24px 0 0; color: #4b5563; font-size: 16px;">Please review and respond to the counter offer.</p>
+        <p style="margin: 24px 0 0; color: #B8A88A; font-size: 16px;">Please review and respond to the counter offer.</p>
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -2586,7 +2875,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -2752,29 +3041,29 @@ export class ApplicationsService {
       const content = `
         <p style="margin: 0 0 20px;"><strong>${employerName}</strong> has sent a counter offer for your negotiation request on the job "<strong>${jobTitle}</strong>".</p>
         
-        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 12px; color: #1f2937; font-weight: 600; font-size: 15px;">Counter Offer Rates:</p>
-          <div style="color: #4b5563; font-size: 15px; line-height: 1.8;">
+        <div style="background-color: #0E1B32; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 12px; color: #F5E6C8; font-weight: 600; font-size: 15px;">Counter Offer Rates:</p>
+          <div style="color: #B8A88A; font-size: 15px; line-height: 1.8;">
             ${ratesList}
           </div>
-          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-            <strong style="color: #1f2937;">Total Amount:</strong> 
-            <span style="color: #6366f1; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
+          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #1E3048;">
+            <strong style="color: #F5E6C8;">Total Amount:</strong> 
+            <span style="color: #C9963F; font-weight: 700; font-size: 18px;">${app.job.currency || 'EUR'} ${totalAmount.toFixed(2)}</span>
           </p>
         </div>
         
         ${
           message
             ? `
-        <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0 0 8px; color: #92400e; font-weight: 600; font-size: 14px;">Message from Employer:</p>
-          <p style="margin: 0; color: #78350f; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: rgba(245, 158, 11, 0.12); padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0 0 8px; color: #fbbf24; font-weight: 600; font-size: 14px;">Message from Employer:</p>
+          <p style="margin: 0; color: #D4A853; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         `
             : ''
         }
         
-        <p style="margin: 24px 0 0; color: #4b5563; font-size: 16px;">Please review and respond to the counter offer.</p>
+        <p style="margin: 24px 0 0; color: #B8A88A; font-size: 16px;">Please review and respond to the counter offer.</p>
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -2791,7 +3080,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -2951,7 +3240,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -3123,7 +3412,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -3161,6 +3450,13 @@ export class ApplicationsService {
             employerId: true,
             status: true,
             title: true,
+          },
+        },
+        applicant: {
+          select: {
+            id: true,
+            firstName: true,
+            email: true,
           },
         },
       },
@@ -3233,12 +3529,15 @@ export class ApplicationsService {
               startTime: verifiedAt,
             },
           });
-          console.log(
+          this.logger.log(
             `[Booking Status] Booking ${booking.id} set to IN_PROGRESS after code verification`,
           );
         }
       } catch (err) {
-        console.error('[Booking Status] Failed to update booking status:', err);
+        this.logger.error(
+          '[Booking Status] Failed to update booking status:',
+          err,
+        );
       }
     }
 
@@ -3263,8 +3562,70 @@ export class ApplicationsService {
           },
         });
       } catch (err) {
-        console.error(
+        this.logger.error(
           '[Notification] Failed to send service started notification:',
+          err,
+        );
+      }
+
+      // Notify service provider that service has started
+      try {
+        const providerT = await this.emailTranslations.getTranslatorForUser(
+          application.applicantId,
+        );
+        const jobTitleForNotif =
+          application.job.title || providerT('notifications.common.yourJob');
+        await this.notifications.createNotification({
+          userId: application.applicantId,
+          type: 'APPLICATION_UPDATE',
+          title: providerT(
+            'notifications.templates.serviceStartedProviderTitle',
+          ),
+          body: providerT(
+            'notifications.templates.serviceStartedProviderBody',
+            { jobTitle: jobTitleForNotif },
+          ),
+          payload: {
+            applicationId: application.id,
+            jobId: application.job.id,
+          },
+        });
+
+        // Send email to service provider
+        if (application.applicant?.email) {
+          const firstName = application.applicant.firstName || 'there';
+          const emailSubject = providerT(
+            'email.jobs.serviceStartedProviderEmailSubject',
+            { jobTitle: jobTitleForNotif },
+          );
+          const content = `
+            <div style="background-color: rgba(16, 185, 129, 0.12); padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #10b981;">
+              <p style="margin: 0; color: #34d399; font-weight: 600; font-size: 16px;">
+                ${providerT('email.jobs.serviceStartedProviderMessage', { jobTitle: jobTitleForNotif })}
+              </p>
+            </div>
+          `;
+          const emailHtml = this.notifications.getBrandedEmailTemplate(
+            providerT('email.jobs.serviceStartedProviderTitle'),
+            providerT('email.jobs.serviceStartedProviderGreeting', {
+              firstName,
+            }),
+            content,
+            '',
+          );
+          await this.notifications.sendEmail(
+            application.applicant.email,
+            emailSubject,
+            providerT('email.jobs.serviceStartedProviderText', {
+              firstName,
+              jobTitle: jobTitleForNotif,
+            }),
+            emailHtml,
+          );
+        }
+      } catch (err) {
+        this.logger.error(
+          '[Notification] Failed to send service started provider notification:',
           err,
         );
       }
@@ -3472,7 +3833,7 @@ export class ApplicationsService {
         },
       });
     } catch (err) {
-      console.error(
+      this.logger.error(
         '[Notification] Failed to send instant job notification:',
         err,
       );
@@ -3608,7 +3969,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -3756,20 +4117,20 @@ export class ApplicationsService {
       const content = `
         <p style="margin: 0 0 20px;">The service provider (<strong>${applicantName}</strong>) has responded to your additional time request for the job "<strong>${jobTitle}</strong>".</p>
         
-        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 16px; color: #1f2937; font-weight: 600; font-size: 16px;">Additional Time Details:</p>
-          <p style="margin: 0 0 12px; color: #4b5563; font-size: 15px;">
-            <strong style="color: #1f2937;">Additional Days Requested:</strong> 
-            <span style="color: #6366f1; font-weight: 700; font-size: 18px;">${additionalDays} day${additionalDays > 1 ? 's' : ''}</span>
+        <div style="background-color: #0E1B32; padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 16px; color: #F5E6C8; font-weight: 600; font-size: 16px;">Additional Time Details:</p>
+          <p style="margin: 0 0 12px; color: #B8A88A; font-size: 15px;">
+            <strong style="color: #F5E6C8;">Additional Days Requested:</strong> 
+            <span style="color: #C9963F; font-weight: 700; font-size: 18px;">${additionalDays} day${additionalDays > 1 ? 's' : ''}</span>
           </p>
         </div>
         
-        <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0 0 8px; color: #92400e; font-weight: 600; font-size: 14px;">Explanation from Service Provider:</p>
-          <p style="margin: 0; color: #78350f; font-size: 15px; line-height: 1.6;">${explanation.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: rgba(245, 158, 11, 0.12); padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0 0 8px; color: #fbbf24; font-weight: 600; font-size: 14px;">Explanation from Service Provider:</p>
+          <p style="margin: 0; color: #D4A853; font-size: 15px; line-height: 1.6;">${explanation.replace(/\n/g, '<br>')}</p>
         </div>
         
-        <p style="margin: 24px 0 0; color: #4b5563; font-size: 16px;">Please review and accept or reject this request.</p>
+        <p style="margin: 24px 0 0; color: #B8A88A; font-size: 16px;">Please review and accept or reject this request.</p>
       `;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
@@ -3786,7 +4147,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -3928,8 +4289,11 @@ export class ApplicationsService {
       const emailText = `Hello ${applicantName},\n\nThe employer has ${status.toLowerCase()} your request for ${request.additionalDays} additional day${request.additionalDays > 1 ? 's' : ''} for the job "${jobTitle}".\n${message ? `Response message: ${message}\n` : ''}`;
 
       const statusColor = status === 'ACCEPTED' ? '#10b981' : '#ef4444';
-      const statusBg = status === 'ACCEPTED' ? '#d1fae5' : '#fee2e2';
-      const statusText = status === 'ACCEPTED' ? '#065f46' : '#991b1b';
+      const statusBg =
+        status === 'ACCEPTED'
+          ? 'rgba(16, 185, 129, 0.12)'
+          : 'rgba(239, 68, 68, 0.12)';
+      const statusText = status === 'ACCEPTED' ? '#34d399' : '#f87171';
 
       const content = `
         <div style="background-color: ${statusBg}; padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid ${statusColor};">
@@ -3940,9 +4304,9 @@ export class ApplicationsService {
         ${
           message
             ? `
-        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #6366f1;">
-          <p style="margin: 0 0 8px; color: #1f2937; font-weight: 600; font-size: 14px;">Response Message:</p>
-          <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+        <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #C9963F;">
+          <p style="margin: 0 0 8px; color: #F5E6C8; font-weight: 600; font-size: 14px;">Response Message:</p>
+          <p style="margin: 0; color: #B8A88A; font-size: 15px; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
         </div>
         `
             : ''
@@ -3950,8 +4314,8 @@ export class ApplicationsService {
         ${
           status === 'ACCEPTED'
             ? `
-        <div style="background-color: #f0fdf4; padding: 16px; border-radius: 8px; margin: 24px 0 0; border-left: 4px solid #10b981;">
-          <p style="margin: 0; color: #065f46; font-size: 14px; line-height: 1.6;">
+        <div style="background-color: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 8px; margin: 24px 0 0; border-left: 4px solid #10b981;">
+          <p style="margin: 0; color: #34d399; font-size: 14px; line-height: 1.6;">
             <strong>Note:</strong> The auto-completion deadline has been extended by ${request.additionalDays} day${request.additionalDays > 1 ? 's' : ''}. You now have more time to complete the job.
           </p>
         </div>
@@ -3976,7 +4340,7 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
     }
 
     return {
@@ -4087,19 +4451,19 @@ export class ApplicationsService {
       });
 
       const content = `
-        <div style="background-color: #d1fae5; padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #10b981;">
-          <p style="margin: 0; color: #065f46; font-weight: 600; font-size: 16px;">
+        <div style="background-color: rgba(16, 185, 129, 0.12); padding: 20px; border-radius: 8px; margin: 0 0 24px; border-left: 4px solid #10b981;">
+          <p style="margin: 0; color: #34d399; font-weight: 600; font-size: 16px;">
             ${t('email.jobs.jobMarkedAsDoneMessage', { applicantName, jobTitle })}
           </p>
         </div>
         
-        <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+        <p style="margin: 0 0 20px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
           ${t('email.jobs.jobMarkedAsDoneReviewMessage')}
         </p>
         
-        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #6366f1;">
-          <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
-            <strong style="color: #1f2937;">${t('email.jobs.nextSteps')}:</strong> ${t('email.jobs.jobMarkedAsDoneNextSteps')}
+        <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #C9963F;">
+          <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
+            <strong style="color: #F5E6C8;">${t('email.jobs.nextSteps')}:</strong> ${t('email.jobs.jobMarkedAsDoneNextSteps')}
           </p>
         </div>
       `;
@@ -4118,7 +4482,31 @@ export class ApplicationsService {
         emailHtml,
       );
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      this.logger.error('Failed to send email notification:', emailError);
+    }
+
+    // Notify service provider (confirmation)
+    try {
+      const providerT = await this.emailTranslations.getTranslatorForUser(
+        app.applicantId,
+      );
+      await this.notifications.createNotification({
+        userId: app.applicantId,
+        type: 'APPLICATION_UPDATE',
+        title: providerT('notifications.templates.jobMarkedAsDoneTitle'),
+        body: providerT('notifications.templates.jobMarkedAsDoneProviderBody', {
+          jobTitle,
+        }),
+        payload: {
+          applicationId: app.id,
+          jobId: app.job.id,
+        },
+      });
+    } catch (err) {
+      this.logger.error(
+        '[Notification] Failed to send mark-done confirmation to provider:',
+        err,
+      );
     }
 
     return {

@@ -199,8 +199,8 @@ export default function SearchModal() {
       style={[
         styles.talentCard,
         {
-          backgroundColor: isDark ? "rgba(30, 41, 59, 0.9)" : "rgba(241, 245, 249, 0.95)",
-          borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+          backgroundColor: isDark ? "rgba(12, 22, 42, 0.85)" : "rgba(241, 245, 249, 0.95)",
+          borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)",
           borderWidth: 1,
         },
       ]}
@@ -228,14 +228,14 @@ export default function SearchModal() {
           <View style={styles.talentMeta}>
             {item.city && (
               <View style={styles.metaItem}>
-                <Feather name="map-pin" size={12} color={isDark ? "#94a3b8" : "#64748b"} />
-                <Text style={[styles.metaText, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+                <Feather name="map-pin" size={12} color={isDark ? "#9A8E7A" : "#8A7B68"} />
+                <Text style={[styles.metaText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                   {item.city}
                 </Text>
               </View>
             )}
             {item.distanceKm && (
-              <Text style={[styles.metaText, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+              <Text style={[styles.metaText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                 {item.distanceKm.toFixed(1)} km away
               </Text>
             )}
@@ -257,7 +257,7 @@ export default function SearchModal() {
               style={[
                 styles.skillTag,
                 {
-                  backgroundColor: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.1)",
+                  backgroundColor: isDark ? "rgba(201, 150, 63, 0.2)" : "rgba(201, 150, 63, 0.1)",
                 },
               ]}
             >
@@ -283,41 +283,41 @@ export default function SearchModal() {
           </View>
 
           <View style={styles.searchSection}>
-            <Text style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}>{t("searchJobs.jobCategory")}</Text>
+            <Text style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}>{t("searchJobs.jobCategory")}</Text>
             <TouchableOpacity
               style={[
                 styles.input,
                 styles.categoryInput,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "rgba(241, 245, 249, 0.9)",
-                  borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.75)" : "rgba(241, 245, 249, 0.9)",
+                  borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)",
                   borderWidth: 1,
                 },
               ]}
               onPress={() => setShowCategoryModal(true)}
             >
-              <Text style={[styles.categoryText, { color: category ? colors.text : (isDark ? "#64748b" : "#94a3b8") }]}>
+              <Text style={[styles.categoryText, { color: category ? colors.text : (isDark ? "#8A7B68" : "#9A8E7A") }]}>
                 {category || t("searchJobs.selectCategory")}
               </Text>
-              <Feather name="chevron-down" size={20} color={isDark ? "#94a3b8" : "#64748b"} />
+              <Feather name="chevron-down" size={20} color={isDark ? "#9A8E7A" : "#8A7B68"} />
             </TouchableOpacity>
 
-            <Text style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}>{t("searchJobs.location")}</Text>
+            <Text style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}>{t("searchJobs.location")}</Text>
             <View style={styles.inputRow}>
-              <Feather name="map-pin" size={18} color={isDark ? "#94a3b8" : "#64748b"} style={styles.inputIcon} />
+              <Feather name="map-pin" size={18} color={isDark ? "#9A8E7A" : "#8A7B68"} style={styles.inputIcon} />
               <TextInput
                 style={[
                   styles.input,
                   styles.inputWithIcon,
                   {
-                    backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "rgba(241, 245, 249, 0.9)",
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+                    backgroundColor: isDark ? "rgba(12, 22, 42, 0.75)" : "rgba(241, 245, 249, 0.9)",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)",
                     borderWidth: 1,
                     color: colors.text,
                   },
                 ]}
                 placeholder={t("searchJobs.enterCityOrZipCode")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={location}
                 onChangeText={setLocation}
               />
@@ -327,16 +327,16 @@ export default function SearchModal() {
               style={[
                 styles.button, 
                 { 
-                  backgroundColor: isDark ? "#6366f1" : "#4f46e5",
+                  backgroundColor: isDark ? "#E8B86D" : "#C9963F",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
+                  borderColor: isDark ? "#E8B86D" : "#C9963F",
                 }
               ]}
               onPress={searchTalents}
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#FFFAF0" />
               ) : (
                 <Text style={styles.buttonText}>{t("searchJobs.search")}</Text>
               )}
@@ -351,12 +351,12 @@ export default function SearchModal() {
                   viewMode === "list" && styles.toggleButtonActive,
                   { 
                     backgroundColor: viewMode === "list" 
-                      ? (isDark ? "#6366f1" : "#4f46e5")
-                      : (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"),
+                      ? (isDark ? "#E8B86D" : "#C9963F")
+                      : (isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)"),
                     borderWidth: 1,
                     borderColor: viewMode === "list"
-                      ? (isDark ? "#6366f1" : "#4f46e5")
-                      : (isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"),
+                      ? (isDark ? "#E8B86D" : "#C9963F")
+                      : (isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)"),
                   },
                 ]}
                 onPress={() => setViewMode("list")}
@@ -364,12 +364,12 @@ export default function SearchModal() {
                 <Feather
                   name="list"
                   size={18}
-                  color={viewMode === "list" ? "#fff" : colors.text}
+                  color={viewMode === "list" ? "#FFFAF0" : colors.text}
                 />
                 <Text
                   style={[
                     styles.toggleText,
-                    { color: viewMode === "list" ? "#fff" : colors.text },
+                    { color: viewMode === "list" ? "#FFFAF0" : colors.text },
                   ]}
                 >
                   List
@@ -381,12 +381,12 @@ export default function SearchModal() {
                   viewMode === "map" && styles.toggleButtonActive,
                   { 
                     backgroundColor: viewMode === "map" 
-                      ? (isDark ? "#6366f1" : "#4f46e5")
-                      : (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"),
+                      ? (isDark ? "#E8B86D" : "#C9963F")
+                      : (isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)"),
                     borderWidth: 1,
                     borderColor: viewMode === "map"
-                      ? (isDark ? "#6366f1" : "#4f46e5")
-                      : (isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"),
+                      ? (isDark ? "#E8B86D" : "#C9963F")
+                      : (isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)"),
                   },
                 ]}
                 onPress={() => setViewMode("map")}
@@ -394,12 +394,12 @@ export default function SearchModal() {
                 <Feather
                   name="map"
                   size={18}
-                  color={viewMode === "map" ? "#fff" : colors.text}
+                  color={viewMode === "map" ? "#FFFAF0" : colors.text}
                 />
                 <Text
                   style={[
                     styles.toggleText,
-                    { color: viewMode === "map" ? "#fff" : colors.text },
+                    { color: viewMode === "map" ? "#FFFAF0" : colors.text },
                   ]}
                 >
                   Map
@@ -451,8 +451,8 @@ export default function SearchModal() {
               ListEmptyComponent={
                 !loading ? (
                   <View style={styles.emptyContainer}>
-                    <Feather name="search" size={48} color={isDark ? "#475569" : "#cbd5e1"} />
-                    <Text style={[styles.emptyText, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+                    <Feather name="search" size={48} color={isDark ? "#6B6355" : "#B8A88A"} />
+                    <Text style={[styles.emptyText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                       No talents found. Try adjusting your search.
                     </Text>
                   </View>
@@ -473,9 +473,9 @@ export default function SearchModal() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "rgba(241, 245, 249, 0.98)",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "rgba(241, 245, 249, 0.98)",
                   borderTopWidth: 1,
-                  borderTopColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+                  borderTopColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -505,12 +505,12 @@ export default function SearchModal() {
                         {
                           backgroundColor:
                             category === skill.name
-                              ? (isDark ? "#6366f1" : "#4f46e5")
+                              ? (isDark ? "#E8B86D" : "#C9963F")
                               : isDark
-                                ? "rgba(255,255,255,0.05)"
-                                : "rgba(0,0,0,0.05)",
+                                ? "rgba(255,250,240,0.06)"
+                                : "rgba(184,130,42,0.06)",
                           borderWidth: category === skill.name ? 1 : 0,
-                          borderColor: category === skill.name ? (isDark ? "#6366f1" : "#4f46e5") : "transparent",
+                          borderColor: category === skill.name ? (isDark ? "#E8B86D" : "#C9963F") : "transparent",
                         },
                       ]}
                       onPress={() => {
@@ -522,7 +522,7 @@ export default function SearchModal() {
                         style={[
                           styles.categoryOptionText,
                           {
-                            color: category === skill.name ? "#fff" : colors.text,
+                            color: category === skill.name ? "#FFFAF0" : colors.text,
                           },
                         ]}
                       >
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,250,240,0.15)",
     borderRadius: 2,
     alignSelf: "center",
     marginBottom: 24,
@@ -557,13 +557,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 24,
   },
-  title: { fontSize: 28, fontWeight: "800" },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: 2 },
   closeBtn: { padding: 4 },
   searchSection: { marginBottom: 20 },
-  label: { fontWeight: "600", marginBottom: 8, marginLeft: 4, fontSize: 14 },
+  label: { fontWeight: "700", marginBottom: 8, marginLeft: 4, fontSize: 14 },
   input: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 20,
     fontSize: 16,
@@ -579,11 +579,11 @@ const styles = StyleSheet.create({
   inputIcon: { position: "absolute", left: 14, top: 18, zIndex: 1 },
   button: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     marginTop: 12,
   },
-  buttonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  buttonText: { color: "#FFFAF0", fontWeight: "700", fontSize: 16 },
   viewToggle: {
     flexDirection: "row",
     gap: 8,
@@ -598,17 +598,17 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
   },
   toggleButtonActive: {
     borderColor: "transparent",
   },
-  toggleText: { fontWeight: "600", fontSize: 14 },
-  mapContainer: { flex: 1, borderRadius: 12, overflow: "hidden", marginBottom: 16 },
+  toggleText: { fontWeight: "700", fontSize: 14 },
+  mapContainer: { flex: 1, borderRadius: 4, overflow: "hidden", marginBottom: 16 },
   map: { flex: 1 },
   listContent: { paddingBottom: 20 },
   talentCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -622,12 +622,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#C9963F",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
-  avatarText: { color: "#fff", fontWeight: "700", fontSize: 18 },
+  avatarText: { color: "#FFFAF0", fontWeight: "700", fontSize: 18 },
   talentInfo: { flex: 1 },
   talentName: { fontSize: 16, fontWeight: "700", marginBottom: 4 },
   talentMeta: {
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: "row", alignItems: "center", gap: 4 },
   metaText: { fontSize: 12 },
   rateContainer: {
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  skillText: { fontSize: 12, fontWeight: "600" },
+  skillText: { fontSize: 12, fontWeight: "700" },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",

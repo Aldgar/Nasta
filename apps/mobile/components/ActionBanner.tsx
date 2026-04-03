@@ -109,13 +109,13 @@ export default function ActionBanner() {
       case "LEGAL_ACTION":
         return {
           icon: "briefcase",
-          color: "#8b5cf6",
+          color: "#E8B86D",
           bgColor: isDark
-            ? "rgba(139, 92, 246, 0.2)"
-            : "rgba(139, 92, 246, 0.1)",
+            ? "rgba(232, 184, 109, 0.2)"
+            : "rgba(232, 184, 109, 0.1)",
           borderColor: isDark
-            ? "rgba(139, 92, 246, 0.4)"
-            : "rgba(139, 92, 246, 0.3)",
+            ? "rgba(232, 184, 109, 0.4)"
+            : "rgba(232, 184, 109, 0.3)",
           title: `${t("actionBanner.legalAction")}: ${activeAction.actionData.actionType || t("actionBanner.actionRequired")}`,
           message:
             activeAction.actionData.reason || t("actionBanner.reviewDetails"),
@@ -151,13 +151,13 @@ export default function ActionBanner() {
       case "REQUEST_INFO":
         return {
           icon: "info",
-          color: "#6366f1",
+          color: "#C9963F",
           bgColor: isDark
-            ? "rgba(99, 102, 241, 0.2)"
-            : "rgba(99, 102, 241, 0.1)",
+            ? "rgba(201, 150, 63, 0.2)"
+            : "rgba(201, 150, 63, 0.1)",
           borderColor: isDark
-            ? "rgba(99, 102, 241, 0.4)"
-            : "rgba(99, 102, 241, 0.3)",
+            ? "rgba(201, 150, 63, 0.4)"
+            : "rgba(201, 150, 63, 0.3)",
           title: t("actionBanner.informationRequest"),
           message:
             (activeAction.actionData as any)?.request ||
@@ -168,11 +168,11 @@ export default function ActionBanner() {
           icon: "alert-circle",
           color: colors.tint,
           bgColor: isDark
-            ? "rgba(99, 102, 241, 0.2)"
-            : "rgba(99, 102, 241, 0.1)",
+            ? "rgba(201, 150, 63, 0.2)"
+            : "rgba(201, 150, 63, 0.1)",
           borderColor: isDark
-            ? "rgba(99, 102, 241, 0.4)"
-            : "rgba(99, 102, 241, 0.3)",
+            ? "rgba(201, 150, 63, 0.4)"
+            : "rgba(201, 150, 63, 0.3)",
           title: t("actionBanner.actionRequired"),
           message: t("actionBanner.reviewAction"),
         };
@@ -210,7 +210,7 @@ export default function ActionBanner() {
           <Text
             style={[
               styles.message,
-              { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+              { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
             ]}
             numberOfLines={2}
           >
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 16,
     marginBottom: 8,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1,
   },
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   message: {

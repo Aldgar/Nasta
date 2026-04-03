@@ -1,13 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { api, API_BASE } from "../../lib/api";
-
-type Role = "JOB_SEEKER" | "EMPLOYER" | "ADMIN";
+import { useState } from "react";
+import { api } from "../../lib/api";
+import { useAuth, type Role } from "../../lib/auth";
 
 export default function LoginForm() {
-  const router = useRouter();
-  const search = useSearchParams();
+  const { login: authLogin } = useAuth();
   const [role, setRole] = useState<Role>("JOB_SEEKER");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +36,7 @@ export default function LoginForm() {
       const tryLogin = async (path: string) => {
         const res = await api<unknown>(path, {
           method: "POST",
-          body: { email: trimmedEmail, password },
+          body: { email: trimmedEmail, password: password.trim() },
         });
         if (res.error || !res.data) return { ok: false as const, res };
         const data = res.data as Record<string, unknown>;
@@ -54,42 +51,37 @@ export default function LoginForm() {
       if (role === "ADMIN") {
         const admin = await tryLogin("/auth/admin/login");
         if (!admin.ok) {
-          setError("Only Admins with Admin Credintials can login");
+          setError("Only Admins with Admin Credentials can login");
           setLoading(false);
           return;
         }
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", admin.token);
-          if (admin.who?.email)
-            localStorage.setItem("auth_email", admin.who.email);
-          if (admin.who?.role)
-            localStorage.setItem("auth_role", admin.who.role);
-        }
-        router.push("/");
-        router.refresh();
+        const adminRole = (admin.who?.role as Role) || "ADMIN";
+        authLogin(admin.token, {
+          id: "",
+          email: admin.who?.email ?? trimmedEmail,
+          role: adminRole,
+        });
         return;
       }
 
       if (role === "EMPLOYER") {
         const emp = await tryLogin("/auth/employer/login");
         if (!emp.ok) {
-          // If these credentials are for a Job Seeker, suggest correct login
           const userProbe = await tryLogin("/auth/user/login");
           if (userProbe.ok) {
-            setError("Please use the Job Seeker login if you are a Job Seeker");
+            setError("Please use the Service Provider login if you are a Service Provider");
           } else {
             setError("Invalid email or password");
           }
           setLoading(false);
           return;
         }
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", emp.token);
-          if (emp.who?.email) localStorage.setItem("auth_email", emp.who.email);
-          if (emp.who?.role) localStorage.setItem("auth_role", emp.who.role);
-        }
-        router.push("/");
-        router.refresh();
+        const empRole = (emp.who?.role as Role) || "EMPLOYER";
+        authLogin(emp.token, {
+          id: "",
+          email: emp.who?.email ?? trimmedEmail,
+          role: empRole,
+        });
         return;
       }
 
@@ -97,7 +89,6 @@ export default function LoginForm() {
       {
         const user = await tryLogin("/auth/user/login");
         if (!user.ok) {
-          // If these credentials are for an Employer, suggest correct login
           const empProbe = await tryLogin("/auth/employer/login");
           if (empProbe.ok) {
             setError("Please use Employer login if you are Employer");
@@ -107,14 +98,12 @@ export default function LoginForm() {
           setLoading(false);
           return;
         }
-        if (typeof window !== "undefined") {
-          localStorage.setItem("auth_token", user.token);
-          if (user.who?.email)
-            localStorage.setItem("auth_email", user.who.email);
-          if (user.who?.role) localStorage.setItem("auth_role", user.who.role);
-        }
-        router.push("/");
-        router.refresh();
+        const userRole = (user.who?.role as Role) || "JOB_SEEKER";
+        authLogin(user.token, {
+          id: "",
+          email: user.who?.email ?? trimmedEmail,
+          role: userRole,
+        });
         return;
       }
     } catch (e) {
@@ -123,24 +112,12 @@ export default function LoginForm() {
     }
   };
 
-  // If we arrive with provider=google, attempt to start OAuth on the server
-  useEffect(() => {
-    const provider = search?.get("provider");
-    const roleParam = search?.get("role") as Role | null;
-    if (provider === "google") {
-      // Redirect directly; avoid setState inside the effect per lint rule
-      const roleToUse = roleParam || "JOB_SEEKER";
-      const url = `${API_BASE}/auth/google?role=${encodeURIComponent(roleToUse)}`;
-      if (typeof window !== "undefined") window.location.href = url;
-    }
-  }, [search]);
-
   return (
     <form onSubmit={onSubmit} className="w-full max-w-md space-y-4">
       <div className="flex gap-2">
         {(
           [
-            ["JOB_SEEKER", "Job Seeker"],
+            ["JOB_SEEKER", "Service Provider"],
             ["EMPLOYER", "Employer"],
             ["ADMIN", "Admin"],
           ] as const
@@ -161,7 +138,7 @@ export default function LoginForm() {
         ))}
       </div>
       <p className="text-xs text-neutral-600">
-        Choose your portal: Job Seeker for candidates, Employer for companies,
+        Choose your portal: Service Provider for workers, Employer for companies,
         and Admin for platform administrators.
       </p>
 
@@ -231,23 +208,6 @@ export default function LoginForm() {
         className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-soft-blue disabled:opacity-60"
       >
         {loading ? "Signing in…" : "Sign in"}
-      </button>
-
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-neutral-200" />
-        <span className="text-xs text-neutral-500">or</span>
-        <div className="h-px flex-1 bg-neutral-200" />
-      </div>
-
-      <button
-        type="button"
-        onClick={() => {
-          const url = `${API_BASE}/auth/google?role=${encodeURIComponent(role)}`;
-          if (typeof window !== "undefined") window.location.href = url;
-        }}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-50"
-      >
-        <span>Continue with Google</span>
       </button>
 
       <p className="text-xs text-neutral-600">

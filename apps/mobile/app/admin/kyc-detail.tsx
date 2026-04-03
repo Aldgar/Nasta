@@ -71,7 +71,7 @@ export default function KYCDetailScreen() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
   const [verification, setVerification] = useState<KYCVerification | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -187,20 +187,20 @@ export default function KYCDetailScreen() {
                         ? t("admin.approvedByAdmin")
                         : t("admin.declinedByAdmin"),
                   }),
-                }
+                },
               );
 
               if (res.ok) {
                 Alert.alert(
                   "Success",
                   `Verification ${decision === "VERIFIED" ? "approved" : "declined"} successfully`,
-                  [{ text: t("common.ok"), onPress: () => router.back() }]
+                  [{ text: t("common.ok"), onPress: () => router.back() }],
                 );
               } else {
                 const error = await res.json();
                 Alert.alert(
                   t("common.error"),
-                  error.message || t("admin.failedToUpdateVerification")
+                  error.message || t("admin.failedToUpdateVerification"),
                 );
               }
             } catch (error) {
@@ -211,7 +211,7 @@ export default function KYCDetailScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -239,7 +239,7 @@ export default function KYCDetailScreen() {
             requestedDocument: requestedDocument.trim(),
             reason: requestReason.trim(),
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -255,13 +255,13 @@ export default function KYCDetailScreen() {
                 setRequestReason("");
               },
             },
-          ]
+          ],
         );
       } else {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToSendRequest")
+          error.message || t("admin.failedToSendRequest"),
         );
       }
     } catch (error) {
@@ -274,7 +274,7 @@ export default function KYCDetailScreen() {
 
   const handleDocumentReview = async (
     documentType: string,
-    decision: "APPROVED" | "REJECTED"
+    decision: "APPROVED" | "REJECTED",
   ) => {
     // Handle certifications
     if (documentType.startsWith("certification-")) {
@@ -309,7 +309,7 @@ export default function KYCDetailScreen() {
                     body: JSON.stringify({
                       decision: decision,
                     }),
-                  }
+                  },
                 );
 
                 if (res.ok) {
@@ -321,13 +321,13 @@ export default function KYCDetailScreen() {
                         text: t("common.ok"),
                         onPress: () => fetchVerification(),
                       },
-                    ]
+                    ],
                   );
                 } else {
                   const error = await res.json();
                   Alert.alert(
                     t("common.error"),
-                    error.message || t("admin.failedToUpdateCertification")
+                    error.message || t("admin.failedToUpdateCertification"),
                   );
                 }
               } catch (error) {
@@ -338,7 +338,7 @@ export default function KYCDetailScreen() {
               }
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -374,7 +374,7 @@ export default function KYCDetailScreen() {
                     body: JSON.stringify({
                       decision: decision,
                     }),
-                  }
+                  },
                 );
 
                 if (res.ok) {
@@ -386,13 +386,13 @@ export default function KYCDetailScreen() {
                         text: t("common.ok"),
                         onPress: () => fetchVerification(),
                       },
-                    ]
+                    ],
                   );
                 } else {
                   const error = await res.json();
                   Alert.alert(
                     t("common.error"),
-                    error.message || t("admin.failedToUpdateCvDocument")
+                    error.message || t("admin.failedToUpdateCvDocument"),
                   );
                 }
               } catch (error) {
@@ -403,7 +403,7 @@ export default function KYCDetailScreen() {
               }
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -455,20 +455,20 @@ export default function KYCDetailScreen() {
                           ? t("admin.criminalRecordApproved")
                           : t("admin.criminalRecordRejected"),
                     }),
-                  }
+                  },
                 );
 
                 if (res.ok) {
                   Alert.alert(
                     "Success",
                     `Criminal record ${decision === "APPROVED" ? "approved" : "rejected"} successfully`,
-                    [{ text: "OK", onPress: () => fetchVerification() }]
+                    [{ text: "OK", onPress: () => fetchVerification() }],
                   );
                 } else {
                   const error = await res.json();
                   Alert.alert(
                     t("common.error"),
-                    error.message || t("admin.failedToUpdateCriminalRecord")
+                    error.message || t("admin.failedToUpdateCriminalRecord"),
                   );
                 }
               } catch (error) {
@@ -479,7 +479,7 @@ export default function KYCDetailScreen() {
               }
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -515,20 +515,20 @@ export default function KYCDetailScreen() {
                   body: JSON.stringify({
                     decision: decision, // Backend expects "APPROVED" or "REJECTED"
                   }),
-                }
+                },
               );
 
               if (res.ok) {
                 Alert.alert(
                   "Success",
                   `Document ${decision === "APPROVED" ? "approved" : "rejected"} successfully`,
-                  [{ text: "OK", onPress: () => fetchVerification() }]
+                  [{ text: "OK", onPress: () => fetchVerification() }],
                 );
               } else {
                 const error = await res.json();
                 Alert.alert(
                   t("common.error"),
-                  error.message || t("admin.failedToUpdateDocument")
+                  error.message || t("admin.failedToUpdateDocument"),
                 );
               }
             } catch (error) {
@@ -539,7 +539,7 @@ export default function KYCDetailScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -579,7 +579,7 @@ export default function KYCDetailScreen() {
               requestedDocument: t("admin.criminalRecordCertificate"),
               reason: requestDocumentModal.reason.trim(),
             }),
-          }
+          },
         );
 
         if (res.ok) {
@@ -599,13 +599,13 @@ export default function KYCDetailScreen() {
                   fetchVerification();
                 },
               },
-            ]
+            ],
           );
         } else {
           const error = await res.json();
           Alert.alert(
             t("common.error"),
-            error.message || t("admin.failedToSendRequest")
+            error.message || t("admin.failedToSendRequest"),
           );
         }
       } catch (error) {
@@ -635,7 +635,7 @@ export default function KYCDetailScreen() {
           body: JSON.stringify({
             reason: requestDocumentModal.reason.trim(),
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -655,13 +655,13 @@ export default function KYCDetailScreen() {
                 fetchVerification();
               },
             },
-          ]
+          ],
         );
       } else {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToSendRequest")
+          error.message || t("admin.failedToSendRequest"),
         );
       }
     } catch (error) {
@@ -692,7 +692,7 @@ export default function KYCDetailScreen() {
               {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
-              }
+              },
             );
 
             if (res.ok) {
@@ -703,7 +703,7 @@ export default function KYCDetailScreen() {
               const error = await res.json();
               Alert.alert(
                 t("common.error"),
-                error.message || t("admin.failedToDeleteUser")
+                error.message || t("admin.failedToDeleteUser"),
               );
             }
           } catch (error) {
@@ -727,7 +727,7 @@ export default function KYCDetailScreen() {
 
   const getDocumentStatus = (
     documentType: string,
-    documentStatuses?: Record<string, any>
+    documentStatuses?: Record<string, any>,
   ): string => {
     if (!documentStatuses) return "PENDING";
 
@@ -783,7 +783,7 @@ export default function KYCDetailScreen() {
     documentType: string,
     modalTitle: string,
     isPdf = false,
-    documentStatuses?: Record<string, string>
+    documentStatuses?: Record<string, string>,
   ) => {
     const hasDocument = !!url;
     const docStatus = getDocumentStatus(documentType, documentStatuses);
@@ -805,7 +805,7 @@ export default function KYCDetailScreen() {
           ? "#ef4444"
           : hasDocument
             ? "#f59e0b"
-            : "#6b7280";
+            : "#8A7B68";
 
     return (
       <View
@@ -813,9 +813,11 @@ export default function KYCDetailScreen() {
           styles.documentCard,
           {
             backgroundColor: isDark
-              ? "rgba(30, 41, 59, 0.8)"
-              : "rgba(255,255,255,0.95)",
-            borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+              ? "rgba(12, 22, 42, 0.80)"
+              : "rgba(255,250,240,0.95)",
+            borderColor: isDark
+              ? "rgba(255,250,240,0.15)"
+              : "rgba(184,130,42,0.2)",
             shadowColor: isDark ? "#000" : "#000",
           },
         ]}
@@ -838,7 +840,7 @@ export default function KYCDetailScreen() {
                 {
                   color: statusColor,
                   fontSize: 11,
-                  fontWeight: "600",
+                  fontWeight: "700",
                 },
               ]}
             >
@@ -876,7 +878,7 @@ export default function KYCDetailScreen() {
           >
             {isPdf ? (
               <View style={[styles.documentPreview, styles.pdfContainer]}>
-                <Feather name="file-text" size={48} color="#fff" />
+                <Feather name="file-text" size={48} color="#FFFAF0" />
                 <Text style={styles.pdfText}>PDF Document</Text>
               </View>
             ) : (
@@ -890,7 +892,7 @@ export default function KYCDetailScreen() {
               <Feather
                 name={isPdf ? "file-text" : "eye"}
                 size={20}
-                color="#fff"
+                color="#FFFAF0"
               />
               <Text style={styles.previewText}>{t("admin.tapToView")}</Text>
             </View>
@@ -902,19 +904,19 @@ export default function KYCDetailScreen() {
               {
                 backgroundColor: isDark
                   ? "rgba(107, 114, 128, 0.1)"
-                  : "rgba(0,0,0,0.05)",
+                  : "rgba(184,130,42,0.06)",
               },
             ]}
           >
             <Feather
               name={"file-x" as any}
               size={40}
-              color={isDark ? "#6b7280" : "#9ca3af"}
+              color={isDark ? "#8A7B68" : "#9A8E7A"}
             />
             <Text
               style={[
                 styles.missingText,
-                { color: isDark ? "#6b7280" : "#9ca3af" },
+                { color: isDark ? "#8A7B68" : "#9A8E7A" },
               ]}
             >
               Not uploaded
@@ -930,7 +932,7 @@ export default function KYCDetailScreen() {
               onPress={() => handleDocumentReview(documentType, "APPROVED")}
               disabled={processing}
             >
-              <Feather name="check" size={16} color="#fff" />
+              <Feather name="check" size={16} color="#FFFAF0" />
               <Text style={styles.documentActionText}>
                 {t("admin.approve")}
               </Text>
@@ -942,7 +944,7 @@ export default function KYCDetailScreen() {
               onPress={() => handleDocumentReview(documentType, "REJECTED")}
               disabled={processing}
             >
-              <Feather name="x" size={16} color="#fff" />
+              <Feather name="x" size={16} color="#FFFAF0" />
               <Text style={styles.documentActionText}>{t("admin.reject")}</Text>
             </TouchableOpacity>
           )}
@@ -963,7 +965,7 @@ export default function KYCDetailScreen() {
               }
               disabled={processing}
             >
-              <Feather name="file-plus" size={16} color="#fff" />
+              <Feather name="file-plus" size={16} color="#FFFAF0" />
               <Text style={styles.documentActionText}>
                 {t("admin.request")}
               </Text>
@@ -982,7 +984,7 @@ export default function KYCDetailScreen() {
               }
               disabled={processing}
             >
-              <Feather name="file-plus" size={16} color="#fff" />
+              <Feather name="file-plus" size={16} color="#FFFAF0" />
               <Text style={styles.documentActionText}>
                 {t("admin.request")}
               </Text>
@@ -1005,8 +1007,8 @@ export default function KYCDetailScreen() {
                 styles.backButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1037,8 +1039,8 @@ export default function KYCDetailScreen() {
                 styles.backButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1068,11 +1070,11 @@ export default function KYCDetailScreen() {
       case "MANUAL_REVIEW":
         return "#f59e0b";
       case "PENDING":
-        return "#3b82f6";
+        return "#C9963F";
       case "IN_PROGRESS":
-        return "#8b5cf6";
+        return "#E8B86D";
       default:
-        return "#64748b";
+        return "#8A7B68";
     }
   };
 
@@ -1094,8 +1096,8 @@ export default function KYCDetailScreen() {
               styles.backButton,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -1118,11 +1120,11 @@ export default function KYCDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -1137,7 +1139,7 @@ export default function KYCDetailScreen() {
                 <Text
                   style={[
                     styles.userEmail,
-                    { color: isDark ? "#cbd5e1" : "#64748b" },
+                    { color: isDark ? "#B8A88A" : "#8A7B68" },
                   ]}
                 >
                   {verification.user?.email || "N/A"}
@@ -1146,7 +1148,7 @@ export default function KYCDetailScreen() {
                   <Text
                     style={[
                       styles.userEmail,
-                      { color: isDark ? "#cbd5e1" : "#64748b" },
+                      { color: isDark ? "#B8A88A" : "#8A7B68" },
                     ]}
                   >
                     {verification.user.phone}
@@ -1179,7 +1181,7 @@ export default function KYCDetailScreen() {
               <Text
                 style={[
                   styles.infoValue,
-                  { color: isDark ? "#cbd5e1" : "#64748b" },
+                  { color: isDark ? "#B8A88A" : "#8A7B68" },
                 ]}
               >
                 {verification.verificationType?.replace("_", " ") || "N/A"}
@@ -1194,7 +1196,7 @@ export default function KYCDetailScreen() {
                 <Text
                   style={[
                     styles.infoValue,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {verification.documentNumber}
@@ -1210,7 +1212,7 @@ export default function KYCDetailScreen() {
                 <Text
                   style={[
                     styles.infoValue,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {verification.documentCountry}
@@ -1225,7 +1227,7 @@ export default function KYCDetailScreen() {
               <Text
                 style={[
                   styles.infoValue,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {new Date(verification.createdAt).toLocaleString()}
@@ -1259,7 +1261,7 @@ export default function KYCDetailScreen() {
                 "documentFront",
                 t("admin.documentFront"),
                 false,
-                verification.documentStatuses
+                verification.documentStatuses,
               )}
 
               {renderDocumentCard(
@@ -1268,7 +1270,7 @@ export default function KYCDetailScreen() {
                 "documentBack",
                 t("admin.documentBack"),
                 false,
-                verification.documentStatuses
+                verification.documentStatuses,
               )}
 
               {renderDocumentCard(
@@ -1277,7 +1279,7 @@ export default function KYCDetailScreen() {
                 "selfie",
                 "Selfie",
                 false,
-                verification.documentStatuses
+                verification.documentStatuses,
               )}
             </View>
 
@@ -1289,7 +1291,7 @@ export default function KYCDetailScreen() {
                 {t("admin.driversLicense")}
               </Text>
               {verification.allVerifications?.find(
-                (v) => v.verificationType === "DRIVERS_LICENSE"
+                (v) => v.verificationType === "DRIVERS_LICENSE",
               ) ? (
                 verification.allVerifications
                   .filter((v) => v.verificationType === "DRIVERS_LICENSE")
@@ -1301,7 +1303,7 @@ export default function KYCDetailScreen() {
                         "driversLicenseFront",
                         t("admin.frontOfDriversLicense"),
                         false,
-                        dlVerification.documentStatuses
+                        dlVerification.documentStatuses,
                       )}
                       {renderDocumentCard(
                         t("admin.backOfDriversLicense"),
@@ -1309,7 +1311,7 @@ export default function KYCDetailScreen() {
                         "driversLicenseBack",
                         t("admin.backOfDriversLicense"),
                         false,
-                        dlVerification.documentStatuses
+                        dlVerification.documentStatuses,
                       )}
                     </View>
                   ))
@@ -1320,17 +1322,17 @@ export default function KYCDetailScreen() {
                     {
                       backgroundColor: isDark
                         ? "rgba(107, 114, 128, 0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        : "rgba(184,130,42,0.06)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.emptySectionText,
-                      { color: isDark ? "#9ca3af" : "#6b7280" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.noDriversLicenseUploaded")}
@@ -1351,7 +1353,7 @@ export default function KYCDetailScreen() {
                     }
                     disabled={processing}
                   >
-                    <Feather name="file-plus" size={16} color="#fff" />
+                    <Feather name="file-plus" size={16} color="#FFFAF0" />
                     <Text style={styles.documentActionText}>
                       {t("admin.request")}
                     </Text>
@@ -1374,7 +1376,7 @@ export default function KYCDetailScreen() {
                   "criminalRecord",
                   t("admin.criminalRecord"),
                   true, // is PDF
-                  { criminalRecord: verification.backgroundCheck.status } // Use background check status
+                  { criminalRecord: verification.backgroundCheck.status }, // Use background check status
                 )}
                 {verification.backgroundCheck.certificateNumber && (
                   <View
@@ -1382,8 +1384,8 @@ export default function KYCDetailScreen() {
                       styles.infoCard,
                       {
                         backgroundColor: isDark
-                          ? "rgba(59, 130, 246, 0.1)"
-                          : "rgba(59, 130, 246, 0.05)",
+                          ? "rgba(201, 150, 63, 0.1)"
+                          : "rgba(201, 150, 63, 0.05)",
                         marginTop: 12,
                         padding: 12,
                         borderRadius: 8,
@@ -1393,7 +1395,7 @@ export default function KYCDetailScreen() {
                     <Text
                       style={[
                         styles.infoValue,
-                        { color: isDark ? "#93c5fd" : "#2563eb" },
+                        { color: isDark ? "#A78BFA" : "#7C3AED" },
                       ]}
                     >
                       Certificate Number:{" "}
@@ -1434,7 +1436,7 @@ export default function KYCDetailScreen() {
                         `certification-${index}`,
                         `${t("admin.certification")} ${index + 1}`,
                         true, // is PDF
-                        { [`certification-${index}`]: certStatus }
+                        { [`certification-${index}`]: certStatus },
                       )}
                     </View>
                   );
@@ -1446,17 +1448,17 @@ export default function KYCDetailScreen() {
                     {
                       backgroundColor: isDark
                         ? "rgba(107, 114, 128, 0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        : "rgba(184,130,42,0.06)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.emptySectionText,
-                      { color: isDark ? "#9ca3af" : "#6b7280" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.noCertificationsUploaded")}
@@ -1477,7 +1479,7 @@ export default function KYCDetailScreen() {
                     }
                     disabled={processing}
                   >
-                    <Feather name="file-plus" size={16} color="#fff" />
+                    <Feather name="file-plus" size={16} color="#FFFAF0" />
                     <Text style={styles.documentActionText}>
                       {t("admin.request")}
                     </Text>
@@ -1516,7 +1518,7 @@ export default function KYCDetailScreen() {
                         `cv-${index}`,
                         `${t("admin.cv")} ${index + 1}`,
                         true, // is PDF
-                        { [`cv-${index}`]: cvStatus }
+                        { [`cv-${index}`]: cvStatus },
                       )}
                     </View>
                   );
@@ -1528,17 +1530,17 @@ export default function KYCDetailScreen() {
                     {
                       backgroundColor: isDark
                         ? "rgba(107, 114, 128, 0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        : "rgba(184,130,42,0.06)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.emptySectionText,
-                      { color: isDark ? "#9ca3af" : "#6b7280" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.noCvDocumentsUploaded")}
@@ -1559,7 +1561,7 @@ export default function KYCDetailScreen() {
                     }
                     disabled={processing}
                   >
-                    <Feather name="file-plus" size={16} color="#fff" />
+                    <Feather name="file-plus" size={16} color="#FFFAF0" />
                     <Text style={styles.documentActionText}>
                       {t("admin.request")}
                     </Text>
@@ -1569,94 +1571,160 @@ export default function KYCDetailScreen() {
             </View>
           </View>
 
-          {/* Overall Verification Action Buttons - Show for PENDING, IN_PROGRESS, or MANUAL_REVIEW */}
-          {verification.status &&
-            ["PENDING", "IN_PROGRESS", "MANUAL_REVIEW"].includes(
-              verification.status
-            ) && (
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.approveButton]}
-                  onPress={() => handleReview("VERIFIED")}
-                  disabled={processing}
-                >
-                  {processing ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <>
-                      <Feather name="check" size={18} color="#fff" />
-                      <Text style={styles.actionButtonText}>
-                        {t("admin.approve")}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.rejectButton]}
-                  onPress={() => handleReview("FAILED")}
-                  disabled={processing}
-                >
-                  {processing ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <>
-                      <Feather name="x" size={18} color="#fff" />
-                      <Text style={styles.actionButtonText}>
-                        {t("admin.reject")}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              </View>
-            )}
-
-          {/* Contact User */}
-          {verification.user && (
-            <TouchableOpacity
-              style={[
-                styles.contactButton,
-                {
-                  backgroundColor: isDark ? "#6366f1" : colors.tint,
-                  borderColor: isDark ? "#6366f1" : colors.tint,
-                },
-              ]}
-              onPress={() => {
-                router.push({
-                  pathname: "/chat/room",
-                  params: {
-                    userId: verification.user!.id,
-                    userName:
-                      `${verification.user!.firstName || ""} ${verification.user!.lastName || ""}`.trim() ||
-                      "User",
-                  },
-                } as never);
-              }}
-              disabled={processing}
-            >
-              <Feather name="message-circle" size={18} color="#fff" />
-              <Text style={[styles.contactButtonText, { color: "#fff" }]}>
-                Contact User
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Delete User */}
-          <TouchableOpacity
+          {/* Admin Actions */}
+          <View
             style={[
-              styles.deleteButton,
+              styles.adminActionsSection,
               {
-                backgroundColor: isDark ? "#ef4444" : "#ef4444",
-                borderColor: "#ef4444",
+                backgroundColor: isDark
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
+                borderColor: isDark
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
-            onPress={handleDeleteUser}
-            disabled={processing}
           >
-            <Feather name="trash-2" size={18} color="#fff" />
-            <Text style={[styles.deleteButtonText, { color: "#fff" }]}>
-              Delete User
+            <Text
+              style={[
+                styles.adminActionsSectionTitle,
+                { color: isDark ? "#C9963F" : "#96782A" },
+              ]}
+            >
+              ACTIONS
             </Text>
-          </TouchableOpacity>
+
+            {/* Approve / Reject row */}
+            {verification.status &&
+              ["PENDING", "IN_PROGRESS", "MANUAL_REVIEW"].includes(
+                verification.status,
+              ) && (
+                <View style={styles.adminActionsRow}>
+                  <TouchableOpacity
+                    style={[styles.adminActionBtn, styles.adminApproveBtn]}
+                    onPress={() => handleReview("VERIFIED")}
+                    disabled={processing}
+                  >
+                    {processing ? (
+                      <ActivityIndicator color="#FFFAF0" size="small" />
+                    ) : (
+                      <>
+                        <Feather
+                          name="check-circle"
+                          size={16}
+                          color="#FFFAF0"
+                        />
+                        <Text style={styles.adminActionBtnText}>
+                          {t("admin.approve")}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.adminActionBtn, styles.adminRejectBtn]}
+                    onPress={() => handleReview("FAILED")}
+                    disabled={processing}
+                  >
+                    {processing ? (
+                      <ActivityIndicator color="#FFFAF0" size="small" />
+                    ) : (
+                      <>
+                        <Feather name="x-circle" size={16} color="#FFFAF0" />
+                        <Text style={styles.adminActionBtnText}>
+                          {t("admin.reject")}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )}
+
+            {/* Divider */}
+            <View
+              style={[
+                styles.adminActionsDivider,
+                {
+                  backgroundColor: isDark
+                    ? "rgba(255,250,240,0.08)"
+                    : "rgba(0,0,0,0.06)",
+                },
+              ]}
+            />
+
+            {/* Contact User */}
+            {verification.user && (
+              <TouchableOpacity
+                style={[
+                  styles.adminActionBtnFull,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(167,139,250,0.15)"
+                      : "rgba(124,58,237,0.08)",
+                    borderColor: isDark
+                      ? "rgba(167,139,250,0.3)"
+                      : "rgba(124,58,237,0.2)",
+                  },
+                ]}
+                onPress={() => {
+                  router.push({
+                    pathname: "/chat/room",
+                    params: {
+                      userId: verification.user!.id,
+                      userName:
+                        `${verification.user!.firstName || ""} ${verification.user!.lastName || ""}`.trim() ||
+                        "User",
+                    },
+                  } as never);
+                }}
+                disabled={processing}
+              >
+                <Feather
+                  name="message-circle"
+                  size={16}
+                  color={isDark ? "#A78BFA" : "#7C3AED"}
+                />
+                <Text
+                  style={[
+                    styles.adminActionBtnFullText,
+                    { color: isDark ? "#A78BFA" : "#7C3AED" },
+                  ]}
+                >
+                  Contact User
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Delete User */}
+            <TouchableOpacity
+              style={[
+                styles.adminActionBtnFull,
+                {
+                  backgroundColor: isDark
+                    ? "rgba(239,68,68,0.12)"
+                    : "rgba(220,38,38,0.06)",
+                  borderColor: isDark
+                    ? "rgba(239,68,68,0.25)"
+                    : "rgba(220,38,38,0.15)",
+                },
+              ]}
+              onPress={handleDeleteUser}
+              disabled={processing}
+            >
+              <Feather
+                name="trash-2"
+                size={16}
+                color={isDark ? "#ef4444" : "#dc2626"}
+              />
+              <Text
+                style={[
+                  styles.adminActionBtnFullText,
+                  { color: isDark ? "#ef4444" : "#dc2626" },
+                ]}
+              >
+                Delete User
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
 
         {/* Image Modal */}
@@ -1681,7 +1749,7 @@ export default function KYCDetailScreen() {
                   setImageModal({ visible: false, uri: "", title: "" })
                 }
               >
-                <Feather name="x" size={24} color="#fff" />
+                <Feather name="x" size={24} color="#FFFAF0" />
               </TouchableOpacity>
             </View>
             <ScrollView
@@ -1722,7 +1790,7 @@ export default function KYCDetailScreen() {
               style={[
                 styles.requestModalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -1757,17 +1825,17 @@ export default function KYCDetailScreen() {
                   styles.modalTextArea,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.06)",
                     color: colors.text,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.2)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.15)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 placeholder={t("admin.pleaseSpecifyWhyDocumentNeeded")}
                 placeholderTextColor={
-                  isDark ? "rgba(255,255,255,0.5)" : "#9ca3af"
+                  isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A"
                 }
                 value={requestDocumentModal.reason}
                 onChangeText={(text) =>
@@ -1788,8 +1856,8 @@ export default function KYCDetailScreen() {
                     styles.modalButtonCancel,
                     {
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.2)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.3)",
                     },
                   ]}
                   onPress={() => {
@@ -1813,7 +1881,7 @@ export default function KYCDetailScreen() {
                   disabled={processing || !requestDocumentModal.reason.trim()}
                 >
                   {processing ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("admin.sendRequest")}
@@ -1861,7 +1929,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   card: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -1888,7 +1956,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   infoRow: {
     flexDirection: "row",
@@ -1897,7 +1965,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   infoValue: {
     fontSize: 14,
@@ -1906,6 +1974,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 16,
   },
@@ -1924,14 +1994,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   documentCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 0,
   },
   documentCardHeader: {
     flexDirection: "row",
@@ -1946,7 +2016,7 @@ const styles = StyleSheet.create({
   },
   documentPreviewContainer: {
     position: "relative",
-    borderRadius: 12,
+    borderRadius: 4,
     overflow: "hidden",
     backgroundColor: "#000",
     marginBottom: 12,
@@ -1967,9 +2037,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   previewText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   documentActions: {
     flexDirection: "row",
@@ -1991,7 +2061,7 @@ const styles = StyleSheet.create({
   },
   emptySectionCard: {
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     borderStyle: "dashed",
     alignItems: "center",
@@ -2003,21 +2073,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   documentActionText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
     fontSize: 13,
   },
   requestButton: {
-    backgroundColor: "#6366f1",
+    backgroundColor: "#C9963F",
   },
   documentLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   imageContainer: {
     position: "relative",
-    borderRadius: 12,
+    borderRadius: 4,
     overflow: "hidden",
     backgroundColor: "#000",
   },
@@ -2043,7 +2113,7 @@ const styles = StyleSheet.create({
   actionButton: {
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -2057,42 +2127,77 @@ const styles = StyleSheet.create({
     backgroundColor: "#ef4444",
   },
   actionButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
     fontSize: 16,
+  },
+  // Admin actions section (grouped card)
+  adminActionsSection: {
+    borderRadius: 4,
+    padding: 20,
+    marginBottom: 32,
+    borderWidth: 1,
+  },
+  adminActionsSectionTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginBottom: 16,
+  },
+  adminActionsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  adminActionBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
+  adminApproveBtn: {
+    backgroundColor: "#22c55e",
+  },
+  adminRejectBtn: {
+    backgroundColor: "#ef4444",
+  },
+  adminActionBtnText: {
+    color: "#FFFAF0",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  adminActionsDivider: {
+    height: 1,
+    marginVertical: 16,
+  },
+  adminActionBtnFull: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 13,
+    borderRadius: 4,
+    gap: 8,
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  adminActionBtnFullText: {
+    fontWeight: "700",
+    fontSize: 15,
   },
   contactButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 8,
-    borderWidth: 1,
-    marginBottom: 12,
-    alignSelf: "flex-start",
-  },
+    display: "none",
+  } as any,
   contactButtonText: {
-    fontWeight: "600",
-    fontSize: 16,
-  },
+    display: "none",
+  } as any,
   deleteButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 8,
-    borderWidth: 1,
-    marginBottom: 32,
-    alignSelf: "flex-start",
-  },
+    display: "none",
+  } as any,
   deleteButtonText: {
-    fontWeight: "600",
-    fontSize: 16,
-  },
+    display: "none",
+  } as any,
   emptyText: {
     fontSize: 14,
     textAlign: "center",
@@ -2112,7 +2217,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#fff",
+    color: "#FFFAF0",
   },
   modalImageContainer: {
     flex: 1,
@@ -2143,7 +2248,7 @@ const styles = StyleSheet.create({
   missingSection: {
     marginTop: 20,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   missingTitle: {
@@ -2157,7 +2262,7 @@ const styles = StyleSheet.create({
   },
   missingDocumentBox: {
     height: 120,
-    borderRadius: 12,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
@@ -2172,23 +2277,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pdfText: {
-    color: "#fff",
+    color: "#FFFAF0",
     marginTop: 8,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   infoCard: {
     borderRadius: 8,
   },
   requestModalContent: {
     margin: 20,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     maxHeight: "80%",
   },
   modalLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   modalInput: {
@@ -2212,7 +2317,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -2221,15 +2326,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   modalButtonSubmit: {
-    backgroundColor: "#8b5cf6",
+    backgroundColor: "#E8B86D",
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtonTextSubmit: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFAF0",
   },
 });

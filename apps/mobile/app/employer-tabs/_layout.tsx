@@ -44,7 +44,7 @@ export default function EmployerTabLayout() {
           console.warn(
             `[API] Network request failed. Make sure your server is running and accessible. ` +
               `Current API base: ${getApiBase()}. ` +
-              `If using a physical device, ensure EXPO_PUBLIC_API_BASE_URL is set to your machine's IP.`
+              `If using a physical device, ensure EXPO_PUBLIC_API_BASE_URL is set to your machine's IP.`,
           );
         }
       }
@@ -62,7 +62,7 @@ export default function EmployerTabLayout() {
   useFocusEffect(
     React.useCallback(() => {
       fetchUnreadCount();
-    }, [])
+    }, []),
   );
 
   return (
@@ -72,11 +72,12 @@ export default function EmployerTabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: colorScheme === "dark" ? "#1e293b" : "#ffffff",
+          backgroundColor: colorScheme === "dark" ? "#0A1628" : "#F5E6C8",
           borderTopColor:
             colorScheme === "dark"
-              ? "rgba(255,255,255,0.1)"
-              : "rgba(0,0,0,0.1)",
+              ? "rgba(201, 150, 63, 0.2)"
+              : "rgba(212, 162, 78, 0.3)",
+          borderTopWidth: 1,
         },
       }}
       initialRouteName="index"
@@ -142,7 +143,7 @@ export default function EmployerTabLayout() {
             unreadCount > 0
               ? {
                   backgroundColor: "#ef4444",
-                  color: "#fff",
+                  color: "#FFFAF0",
                   fontSize: 12,
                   minWidth: 18,
                   height: 18,

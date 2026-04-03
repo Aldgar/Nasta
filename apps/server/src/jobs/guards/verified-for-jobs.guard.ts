@@ -64,6 +64,21 @@ export class VerifiedForJobsGuard implements CanActivate {
       );
     }
 
+    // Ensure the user has uploaded a profile photo
+    const profile = await this.prisma.userProfile.findUnique({
+      where: { userId: user.id },
+      select: { avatarUrl: true },
+    });
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { avatar: true },
+    });
+    if (!profile?.avatarUrl && !dbUser?.avatar) {
+      throw new ForbiddenException(
+        'You must upload a profile photo before applying for jobs',
+      );
+    }
+
     // Additional guard: if this job requires a driver license, ensure the user has a verified DRIVERS_LICENSE
     const jobId = (req.params as Record<string, string | undefined>)?.id;
     if (jobId) {

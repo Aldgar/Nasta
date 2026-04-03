@@ -34,6 +34,7 @@ import { TrackingModule } from './tracking/tracking.module';
 import { SupportModule } from './support/support.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { RatingsModule } from './ratings/ratings.module';
+import { NoShowModule } from './no-show/no-show.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReflectorModule } from './core/reflector.module';
 
@@ -76,7 +77,7 @@ import { ReflectorModule } from './core/reflector.module';
         CLIENT_BASE_URL: Joi.string().uri().optional(),
 
         // Public base URL for this server (used to generate clickable HTTPS links in emails)
-        // Example: https://api.cumprido.com
+        // Example: https://api.nasta.app
         SERVER_PUBLIC_URL: Joi.string().uri().optional(),
 
         // Universal Links / App Links configuration (served from this server)
@@ -124,11 +125,12 @@ import { ReflectorModule } from './core/reflector.module';
     AvailabilityModule,
     BookingsModule,
     ChatModule,
-    DevModule,
+    ...(process.env.NODE_ENV !== 'production' ? [DevModule] : []),
     TrackingModule,
     SupportModule,
     ReviewsModule,
     RatingsModule,
+    NoShowModule,
   ],
   controllers: [AppController, AiController],
   providers: [

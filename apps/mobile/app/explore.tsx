@@ -56,7 +56,7 @@ export default function ExploreMap() {
         </MapView>
       ) : (
         <View style={styles.mapBox}>
-          <Text style={{ color: "#9ca3af", textAlign: "center" }}>
+          <Text style={{ color: "#9A8E7A", textAlign: "center" }}>
             {Platform.OS === "android" && !isAndroidMapsConfigured
               ? "Google Maps API key is missing for Android builds."
               : "Google Maps not available."}
@@ -68,18 +68,18 @@ export default function ExploreMap() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0b0f1a", padding: 16 },
+  container: { flex: 1, backgroundColor: "#0A1628", padding: 16 },
   headerRow: { marginBottom: 12 },
-  title: { color: "#fff", fontSize: 22, fontWeight: "800" },
-  subtitle: { color: "#9ca3af" },
+  title: { color: "#FFFAF0", fontSize: 22, fontWeight: "800" },
+  subtitle: { color: "#9A8E7A" },
   mapBox: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,250,240,0.12)",
+    backgroundColor: "rgba(255,250,240,0.08)",
     alignItems: "center",
     justifyContent: "center",
   },
-  map: { flex: 1, borderRadius: 16 },
+  map: { flex: 1, borderRadius: 4 },
 });

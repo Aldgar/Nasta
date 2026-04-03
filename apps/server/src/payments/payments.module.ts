@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { RatingsModule } from '../ratings/ratings.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RatingsModule } from '../ratings/ratings.module';
     PrismaModule,
     NotificationsModule,
     RatingsModule,
+    ChatModule,
   ],
   providers: [PaymentsService],
   controllers: [PaymentsController, PaymentsWebhookAliasController],

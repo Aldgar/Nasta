@@ -1,8 +1,8 @@
 {
   "ios": {
-    "bundleIdentifier": "com.anonymous.cumprido"
+    "bundleIdentifier": "com.mohamedibrahim.nasta"
   },
   "android": {
-    "package": "com.anonymous.cumprido"
+    "package": "com.mohamedibrahim.nasta"
   }
 }

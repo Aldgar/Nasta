@@ -12,7 +12,7 @@ export default function JobSeekerOnboardingForm() {
   const [email, setEmail] = useState<string>(
     typeof window !== "undefined"
       ? (localStorage.getItem("auth_email") ?? "")
-      : ""
+      : "",
   );
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -36,7 +36,7 @@ export default function JobSeekerOnboardingForm() {
     if (location) params.set("location", location);
     if (skills) params.set("skills", skills);
     if (experienceYears !== "") params.set("exp", String(experienceYears));
-    return `cumprido://onboarding/kyc?${params.toString()}`;
+    return `nasta://onboarding/kyc?${params.toString()}`;
   }, [fullName, headline, location, skills, experienceYears]);
 
   const onSubmit = (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ export default function JobSeekerOnboardingForm() {
             address,
             coordinates: lat && lng ? { lat, lng } : undefined,
             // payout moved to settings
-          })
+          }),
         );
       }
     } catch (err) {
@@ -67,9 +67,9 @@ export default function JobSeekerOnboardingForm() {
     setTimeout(
       () =>
         setNotify(
-          `We sent a reminder to ${email} to complete verification later.`
+          `We sent a reminder to ${email} to complete verification later.`,
         ),
-      300
+      300,
     );
     setSubmitted(true);
   };

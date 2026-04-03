@@ -193,7 +193,7 @@ export default function ExploreMap() {
               text: t("explore.openSettings"),
               onPress: () => Linking.openSettings(),
             },
-          ]
+          ],
         );
         return null;
       }
@@ -204,7 +204,7 @@ export default function ExploreMap() {
           accuracy: Location.Accuracy.High, // Use High accuracy for better results
         }),
         new Promise<Location.LocationObject>((_, reject) =>
-          setTimeout(() => reject(new Error("Location timeout")), 20000)
+          setTimeout(() => reject(new Error("Location timeout")), 20000),
         ),
       ]);
 
@@ -229,12 +229,12 @@ export default function ExploreMap() {
         coords.longitude < -122
       ) {
         console.warn(
-          "⚠️ Location appears to be San Francisco - this might be from an emulator/simulator"
+          "⚠️ Location appears to be San Francisco - this might be from an emulator/simulator",
         );
         Alert.alert(
           t("explore.locationNotice"),
           t("explore.locationNoticeMessage"),
-          [{ text: t("common.ok") }]
+          [{ text: t("common.ok") }],
         );
       }
 
@@ -271,7 +271,7 @@ export default function ExploreMap() {
         [
           { text: t("common.ok") },
           { text: t("common.retry"), onPress: () => getCurrentLocation() },
-        ]
+        ],
       );
 
       return null;
@@ -279,7 +279,7 @@ export default function ExploreMap() {
   };
 
   const fetchJobs = async (
-    locationToUse?: { latitude: number; longitude: number } | null
+    locationToUse?: { latitude: number; longitude: number } | null,
   ) => {
     try {
       setLoading(true);
@@ -356,13 +356,13 @@ export default function ExploreMap() {
             });
           } else {
             console.log(
-              `Job ${job.id} (${job.title}) - no coordinates available`
+              `Job ${job.id} (${job.title}) - no coordinates available`,
             );
           }
         }
 
         console.log(
-          `Found ${jobsWithCoords.length} jobs with valid coordinates`
+          `Found ${jobsWithCoords.length} jobs with valid coordinates`,
         );
         setJobs(jobsWithCoords);
 
@@ -391,7 +391,7 @@ export default function ExploreMap() {
               });
 
               console.log(
-                `📍 Found ${nearbyJobs.length} nearby jobs (within 25km)`
+                `📍 Found ${nearbyJobs.length} nearby jobs (within 25km)`,
               );
 
               if (nearbyJobs.length > 0) {
@@ -410,7 +410,7 @@ export default function ExploreMap() {
                     });
 
                     console.log(
-                      `🗺️ Fitting map to show ${coordinates.length} points (user + ${nearbyJobs.length} jobs)`
+                      `🗺️ Fitting map to show ${coordinates.length} points (user + ${nearbyJobs.length} jobs)`,
                     );
                     mapRef.current.fitToCoordinates(coordinates, {
                       edgePadding: {
@@ -470,7 +470,7 @@ export default function ExploreMap() {
       case "HIGH":
         return "#f59e0b"; // Orange
       default:
-        return "#3b82f6"; // Blue
+        return "#C9963F"; // Blue
     }
   };
 
@@ -479,13 +479,25 @@ export default function ExploreMap() {
       <SafeAreaView style={styles.container} edges={["top"]}>
         <View style={styles.headerRow}>
           <View>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                letterSpacing: 3,
+                color: isDark ? "rgba(201,150,63,0.6)" : "rgba(184,130,42,0.5)",
+                textTransform: "uppercase",
+                marginBottom: 4,
+              }}
+            >
+              GEO SCANNER
+            </Text>
             <Text style={[styles.title, { color: colors.text }]}>
               {t("navigation.explore")}
             </Text>
             <Text
               style={[
                 styles.subtitle,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "rgba(240,232,213,0.5)" : "#6B6355" },
               ]}
             >
               {t("explore.jobsByLocation")}
@@ -496,11 +508,11 @@ export default function ExploreMap() {
               styles.refreshButton,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.05)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.06)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(255,250,240,0.15)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={async () => {
@@ -525,8 +537,8 @@ export default function ExploreMap() {
                 styles.fallbackHeader,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.7)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.75)"
+                    : "rgba(255, 250, 240, 0.92)",
                 },
               ]}
             >
@@ -537,7 +549,7 @@ export default function ExploreMap() {
               <Text
                 style={[
                   styles.fallbackSubtitle,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("explore.mapsNotAvailableMessage")}
@@ -563,11 +575,11 @@ export default function ExploreMap() {
                       styles.jobCard,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.7)"
-                          : "rgba(255, 255, 255, 0.9)",
+                          ? "rgba(12, 22, 42, 0.75)"
+                          : "rgba(255, 250, 240, 0.92)",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "rgba(0,0,0,0.1)",
+                          ? "rgba(201,150,63,0.12)"
+                          : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => router.push(`/jobs/${job.id}` as any)}
@@ -609,12 +621,12 @@ export default function ExploreMap() {
                       <Feather
                         name="map-pin"
                         size={14}
-                        color={isDark ? "#94a3b8" : "#64748b"}
+                        color={isDark ? "#9A8E7A" : "#8A7B68"}
                       />
                       <Text
                         style={[
                           styles.jobCardLocationText,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {job.location || `${job.city}, ${job.country}`}
@@ -666,7 +678,7 @@ export default function ExploreMap() {
                       <Feather
                         name="chevron-right"
                         size={20}
-                        color={isDark ? "#94a3b8" : "#64748b"}
+                        color={isDark ? "#9A8E7A" : "#8A7B68"}
                       />
                     </View>
                   </TouchableOpacity>
@@ -677,12 +689,12 @@ export default function ExploreMap() {
                 <Feather
                   name="map-pin"
                   size={48}
-                  color={isDark ? "#475569" : "#94a3b8"}
+                  color={isDark ? "#6B6355" : "#9A8E7A"}
                 />
                 <Text
                   style={[
                     styles.emptyText,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("explore.noJobsFoundNearby")}
@@ -690,7 +702,7 @@ export default function ExploreMap() {
                 <Text
                   style={[
                     styles.emptySubtext,
-                    { color: isDark ? "#64748b" : "#94a3b8" },
+                    { color: isDark ? "#8A7B68" : "#9A8E7A" },
                   ]}
                 >
                   {t("explore.tryExpandingSearchRadius")}
@@ -748,14 +760,14 @@ export default function ExploreMap() {
                     };
                     console.log(
                       "🗺️ Centering map on user location from onMapReady:",
-                      userRegion
+                      userRegion,
                     );
                     setRegion(userRegion);
                     // Force update by calling animateToRegion
                     setTimeout(() => {
                       if (mapRef.current) {
                         console.log(
-                          "🗺️ Calling animateToRegion from onMapReady"
+                          "🗺️ Calling animateToRegion from onMapReady",
                         );
                         mapRef.current.animateToRegion(userRegion, 1000);
                       }
@@ -782,7 +794,7 @@ export default function ExploreMap() {
               >
                 {jobs
                   .filter((job) =>
-                    isValidLatLng(job.coordinates?.[0], job.coordinates?.[1])
+                    isValidLatLng(job.coordinates?.[0], job.coordinates?.[1]),
                   )
                   .map((job) => (
                     <Marker
@@ -801,15 +813,15 @@ export default function ExploreMap() {
                             { backgroundColor: getMarkerColor(job.urgency) },
                           ]}
                         >
-                          <Feather name="briefcase" size={16} color="#fff" />
+                          <Feather name="briefcase" size={16} color="#FFFAF0" />
                         </View>
                         <View
                           style={[
                             styles.markerLabel,
                             {
                               backgroundColor: isDark
-                                ? "rgba(30, 41, 59, 0.95)"
-                                : "rgba(255, 255, 255, 0.95)",
+                                ? "rgba(12, 22, 42, 0.90)"
+                                : "rgba(255, 250, 240, 0.95)",
                             },
                           ]}
                         >
@@ -823,7 +835,7 @@ export default function ExploreMap() {
                             <Text
                               style={[
                                 styles.markerDistance,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {job.distanceKm.toFixed(1)} km
@@ -855,22 +867,22 @@ const styles = StyleSheet.create({
   refreshButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   mapContainer: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(201,150,63,0.12)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 0,
   },
   map: {
     flex: 1,
@@ -879,7 +891,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(30, 41, 59, 0.3)",
+    backgroundColor: "rgba(12, 22, 42, 0.35)",
   },
   loadingText: {
     marginTop: 12,
@@ -891,16 +903,16 @@ const styles = StyleSheet.create({
   markerPin: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: "#FFFAF0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 0,
   },
   markerLabel: {
     marginTop: 4,
@@ -908,17 +920,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
     maxWidth: 120,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 0,
   },
   markerTitle: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
   },
   markerDistance: {
@@ -933,14 +945,14 @@ const styles = StyleSheet.create({
     right: 16,
     alignItems: "center",
     padding: 20,
-    borderRadius: 16,
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    borderRadius: 4,
+    backgroundColor: "rgba(12, 22, 42, 0.80)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(201,150,63,0.12)",
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginTop: 12,
   },
   emptySubtext: {
@@ -955,11 +967,11 @@ const styles = StyleSheet.create({
   },
   fallbackHeader: {
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 4,
     marginBottom: 16,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(201,150,63,0.12)",
   },
   fallbackTitle: {
     fontSize: 18,
@@ -977,19 +989,21 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 12,
   },
   jobCard: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 0,
   },
   jobCardHeader: {
     flexDirection: "row",
@@ -999,7 +1013,7 @@ const styles = StyleSheet.create({
   },
   jobCardTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
     marginRight: 8,
   },
@@ -1008,12 +1022,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 4,
   },
   distanceText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   jobCardLocation: {
     flexDirection: "row",
@@ -1032,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   jobCardPaymentText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   jobCardFooter: {
     flexDirection: "row",
@@ -1042,11 +1056,11 @@ const styles = StyleSheet.create({
   urgencyBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 4,
   },
   urgencyText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
   },
 });

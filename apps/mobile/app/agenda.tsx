@@ -70,15 +70,15 @@ export default function Agenda() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "IN_PROGRESS":
-        return isDark ? "#60a5fa" : "#2563eb";
+        return isDark ? "#E8B86D" : "#B8822A";
       case "CONFIRMED":
-        return isDark ? "#94a3b8" : "#64748b";
+        return isDark ? "#9A8E7A" : "#8A7B68";
       case "COMPLETED":
         return isDark ? "#22c55e" : "#059669";
       case "PENDING":
         return isDark ? "#fbbf24" : "#d97706";
       default:
-        return isDark ? "#94a3b8" : "#64748b";
+        return isDark ? "#9A8E7A" : "#8A7B68";
     }
   };
 
@@ -196,7 +196,7 @@ export default function Agenda() {
     <GradientBackground>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
-        <View style={[styles.header, { borderBottomColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.08)" }]}>
+        <View style={[styles.header, { borderBottomColor: isDark ? "rgba(255,250,240,0.06)" : "rgba(0,0,0,0.08)" }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Feather name="arrow-left" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -206,13 +206,13 @@ export default function Agenda() {
         {loading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.tint} />
-            <Text style={[styles.loadingText, { color: isDark ? "#94a3b8" : "#64748b" }]}>{t("agenda.loadingBookings")}</Text>
+            <Text style={[styles.loadingText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>{t("agenda.loadingBookings")}</Text>
           </View>
         ) : bookings.length === 0 ? (
           <View style={styles.center}>
-            <Feather name="calendar" size={64} color={isDark ? "#475569" : "#cbd5e1"} />
+            <Feather name="calendar" size={64} color={isDark ? "#6B6355" : "#B8A88A"} />
             <Text style={[styles.emptyTitle, { color: colors.text }]}>{t("agenda.noBookings")}</Text>
-            <Text style={[styles.emptySub, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+            <Text style={[styles.emptySub, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
               {t("agenda.noBookingsMessage")}
             </Text>
           </View>
@@ -226,8 +226,8 @@ export default function Agenda() {
               style={[
                 styles.card,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "#ffffff",
-                  borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.75)" : "#FFFAF0",
+                  borderColor: isDark ? "rgba(255,250,240,0.10)" : "rgba(0,0,0,0.06)",
                   shadowColor: isDark ? "#000" : "#000",
                 }
               ]}
@@ -235,7 +235,7 @@ export default function Agenda() {
               activeOpacity={0.7}
             >
               <View style={styles.cardHeader}>
-                  <Text style={[styles.date, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+                  <Text style={[styles.date, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                     {formatDate(item.startTime)}
                   </Text>
                   <Text style={[styles.status, { color: getStatusColor(item.status) }]}>
@@ -249,9 +249,9 @@ export default function Agenda() {
                   <Feather 
                     name="map-pin" 
                     size={14} 
-                    color={isDark ? "#94a3b8" : "#64748b"} 
+                    color={isDark ? "#9A8E7A" : "#8A7B68"} 
                   />
-                  <Text style={[styles.address, { color: isDark ? "#cbd5e1" : "#475569" }]}>
+                  <Text style={[styles.address, { color: isDark ? "#B8A88A" : "#6B6355" }]}>
                     {getAddress(item)}
                   </Text>
                 </View>
@@ -259,7 +259,7 @@ export default function Agenda() {
                   <Feather 
                     name="chevron-right" 
                     size={20} 
-                    color={isDark ? "#6366f1" : "#4f46e5"} 
+                    color={isDark ? "#10B981" : "#059669"} 
                   />
                 </View>
             </TouchableOpacity>
@@ -284,21 +284,21 @@ const styles = StyleSheet.create({
   list: { padding: 20 },
   card: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 16,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: Platform.OS === 'android' ? 0 : 3,
+    elevation: 0,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  date: { fontSize: 13, fontWeight: "600" },
-  status: { fontSize: 13, fontWeight: "600" },
+  date: { fontSize: 13, fontWeight: "700" },
+  status: { fontSize: 13, fontWeight: "700" },
   jobTitle: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
   address: { fontSize: 14 },
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: 'rgba(255,250,240,0.06)',
   },
   center: {
     flex: 1,

@@ -27,9 +27,33 @@ import { useLanguage } from "../../context/LanguageContext";
 import { Colors } from "@/constants/theme";
 import GradientBackground from "../../components/GradientBackground";
 import { TouchableButton } from "../../components/TouchableButton";
+import {
+  TrackingTimeline,
+  buildEmployerTimeline,
+} from "../../components/TrackingTimeline";
 import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
-import { useStripe } from "@stripe/stripe-react-native";
+import { useStripeAvailability } from "../../context/StripeContext";
+
+// Load Stripe hook at module level so the hook call count is consistent across renders
+let _useStripeHook: (() => any) | null = null;
+try {
+  const stripeModule = require("@stripe/stripe-react-native");
+  _useStripeHook = stripeModule.useStripe;
+} catch {
+  _useStripeHook = null;
+}
+
+function useStripeForApplicant() {
+  const { isStripeReady } = useStripeAvailability();
+  // Always call useStripe (if available) to maintain consistent hook order
+  const stripe = _useStripeHook ? _useStripeHook() : null;
+
+  if (!isStripeReady || !stripe) {
+    return { initPaymentSheet: null, presentPaymentSheet: null };
+  }
+  return stripe;
+}
 
 interface Applicant {
   id: string;
@@ -174,7 +198,7 @@ export default function ApplicantDetailScreen() {
   const instantJob = params.instantJob === "true";
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { initPaymentSheet, presentPaymentSheet } = useStripeForApplicant();
 
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
@@ -199,7 +223,7 @@ export default function ApplicantDetailScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showRespondModal, setShowRespondModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    null
+    null,
   );
   const [selectedRequestStatus, setSelectedRequestStatus] = useState<
     "APPROVED" | "REJECTED" | null
@@ -337,7 +361,7 @@ export default function ApplicantDetailScreen() {
                 `${base}/users/candidates/${data.applicant.id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
-                }
+                },
               );
               if (candidateRes.ok) {
                 const candidateProfile = await candidateRes.json();
@@ -368,7 +392,7 @@ export default function ApplicantDetailScreen() {
                     // If user has already made selections, don't overwrite unless backend has different data
                     if (prevSelected.size > 0) {
                       console.log(
-                        "[ApplicantDetail] Preserving current selection, not overwriting from backend"
+                        "[ApplicantDetail] Preserving current selection, not overwriting from backend",
                       );
                       return prevSelected;
                     }
@@ -400,13 +424,13 @@ export default function ApplicantDetailScreen() {
                                 (rate.otherSpecification || "") ===
                                   (selectedRate.otherSpecification || "")
                               );
-                            }
+                            },
                           );
 
                           if (index !== -1) {
                             selectedIndices.add(index);
                           }
-                        }
+                        },
                       );
 
                       console.log(
@@ -415,7 +439,7 @@ export default function ApplicantDetailScreen() {
                           selectedRatesFromBackend: data.selectedRates,
                           candidateRates: candidateProfile.rates,
                           selectedIndices: Array.from(selectedIndices),
-                        }
+                        },
                       );
 
                       return selectedIndices;
@@ -430,7 +454,7 @@ export default function ApplicantDetailScreen() {
             } catch (err) {
               console.log(
                 "[ApplicantDetail] Failed to fetch candidate profile:",
-                err
+                err,
               );
             }
           } else {
@@ -442,7 +466,7 @@ export default function ApplicantDetailScreen() {
               data.selectedRates.length > 0
             ) {
               console.log(
-                "[ApplicantDetail] Application has selectedRates but candidate data not yet loaded"
+                "[ApplicantDetail] Application has selectedRates but candidate data not yet loaded",
               );
               // We'll initialize this when candidate data is loaded
             } else {
@@ -453,7 +477,7 @@ export default function ApplicantDetailScreen() {
           Alert.alert(
             t("common.error"),
             t("applications.failedToLoadDetails"),
-            [{ text: t("common.ok"), onPress: () => router.back() }]
+            [{ text: t("common.ok"), onPress: () => router.back() }],
           );
         }
       } catch (error) {
@@ -464,7 +488,7 @@ export default function ApplicantDetailScreen() {
         setLoading(false);
       }
     },
-    [applicationId, router]
+    [applicationId, router],
   );
 
   useEffect(() => {
@@ -490,7 +514,7 @@ export default function ApplicantDetailScreen() {
           clearInterval(interval);
         };
       }
-    }, [applicationId, fetchApplication])
+    }, [applicationId, fetchApplication]),
   );
 
   // Reset navigation ref when applicationId changes
@@ -524,7 +548,7 @@ export default function ApplicantDetailScreen() {
           `${base}/ratings/applications/${applicationId}/status`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         if (ratingRes.ok) {
@@ -609,13 +633,13 @@ export default function ApplicantDetailScreen() {
                 fetchApplication();
               },
             },
-          ]
+          ],
         );
       } else {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("applications.failedToUpdateApplication")
+          error.message || t("applications.failedToUpdateApplication"),
         );
       }
     } catch (error) {
@@ -645,7 +669,7 @@ export default function ApplicantDetailScreen() {
       Alert.alert(
         t("applications.noServicesSelected"),
         t("applications.selectAtLeastOneService"),
-        [{ text: t("common.ok") }]
+        [{ text: t("common.ok") }],
       );
       return;
     }
@@ -657,7 +681,7 @@ export default function ApplicantDetailScreen() {
         t("applications.paymentCompleteMessage", {
           amount: paidAmount.toFixed(2),
         }),
-        [{ text: t("common.ok") }]
+        [{ text: t("common.ok") }],
       );
       return;
     }
@@ -680,7 +704,7 @@ export default function ApplicantDetailScreen() {
               setShowPaymentModal(true);
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -700,7 +724,7 @@ export default function ApplicantDetailScreen() {
             setShowPaymentModal(true);
           },
         },
-      ]
+      ],
     );
   };
 
@@ -730,7 +754,7 @@ export default function ApplicantDetailScreen() {
         selectedRates: selectedRatesData,
         totalAmount: selectedRatesData.reduce(
           (sum, r) => sum + (r.rate || 0),
-          0
+          0,
         ),
       });
 
@@ -746,7 +770,7 @@ export default function ApplicantDetailScreen() {
           body: JSON.stringify({
             selectedRates: selectedRatesData,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -759,7 +783,7 @@ export default function ApplicantDetailScreen() {
           selectedRates: selectedRatesData,
           totalAmount: selectedRatesData.reduce(
             (sum, r) => sum + (r.rate || 0),
-            0
+            0,
           ),
           backendResponse: responseData,
           savedRatesFromBackend: savedRates,
@@ -778,7 +802,7 @@ export default function ApplicantDetailScreen() {
               received: savedRates.length,
               sentRates: selectedRatesData,
               receivedRates: savedRates,
-            }
+            },
           );
         }
 
@@ -803,7 +827,7 @@ export default function ApplicantDetailScreen() {
               newSelectedRatesCount: updatedSelectedRates.length,
               updatedSelectedRates,
               isEmpty: updatedSelectedRates.length === 0,
-            }
+            },
           );
 
           return {
@@ -825,7 +849,7 @@ export default function ApplicantDetailScreen() {
               `${base}/payments/applications/${applicationId}/payment-status`,
               {
                 headers: { Authorization: `Bearer ${token}` },
-              }
+              },
             );
 
             if (paymentRes.ok) {
@@ -845,7 +869,7 @@ export default function ApplicantDetailScreen() {
           } catch (error) {
             console.error(
               "[ApplicantDetail] Error refreshing payment status:",
-              error
+              error,
             );
             // Fallback: do a full refresh if payment status endpoint fails
             fetchApplication();
@@ -858,13 +882,13 @@ export default function ApplicantDetailScreen() {
         const errorData = await res.json().catch(() => ({}));
         console.error(
           "[ApplicantDetail] Failed to save selected rates:",
-          errorData
+          errorData,
         );
         // Show error to user
         Alert.alert(
           t("common.error"),
           errorData.message || t("applications.failedToSaveSelectedServices"),
-          [{ text: t("common.ok") }]
+          [{ text: t("common.ok") }],
         );
       }
     } catch (error) {
@@ -875,7 +899,7 @@ export default function ApplicantDetailScreen() {
   const handleSuggestNegotiation = async () => {
     // Validate rates
     const validRates = negotiationRates.filter(
-      (r) => r.rate && parseFloat(r.rate) > 0
+      (r) => r.rate && parseFloat(r.rate) > 0,
     );
 
     if (validRates.length === 0) {
@@ -895,7 +919,7 @@ export default function ApplicantDetailScreen() {
     if (!negotiationMessage.trim()) {
       Alert.alert(
         t("common.error"),
-        t("applications.provideNegotiationMessage")
+        t("applications.provideNegotiationMessage"),
       );
       return;
     }
@@ -906,7 +930,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -933,13 +957,13 @@ export default function ApplicantDetailScreen() {
             totalAmount,
             message: negotiationMessage.trim(),
           }),
-        }
+        },
       );
 
       if (res.ok) {
         Alert.alert(
           t("common.success"),
-          t("applications.negotiationSuggestionSent")
+          t("applications.negotiationSuggestionSent"),
         );
         setShowNegotiationModal(false);
         setNegotiationRates([{ rate: "", paymentType: "HOURLY" }]);
@@ -950,14 +974,14 @@ export default function ApplicantDetailScreen() {
         const errorData = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          errorData.message || t("applications.failedToRequestNegotiation")
+          errorData.message || t("applications.failedToRequestNegotiation"),
         );
       }
     } catch (error) {
       console.error("[ApplicantDetail] Error suggesting negotiation:", error);
       Alert.alert(
         t("common.error"),
-        t("applications.failedToSendNegotiationSuggestion")
+        t("applications.failedToSendNegotiationSuggestion"),
       );
     } finally {
       setSuggestingNegotiation(false);
@@ -973,7 +997,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -992,7 +1016,7 @@ export default function ApplicantDetailScreen() {
             status: selectedRequestStatus,
             message: respondMessage.trim() || undefined,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1012,13 +1036,13 @@ export default function ApplicantDetailScreen() {
                 fetchApplication(); // Refresh to show updated status
               },
             },
-          ]
+          ],
         );
       } else {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("applications.failedToRespondToRequest")
+          error.message || t("applications.failedToRespondToRequest"),
         );
       }
     } catch (error) {
@@ -1043,7 +1067,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1062,7 +1086,7 @@ export default function ApplicantDetailScreen() {
             status: selectedEmployerNegotiationStatus,
             message: employerNegotiationResponseMessage.trim() || undefined,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1082,13 +1106,13 @@ export default function ApplicantDetailScreen() {
                 fetchApplication();
               },
             },
-          ]
+          ],
         );
       } else {
         const errorData = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          errorData.message || t("applications.failedToRespondNegotiation")
+          errorData.message || t("applications.failedToRespondNegotiation"),
         );
       }
     } catch (error) {
@@ -1103,7 +1127,7 @@ export default function ApplicantDetailScreen() {
 
     // Validate rates
     const validRates = employerCounterOfferRates.filter(
-      (r) => r.rate && parseFloat(r.rate) > 0
+      (r) => r.rate && parseFloat(r.rate) > 0,
     );
 
     if (validRates.length === 0) {
@@ -1125,7 +1149,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1155,7 +1179,7 @@ export default function ApplicantDetailScreen() {
             totalAmount,
             message: employerCounterOfferMessage.trim() || undefined,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1177,7 +1201,7 @@ export default function ApplicantDetailScreen() {
         const errorData = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          errorData.message || t("applications.failedToSendCounterOffer")
+          errorData.message || t("applications.failedToSendCounterOffer"),
         );
       }
     } catch (error) {
@@ -1203,7 +1227,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1223,7 +1247,7 @@ export default function ApplicantDetailScreen() {
             status: counterOfferResponseStatus,
             message: counterOfferResponseMessage.trim() || undefined,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1243,13 +1267,13 @@ export default function ApplicantDetailScreen() {
                 fetchApplication();
               },
             },
-          ]
+          ],
         );
       } else {
         const error = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          error.message || t("applications.failedToRejectCounterOffer")
+          error.message || t("applications.failedToRejectCounterOffer"),
         );
       }
     } catch (error) {
@@ -1279,11 +1303,11 @@ export default function ApplicantDetailScreen() {
       Array.isArray(application.additionalRateRequests)
     ) {
       const approvedRequests = application.additionalRateRequests.filter(
-        (request: any) => request.status === "APPROVED"
+        (request: any) => request.status === "APPROVED",
       );
       const additionalTotal = approvedRequests.reduce(
         (sum: number, request: any) => sum + (request.totalAmount || 0),
-        0
+        0,
       );
       total += additionalTotal;
     }
@@ -1294,7 +1318,7 @@ export default function ApplicantDetailScreen() {
       Array.isArray(application.negotiationRequests)
     ) {
       const acceptedNegotiations = application.negotiationRequests.filter(
-        (request: any) => request.status === "ACCEPTED"
+        (request: any) => request.status === "ACCEPTED",
       );
       const negotiationTotal = acceptedNegotiations.reduce(
         (sum: number, request: any) => {
@@ -1306,7 +1330,7 @@ export default function ApplicantDetailScreen() {
 
           return sum + negotiationAmount;
         },
-        0
+        0,
       );
       total += negotiationTotal;
     }
@@ -1326,7 +1350,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1343,13 +1367,13 @@ export default function ApplicantDetailScreen() {
           body: JSON.stringify({
             message: additionalTimeMessage.trim(),
           }),
-        }
+        },
       );
 
       if (res.ok) {
         Alert.alert(
           t("common.success"),
-          t("applications.additionalTimeRequestSent")
+          t("applications.additionalTimeRequestSent"),
         );
         setShowAdditionalTimeModal(false);
         setAdditionalTimeMessage("");
@@ -1358,7 +1382,7 @@ export default function ApplicantDetailScreen() {
         const errorData = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          errorData.message || t("applications.failedToRequestAdditionalTime")
+          errorData.message || t("applications.failedToRequestAdditionalTime"),
         );
       }
     } catch (error) {
@@ -1383,7 +1407,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1402,7 +1426,7 @@ export default function ApplicantDetailScreen() {
             status: additionalTimeResponseStatus,
             message: additionalTimeResponseMessage.trim() || undefined,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1410,7 +1434,7 @@ export default function ApplicantDetailScreen() {
           t("common.success"),
           additionalTimeResponseStatus === "ACCEPTED"
             ? t("applications.additionalTimeRequestAccepted")
-            : t("applications.additionalTimeRequestRejected")
+            : t("applications.additionalTimeRequestRejected"),
         );
         setShowAdditionalTimeResponseModal(false);
         setSelectedAdditionalTimeRequestId(null);
@@ -1421,7 +1445,7 @@ export default function ApplicantDetailScreen() {
         const errorData = await res.json().catch(() => ({}));
         Alert.alert(
           t("common.error"),
-          errorData.message || t("applications.failedToRespondAdditionalTime")
+          errorData.message || t("applications.failedToRespondAdditionalTime"),
         );
       }
     } catch (error) {
@@ -1441,8 +1465,14 @@ export default function ApplicantDetailScreen() {
     if (application.completedAt) {
       Alert.alert(
         t("applications.alreadyCompleted"),
-        t("applications.alreadyCompletedMessage")
+        t("applications.alreadyCompletedMessage"),
       );
+      return;
+    }
+
+    // Prevent marking as complete if verification code not verified
+    if (!application.verificationCodeVerifiedAt) {
+      Alert.alert(t("common.error"), t("applications.completeJobVerifyFirst"));
       return;
     }
 
@@ -1462,7 +1492,7 @@ export default function ApplicantDetailScreen() {
               if (!token) {
                 Alert.alert(
                   t("common.error"),
-                  t("applications.authenticationRequired")
+                  t("applications.authenticationRequired"),
                 );
                 return;
               }
@@ -1476,7 +1506,7 @@ export default function ApplicantDetailScreen() {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                   },
-                }
+                },
               );
 
               if (res.ok) {
@@ -1508,7 +1538,7 @@ export default function ApplicantDetailScreen() {
                   });
                 Alert.alert(
                   t("applications.jobCompletedSuccessfully"),
-                  message
+                  message,
                 );
 
                 // Note: Rating prompt will be shown by useEffect when application.completedAt is set
@@ -1531,11 +1561,11 @@ export default function ApplicantDetailScreen() {
                         "You don't have permission to complete this job.";
                     } else if (errorData.message.includes("payment")) {
                       errorMessage = t(
-                        "applications.paymentIssueContactSupport"
+                        "applications.paymentIssueContactSupport",
                       );
                     } else if (errorData.message.includes("capture")) {
                       errorMessage = t(
-                        "applications.paymentNotProcessedContactSupport"
+                        "applications.paymentNotProcessedContactSupport",
                       );
                     } else {
                       errorMessage = errorData.message;
@@ -1558,7 +1588,7 @@ export default function ApplicantDetailScreen() {
                 Alert.alert(
                   t("applications.unableToCompleteJob"),
                   errorMessage,
-                  [{ text: t("common.ok") }]
+                  [{ text: t("common.ok") }],
                 );
               }
             } catch (error: any) {
@@ -1588,7 +1618,7 @@ export default function ApplicantDetailScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -1609,7 +1639,7 @@ export default function ApplicantDetailScreen() {
         {
           unpaidAmount,
           applicationId: application.id,
-        }
+        },
       );
       return true; // Lock both Accept and Reject buttons
     }
@@ -1622,7 +1652,7 @@ export default function ApplicantDetailScreen() {
       application.negotiationRequests &&
       Array.isArray(application.negotiationRequests) &&
       application.negotiationRequests.some(
-        (req: any) => req.status === "ACCEPTED"
+        (req: any) => req.status === "ACCEPTED",
       );
 
     // Check if there are any approved additional rates
@@ -1630,7 +1660,7 @@ export default function ApplicantDetailScreen() {
       application.additionalRateRequests &&
       Array.isArray(application.additionalRateRequests) &&
       application.additionalRateRequests.some(
-        (req: any) => req.status === "APPROVED"
+        (req: any) => req.status === "APPROVED",
       );
 
     // Employer MUST have selected services OR have accepted negotiations OR approved additional rates
@@ -1640,7 +1670,7 @@ export default function ApplicantDetailScreen() {
     // If no services are selected and no negotiations/accepted rates, payment is required (LOCKED)
     if (!hasAnyServicesSelected) {
       console.log(
-        "[ApplicantDetail] No services selected - payment required (locked)"
+        "[ApplicantDetail] No services selected - payment required (locked)",
       );
       return true; // Lock the button - employer must select services or negotiate
     }
@@ -1699,7 +1729,7 @@ export default function ApplicantDetailScreen() {
         ACCEPT: t("applications.acceptThisApplication"),
       };
       showPaymentRequiredAlert(
-        featureNames[action] || t("applications.performThisAction")
+        featureNames[action] || t("applications.performThisAction"),
       );
       return false;
     }
@@ -1709,6 +1739,15 @@ export default function ApplicantDetailScreen() {
   const handleCreatePayment = async () => {
     if (!application) {
       console.log("[ApplicantDetail] No application, cannot create payment");
+      return;
+    }
+
+    if (!initPaymentSheet || !presentPaymentSheet) {
+      Alert.alert(
+        t("applications.paymentSetupRequired"),
+        t("payments.paymentSystemInitializing") ||
+          "Payment system is not ready. Please try again in a moment.",
+      );
       return;
     }
 
@@ -1735,13 +1774,13 @@ export default function ApplicantDetailScreen() {
         application.additionalRateRequests &&
         Array.isArray(application.additionalRateRequests) &&
         application.additionalRateRequests.some(
-          (req: any) => req.status === "APPROVED"
+          (req: any) => req.status === "APPROVED",
         );
       const hasAcceptedNegotiations =
         application.negotiationRequests &&
         Array.isArray(application.negotiationRequests) &&
         application.negotiationRequests.some(
-          (req: any) => req.status === "ACCEPTED"
+          (req: any) => req.status === "ACCEPTED",
         );
 
       // Allow payment if there's an additional amount needed
@@ -1749,7 +1788,7 @@ export default function ApplicantDetailScreen() {
         Alert.alert(
           t("applications.paymentComplete"),
           t("applications.allServicesPaid"),
-          [{ text: t("common.ok") }]
+          [{ text: t("common.ok") }],
         );
         return;
       }
@@ -1764,7 +1803,7 @@ export default function ApplicantDetailScreen() {
         Alert.alert(
           t("applications.noServicesSelected"),
           t("applications.selectServicesBeforePayment"),
-          [{ text: t("common.ok") }]
+          [{ text: t("common.ok") }],
         );
         return;
       }
@@ -1780,7 +1819,7 @@ export default function ApplicantDetailScreen() {
         Array.isArray(application.additionalRateRequests)
       ) {
         const approvedRequests = application.additionalRateRequests.filter(
-          (request: any) => request.status === "APPROVED"
+          (request: any) => request.status === "APPROVED",
         );
         approvedRequests.forEach((request: any) => {
           if (request.rates && Array.isArray(request.rates)) {
@@ -1799,7 +1838,7 @@ export default function ApplicantDetailScreen() {
       if (!token) {
         Alert.alert(
           t("common.error"),
-          t("applications.authenticationRequired")
+          t("applications.authenticationRequired"),
         );
         return;
       }
@@ -1837,15 +1876,16 @@ export default function ApplicantDetailScreen() {
                 ? additionalAmountNeeded
                 : currentTotal, // Send unpaid amount (includes negotiations), or current total if no unpaid amount
           }),
-        }
+        },
       );
 
       if (!res.ok) {
         const errorData = await res
           .json()
           .catch(() => ({ message: t("applications.failedToCreatePayment") }));
-        const errorMessage =
-          errorData.message || t("applications.failedToCreatePayment");
+        const errorMessage = String(
+          errorData?.message || t("applications.failedToCreatePayment"),
+        );
 
         // Only show "payment method required" if the error explicitly mentions it
         const isPaymentMethodError =
@@ -1865,7 +1905,7 @@ export default function ApplicantDetailScreen() {
                   router.push("/settings" as any);
                 },
               },
-            ]
+            ],
           );
         } else {
           Alert.alert(t("applications.paymentError"), errorMessage);
@@ -1878,15 +1918,16 @@ export default function ApplicantDetailScreen() {
       if (!data.clientSecret) {
         Alert.alert(
           t("common.error"),
-          t("applications.invalidPaymentResponse")
+          t("applications.invalidPaymentResponse"),
         );
         return;
       }
 
       // Step 2: Initialize payment sheet with payment intent
       const initParams: Parameters<typeof initPaymentSheet>[0] = {
-        merchantDisplayName: "Cumprido",
+        merchantDisplayName: "Nasta",
         paymentIntentClientSecret: data.clientSecret,
+        returnURL: "nasta://payments/methods",
         allowsDelayedPaymentMethods: true,
       };
 
@@ -1902,7 +1943,7 @@ export default function ApplicantDetailScreen() {
         console.error("Payment sheet init error:", initError);
         Alert.alert(
           t("applications.paymentError"),
-          initError.message || t("applications.failedToInitializePayment")
+          initError.message || t("applications.failedToInitializePayment"),
         );
         return;
       }
@@ -1914,7 +1955,7 @@ export default function ApplicantDetailScreen() {
         if (presentError.code !== "Canceled") {
           Alert.alert(
             t("applications.paymentError"),
-            presentError.message || t("applications.paymentFailed")
+            presentError.message || t("applications.paymentFailed"),
           );
         }
         // User canceled, just return
@@ -1936,7 +1977,7 @@ export default function ApplicantDetailScreen() {
             `${base}/payments/applications/${application.id}/payment-status`,
             {
               headers: { Authorization: `Bearer ${token}` },
-            }
+            },
           );
 
           if (res.ok) {
@@ -1976,7 +2017,7 @@ export default function ApplicantDetailScreen() {
         } catch (error) {
           console.error(
             "[ApplicantDetail] Error checking payment status:",
-            error
+            error,
           );
         }
         return false;
@@ -1997,7 +2038,7 @@ export default function ApplicantDetailScreen() {
         const pollPaymentStatus = async () => {
           attempts++;
           console.log(
-            `[ApplicantDetail] Polling payment status, attempt ${attempts}/${maxAttempts}`
+            `[ApplicantDetail] Polling payment status, attempt ${attempts}/${maxAttempts}`,
           );
 
           const completed = await checkPaymentStatus();
@@ -2021,7 +2062,7 @@ export default function ApplicantDetailScreen() {
         setTimeout(pollPaymentStatus, pollInterval);
       } else {
         console.log(
-          "[ApplicantDetail] Payment immediately confirmed as completed!"
+          "[ApplicantDetail] Payment immediately confirmed as completed!",
         );
       }
 
@@ -2036,12 +2077,13 @@ export default function ApplicantDetailScreen() {
               fetchApplication();
             },
           },
-        ]
+        ],
       );
     } catch (error: any) {
       console.error("Payment error:", error);
-      const errorMessage =
-        error.message || t("applications.failedToProcessPayment");
+      const errorMessage = String(
+        error?.message || t("applications.failedToProcessPayment"),
+      );
 
       // Only show "payment method required" if the error explicitly mentions it
       const isPaymentMethodError =
@@ -2061,7 +2103,7 @@ export default function ApplicantDetailScreen() {
                 router.push("/settings" as any);
               },
             },
-          ]
+          ],
         );
       } else {
         Alert.alert(t("applications.paymentError"), errorMessage);
@@ -2130,9 +2172,9 @@ export default function ApplicantDetailScreen() {
               styles.backBtn,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.7)"
-                  : "rgba(0,0,0,0.05)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "transparent",
+                  ? "rgba(12, 22, 42, 0.75)"
+                  : "rgba(184,130,42,0.06)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "transparent",
                 borderWidth: isDark ? 1 : 0,
               },
             ]}
@@ -2158,11 +2200,11 @@ export default function ApplicantDetailScreen() {
               styles.candidateCard,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.15)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => {
@@ -2195,7 +2237,7 @@ export default function ApplicantDetailScreen() {
                               "[ApplicantDetail] Avatar failed to load:",
                               nativeError ?? null,
                               "url:",
-                              fullUrl
+                              fullUrl,
                             );
                           }}
                         />
@@ -2207,8 +2249,8 @@ export default function ApplicantDetailScreen() {
                           styles.candidateAvatar,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "#e2e8f0",
+                              ? "rgba(201,150,63,0.12)"
+                              : "#F0E8D5",
                             justifyContent: "center",
                             alignItems: "center",
                           },
@@ -2217,7 +2259,7 @@ export default function ApplicantDetailScreen() {
                         <Feather
                           name="user"
                           size={24}
-                          color={isDark ? "rgba(255,255,255,0.5)" : "#94a3b8"}
+                          color={isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A"}
                         />
                       </View>
                     );
@@ -2231,7 +2273,7 @@ export default function ApplicantDetailScreen() {
                     <Text
                       style={[
                         styles.headline,
-                        { color: isDark ? "#94a3b8" : "#64748b", marginTop: 4 },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68", marginTop: 4 },
                       ]}
                       numberOfLines={1}
                     >
@@ -2251,9 +2293,9 @@ export default function ApplicantDetailScreen() {
                                 ? "#fbbf24"
                                 : "#ca8a04"
                               : isDark
-                                ? "rgba(255,255,255,0.5)"
-                                : "#94a3b8",
-                          fontWeight: "600",
+                                ? "rgba(255,250,240,0.5)"
+                                : "#9A8E7A",
+                          fontWeight: "700",
                           fontSize: 13,
                         },
                       ]}
@@ -2274,7 +2316,7 @@ export default function ApplicantDetailScreen() {
             {/* Bio */}
             {(applicant.bio || applicant.profile?.bio) && (
               <Text
-                style={[styles.bio, { color: isDark ? "#94a3b8" : "#64748b" }]}
+                style={[styles.bio, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}
                 numberOfLines={2}
               >
                 {applicant.profile?.bio || applicant.bio}
@@ -2286,12 +2328,12 @@ export default function ApplicantDetailScreen() {
               <Feather
                 name="map-pin"
                 size={12}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.location,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {[
@@ -2330,23 +2372,23 @@ export default function ApplicantDetailScreen() {
                           styles.skillTag,
                           {
                             backgroundColor: isDark
-                              ? "rgba(79, 70, 229, 0.2)"
-                              : "rgba(99, 102, 241, 0.1)",
+                              ? "rgba(201, 150, 63, 0.2)"
+                              : "rgba(201, 150, 63, 0.1)",
                             borderColor: isDark
-                              ? "rgba(79, 70, 229, 0.3)"
-                              : "rgba(99, 102, 241, 0.2)",
+                              ? "rgba(201, 150, 63, 0.3)"
+                              : "rgba(201, 150, 63, 0.2)",
                           },
                         ]}
                       >
                         <Text
                           style={[
                             styles.skillText,
-                            { color: isDark ? "#a78bfa" : "#6366f1" },
+                            { color: isDark ? "#E8B86D" : "#B8822A" },
                           ]}
                         >
                           {skill.name}
                           {skill.yearsExp > 0 &&
-                            ` (${skill.yearsExp}yr${skill.yearsExp > 1 ? "s" : ""})`}
+                            ` (${skill.yearsExp}${skill.yearsExp > 1 ? "yrs" : "yr"})`}
                         </Text>
                       </View>
                     ))}
@@ -2354,7 +2396,7 @@ export default function ApplicantDetailScreen() {
                       <Text
                         style={[
                           styles.moreSkills,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         +{totalSkillsCount - 3} {t("applications.more")}
@@ -2406,7 +2448,7 @@ export default function ApplicantDetailScreen() {
                       (rate.otherSpecification
                         ? paidRate.otherSpecification ===
                           rate.otherSpecification
-                        : !paidRate.otherSpecification)
+                        : !paidRate.otherSpecification),
                   );
 
                   // If paid, grey it out and disable interaction
@@ -2420,22 +2462,22 @@ export default function ApplicantDetailScreen() {
                         {
                           backgroundColor: isDark
                             ? isPaid
-                              ? "rgba(255,255,255,0.02)"
-                              : "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.04)"
+                              : "rgba(255,250,240,0.06)"
                             : isPaid
                               ? "rgba(0,0,0,0.01)"
                               : "rgba(0,0,0,0.02)",
                           borderColor: isPaid
                             ? isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "rgba(0,0,0,0.15)"
+                              ? "rgba(255,250,240,0.12)"
+                              : "rgba(184,130,42,0.25)"
                             : isSelected
                               ? isDark
                                 ? "#4ade80"
                                 : "#22c55e"
                               : isDark
-                                ? "rgba(255,255,255,0.1)"
-                                : "rgba(0,0,0,0.1)",
+                                ? "rgba(201,150,63,0.12)"
+                                : "rgba(184,130,42,0.2)",
                           borderWidth: 1,
                           opacity: isPaid ? 0.5 : 1,
                         },
@@ -2445,14 +2487,14 @@ export default function ApplicantDetailScreen() {
                         if (application?.completedAt) {
                           Alert.alert(
                             t("applications.jobCompleted"),
-                            t("applications.cannotModifyServices")
+                            t("applications.cannotModifyServices"),
                           );
                           return;
                         }
                         if (isPaid) {
                           Alert.alert(
                             t("applications.alreadyPaid"),
-                            t("applications.serviceAlreadyPaid")
+                            t("applications.serviceAlreadyPaid"),
                           );
                           return;
                         }
@@ -2502,8 +2544,8 @@ export default function ApplicantDetailScreen() {
                                     ? "#4ade80"
                                     : "#22c55e"
                                   : isDark
-                                    ? "rgba(255,255,255,0.3)"
-                                    : "#94a3b8",
+                                    ? "rgba(201,150,63,0.25)"
+                                    : "#9A8E7A",
                               borderWidth: 2,
                             },
                           ]}
@@ -2512,10 +2554,10 @@ export default function ApplicantDetailScreen() {
                             <Feather
                               name="lock"
                               size={12}
-                              color={isDark ? "#9ca3af" : "#6b7280"}
+                              color={isDark ? "#9A8E7A" : "#8A7B68"}
                             />
                           ) : isSelected ? (
-                            <Feather name="check" size={14} color="#fff" />
+                            <Feather name="check" size={14} color="#FFFAF0" />
                           ) : null}
                         </View>
                       </View>
@@ -2525,8 +2567,8 @@ export default function ApplicantDetailScreen() {
                           {
                             color: isPaid
                               ? isDark
-                                ? "#9ca3af"
-                                : "#6b7280"
+                                ? "#9A8E7A"
+                                : "#8A7B68"
                               : colors.text,
                           },
                         ]}
@@ -2558,7 +2600,7 @@ export default function ApplicantDetailScreen() {
                 application?.additionalRateRequests &&
                 Array.isArray(application.additionalRateRequests) &&
                 application.additionalRateRequests.filter(
-                  (req: any) => req.status === "APPROVED"
+                  (req: any) => req.status === "APPROVED",
                 );
               const hasApprovedAdditionalRates =
                 approvedAdditionalRates && approvedAdditionalRates.length > 0;
@@ -2566,7 +2608,7 @@ export default function ApplicantDetailScreen() {
                 application?.negotiationRequests &&
                 Array.isArray(application.negotiationRequests) &&
                 application.negotiationRequests.filter(
-                  (req: any) => req.status === "ACCEPTED"
+                  (req: any) => req.status === "ACCEPTED",
                 );
               const hasAcceptedNegotiations =
                 acceptedNegotiations && acceptedNegotiations.length > 0;
@@ -2586,11 +2628,11 @@ export default function ApplicantDetailScreen() {
                     styles.summaryCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(79, 70, 229, 0.2)"
-                        : "rgba(99, 102, 241, 0.1)",
+                        ? "rgba(201, 150, 63, 0.2)"
+                        : "rgba(201, 150, 63, 0.1)",
                       borderColor: isDark
-                        ? "rgba(79, 70, 229, 0.4)"
-                        : "rgba(99, 102, 241, 0.3)",
+                        ? "rgba(201, 150, 63, 0.4)"
+                        : "rgba(201, 150, 63, 0.3)",
                     },
                   ]}
                 >
@@ -2644,7 +2686,7 @@ export default function ApplicantDetailScreen() {
                       };
 
                       const isUnpaid = unpaidServices.some((unpaid: any) =>
-                        matchService(rate, unpaid)
+                        matchService(rate, unpaid),
                       );
 
                       // Color: yellow for unpaid, default for paid
@@ -2653,8 +2695,8 @@ export default function ApplicantDetailScreen() {
                           ? "#fbbf24"
                           : "#d97706" // Yellow for unpaid
                         : isDark
-                          ? "#cbd5e1"
-                          : "#475569"; // Default for paid
+                          ? "#B8A88A"
+                          : "#6B6355"; // Default for paid
 
                       return (
                         <View key={`selected-${idx}`} style={styles.summaryRow}>
@@ -2715,7 +2757,7 @@ export default function ApplicantDetailScreen() {
                                                   .toLowerCase();
 
                             const isUnpaid = unpaidServices.some(
-                              (unpaid: any) => matchService(rate, unpaid)
+                              (unpaid: any) => matchService(rate, unpaid),
                             );
 
                             // Color: yellow for unpaid, default for paid
@@ -2724,8 +2766,8 @@ export default function ApplicantDetailScreen() {
                                 ? "#fbbf24"
                                 : "#d97706" // Yellow for unpaid
                               : isDark
-                                ? "#cbd5e1"
-                                : "#475569"; // Default for paid
+                                ? "#B8A88A"
+                                : "#6B6355"; // Default for paid
 
                             return (
                               <View
@@ -2744,9 +2786,9 @@ export default function ApplicantDetailScreen() {
                                 </Text>
                               </View>
                             );
-                          }
+                          },
                         );
-                      }
+                      },
                     )}
                   {/* Accepted negotiation rates - show unpaid (yellow) */}
                   {hasAcceptedNegotiations &&
@@ -2770,7 +2812,7 @@ export default function ApplicantDetailScreen() {
                       const unpaidNegotiations =
                         paymentStatus?.unpaidNegotiations || [];
                       const isUnpaid = unpaidNegotiations.some(
-                        (unpaid: any) => unpaid.id === request.id
+                        (unpaid: any) => unpaid.id === request.id,
                       );
 
                       // Color: yellow for unpaid, default for paid
@@ -2779,8 +2821,8 @@ export default function ApplicantDetailScreen() {
                           ? "#fbbf24"
                           : "#d97706" // Yellow for unpaid
                         : isDark
-                          ? "#cbd5e1"
-                          : "#475569"; // Default for paid
+                          ? "#B8A88A"
+                          : "#6B6355"; // Default for paid
 
                       return ratesToDisplay.map(
                         (rate: any, rateIdx: number) => {
@@ -2825,7 +2867,7 @@ export default function ApplicantDetailScreen() {
                               </Text>
                             </View>
                           );
-                        }
+                        },
                       );
                     })}
                   {/* Show paid and unpaid amounts separately */}
@@ -2842,8 +2884,8 @@ export default function ApplicantDetailScreen() {
                               styles.summaryTotal,
                               {
                                 borderTopColor: isDark
-                                  ? "rgba(255,255,255,0.1)"
-                                  : "rgba(0,0,0,0.1)",
+                                  ? "rgba(201,150,63,0.12)"
+                                  : "rgba(184,130,42,0.2)",
                                 borderTopWidth: 1,
                                 paddingTop: 8,
                                 marginTop: 8,
@@ -2876,8 +2918,8 @@ export default function ApplicantDetailScreen() {
                               {
                                 borderTopWidth: paidAmount > 0 ? 0 : 1,
                                 borderTopColor: isDark
-                                  ? "rgba(255,255,255,0.1)"
-                                  : "rgba(0,0,0,0.1)",
+                                  ? "rgba(201,150,63,0.12)"
+                                  : "rgba(184,130,42,0.2)",
                                 paddingTop: paidAmount > 0 ? 0 : 8,
                                 marginTop: paidAmount > 0 ? 4 : 8,
                               },
@@ -2907,8 +2949,8 @@ export default function ApplicantDetailScreen() {
                             styles.summaryTotal,
                             {
                               borderTopColor: isDark
-                                ? "rgba(255,255,255,0.1)"
-                                : "rgba(0,0,0,0.1)",
+                                ? "rgba(201,150,63,0.12)"
+                                : "rgba(184,130,42,0.2)",
                               borderTopWidth:
                                 paidAmount > 0 || unpaidAmount > 0 ? 1 : 0,
                               paddingTop:
@@ -2921,7 +2963,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.summaryTotalLabel,
-                              { color: colors.text, fontWeight: "bold" },
+                              { color: colors.text, fontWeight: "800" },
                             ]}
                           >
                             {t("applications.totalAmount")}:
@@ -2929,7 +2971,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.summaryTotalAmount,
-                              { color: colors.tint, fontWeight: "bold" },
+                              { color: colors.tint, fontWeight: "800" },
                             ]}
                           >
                             {application.currency?.toUpperCase() || "EUR"}{" "}
@@ -2955,8 +2997,8 @@ export default function ApplicantDetailScreen() {
                                   styles.summaryTotal,
                                   {
                                     borderTopColor: isDark
-                                      ? "rgba(255,255,255,0.1)"
-                                      : "rgba(0,0,0,0.1)",
+                                      ? "rgba(201,150,63,0.12)"
+                                      : "rgba(184,130,42,0.2)",
                                     borderTopWidth: 1,
                                     paddingTop: 8,
                                     marginTop: 8,
@@ -3025,8 +3067,8 @@ export default function ApplicantDetailScreen() {
                             paddingTop: 16,
                             borderTopWidth: 1,
                             borderTopColor: isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.2)",
                           }}
                         >
                           <TouchableButton
@@ -3048,13 +3090,13 @@ export default function ApplicantDetailScreen() {
                             <Feather
                               name="credit-card"
                               size={18}
-                              color="#fff"
+                              color="#FFFAF0"
                             />
                             <Text
                               style={{
-                                color: "#fff",
+                                color: "#FFFAF0",
                                 fontSize: 16,
-                                fontWeight: "600",
+                                fontWeight: "700",
                               }}
                             >
                               {paymentCompleted
@@ -3092,8 +3134,8 @@ export default function ApplicantDetailScreen() {
                             paddingTop: 16,
                             borderTopWidth: 1,
                             borderTopColor: isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.2)",
                           }}
                         >
                           <View
@@ -3143,8 +3185,8 @@ export default function ApplicantDetailScreen() {
                 styles.cardFooter,
                 {
                   borderTopColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.06)",
                 },
               ]}
             >
@@ -3161,11 +3203,11 @@ export default function ApplicantDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => setShowNegotiationModal(true)}
@@ -3186,7 +3228,7 @@ export default function ApplicantDetailScreen() {
               <Text
                 style={[
                   styles.paymentSubtitle,
-                  { color: isDark ? "#94a3b8" : "#64748b", marginTop: 8 },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68", marginTop: 8 },
                 ]}
               >
                 {t("applications.proposeDifferentRate")}
@@ -3200,11 +3242,11 @@ export default function ApplicantDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.15)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -3215,7 +3257,7 @@ export default function ApplicantDetailScreen() {
               <Text
                 style={[
                   styles.label,
-                  { color: isDark ? "#94a3b8" : "#6b7280" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("applications.jobTitle")}:
@@ -3228,7 +3270,7 @@ export default function ApplicantDetailScreen() {
               <Text
                 style={[
                   styles.label,
-                  { color: isDark ? "#94a3b8" : "#6b7280" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("applications.applied")}:
@@ -3245,7 +3287,7 @@ export default function ApplicantDetailScreen() {
               <Text
                 style={[
                   styles.label,
-                  { color: isDark ? "#94a3b8" : "#6b7280" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("applications.status")}:
@@ -3298,8 +3340,8 @@ export default function ApplicantDetailScreen() {
                     paddingTop: 24,
                     borderTopWidth: 1,
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   }}
                 >
                   <View
@@ -3313,13 +3355,13 @@ export default function ApplicantDetailScreen() {
                     <Feather
                       name="key"
                       size={16}
-                      color={isDark ? "#a78bfa" : "#6d28d9"}
+                      color={isDark ? "#E8B86D" : "#A67A25"}
                     />
                     <Text
                       style={[
                         styles.label,
                         {
-                          color: isDark ? "#94a3b8" : "#6b7280",
+                          color: isDark ? "#9A8E7A" : "#8A7B68",
                           marginBottom: 0,
                         },
                       ]}
@@ -3330,13 +3372,13 @@ export default function ApplicantDetailScreen() {
                   <View
                     style={{
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.15)"
-                        : "rgba(99, 102, 241, 0.08)",
+                        ? "rgba(201, 150, 63, 0.15)"
+                        : "rgba(201, 150, 63, 0.08)",
                       borderWidth: 1,
                       borderColor: isDark
-                        ? "rgba(99, 102, 241, 0.3)"
-                        : "rgba(99, 102, 241, 0.2)",
-                      borderRadius: 12,
+                        ? "rgba(201, 150, 63, 0.3)"
+                        : "rgba(201, 150, 63, 0.2)",
+                      borderRadius: 4,
                       padding: 20,
                       marginTop: 12,
                       alignItems: "center",
@@ -3385,24 +3427,24 @@ export default function ApplicantDetailScreen() {
                     {application.verificationCode ? (
                       <View
                         style={{
-                          backgroundColor: isDark ? "#1e1b4b" : "#ffffff",
+                          backgroundColor: isDark ? "#1e1b4b" : "#FFFAF0",
                           paddingVertical: 16,
                           paddingHorizontal: 32,
-                          borderRadius: 12,
+                          borderRadius: 4,
                           borderWidth: 2,
-                          borderColor: isDark ? "#6366f1" : "#6366f1",
+                          borderColor: isDark ? "#C9963F" : "#C9963F",
                           minWidth: 140,
                           alignItems: "center",
-                          shadowColor: "#6366f1",
+                          shadowColor: "#C9963F",
                           shadowOffset: { width: 0, height: 4 },
                           shadowOpacity: 0.3,
                           shadowRadius: 8,
-                          elevation: 8,
+                          elevation: 0,
                         }}
                       >
                         <Text
                           style={{
-                            color: isDark ? "#e0e7ff" : "#3730a3",
+                            color: isDark ? "#F0E8D5" : "#A67A25",
                             fontSize: 36,
                             fontWeight: "700",
                             letterSpacing: 8,
@@ -3415,12 +3457,12 @@ export default function ApplicantDetailScreen() {
                     ) : (
                       <View
                         style={{
-                          backgroundColor: isDark ? "#1e1b4b" : "#ffffff",
+                          backgroundColor: isDark ? "#1e1b4b" : "#FFFAF0",
                           paddingVertical: 16,
                           paddingHorizontal: 32,
-                          borderRadius: 12,
+                          borderRadius: 4,
                           borderWidth: 2,
-                          borderColor: isDark ? "#6366f1" : "#6366f1",
+                          borderColor: isDark ? "#C9963F" : "#C9963F",
                           minWidth: 140,
                           alignItems: "center",
                         }}
@@ -3435,11 +3477,11 @@ export default function ApplicantDetailScreen() {
                           <Feather
                             name="lock"
                             size={18}
-                            color={isDark ? "#e0e7ff" : "#3730a3"}
+                            color={isDark ? "#F0E8D5" : "#A67A25"}
                           />
                           <Text
                             style={{
-                              color: isDark ? "#e0e7ff" : "#3730a3",
+                              color: isDark ? "#F0E8D5" : "#A67A25",
                               fontSize: 16,
                               fontWeight: "700",
                             }}
@@ -3452,7 +3494,7 @@ export default function ApplicantDetailScreen() {
                     {application.verificationCodeVerifiedAt && (
                       <Text
                         style={{
-                          color: isDark ? "#a78bfa" : "#6d28d9",
+                          color: isDark ? "#E8B86D" : "#A67A25",
                           fontSize: 11,
                           marginTop: 16,
                           fontStyle: "italic",
@@ -3460,11 +3502,11 @@ export default function ApplicantDetailScreen() {
                       >
                         {t("applications.verified")}:{" "}
                         {new Date(
-                          application.verificationCodeVerifiedAt
+                          application.verificationCodeVerifiedAt,
                         ).toLocaleDateString()}{" "}
                         at{" "}
                         {new Date(
-                          application.verificationCodeVerifiedAt
+                          application.verificationCodeVerifiedAt,
                         ).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -3483,13 +3525,47 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.coverLetterText,
-                    { color: isDark ? "#cbd5e1" : "#4b5563" },
+                    { color: isDark ? "#B8A88A" : "#6B6355" },
                   ]}
                 >
                   {application.coverLetter}
                 </Text>
               </View>
             )}
+          </View>
+
+          {/* Tracking Timeline */}
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: isDark
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
+                borderColor: isDark
+                  ? "rgba(255,250,240,0.12)"
+                  : "rgba(184,130,42,0.2)",
+              },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              {t("tracking.title") || "Tracking Timeline"}
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: isDark ? "#9A8E7A" : "#8A7B68",
+                marginBottom: 16,
+              }}
+            >
+              {t("tracking.subtitle") ||
+                "Follow the progress of this application"}
+            </Text>
+            <TrackingTimeline
+              steps={buildEmployerTimeline(application, t)}
+              isDark={isDark}
+              colors={colors}
+            />
           </View>
 
           {/* Additional Rate Requests */}
@@ -3501,11 +3577,11 @@ export default function ApplicantDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -3527,11 +3603,11 @@ export default function ApplicantDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.2)",
                             marginBottom:
                               idx <
                               (application.additionalRateRequests as any[])
@@ -3579,7 +3655,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.requestedAt).toLocaleDateString()}
@@ -3616,7 +3692,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.requestMessage,
-                              { color: isDark ? "#cbd5e1" : "#475569" },
+                              { color: isDark ? "#B8A88A" : "#6B6355" },
                             ]}
                           >
                             {request.message}
@@ -3628,7 +3704,7 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                                 padding: 10,
@@ -3639,7 +3715,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.yourResponse")}:
@@ -3647,7 +3723,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.responseMessage}
@@ -3706,7 +3782,7 @@ export default function ApplicantDetailScreen() {
                               <Text
                                 style={[
                                   styles.respondButtonText,
-                                  { color: "#fff" },
+                                  { color: "#FFFAF0" },
                                 ]}
                               >
                                 {t("applications.approve")}
@@ -3716,7 +3792,7 @@ export default function ApplicantDetailScreen() {
                         )}
                       </View>
                     );
-                  }
+                  },
                 )}
               </View>
             )}
@@ -3725,18 +3801,18 @@ export default function ApplicantDetailScreen() {
           {application.negotiationRequests &&
             Array.isArray(application.negotiationRequests) &&
             application.negotiationRequests.filter(
-              (req: any) => req.suggestedByRole === "JOB_SEEKER"
+              (req: any) => req.suggestedByRole === "JOB_SEEKER",
             ).length > 0 && (
               <View
                 style={[
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -3751,7 +3827,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.providerRequestedRates")}
@@ -3772,17 +3848,17 @@ export default function ApplicantDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isAccepted
                               ? "#22c55e"
                               : isRejected
                                 ? "#ef4444"
                                 : hasCounterOffer
-                                  ? "#6366f1"
+                                  ? "#C9963F"
                                   : isDark
-                                    ? "rgba(255,255,255,0.1)"
-                                    : "rgba(0,0,0,0.1)",
+                                    ? "rgba(201,150,63,0.12)"
+                                    : "rgba(184,130,42,0.2)",
                             marginBottom: idx < arr.length - 1 ? 12 : 0,
                           },
                         ]}
@@ -3797,7 +3873,7 @@ export default function ApplicantDetailScreen() {
                                   : isRejected
                                     ? "#ef4444"
                                     : hasCounterOffer
-                                      ? "#6366f1"
+                                      ? "#C9963F"
                                       : "#f59e0b",
                               },
                             ]}
@@ -3813,7 +3889,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.suggestedAt).toLocaleDateString()}
@@ -3852,7 +3928,7 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -3861,7 +3937,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.providerExplanation")}:
@@ -3869,7 +3945,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.message}
@@ -3882,7 +3958,7 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -3891,7 +3967,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.yourResponse")}:
@@ -3899,7 +3975,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.responseMessage}
@@ -3912,11 +3988,11 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(99, 102, 241, 0.1)"
-                                  : "rgba(99, 102, 241, 0.05)",
+                                  ? "rgba(201, 150, 63, 0.1)"
+                                  : "rgba(201, 150, 63, 0.05)",
                                 marginTop: 12,
                                 borderLeftWidth: 3,
-                                borderLeftColor: "#6366f1",
+                                borderLeftColor: "#C9963F",
                                 paddingLeft: 12,
                               },
                             ]}
@@ -3924,7 +4000,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: "#6366f1", fontWeight: "700" },
+                                { color: "#C9963F", fontWeight: "700" },
                               ]}
                             >
                               {t("applications.yourCounterOffer")}:
@@ -3952,7 +4028,7 @@ export default function ApplicantDetailScreen() {
                                                   : rate.paymentType === "OTHER"
                                                     ? t("onboarding.other")
                                                     : rate.paymentType.charAt(
-                                                        0
+                                                        0,
                                                       ) +
                                                       rate.paymentType
                                                         .slice(1)
@@ -3968,7 +4044,7 @@ export default function ApplicantDetailScreen() {
                                       €{rate.rate}/{paymentTypeLabel}
                                     </Text>
                                   );
-                                }
+                                },
                               )}
                             <Text
                               style={[
@@ -3986,7 +4062,7 @@ export default function ApplicantDetailScreen() {
                                 style={[
                                   styles.responseText,
                                   {
-                                    color: isDark ? "#cbd5e1" : "#475569",
+                                    color: isDark ? "#B8A88A" : "#6B6355",
                                     marginTop: 8,
                                   },
                                 ]}
@@ -4059,14 +4135,17 @@ export default function ApplicantDetailScreen() {
                                 onPress={() => {
                                   setSelectedEmployerNegotiationId(request.id);
                                   setSelectedEmployerNegotiationStatus(
-                                    "ACCEPTED"
+                                    "ACCEPTED",
                                   );
                                   setEmployerNegotiationResponseMessage("");
                                   setShowEmployerNegotiationRespondModal(true);
                                 }}
                               >
                                 <Text
-                                  style={{ color: "#fff", fontWeight: "600" }}
+                                  style={{
+                                    color: "#FFFAF0",
+                                    fontWeight: "700",
+                                  }}
                                 >
                                   {t("applications.accept")}
                                 </Text>
@@ -4082,14 +4161,17 @@ export default function ApplicantDetailScreen() {
                                 onPress={() => {
                                   setSelectedEmployerNegotiationId(request.id);
                                   setSelectedEmployerNegotiationStatus(
-                                    "REJECTED"
+                                    "REJECTED",
                                   );
                                   setEmployerNegotiationResponseMessage("");
                                   setShowEmployerNegotiationRespondModal(true);
                                 }}
                               >
                                 <Text
-                                  style={{ color: "#fff", fontWeight: "600" }}
+                                  style={{
+                                    color: "#FFFAF0",
+                                    fontWeight: "700",
+                                  }}
                                 >
                                   {t("applications.reject")}
                                 </Text>
@@ -4099,10 +4181,10 @@ export default function ApplicantDetailScreen() {
                               style={{
                                 padding: 12,
                                 borderRadius: 8,
-                                backgroundColor: isDark ? "#6366f1" : "#6366f1",
+                                backgroundColor: isDark ? "#C9963F" : "#C9963F",
                                 alignItems: "center",
                                 borderWidth: 1,
-                                borderColor: "#6366f1",
+                                borderColor: "#C9963F",
                               }}
                               onPress={() => {
                                 setSelectedEmployerNegotiationId(request.id);
@@ -4114,7 +4196,7 @@ export default function ApplicantDetailScreen() {
                               }}
                             >
                               <Text
-                                style={{ color: "#fff", fontWeight: "600" }}
+                                style={{ color: "#FFFAF0", fontWeight: "700" }}
                               >
                                 {t("applications.requestDifferentRate")}
                               </Text>
@@ -4131,18 +4213,18 @@ export default function ApplicantDetailScreen() {
           {application.negotiationRequests &&
             Array.isArray(application.negotiationRequests) &&
             application.negotiationRequests.filter(
-              (req: any) => req.suggestedByRole === "EMPLOYER"
+              (req: any) => req.suggestedByRole === "EMPLOYER",
             ).length > 0 && (
               <View
                 style={[
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -4157,7 +4239,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.yourNegotiationSuggestions")}
@@ -4177,17 +4259,17 @@ export default function ApplicantDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isAccepted
                               ? "#22c55e"
                               : isRejected
                                 ? "#ef4444"
                                 : hasCounterOffer
-                                  ? "#6366f1"
+                                  ? "#C9963F"
                                   : isDark
-                                    ? "rgba(255,255,255,0.1)"
-                                    : "rgba(0,0,0,0.1)",
+                                    ? "rgba(201,150,63,0.12)"
+                                    : "rgba(184,130,42,0.2)",
                             marginBottom: idx < arr.length - 1 ? 12 : 0,
                           },
                         ]}
@@ -4202,7 +4284,7 @@ export default function ApplicantDetailScreen() {
                                   : isRejected
                                     ? "#ef4444"
                                     : hasCounterOffer
-                                      ? "#6366f1"
+                                      ? "#C9963F"
                                       : "#f59e0b",
                               },
                             ]}
@@ -4218,7 +4300,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.suggestedAt).toLocaleDateString()}
@@ -4274,7 +4356,7 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -4283,7 +4365,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               {t("applications.yourExplanation")}:
@@ -4291,7 +4373,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.message}
@@ -4304,7 +4386,7 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "rgba(0,0,0,0.02)",
                                 marginTop: 12,
                               },
@@ -4313,7 +4395,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#94a3b8" : "#64748b" },
+                                { color: isDark ? "#9A8E7A" : "#8A7B68" },
                               ]}
                             >
                               Service Provider Response:
@@ -4321,7 +4403,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseText,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {request.responseMessage}
@@ -4334,11 +4416,11 @@ export default function ApplicantDetailScreen() {
                               styles.responseMessage,
                               {
                                 backgroundColor: isDark
-                                  ? "rgba(99, 102, 241, 0.1)"
-                                  : "rgba(99, 102, 241, 0.05)",
+                                  ? "rgba(201, 150, 63, 0.1)"
+                                  : "rgba(201, 150, 63, 0.05)",
                                 marginTop: 12,
                                 borderLeftWidth: 3,
-                                borderLeftColor: "#6366f1",
+                                borderLeftColor: "#C9963F",
                                 paddingLeft: 12,
                               },
                             ]}
@@ -4346,7 +4428,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: "#6366f1", fontWeight: "700" },
+                                { color: "#C9963F", fontWeight: "700" },
                               ]}
                             >
                               {t("applications.counterOffer")}:
@@ -4372,7 +4454,7 @@ export default function ApplicantDetailScreen() {
                                       €{rate.rate}/{paymentTypeLabel}
                                     </Text>
                                   );
-                                }
+                                },
                               )}
                             <Text
                               style={[
@@ -4390,7 +4472,7 @@ export default function ApplicantDetailScreen() {
                                 style={[
                                   styles.responseText,
                                   {
-                                    color: isDark ? "#cbd5e1" : "#475569",
+                                    color: isDark ? "#B8A88A" : "#6B6355",
                                     marginTop: 8,
                                   },
                                 ]}
@@ -4416,10 +4498,10 @@ export default function ApplicantDetailScreen() {
                                   }}
                                   onPress={() => {
                                     setSelectedCounterOfferRequestId(
-                                      request.id
+                                      request.id,
                                     );
                                     setSelectedCounterOfferId(
-                                      request.counterOffer.id
+                                      request.counterOffer.id,
                                     );
                                     setCounterOfferResponseStatus("ACCEPTED");
                                     setCounterOfferResponseMessage("");
@@ -4428,12 +4510,12 @@ export default function ApplicantDetailScreen() {
                                   disabled={respondingToCounterOffer}
                                 >
                                   {respondingToCounterOffer ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color="#FFFAF0" />
                                   ) : (
                                     <Text
                                       style={{
-                                        color: "#fff",
-                                        fontWeight: "600",
+                                        color: "#FFFAF0",
+                                        fontWeight: "700",
                                       }}
                                     >
                                       {t("common.accept")}
@@ -4450,10 +4532,10 @@ export default function ApplicantDetailScreen() {
                                   }}
                                   onPress={() => {
                                     setSelectedCounterOfferRequestId(
-                                      request.id
+                                      request.id,
                                     );
                                     setSelectedCounterOfferId(
-                                      request.counterOffer.id
+                                      request.counterOffer.id,
                                     );
                                     setCounterOfferResponseStatus("REJECTED");
                                     setCounterOfferResponseMessage("");
@@ -4462,12 +4544,12 @@ export default function ApplicantDetailScreen() {
                                   disabled={respondingToCounterOffer}
                                 >
                                   {respondingToCounterOffer ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color="#FFFAF0" />
                                   ) : (
                                     <Text
                                       style={{
-                                        color: "#fff",
-                                        fontWeight: "600",
+                                        color: "#FFFAF0",
+                                        fontWeight: "700",
                                       }}
                                     >
                                       {t("applications.reject")}
@@ -4523,11 +4605,11 @@ export default function ApplicantDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                     marginBottom: 16,
                   },
                 ]}
@@ -4543,7 +4625,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b", marginBottom: 16 },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68", marginBottom: 16 },
                   ]}
                 >
                   {t("applications.additionalTimeRequestsDescription")}
@@ -4563,7 +4645,7 @@ export default function ApplicantDetailScreen() {
                           styles.requestCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.05)"
+                              ? "rgba(255,250,240,0.06)"
                               : "rgba(0,0,0,0.02)",
                             borderColor: isAccepted
                               ? "#22c55e"
@@ -4572,8 +4654,8 @@ export default function ApplicantDetailScreen() {
                                 : isPendingApproval
                                   ? "#f59e0b"
                                   : isDark
-                                    ? "rgba(255,255,255,0.1)"
-                                    : "rgba(0,0,0,0.1)",
+                                    ? "rgba(201,150,63,0.12)"
+                                    : "rgba(184,130,42,0.2)",
                             marginBottom:
                               idx <
                               application.additionalTimeRequests!.length - 1
@@ -4593,7 +4675,7 @@ export default function ApplicantDetailScreen() {
                                     ? "#ef4444"
                                     : isPendingApproval
                                       ? "#f59e0b"
-                                      : "#6366f1",
+                                      : "#C9963F",
                               },
                             ]}
                           >
@@ -4608,7 +4690,7 @@ export default function ApplicantDetailScreen() {
                           <Text
                             style={[
                               styles.requestDate,
-                              { color: isDark ? "#94a3b8" : "#64748b" },
+                              { color: isDark ? "#9A8E7A" : "#8A7B68" },
                             ]}
                           >
                             {new Date(request.requestedAt).toLocaleDateString()}
@@ -4620,7 +4702,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {t("applications.yourRequest")}:
@@ -4629,7 +4711,7 @@ export default function ApplicantDetailScreen() {
                               style={[
                                 styles.responseText,
                                 {
-                                  color: isDark ? "#cbd5e1" : "#475569",
+                                  color: isDark ? "#B8A88A" : "#6B6355",
                                   marginTop: 4,
                                 },
                               ]}
@@ -4668,7 +4750,7 @@ export default function ApplicantDetailScreen() {
                                 {
                                   color: colors.text,
                                   marginTop: 4,
-                                  fontWeight: "600",
+                                  fontWeight: "700",
                                 },
                               ]}
                             >
@@ -4680,7 +4762,7 @@ export default function ApplicantDetailScreen() {
                                 style={[
                                   styles.responseText,
                                   {
-                                    color: isDark ? "#cbd5e1" : "#475569",
+                                    color: isDark ? "#B8A88A" : "#6B6355",
                                     marginTop: 8,
                                   },
                                 ]}
@@ -4705,7 +4787,7 @@ export default function ApplicantDetailScreen() {
                                 }}
                                 onPress={() => {
                                   setSelectedAdditionalTimeRequestId(
-                                    request.id
+                                    request.id,
                                   );
                                   setAdditionalTimeResponseStatus("ACCEPTED");
                                   setShowAdditionalTimeResponseModal(true);
@@ -4713,8 +4795,8 @@ export default function ApplicantDetailScreen() {
                               >
                                 <Text
                                   style={{
-                                    color: "#fff",
-                                    fontWeight: "600",
+                                    color: "#FFFAF0",
+                                    fontWeight: "700",
                                   }}
                                 >
                                   {t("applications.accept")}
@@ -4730,7 +4812,7 @@ export default function ApplicantDetailScreen() {
                                 }}
                                 onPress={() => {
                                   setSelectedAdditionalTimeRequestId(
-                                    request.id
+                                    request.id,
                                   );
                                   setAdditionalTimeResponseStatus("REJECTED");
                                   setShowAdditionalTimeResponseModal(true);
@@ -4738,8 +4820,8 @@ export default function ApplicantDetailScreen() {
                               >
                                 <Text
                                   style={{
-                                    color: "#fff",
-                                    fontWeight: "600",
+                                    color: "#FFFAF0",
+                                    fontWeight: "700",
                                   }}
                                 >
                                   {t("applications.reject")}
@@ -4774,7 +4856,7 @@ export default function ApplicantDetailScreen() {
                                   ]}
                                 >
                                   {t(
-                                    "applications.serviceProviderResponseAccepted"
+                                    "applications.serviceProviderResponseAccepted",
                                   )}
                                   :
                                 </Text>
@@ -4784,7 +4866,7 @@ export default function ApplicantDetailScreen() {
                                     {
                                       color: colors.text,
                                       marginTop: 4,
-                                      fontWeight: "600",
+                                      fontWeight: "700",
                                     },
                                   ]}
                                 >
@@ -4799,7 +4881,7 @@ export default function ApplicantDetailScreen() {
                                     style={[
                                       styles.responseText,
                                       {
-                                        color: isDark ? "#cbd5e1" : "#475569",
+                                        color: isDark ? "#B8A88A" : "#6B6355",
                                         marginTop: 8,
                                       },
                                     ]}
@@ -4814,7 +4896,7 @@ export default function ApplicantDetailScreen() {
                                 <Text
                                   style={[
                                     styles.responseLabel,
-                                    { color: isDark ? "#cbd5e1" : "#475569" },
+                                    { color: isDark ? "#B8A88A" : "#6B6355" },
                                   ]}
                                 >
                                   {t("applications.yourResponse")}:
@@ -4823,7 +4905,7 @@ export default function ApplicantDetailScreen() {
                                   style={[
                                     styles.responseText,
                                     {
-                                      color: isDark ? "#cbd5e1" : "#475569",
+                                      color: isDark ? "#B8A88A" : "#6B6355",
                                       marginTop: 4,
                                     },
                                   ]}
@@ -4840,7 +4922,7 @@ export default function ApplicantDetailScreen() {
                             <Text
                               style={[
                                 styles.responseLabel,
-                                { color: isDark ? "#cbd5e1" : "#475569" },
+                                { color: isDark ? "#B8A88A" : "#6B6355" },
                               ]}
                             >
                               {t("applications.yourResponse")}:
@@ -4849,7 +4931,7 @@ export default function ApplicantDetailScreen() {
                               style={[
                                 styles.responseText,
                                 {
-                                  color: isDark ? "#cbd5e1" : "#475569",
+                                  color: isDark ? "#B8A88A" : "#6B6355",
                                   marginTop: 4,
                                 },
                               ]}
@@ -4860,7 +4942,7 @@ export default function ApplicantDetailScreen() {
                         )}
                       </View>
                     );
-                  }
+                  },
                 )}
               </View>
             ) : (
@@ -4869,11 +4951,11 @@ export default function ApplicantDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.2)",
                     marginBottom: 16,
                   },
                 ]}
@@ -4889,7 +4971,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.paymentSubtitle,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.noAdditionalTimeRequestsYet")}
@@ -4943,7 +5025,7 @@ export default function ApplicantDetailScreen() {
                   >
                     {t("applications.markedAsDoneOn")}:{" "}
                     {new Date(
-                      application.serviceProviderMarkedDoneAt
+                      application.serviceProviderMarkedDoneAt,
                     ).toLocaleString()}
                   </Text>
                 </View>
@@ -4957,7 +5039,7 @@ export default function ApplicantDetailScreen() {
             (() => {
               // Use verificationCodeVerifiedAt (when service started) instead of startDate
               const serviceStartDate = new Date(
-                application.verificationCodeVerifiedAt
+                application.verificationCodeVerifiedAt,
               );
 
               // Calculate total additional days from all ACCEPTED requests
@@ -4982,41 +5064,41 @@ export default function ApplicantDetailScreen() {
                   const days = Number(req.additionalDays) || 0;
                   return sum + days;
                 },
-                0
+                0,
               );
 
               // Debug: Log for troubleshooting (can be removed later)
               if (allRequests.length > 0) {
                 console.log(
                   "[Timer Debug] All requests:",
-                  JSON.stringify(allRequests, null, 2)
+                  JSON.stringify(allRequests, null, 2),
                 );
                 console.log(
                   "[Timer Debug] Accepted requests with days:",
-                  acceptedRequests
+                  acceptedRequests,
                 );
                 console.log(
                   "[Timer Debug] Total additional days:",
-                  totalAdditionalDays
+                  totalAdditionalDays,
                 );
               }
 
               // Base deadline is 4 days from service start, plus any accepted additional days
               const autoCompleteDate = new Date(serviceStartDate);
               autoCompleteDate.setDate(
-                autoCompleteDate.getDate() + 4 + totalAdditionalDays
+                autoCompleteDate.getDate() + 4 + totalAdditionalDays,
               );
 
               const now = new Date();
               const timeDiff = autoCompleteDate.getTime() - now.getTime();
               const daysUntilAutoComplete = Math.ceil(
-                timeDiff / (1000 * 60 * 60 * 24)
+                timeDiff / (1000 * 60 * 60 * 24),
               );
               const hoursUntilAutoComplete = Math.ceil(
-                timeDiff / (1000 * 60 * 60)
+                timeDiff / (1000 * 60 * 60),
               );
               const minutesUntilAutoComplete = Math.ceil(
-                timeDiff / (1000 * 60)
+                timeDiff / (1000 * 60),
               );
 
               // Determine color based on remaining time
@@ -5075,7 +5157,7 @@ export default function ApplicantDetailScreen() {
                 application.additionalTimeRequests?.some(
                   (req) =>
                     req.status === "PENDING" ||
-                    req.status === "PENDING_EMPLOYER_APPROVAL"
+                    req.status === "PENDING_EMPLOYER_APPROVAL",
                 );
 
               // Always show timer if service has started
@@ -5127,7 +5209,7 @@ export default function ApplicantDetailScreen() {
                                 days: daysUntilAutoComplete,
                                 hours: Math.floor(
                                   (timeDiff % (1000 * 60 * 60 * 24)) /
-                                    (1000 * 60 * 60)
+                                    (1000 * 60 * 60),
                                 ),
                               })}
                     </Text>
@@ -5146,9 +5228,9 @@ export default function ApplicantDetailScreen() {
                       >
                         <Text
                           style={{
-                            color: "#fff",
+                            color: "#FFFAF0",
                             fontSize: 12,
-                            fontWeight: "600",
+                            fontWeight: "700",
                           }}
                         >
                           {t("applications.requestAdditionalTime")}
@@ -5202,13 +5284,14 @@ export default function ApplicantDetailScreen() {
                   "[ApplicantDetail] Rendering buttons, paymentRequired:",
                   paymentRequired,
                   "completedAt:",
-                  application?.completedAt
+                  application?.completedAt,
                 );
                 return (
                   <>
                     {application.status === "ACCEPTED" &&
                       !isPaymentRequired() &&
-                      !application.completedAt && (
+                      !application.completedAt &&
+                      application.verificationCodeVerifiedAt && (
                         <TouchableButton
                           style={[
                             styles.actionButton,
@@ -5221,13 +5304,13 @@ export default function ApplicantDetailScreen() {
                           disabled={completingJob}
                         >
                           {completingJob ? (
-                            <ActivityIndicator color="#fff" />
+                            <ActivityIndicator color="#FFFAF0" />
                           ) : (
                             <>
                               <Feather
                                 name="check-circle"
                                 size={20}
-                                color="#fff"
+                                color="#FFFAF0"
                               />
                               <Text style={styles.actionButtonText}>
                                 {t("applications.markJobAsComplete")}
@@ -5235,6 +5318,59 @@ export default function ApplicantDetailScreen() {
                             </>
                           )}
                         </TouchableButton>
+                      )}
+                    {application.status === "ACCEPTED" &&
+                      !isPaymentRequired() &&
+                      !application.completedAt &&
+                      !application.verificationCodeVerifiedAt && (
+                        <View
+                          style={{
+                            backgroundColor: isDark
+                              ? "rgba(34,197,94,0.08)"
+                              : "rgba(34,197,94,0.06)",
+                            borderWidth: 1,
+                            borderColor: isDark
+                              ? "rgba(34,197,94,0.25)"
+                              : "rgba(34,197,94,0.2)",
+                            borderRadius: 16,
+                            padding: 16,
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              marginBottom: 8,
+                            }}
+                          >
+                            <Feather
+                              name="check-circle"
+                              size={18}
+                              color="#22c55e"
+                            />
+                            <Text
+                              style={{
+                                marginLeft: 8,
+                                fontSize: 15,
+                                fontWeight: "700",
+                                color: isDark ? "#FFFAF0" : "#1A1710",
+                              }}
+                            >
+                              {t("applications.completeJobTitle")}
+                            </Text>
+                          </View>
+                          <Text
+                            style={{
+                              fontSize: 13,
+                              lineHeight: 18,
+                              color: isDark
+                                ? "rgba(255,250,240,0.6)"
+                                : "rgba(26,23,16,0.6)",
+                            }}
+                          >
+                            {t("applications.completeJobVerifyFirst")}
+                          </Text>
+                        </View>
                       )}
                     {application.status !== "ACCEPTED" &&
                       application.status !== "REJECTED" && (
@@ -5245,10 +5381,10 @@ export default function ApplicantDetailScreen() {
                               styles.acceptButton,
                               {
                                 backgroundColor: paymentRequired
-                                  ? "#64748b"
+                                  ? "#8A7B68"
                                   : "#22c55e",
                                 borderColor: paymentRequired
-                                  ? "#94a3b8"
+                                  ? "#9A8E7A"
                                   : "#22c55e",
                                 opacity: paymentRequired ? 0.6 : 1,
                               },
@@ -5260,18 +5396,18 @@ export default function ApplicantDetailScreen() {
                                 const hasAcceptedNegotiations =
                                   application.negotiationRequests &&
                                   Array.isArray(
-                                    application.negotiationRequests
+                                    application.negotiationRequests,
                                   ) &&
                                   application.negotiationRequests.some(
-                                    (req: any) => req.status === "ACCEPTED"
+                                    (req: any) => req.status === "ACCEPTED",
                                   );
                                 const hasApprovedAdditionalRates =
                                   application.additionalRateRequests &&
                                   Array.isArray(
-                                    application.additionalRateRequests
+                                    application.additionalRateRequests,
                                   ) &&
                                   application.additionalRateRequests.some(
-                                    (req: any) => req.status === "APPROVED"
+                                    (req: any) => req.status === "APPROVED",
                                   );
 
                                 if (
@@ -5282,11 +5418,11 @@ export default function ApplicantDetailScreen() {
                                   Alert.alert(
                                     t("applications.servicesRequired"),
                                     t("applications.selectServiceOrNegotiate"),
-                                    [{ text: t("common.ok") }]
+                                    [{ text: t("common.ok") }],
                                   );
                                 } else {
                                   showPaymentRequiredAlert(
-                                    "accept this application"
+                                    "accept this application",
                                   );
                                 }
                               } else {
@@ -5298,7 +5434,7 @@ export default function ApplicantDetailScreen() {
                             <Feather
                               name="check-circle"
                               size={20}
-                              color="#fff"
+                              color="#FFFAF0"
                             />
                             <Text style={styles.actionButtonText}>
                               {t("applications.acceptApplication")}
@@ -5321,7 +5457,11 @@ export default function ApplicantDetailScreen() {
                             }}
                             disabled={false}
                           >
-                            <Feather name="x-circle" size={20} color="#fff" />
+                            <Feather
+                              name="x-circle"
+                              size={20}
+                              color="#FFFAF0"
+                            />
                             <Text style={styles.actionButtonText}>
                               {t("applications.rejectApplication")}
                             </Text>
@@ -5352,8 +5492,8 @@ export default function ApplicantDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   height: undefined,
                   maxHeight: Dimensions.get("window").height * 0.75,
                 },
@@ -5381,7 +5521,7 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalDescription,
                     {
-                      color: isDark ? "#9ca3af" : "#6b7280",
+                      color: isDark ? "#9A8E7A" : "#8A7B68",
                       marginBottom: selectedAction === "ACCEPT" ? 16 : 20,
                     },
                   ]}
@@ -5447,12 +5587,12 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.6)"
+                        ? "rgba(12, 22, 42, 0.65)"
                         : "#f1f5f9",
                       color: colors.text,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#e2e8f0",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#F0E8D5",
                     },
                   ]}
                   placeholder={
@@ -5460,7 +5600,7 @@ export default function ApplicantDetailScreen() {
                       ? t("applications.acceptPlaceholder")
                       : t("applications.rejectPlaceholder")
                   }
-                  placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   multiline
                   numberOfLines={5}
                   value={actionMessage}
@@ -5474,8 +5614,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -5484,11 +5624,11 @@ export default function ApplicantDetailScreen() {
                     styles.modalCancelButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.1)"
+                        ? "rgba(201,150,63,0.12)"
                         : "rgba(241, 245, 249, 0.9)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -5518,7 +5658,7 @@ export default function ApplicantDetailScreen() {
                   disabled={processing}
                 >
                   {processing ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {selectedAction === "ACCEPT"
@@ -5545,8 +5685,8 @@ export default function ApplicantDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -5567,7 +5707,7 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalDescription,
                     {
-                      color: isDark ? "#cbd5e1" : "#4b5563",
+                      color: isDark ? "#B8A88A" : "#6B6355",
                       marginBottom: 24,
                       fontSize: 15,
                       lineHeight: 22,
@@ -5592,11 +5732,11 @@ export default function ApplicantDetailScreen() {
                   // Calculate unpaid amounts breakdown
                   const unpaidServicesAmount = unpaidServices.reduce(
                     (sum: number, service: any) => sum + (service.rate || 0),
-                    0
+                    0,
                   );
                   const unpaidNegotiationsAmount = unpaidNegotiations.reduce(
                     (sum: number, neg: any) => sum + (neg.totalAmount || 0),
-                    0
+                    0,
                   );
 
                   // Use unpaidAmount if available (more accurate), otherwise fall back to calculation
@@ -5635,7 +5775,7 @@ export default function ApplicantDetailScreen() {
                   ) {
                     const approvedRequests =
                       application.additionalRateRequests.filter(
-                        (request: any) => request.status === "APPROVED"
+                        (request: any) => request.status === "APPROVED",
                       );
                     approvedRequests.forEach((request: any) => {
                       if (request.rates && Array.isArray(request.rates)) {
@@ -5656,7 +5796,7 @@ export default function ApplicantDetailScreen() {
                   ) {
                     const acceptedNegotiations =
                       application.negotiationRequests.filter(
-                        (request: any) => request.status === "ACCEPTED"
+                        (request: any) => request.status === "ACCEPTED",
                       );
                     acceptedNegotiations.forEach((request: any) => {
                       // If there's an accepted counter offer, use its rates instead
@@ -5706,11 +5846,11 @@ export default function ApplicantDetailScreen() {
                             styles.paymentServicesCard,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255, 255, 255, 0.05)"
-                                : "#f8fafc",
+                                ? "rgba(255, 250, 240, 0.06)"
+                                : "#FFF8F0",
                               borderColor: isDark
-                                ? "rgba(255, 255, 255, 0.1)"
-                                : "#e2e8f0",
+                                ? "rgba(201, 150, 63, 0.12)"
+                                : "#F0E8D5",
                             },
                           ]}
                         >
@@ -5718,7 +5858,7 @@ export default function ApplicantDetailScreen() {
                             <Feather
                               name="check-circle"
                               size={18}
-                              color={isDark ? "#94a3b8" : "#64748b"}
+                              color={isDark ? "#9A8E7A" : "#8A7B68"}
                             />
                             <Text
                               style={[
@@ -5753,7 +5893,7 @@ export default function ApplicantDetailScreen() {
                               // Helper to match services (line-item level truth)
                               const matchService = (
                                 s1: any,
-                                s2: any
+                                s2: any,
                               ): boolean => {
                                 return (
                                   Math.abs(s1.rate - s2.rate) < 0.01 &&
@@ -5769,12 +5909,12 @@ export default function ApplicantDetailScreen() {
                                 paymentStatus?.paidServices || [];
 
                               const lineIsUnpaid = unpaidServices.some(
-                                (u: any) => matchService(rate, u)
+                                (u: any) => matchService(rate, u),
                               );
                               const lineIsPaid =
                                 !lineIsUnpaid &&
                                 paidServices.some((p: any) =>
-                                  matchService(rate, p)
+                                  matchService(rate, p),
                                 );
 
                               if (lineIsUnpaid) {
@@ -5807,20 +5947,20 @@ export default function ApplicantDetailScreen() {
                                           (r: any) =>
                                             Math.abs(r.rate - rate.rate) <
                                               0.01 &&
-                                            r.paymentType === rate.paymentType
+                                            r.paymentType === rate.paymentType,
                                         );
-                                      }
+                                      },
                                     );
                                   if (negotiationRequest) {
                                     isUnpaid = unpaidNegotiations.some(
                                       (unpaid: any) =>
-                                        unpaid.id === negotiationRequest.id
+                                        unpaid.id === negotiationRequest.id,
                                     );
                                     isPaid =
                                       !isUnpaid &&
                                       paymentStatus?.paidNegotiations?.some(
                                         (paid: any) =>
-                                          paid.id === negotiationRequest.id
+                                          paid.id === negotiationRequest.id,
                                       );
                                   }
                                 }
@@ -5837,8 +5977,8 @@ export default function ApplicantDetailScreen() {
                                     styles.paymentServiceItem,
                                     {
                                       borderBottomColor: isDark
-                                        ? "rgba(255, 255, 255, 0.05)"
-                                        : "#e2e8f0",
+                                        ? "rgba(255, 250, 240, 0.06)"
+                                        : "#F0E8D5",
                                     },
                                     idx === allRatesData.length - 1 && {
                                       borderBottomWidth: 0,
@@ -5867,8 +6007,8 @@ export default function ApplicantDetailScreen() {
                                             styles.paymentServiceLabel,
                                             {
                                               color: isDark
-                                                ? "#94a3b8"
-                                                : "#64748b",
+                                                ? "#9A8E7A"
+                                                : "#8A7B68",
                                             },
                                           ]}
                                         >
@@ -5889,11 +6029,11 @@ export default function ApplicantDetailScreen() {
                             styles.paymentSummaryCard,
                             {
                               backgroundColor: isDark
-                                ? "rgba(99, 102, 241, 0.15)"
-                                : "rgba(99, 102, 241, 0.08)",
+                                ? "rgba(201, 150, 63, 0.15)"
+                                : "rgba(201, 150, 63, 0.08)",
                               borderColor: isDark
-                                ? "rgba(99, 102, 241, 0.3)"
-                                : "rgba(99, 102, 241, 0.2)",
+                                ? "rgba(201, 150, 63, 0.3)"
+                                : "rgba(201, 150, 63, 0.2)",
                               marginTop: 16,
                             },
                           ]}
@@ -5904,7 +6044,7 @@ export default function ApplicantDetailScreen() {
                               <Text
                                 style={[
                                   styles.paymentSummaryLabel,
-                                  { color: isDark ? "#cbd5e1" : "#64748b" },
+                                  { color: isDark ? "#B8A88A" : "#8A7B68" },
                                 ]}
                               >
                                 {t("applications.paidAmount")}:
@@ -5926,7 +6066,7 @@ export default function ApplicantDetailScreen() {
                               <Text
                                 style={[
                                   styles.paymentSummaryLabel,
-                                  { color: isDark ? "#cbd5e1" : "#64748b" },
+                                  { color: isDark ? "#B8A88A" : "#8A7B68" },
                                 ]}
                               >
                                 {t("applications.unpaidAmount")}:
@@ -5948,8 +6088,8 @@ export default function ApplicantDetailScreen() {
                               styles.paymentSummaryDivider,
                               {
                                 borderTopColor: isDark
-                                  ? "rgba(255, 255, 255, 0.1)"
-                                  : "rgba(0, 0, 0, 0.1)",
+                                  ? "rgba(201, 150, 63, 0.12)"
+                                  : "rgba(184, 130, 42, 0.2)",
                                 borderTopWidth: 1,
                                 marginTop: 12,
                                 paddingTop: 12,
@@ -5991,8 +6131,8 @@ export default function ApplicantDetailScreen() {
                                 styles.paymentSummaryDivider,
                                 {
                                   borderTopColor: isDark
-                                    ? "rgba(255, 255, 255, 0.1)"
-                                    : "rgba(0, 0, 0, 0.1)",
+                                    ? "rgba(201, 150, 63, 0.12)"
+                                    : "rgba(184, 130, 42, 0.2)",
                                   borderTopWidth: 1,
                                   marginTop: 12,
                                   paddingTop: 12,
@@ -6039,8 +6179,8 @@ export default function ApplicantDetailScreen() {
                             styles.paymentInfoNoteBox,
                             {
                               backgroundColor: isDark
-                                ? "rgba(59, 130, 246, 0.1)"
-                                : "rgba(59, 130, 246, 0.05)",
+                                ? "rgba(201, 150, 63, 0.1)"
+                                : "rgba(201, 150, 63, 0.05)",
                               marginTop: 16,
                             },
                           ]}
@@ -6055,7 +6195,7 @@ export default function ApplicantDetailScreen() {
                             <Feather
                               name="info"
                               size={16}
-                              color={isDark ? "#60a5fa" : "#3b82f6"}
+                              color={isDark ? "#E8B86D" : "#C9963F"}
                               style={{ marginTop: 2 }}
                             />
                             <View style={{ flex: 1 }}>
@@ -6063,7 +6203,7 @@ export default function ApplicantDetailScreen() {
                                 style={[
                                   styles.paymentInfoNoteText,
                                   {
-                                    color: isDark ? "#93c5fd" : "#1e40af",
+                                    color: isDark ? "#E8B86D" : "#A67A25",
                                     fontSize: 13,
                                     lineHeight: 18,
                                   },
@@ -6129,8 +6269,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -6140,8 +6280,8 @@ export default function ApplicantDetailScreen() {
                     {
                       backgroundColor: "transparent",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.2)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.3)",
                     },
                   ]}
                   onPress={() => setShowPaymentModal(false)}
@@ -6156,8 +6296,8 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#4f46e5" : "#6366f1",
-                      borderColor: isDark ? "#6366f1" : "#4f46e5",
+                      backgroundColor: isDark ? "#C9963F" : "#B8822A",
+                      borderColor: isDark ? "#E8B86D" : "#C9963F",
                     },
                     paymentProcessing && styles.modalButtonDisabled,
                   ]}
@@ -6171,13 +6311,13 @@ export default function ApplicantDetailScreen() {
                       application?.additionalRateRequests &&
                       Array.isArray(application.additionalRateRequests) &&
                       application.additionalRateRequests.some(
-                        (req: any) => req.status === "APPROVED"
+                        (req: any) => req.status === "APPROVED",
                       );
                     const hasAcceptedNegotiations =
                       application?.negotiationRequests &&
                       Array.isArray(application.negotiationRequests) &&
                       application.negotiationRequests.some(
-                        (req: any) => req.status === "ACCEPTED"
+                        (req: any) => req.status === "ACCEPTED",
                       );
                     const selectedTotal = getSelectedRatesTotal();
 
@@ -6197,14 +6337,14 @@ export default function ApplicantDetailScreen() {
                         hasAcceptedNegotiations,
                         selectedTotal,
                         shouldDisable,
-                      }
+                      },
                     );
 
                     return shouldDisable;
                   })()}
                 >
                   {paymentProcessing ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.createPayment")}
@@ -6234,8 +6374,8 @@ export default function ApplicantDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -6267,7 +6407,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {selectedRequestStatus === "APPROVED"
@@ -6288,12 +6428,12 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.6)"
+                        ? "rgba(12, 22, 42, 0.65)"
                         : "#f1f5f9",
                       color: colors.text,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#e2e8f0",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#F0E8D5",
                     },
                   ]}
                   placeholder={
@@ -6301,7 +6441,7 @@ export default function ApplicantDetailScreen() {
                       ? "Great! We approve these additional rates..."
                       : "Thank you for the request. Unfortunately..."
                   }
-                  placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   multiline
                   numberOfLines={5}
                   value={respondMessage}
@@ -6315,8 +6455,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -6325,11 +6465,11 @@ export default function ApplicantDetailScreen() {
                     styles.modalCancelButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.1)"
+                        ? "rgba(201,150,63,0.12)"
                         : "rgba(241, 245, 249, 0.9)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -6364,7 +6504,7 @@ export default function ApplicantDetailScreen() {
                   disabled={responding}
                 >
                   {responding ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {selectedRequestStatus === "APPROVED"
@@ -6397,14 +6537,14 @@ export default function ApplicantDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderRadius: 24,
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderRadius: 4,
                   overflow: "hidden",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
                   shadowRadius: 16,
-                  elevation: 10,
+                  elevation: 0,
                 },
               ]}
             >
@@ -6413,8 +6553,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -6441,7 +6581,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.proposeDifferentRateAndExplain")}
@@ -6472,22 +6612,22 @@ export default function ApplicantDetailScreen() {
                             flex: 1,
                             minHeight: 56,
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.08)"
+                              ? "rgba(255,250,240,0.10)"
                               : "#f1f5f9",
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#cbd5e1",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#B8A88A",
                             color: colors.text,
                             fontSize: 16,
                             fontWeight: "500",
                             paddingHorizontal: 16,
                             paddingVertical: 14,
-                            borderRadius: 12,
+                            borderRadius: 4,
                             borderWidth: 1.5,
                           },
                         ]}
                         placeholder={t("applications.amount")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={rate.rate}
                         onChangeText={(text) => {
                           const updated = [...negotiationRates];
@@ -6499,7 +6639,7 @@ export default function ApplicantDetailScreen() {
                       <TouchableButton
                         onPress={() => {
                           const updated = negotiationRates.filter(
-                            (_, i) => i !== idx
+                            (_, i) => i !== idx,
                           );
                           if (updated.length === 0) {
                             updated.push({ rate: "", paymentType: "HOURLY" });
@@ -6511,7 +6651,7 @@ export default function ApplicantDetailScreen() {
                           backgroundColor: isDark
                             ? "rgba(239, 68, 68, 0.25)"
                             : "#fee2e2",
-                          borderRadius: 12,
+                          borderRadius: 4,
                           borderWidth: 1,
                           borderColor: isDark
                             ? "rgba(239, 68, 68, 0.4)"
@@ -6570,14 +6710,14 @@ export default function ApplicantDetailScreen() {
                                     ? colors.tint + "30"
                                     : colors.tint + "15"
                                   : isDark
-                                    ? "rgba(255,255,255,0.08)"
+                                    ? "rgba(255,250,240,0.10)"
                                     : "#f1f5f9",
                               borderColor:
                                 rate.paymentType === type
                                   ? colors.tint
                                   : isDark
-                                    ? "rgba(255,255,255,0.15)"
-                                    : "#cbd5e1",
+                                    ? "rgba(255,250,240,0.12)"
+                                    : "#B8A88A",
                             }}
                           >
                             <Text
@@ -6619,24 +6759,24 @@ export default function ApplicantDetailScreen() {
                             {
                               minHeight: 56,
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.08)"
+                                ? "rgba(255,250,240,0.10)"
                                 : "#f1f5f9",
                               borderColor: isDark
-                                ? "rgba(255,255,255,0.15)"
-                                : "#cbd5e1",
+                                ? "rgba(255,250,240,0.12)"
+                                : "#B8A88A",
                               color: colors.text,
                               fontSize: 16,
                               fontWeight: "500",
                               paddingHorizontal: 16,
                               paddingVertical: 14,
-                              borderRadius: 12,
+                              borderRadius: 4,
                               borderWidth: 1.5,
                             },
                           ]}
                           placeholder={t(
-                            "applications.specifyPaymentTypePlaceholder"
+                            "applications.specifyPaymentTypePlaceholder",
                           )}
-                          placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                          placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                           value={rate.otherSpecification}
                           onChangeText={(text) => {
                             const updated = [...negotiationRates];
@@ -6660,7 +6800,7 @@ export default function ApplicantDetailScreen() {
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                     borderColor: colors.tint,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     alignItems: "center",
                     marginBottom: 20,
                     backgroundColor: isDark
@@ -6730,7 +6870,7 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalDescription,
                     {
-                      color: isDark ? "#9ca3af" : "#6b7280",
+                      color: isDark ? "#9A8E7A" : "#8A7B68",
                       fontSize: 13,
                       marginBottom: 8,
                     },
@@ -6743,23 +6883,23 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       lineHeight: 24,
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 140,
                     },
                   ]}
                   placeholder={t("applications.explainRateRequest")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={negotiationMessage}
                   onChangeText={setNegotiationMessage}
                   textAlignVertical="top"
@@ -6773,8 +6913,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -6783,7 +6923,9 @@ export default function ApplicantDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -6802,13 +6944,13 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                     },
                     suggestingNegotiation && styles.modalButtonDisabled,
                   ]}
@@ -6816,7 +6958,7 @@ export default function ApplicantDetailScreen() {
                   disabled={suggestingNegotiation}
                 >
                   {suggestingNegotiation ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.sendSuggestion")}
@@ -6852,7 +6994,7 @@ export default function ApplicantDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -6861,8 +7003,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -6885,15 +7027,15 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {selectedEmployerNegotiationStatus === "ACCEPTED"
                     ? t(
-                        "applications.acceptingServiceProviderNegotiationRequestDescription"
+                        "applications.acceptingServiceProviderNegotiationRequestDescription",
                       )
                     : t(
-                        "applications.rejectingServiceProviderNegotiationRequestDescription"
+                        "applications.rejectingServiceProviderNegotiationRequestDescription",
                       )}
                 </Text>
 
@@ -6910,14 +7052,14 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.05)"
-                        : "#f8fafc",
-                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                        ? "rgba(255,250,240,0.06)"
+                        : "#FFF8F0",
+                      borderColor: isDark ? "rgba(201,150,63,0.12)" : "#B8A88A",
                       color: colors.text,
                     },
                   ]}
                   placeholder={t("applications.addMessageOptional")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={employerNegotiationResponseMessage}
                   onChangeText={setEmployerNegotiationResponseMessage}
                   textAlignVertical="top"
@@ -6931,8 +7073,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -6941,7 +7083,9 @@ export default function ApplicantDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -6977,7 +7121,7 @@ export default function ApplicantDetailScreen() {
                   disabled={respondingToEmployerNegotiation}
                 >
                   {respondingToEmployerNegotiation ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {selectedEmployerNegotiationStatus === "ACCEPTED"
@@ -7015,14 +7159,14 @@ export default function ApplicantDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderRadius: 24,
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderRadius: 4,
                   overflow: "hidden",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
                   shadowRadius: 16,
-                  elevation: 10,
+                  elevation: 0,
                 },
               ]}
             >
@@ -7031,8 +7175,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -7062,7 +7206,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.proposeCounterOfferDescription")}
@@ -7093,22 +7237,22 @@ export default function ApplicantDetailScreen() {
                             flex: 1,
                             minHeight: 56,
                             backgroundColor: isDark
-                              ? "rgba(255,255,255,0.08)"
+                              ? "rgba(255,250,240,0.10)"
                               : "#f1f5f9",
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.15)"
-                              : "#cbd5e1",
+                              ? "rgba(255,250,240,0.12)"
+                              : "#B8A88A",
                             color: colors.text,
                             fontSize: 16,
                             fontWeight: "500",
                             paddingHorizontal: 16,
                             paddingVertical: 14,
-                            borderRadius: 12,
+                            borderRadius: 4,
                             borderWidth: 1.5,
                           },
                         ]}
                         placeholder={t("applications.amount")}
-                        placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                        placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                         value={rate.rate}
                         onChangeText={(text) => {
                           const updated = [...employerCounterOfferRates];
@@ -7120,7 +7264,7 @@ export default function ApplicantDetailScreen() {
                       <TouchableButton
                         onPress={() => {
                           const updated = employerCounterOfferRates.filter(
-                            (_, i) => i !== idx
+                            (_, i) => i !== idx,
                           );
                           if (updated.length === 0) {
                             updated.push({ rate: "", paymentType: "HOURLY" });
@@ -7132,7 +7276,7 @@ export default function ApplicantDetailScreen() {
                           backgroundColor: isDark
                             ? "rgba(239, 68, 68, 0.25)"
                             : "#fee2e2",
-                          borderRadius: 12,
+                          borderRadius: 4,
                           borderWidth: 1,
                           borderColor: isDark
                             ? "rgba(239, 68, 68, 0.4)"
@@ -7191,14 +7335,14 @@ export default function ApplicantDetailScreen() {
                                     ? colors.tint + "30"
                                     : colors.tint + "15"
                                   : isDark
-                                    ? "rgba(255,255,255,0.08)"
+                                    ? "rgba(255,250,240,0.10)"
                                     : "#f1f5f9",
                               borderColor:
                                 rate.paymentType === type
                                   ? colors.tint
                                   : isDark
-                                    ? "rgba(255,255,255,0.15)"
-                                    : "#cbd5e1",
+                                    ? "rgba(255,250,240,0.12)"
+                                    : "#B8A88A",
                             }}
                           >
                             <Text
@@ -7240,24 +7384,24 @@ export default function ApplicantDetailScreen() {
                             {
                               minHeight: 56,
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.08)"
+                                ? "rgba(255,250,240,0.10)"
                                 : "#f1f5f9",
                               borderColor: isDark
-                                ? "rgba(255,255,255,0.15)"
-                                : "#cbd5e1",
+                                ? "rgba(255,250,240,0.12)"
+                                : "#B8A88A",
                               color: colors.text,
                               fontSize: 16,
                               fontWeight: "500",
                               paddingHorizontal: 16,
                               paddingVertical: 14,
-                              borderRadius: 12,
+                              borderRadius: 4,
                               borderWidth: 1.5,
                             },
                           ]}
                           placeholder={t(
-                            "applications.specifyPaymentTypePlaceholder"
+                            "applications.specifyPaymentTypePlaceholder",
                           )}
-                          placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                          placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                           value={rate.otherSpecification}
                           onChangeText={(text) => {
                             const updated = [...employerCounterOfferRates];
@@ -7281,7 +7425,7 @@ export default function ApplicantDetailScreen() {
                     borderWidth: 1.5,
                     borderStyle: "dashed",
                     borderColor: colors.tint,
-                    borderRadius: 12,
+                    borderRadius: 4,
                     alignItems: "center",
                     marginBottom: 20,
                     backgroundColor: isDark
@@ -7352,23 +7496,23 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       lineHeight: 24,
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 140,
                     },
                   ]}
                   placeholder={t("applications.explainCounterOffer")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={employerCounterOfferMessage}
                   onChangeText={setEmployerCounterOfferMessage}
                   textAlignVertical="top"
@@ -7382,8 +7526,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -7392,7 +7536,9 @@ export default function ApplicantDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -7414,13 +7560,13 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                     },
                     sendingEmployerCounterOffer && styles.modalButtonDisabled,
                   ]}
@@ -7428,7 +7574,7 @@ export default function ApplicantDetailScreen() {
                   disabled={sendingEmployerCounterOffer}
                 >
                   {sendingEmployerCounterOffer ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.sendCounterOffer")}
@@ -7462,14 +7608,14 @@ export default function ApplicantDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderRadius: 24,
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderRadius: 4,
                   overflow: "hidden",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.3,
                   shadowRadius: 16,
-                  elevation: 10,
+                  elevation: 0,
                 },
               ]}
             >
@@ -7478,8 +7624,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -7500,7 +7646,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("applications.requestAdditionalTimeModalDescription")}
@@ -7519,23 +7665,23 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#cbd5e1",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#B8A88A",
                       color: colors.text,
                       fontSize: 16,
                       lineHeight: 24,
                       paddingHorizontal: 16,
                       paddingVertical: 14,
-                      borderRadius: 12,
+                      borderRadius: 4,
                       borderWidth: 1.5,
                       minHeight: 140,
                     },
                   ]}
                   placeholder={t("applications.explainAdditionalTime")}
-                  placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={additionalTimeMessage}
                   onChangeText={setAdditionalTimeMessage}
                   textAlignVertical="top"
@@ -7548,8 +7694,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -7558,7 +7704,9 @@ export default function ApplicantDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -7576,13 +7724,13 @@ export default function ApplicantDetailScreen() {
                   style={[
                     styles.modalButton,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                     },
                     requestingAdditionalTime && styles.modalButtonDisabled,
                   ]}
@@ -7590,7 +7738,7 @@ export default function ApplicantDetailScreen() {
                   disabled={requestingAdditionalTime}
                 >
                   {requestingAdditionalTime ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {t("applications.sendRequest")}
@@ -7620,8 +7768,8 @@ export default function ApplicantDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -7648,7 +7796,7 @@ export default function ApplicantDetailScreen() {
                 <Text
                   style={[
                     styles.modalDescription,
-                    { color: isDark ? "#9ca3af" : "#6b7280" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {additionalTimeResponseStatus === "ACCEPTED"
@@ -7669,12 +7817,12 @@ export default function ApplicantDetailScreen() {
                     styles.modalTextArea,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.6)"
+                        ? "rgba(12, 22, 42, 0.65)"
                         : "#f1f5f9",
                       color: colors.text,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#e2e8f0",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#F0E8D5",
                       minHeight: 110,
                     },
                   ]}
@@ -7683,7 +7831,7 @@ export default function ApplicantDetailScreen() {
                       ? t("applications.additionalTimeAcceptPlaceholder")
                       : t("applications.additionalTimeRejectPlaceholder")
                   }
-                  placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   multiline
                   numberOfLines={4}
                   value={additionalTimeResponseMessage}
@@ -7697,8 +7845,8 @@ export default function ApplicantDetailScreen() {
                   styles.modalFooter,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e2e8f0",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#F0E8D5",
                   },
                 ]}
               >
@@ -7707,7 +7855,9 @@ export default function ApplicantDetailScreen() {
                     styles.modalButton,
                     {
                       backgroundColor: "transparent",
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#cbd5e1",
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.15)"
+                        : "#B8A88A",
                     },
                   ]}
                   onPress={() => {
@@ -7742,7 +7892,7 @@ export default function ApplicantDetailScreen() {
                   disabled={respondingToAdditionalTime}
                 >
                   {respondingToAdditionalTime ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonTextSubmit}>
                       {additionalTimeResponseStatus === "ACCEPTED"
@@ -7791,7 +7941,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -7804,7 +7954,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
@@ -7812,7 +7962,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 0,
   },
   profileHeader: {
     flexDirection: "row",
@@ -7856,12 +8006,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 4,
   },
   badgeText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   section: {
     marginTop: 20,
@@ -7874,6 +8024,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
   },
   paymentSubtitle: {
@@ -7892,13 +8044,13 @@ const styles = StyleSheet.create({
   },
   lockedBadgeText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentBlockedView: {
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 12,
   },
@@ -7914,9 +8066,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   paymentBlockedButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   infoRow: {
     flexDirection: "row",
@@ -7940,16 +8092,16 @@ const styles = StyleSheet.create({
   skillTag: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
   },
   skillText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   label: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     minWidth: 80,
   },
   value: {
@@ -7959,7 +8111,7 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 4,
     alignSelf: "flex-start",
   },
   statusText: {
@@ -7975,7 +8127,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 16,
     gap: 12,
@@ -7996,7 +8148,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 16,
   },
@@ -8015,19 +8167,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   payNowButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentInfoBox: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginTop: 16,
   },
   paymentInfoLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   paymentInfoAmount: {
@@ -8040,7 +8192,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   paymentServicesCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     padding: 20,
     marginBottom: 16,
@@ -8066,14 +8218,14 @@ const styles = StyleSheet.create({
   },
   paymentServiceRate: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentServiceLabel: {
     fontSize: 12,
     fontWeight: "500",
   },
   paymentSummaryCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     padding: 20,
   },
@@ -8088,15 +8240,15 @@ const styles = StyleSheet.create({
   },
   paymentSummaryValue: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentSummaryDivider: {
     borderTopWidth: 1,
   },
   paymentInfoNoteBox: {
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.2)",
+    borderColor: "rgba(201, 150, 63, 0.2)",
     padding: 14,
   },
   paymentInfoNoteText: {
@@ -8113,7 +8265,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 8,
   },
@@ -8121,7 +8273,7 @@ const styles = StyleSheet.create({
   acceptButton: {},
   rejectButton: {},
   actionButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -8133,7 +8285,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    borderRadius: 20,
+    borderRadius: 4,
     overflow: "hidden",
     height: Dimensions.get("window").height * 0.8,
     flexDirection: "column",
@@ -8144,7 +8296,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(201,150,63,0.12)",
   },
   modalTitle: {
     fontSize: 20,
@@ -8165,7 +8317,7 @@ const styles = StyleSheet.create({
   },
   warningBox: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 20,
   },
@@ -8185,13 +8337,13 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   modalTextArea: {
     minHeight: 120,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     fontSize: 15,
     lineHeight: 22,
@@ -8205,7 +8357,7 @@ const styles = StyleSheet.create({
   modalCancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -8213,19 +8365,19 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtonTextSubmit: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtonDisabled: {
     opacity: 0.6,
@@ -8234,7 +8386,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 12,
     marginTop: 8,
@@ -8255,7 +8407,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 8,
     gap: 12,
   },
@@ -8274,13 +8426,13 @@ const styles = StyleSheet.create({
   },
   rateText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
   },
   summaryCard: {
     marginTop: 12,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   summaryTitle: {
@@ -8296,7 +8448,7 @@ const styles = StyleSheet.create({
   },
   requestCard: {
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
   },
@@ -8309,7 +8461,7 @@ const styles = StyleSheet.create({
   requestStatusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: 4,
   },
   requestStatusText: {
     fontSize: 14,
@@ -8345,7 +8497,7 @@ const styles = StyleSheet.create({
   },
   responseLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   responseText: {
@@ -8366,7 +8518,7 @@ const styles = StyleSheet.create({
   },
   respondButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   approveButton: {
     // Styles applied inline
@@ -8407,7 +8559,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   candidateCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -8426,14 +8578,14 @@ const styles = StyleSheet.create({
   avatarContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 4,
     overflow: "hidden",
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(184,130,42,0.2)",
   },
   candidateAvatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 4,
   },
   cardTitle: {
     fontSize: 16,
@@ -8447,7 +8599,7 @@ const styles = StyleSheet.create({
   },
   rating: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   bio: {
     fontSize: 13,
@@ -8472,7 +8624,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   cta: {
-    fontWeight: "600",
+    fontWeight: "700",
     fontSize: 13,
   },
   moreSkills: {

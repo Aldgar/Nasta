@@ -1,8 +1,9 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Logger, Post } from '@nestjs/common';
 
 // Accept CSP violation reports in report-only mode
 @Controller()
 export class CspReportController {
+  private readonly logger = new Logger(CspReportController.name);
   @Post('csp-report')
   @HttpCode(204)
   report(@Body() body: unknown) {
@@ -29,7 +30,7 @@ export class CspReportController {
         disposition: str('disposition'),
       } as const;
 
-      console.warn('[CSP-REPORT]', JSON.stringify(summary));
+      this.logger.warn(`[CSP-REPORT] ${JSON.stringify(summary)}`);
     } catch {
       // ignore parse errors
     }

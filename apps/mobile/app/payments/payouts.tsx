@@ -392,7 +392,7 @@ const formatIban = (iban: string): string => {
             <ActivityIndicator size="large" color={Colors.light.tint} />
         ) : (
             <>
-                <View style={[styles.statusCard, { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.85)' : '#fff' }]}>
+                <View style={[styles.statusCard, { backgroundColor: isDark ? 'rgba(12, 22, 42, 0.82)' : '#fff' }]}>
                     <Text style={[styles.label, { color: colors.text }]}>{t("payments.payoutCapability")}</Text>
                     <View style={[styles.badge, status?.isEnabled ? styles.bgGreen : styles.bgOrange]}>
                         <Text style={[styles.badgeText, status?.isEnabled ? styles.textGreen : styles.textOrange]}>
@@ -401,7 +401,7 @@ const formatIban = (iban: string): string => {
                     </View>
                 </View>
 
-                <Text style={[styles.infoText, { color: isDark ? '#cbd5e1' : '#64748B' }]}>
+                <Text style={[styles.infoText, { color: isDark ? '#B8A88A' : '#64748B' }]}>
                     {status?.isEnabled 
                         ? t("payments.accountReadyForPayouts")
                         : status?.bankAccounts && status.bankAccounts.length > 0
@@ -467,22 +467,22 @@ const formatIban = (iban: string): string => {
 
                 {/* Display existing bank accounts */}
                 {status?.bankAccounts && status.bankAccounts.length > 0 && (
-                  <View style={[styles.bankAccountsContainer, { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.5)' : '#f8fafc', borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }]}>
+                  <View style={[styles.bankAccountsContainer, { backgroundColor: isDark ? 'rgba(12, 22, 42, 0.55)' : '#FFF8F0', borderColor: isDark ? 'rgba(201,150,63,0.12)' : '#F0E8D5' }]}>
                     <Text style={[styles.bankAccountsTitle, { color: colors.text }]}>
                       {t("payments.bankAccounts")}
                     </Text>
                     {status.bankAccounts.map((bankAccount: any, index: number) => (
-                      <View key={bankAccount.id || index} style={[styles.bankAccountCard, { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.8)' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.15)' : '#e2e8f0' }]}>
+                      <View key={bankAccount.id || index} style={[styles.bankAccountCard, { backgroundColor: isDark ? 'rgba(12, 22, 42, 0.80)' : '#ffffff', borderColor: isDark ? 'rgba(255,250,240,0.12)' : '#F0E8D5' }]}>
                         <View style={styles.bankAccountHeader}>
-                          <Ionicons name="card-outline" size={24} color={isDark ? '#818cf8' : '#6366f1'} />
+                          <Ionicons name="card-outline" size={24} color={isDark ? '#38BDF8' : '#0284C7'} />
                           <View style={styles.bankAccountInfo}>
                             <Text style={[styles.bankAccountName, { color: colors.text }]}>
                               {bankAccount.accountHolderName || 'N/A'}
                             </Text>
-                            <Text style={[styles.bankAccountDetails, { color: isDark ? '#94a3b8' : '#64748b' }]}>
+                            <Text style={[styles.bankAccountDetails, { color: isDark ? '#9A8E7A' : '#64748b' }]}>
                               {bankAccount.iban ? `${t("payments.iban")}: ${bankAccount.iban}` : bankAccount.last4 ? `****${bankAccount.last4}` : t("profile.na")}
                             </Text>
-                            <Text style={[styles.bankAccountDetails, { color: isDark ? '#94a3b8' : '#64748b' }]}>
+                            <Text style={[styles.bankAccountDetails, { color: isDark ? '#9A8E7A' : '#64748b' }]}>
                               {bankAccount.bankName || bankAccount.country || ''} • {bankAccount.currency?.toUpperCase() || 'EUR'}
                             </Text>
                             {bankAccount.defaultForCurrency && (
@@ -494,7 +494,7 @@ const formatIban = (iban: string): string => {
                             )}
                           </View>
                         </View>
-                        <View style={[styles.bankAccountActions, { borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }]}>
+                        <View style={[styles.bankAccountActions, { borderTopColor: isDark ? 'rgba(201,150,63,0.12)' : '#F0E8D5' }]}>
                           {!bankAccount.defaultForCurrency && (
                             <TouchableOpacity
                               style={[styles.bankAccountActionBtn, { backgroundColor: isDark ? 'rgba(34, 197, 94, 0.2)' : '#d1fae5' }]}
@@ -529,8 +529,8 @@ const formatIban = (iban: string): string => {
                     style={[
                         styles.actionBtn, 
                         { 
-                            backgroundColor: isDark ? '#6366f1' : '#4f46e5',
-                            shadowColor: isDark ? '#818cf8' : '#4f46e5',
+                            backgroundColor: isDark ? '#38BDF8' : '#0284C7',
+                            shadowColor: isDark ? '#38BDF8' : '#0284C7',
                         },
                         loading && styles.actionBtnDisabled
                     ]} 
@@ -550,7 +550,7 @@ const formatIban = (iban: string): string => {
                     onRequestClose={() => setShowForm(false)}
                 >
                     <View style={styles.modalOverlay}>
-                        <View style={[styles.modalContent, { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : '#ffffff' }]}>
+                        <View style={[styles.modalContent, { backgroundColor: isDark ? 'rgba(12, 22, 42, 0.90)' : '#ffffff' }]}>
                             <View style={styles.modalHeader}>
                                 <Text style={[styles.modalTitle, { color: colors.text }]}>{t("payments.addBankAccount")}</Text>
                                 <TouchableOpacity onPress={() => setShowForm(false)}>
@@ -562,14 +562,14 @@ const formatIban = (iban: string): string => {
                                 <Text style={[styles.formLabel, { color: colors.text }]}>{t("payments.accountHolderName")}</Text>
                                 <TextInput
                                     style={[styles.formInput, { 
-                                        backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#fff',
-                                        borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                                        backgroundColor: isDark ? 'rgba(201,150,63,0.12)' : '#fff',
+                                        borderColor: isDark ? 'rgba(255,250,240,0.15)' : '#F0E8D5',
                                         color: colors.text
                                     }]}
                                     value={accountHolderName}
                                     onChangeText={setAccountHolderName}
                                     placeholder={t("payments.accountHolderNamePlaceholder")}
-                                    placeholderTextColor={isDark ? '#9ca3af' : '#94a3b8'}
+                                    placeholderTextColor={isDark ? '#9ca3af' : '#9A8E7A'}
                                     underlineColorAndroid="transparent"
                                 />
 
@@ -593,8 +593,8 @@ const formatIban = (iban: string): string => {
                                         <Text style={[styles.formLabel, { color: colors.text }]}>{t("payments.iban")}</Text>
                                         <TextInput
                                             style={[styles.formInput, { 
-                                                backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#fff',
-                                                borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                                                backgroundColor: isDark ? 'rgba(201,150,63,0.12)' : '#fff',
+                                                borderColor: isDark ? 'rgba(255,250,240,0.15)' : '#F0E8D5',
                                                 color: colors.text
                                             }]}
                                             value={iban}
@@ -606,13 +606,13 @@ const formatIban = (iban: string): string => {
                                                 setIban(formatted);
                                             }}
                                             placeholder={country ? `${country}00 0000 0000 0000 0000 00` : "LT00 0000 0000 0000 0000"}
-                                            placeholderTextColor={isDark ? '#9ca3af' : '#94a3b8'}
+                                            placeholderTextColor={isDark ? '#9ca3af' : '#9A8E7A'}
                                             autoCapitalize="characters"
                                             maxLength={42} // Max IBAN length (34) + spaces (8)
                                             underlineColorAndroid="transparent"
                                         />
                                         {iban && country && (
-                                            <Text style={[styles.helperText, { color: isDark ? '#94a3b8' : '#64748b' }]}>
+                                            <Text style={[styles.helperText, { color: isDark ? '#9A8E7A' : '#64748b' }]}>
                                                 {validateIban(iban, country).valid 
                                                     ? t("payments.validIbanFormat") 
                                                     : validateIban(iban, country).error || t("payments.checking")}
@@ -624,28 +624,28 @@ const formatIban = (iban: string): string => {
                                         <Text style={[styles.formLabel, { color: colors.text }]}>{t("payments.accountNumber")}</Text>
                                         <TextInput
                                             style={[styles.formInput, { 
-                                                backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#fff',
-                                                borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                                                backgroundColor: isDark ? 'rgba(201,150,63,0.12)' : '#fff',
+                                                borderColor: isDark ? 'rgba(255,250,240,0.15)' : '#F0E8D5',
                                                 color: colors.text
                                             }]}
                                             value={accountNumber}
                                             onChangeText={setAccountNumber}
                                             placeholder={t("payments.accountNumberPlaceholder")}
-                                            placeholderTextColor={isDark ? '#9ca3af' : '#94a3b8'}
+                                            placeholderTextColor={isDark ? '#9ca3af' : '#9A8E7A'}
                                             keyboardType="numeric"
                                             underlineColorAndroid="transparent"
                                         />
                                         <Text style={[styles.formLabel, { color: colors.text }]}>{t("payments.routingNumber")}</Text>
                                         <TextInput
                                             style={[styles.formInput, { 
-                                                backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#fff',
-                                                borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                                                backgroundColor: isDark ? 'rgba(201,150,63,0.12)' : '#fff',
+                                                borderColor: isDark ? 'rgba(255,250,240,0.15)' : '#F0E8D5',
                                                 color: colors.text
                                             }]}
                                             value={routingNumber}
                                             onChangeText={setRoutingNumber}
                                             placeholder={t("payments.routingNumberPlaceholder")}
-                                            placeholderTextColor={isDark ? '#9ca3af' : '#94a3b8'}
+                                            placeholderTextColor={isDark ? '#9ca3af' : '#9A8E7A'}
                                             keyboardType="numeric"
                                             underlineColorAndroid="transparent"
                                         />
@@ -655,8 +655,8 @@ const formatIban = (iban: string): string => {
                                 <Text style={[styles.formLabel, { color: colors.text }]}>{t("profile.country")}</Text>
                                 <TouchableOpacity
                                     style={[styles.formInput, styles.countryPicker, { 
-                                        backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#fff',
-                                        borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                                        backgroundColor: isDark ? 'rgba(201,150,63,0.12)' : '#fff',
+                                        borderColor: isDark ? 'rgba(255,250,240,0.15)' : '#F0E8D5',
                                     }]}
                                     onPress={() => {
                                         console.log('[BankAccount] Opening country picker, current country:', country);
@@ -669,7 +669,7 @@ const formatIban = (iban: string): string => {
                                     <Ionicons name="chevron-down" size={20} color={colors.text} />
                                 </TouchableOpacity>
                                 {country && (
-                                    <Text style={[styles.helperText, { color: isDark ? '#94a3b8' : '#64748b' }]}>
+                                    <Text style={[styles.helperText, { color: isDark ? '#9A8E7A' : '#64748b' }]}>
                                         {t("payments.selected")}: {country} ({translateCountryName(country)})
                                     </Text>
                                 )}
@@ -682,7 +682,7 @@ const formatIban = (iban: string): string => {
                                     onRequestClose={() => setShowCountryPicker(false)}
                                 >
                                     <View style={styles.pickerOverlay}>
-                                        <View style={[styles.pickerContent, { backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : '#ffffff' }]}>
+                                        <View style={[styles.pickerContent, { backgroundColor: isDark ? 'rgba(12, 22, 42, 0.90)' : '#ffffff' }]}>
                                             <View style={styles.pickerHeader}>
                                                 <Text style={[styles.pickerTitle, { color: colors.text }]}>{t("profile.selectCountry")}</Text>
                                                 <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
@@ -696,7 +696,7 @@ const formatIban = (iban: string): string => {
                                                         style={[
                                                             styles.pickerItem,
                                                             country === countryOption.code && styles.pickerItemSelected,
-                                                            { borderBottomColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }
+                                                            { borderBottomColor: isDark ? 'rgba(201,150,63,0.12)' : '#F0E8D5' }
                                                         ]}
                                                         onPress={() => {
                                                             // Always set the country code (2-letter ISO), never the name
@@ -730,7 +730,7 @@ const formatIban = (iban: string): string => {
                                                             {translateCountryName(countryOption.code)}
                                                         </Text>
                                                         {country === countryOption.code && (
-                                                            <Ionicons name="checkmark" size={20} color={isDark ? '#818cf8' : '#4f46e5'} />
+                                                            <Ionicons name="checkmark" size={20} color={isDark ? '#38BDF8' : '#0284C7'} />
                                                         )}
                                                     </TouchableOpacity>
                                                 ))}
@@ -743,8 +743,8 @@ const formatIban = (iban: string): string => {
                                     style={[
                                         styles.submitBtn, 
                                         { 
-                                            backgroundColor: isDark ? '#6366f1' : '#4f46e5',
-                                            shadowColor: isDark ? '#818cf8' : '#4f46e5',
+                                            backgroundColor: isDark ? '#38BDF8' : '#0284C7',
+                                            shadowColor: isDark ? '#38BDF8' : '#0284C7',
                                         }
                                     ]}
                                     onPress={handleSubmitBankAccount}
@@ -795,13 +795,13 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 16,
-      borderRadius: 12,
+      borderRadius: 4,
       marginBottom: 16,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
       shadowRadius: 2,
-      elevation: Platform.OS === 'android' ? 0 : 2,
+      elevation: 0,
   },
   label: {
       fontSize: 16, 
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   badge: {
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 20,
+      borderRadius: 4,
   },
   bgGreen: { backgroundColor: '#DCFCE7' },
   bgOrange: { backgroundColor: '#FFEDD5' },
@@ -826,11 +826,11 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       gap: 10,
       padding: 16,
-      borderRadius: 12,
+      borderRadius: 4,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.3,
       shadowRadius: 4,
-      elevation: Platform.OS === 'android' ? 0 : 4,
+      elevation: 0,
   },
   actionBtnDisabled: {
       opacity: 0.6,
@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       paddingBottom: 16,
       borderBottomWidth: 1,
-      borderBottomColor: 'rgba(0,0,0,0.1)',
+      borderBottomColor: 'rgba(184,130,42,0.2)',
   },
   modalTitle: {
       fontSize: 20,
@@ -906,7 +906,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       paddingVertical: 16,
       borderBottomWidth: 1,
-      borderBottomColor: 'rgba(0,0,0,0.1)',
+      borderBottomColor: 'rgba(184,130,42,0.2)',
   },
   pickerTitle: {
       fontSize: 18,
@@ -924,14 +924,14 @@ const styles = StyleSheet.create({
       borderBottomWidth: 1,
   },
   pickerItemSelected: {
-      backgroundColor: 'rgba(79, 70, 229, 0.1)',
+      backgroundColor: 'rgba(201, 150, 63, 0.1)',
   },
   pickerItemText: {
       fontSize: 16,
   },
   pickerItemTextSelected: {
       fontWeight: '600',
-      color: Platform.OS === 'ios' ? '#4f46e5' : undefined,
+      color: Platform.OS === 'ios' ? '#0284C7' : undefined,
   },
   toggleContainer: {
       flexDirection: 'row',
@@ -943,8 +943,8 @@ const styles = StyleSheet.create({
       padding: 12,
       borderRadius: 8,
       borderWidth: 1,
-      borderColor: '#e2e8f0',
-      backgroundColor: 'rgba(0,0,0,0.05)',
+      borderColor: '#F0E8D5',
+      backgroundColor: 'rgba(184,130,42,0.06)',
       alignItems: 'center',
   },
   toggleBtnActive: {
@@ -961,14 +961,14 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
       padding: 16,
-      borderRadius: 12,
+      borderRadius: 4,
       alignItems: 'center',
       marginTop: 24,
       marginBottom: 20,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.3,
       shadowRadius: 4,
-      elevation: Platform.OS === 'android' ? 0 : 4,
+      elevation: 0,
   },
   submitBtnText: {
       color: '#fff',
@@ -984,7 +984,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 16,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   bankAccountsTitle: {
@@ -994,7 +994,7 @@ const styles = StyleSheet.create({
   },
   bankAccountCard: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginBottom: 12,
   },
@@ -1030,7 +1030,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 16,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   requirementsHeader: {

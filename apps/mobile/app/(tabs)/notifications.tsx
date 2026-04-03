@@ -1,4 +1,14 @@
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, ActivityIndicator, Platform, SectionList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  SectionList,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
@@ -11,7 +21,14 @@ import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 
 interface Notification {
   id: string;
-  type: 'NEARBY_JOB' | 'JOB_MESSAGE' | 'APPLICATION_UPDATE' | 'SYSTEM' | 'LEGAL_ACTION' | 'WARNING' | 'ACTION_FORM';
+  type:
+    | "NEARBY_JOB"
+    | "JOB_MESSAGE"
+    | "APPLICATION_UPDATE"
+    | "SYSTEM"
+    | "LEGAL_ACTION"
+    | "WARNING"
+    | "ACTION_FORM";
   title: string | null;
   body: string | null;
   payload: unknown;
@@ -28,7 +45,9 @@ export default function NotificationsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Fetch unread count and update badge
   const fetchUnreadCount = useCallback(async () => {
@@ -48,7 +67,7 @@ export default function NotificationsScreen() {
         const data = await res.json();
         const count = data.count || 0;
         setUnreadCount(count);
-        console.log('🔔 Unread count in notifications screen:', count);
+        console.log("🔔 Unread count in notifications screen:", count);
       }
     } catch (error) {
       console.error("Error fetching unread count:", error);
@@ -60,21 +79,24 @@ export default function NotificationsScreen() {
     if (navigation) {
       navigation.setOptions({
         tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-        tabBarBadgeStyle: unreadCount > 0 ? {
-          backgroundColor: "#ef4444",
-          color: "#fff",
-          fontSize: 12,
-          minWidth: 18,
-          height: 18,
-          lineHeight: 18,
-        } : undefined,
+        tabBarBadgeStyle:
+          unreadCount > 0
+            ? {
+                backgroundColor: "#ef4444",
+                color: "#FFFAF0",
+                fontSize: 12,
+                minWidth: 18,
+                height: 18,
+                lineHeight: 18,
+              }
+            : undefined,
       });
     }
   }, [unreadCount, navigation]);
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync('auth_token');
+      const token = await SecureStore.getItemAsync("auth_token");
       if (!token) {
         setLoading(false);
         setRefreshing(false);
@@ -83,12 +105,12 @@ export default function NotificationsScreen() {
 
       const baseUrl = getApiBase();
       const url = `${baseUrl}/notifications?status=all&limit=50`;
-      
+
       const response = await fetch(url, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -105,22 +127,20 @@ export default function NotificationsScreen() {
       }
 
       const data = await response.json();
-      
+
       // Backend returns { items, total, page, limit }
-      const items = Array.isArray(data) 
-        ? data 
-        : (data.items || data.data || []);
-      
+      const items = Array.isArray(data) ? data : data.items || data.data || [];
+
       // Ensure items is an array
       if (!Array.isArray(items)) {
-        console.warn('Notifications response is not an array:', items);
+        console.warn("Notifications response is not an array:", items);
         setNotifications([]);
         return;
       }
-      
+
       setNotifications(items);
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      console.error("Failed to fetch notifications:", error);
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -133,7 +153,7 @@ export default function NotificationsScreen() {
       setLoading(true);
       fetchNotifications();
       fetchUnreadCount();
-    }, [fetchNotifications, fetchUnreadCount])
+    }, [fetchNotifications, fetchUnreadCount]),
   );
 
   // Refresh notifications and unread count when screen is focused
@@ -154,24 +174,26 @@ export default function NotificationsScreen() {
 
   const markAsRead = async (id: string) => {
     try {
-      const token = await SecureStore.getItemAsync('auth_token');
+      const token = await SecureStore.getItemAsync("auth_token");
       if (!token) return;
 
       const baseUrl = getApiBase();
       await fetch(`${baseUrl}/notifications/${id}/read`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       // Update local state
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, readAt: new Date().toISOString() } : n)
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, readAt: new Date().toISOString() } : n,
+        ),
       );
-      
+
       // Trigger a refresh of the badge count by emitting an event
       // The tab layout will pick this up via useFocusEffect
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      console.error("Failed to mark notification as read:", error);
     }
   };
 
@@ -183,10 +205,10 @@ export default function NotificationsScreen() {
 
     // Navigate based on notification type and payload
     const payload = notification.payload as any;
-    
+
     try {
       switch (notification.type) {
-        case 'APPLICATION_UPDATE':
+        case "APPLICATION_UPDATE":
           if (payload?.applicationId) {
             // For service provider, navigate to my-application
             router.push(`/my-application/${payload.applicationId}` as any);
@@ -195,30 +217,32 @@ export default function NotificationsScreen() {
             router.push(`/jobs/${payload.jobId}` as any);
           }
           break;
-        
-        case 'JOB_MESSAGE':
+
+        case "JOB_MESSAGE":
           if (payload?.conversationId) {
-            router.push(`/chat/room?conversationId=${payload.conversationId}` as any);
+            router.push(
+              `/chat/room?conversationId=${payload.conversationId}` as any,
+            );
           }
           break;
-        
-        case 'NEARBY_JOB':
+
+        case "NEARBY_JOB":
           if (payload?.jobId) {
             router.push(`/jobs/${payload.jobId}` as any);
           }
           break;
-        
-        case 'ACTION_FORM':
-        case 'WARNING':
-        case 'LEGAL_ACTION':
+
+        case "ACTION_FORM":
+        case "WARNING":
+        case "LEGAL_ACTION":
           // These might not have specific navigation targets
           // Could navigate to a support/help page or stay on notifications
           break;
-        
-        case 'SYSTEM':
+
+        case "SYSTEM":
           // System notifications might not need navigation
           break;
-        
+
         default:
           // For unknown types, try to navigate if there's a jobId or applicationId
           if (payload?.applicationId) {
@@ -229,7 +253,7 @@ export default function NotificationsScreen() {
           break;
       }
     } catch (error) {
-      console.error('Error navigating from notification:', error);
+      console.error("Error navigating from notification:", error);
     }
   };
 
@@ -250,55 +274,55 @@ export default function NotificationsScreen() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'NEARBY_JOB':
-        return 'briefcase';
-      case 'JOB_MESSAGE':
-        return 'chatbubble';
-      case 'APPLICATION_UPDATE':
-        return 'checkmark-circle';
-      case 'SYSTEM':
-        return 'notifications';
-      case 'LEGAL_ACTION':
-        return 'briefcase';
-      case 'WARNING':
-        return 'warning';
-      case 'ACTION_FORM':
-        return 'document-text';
+      case "NEARBY_JOB":
+        return "briefcase";
+      case "JOB_MESSAGE":
+        return "chatbubble";
+      case "APPLICATION_UPDATE":
+        return "checkmark-circle";
+      case "SYSTEM":
+        return "notifications";
+      case "LEGAL_ACTION":
+        return "briefcase";
+      case "WARNING":
+        return "warning";
+      case "ACTION_FORM":
+        return "document-text";
       default:
-        return 'notifications';
+        return "notifications";
     }
   };
 
   const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'NEARBY_JOB':
-        return '#3B82F6';
-      case 'JOB_MESSAGE':
-        return '#10B981';
-      case 'APPLICATION_UPDATE':
-        return '#F59E0B';
-      case 'SYSTEM':
-        return colors.tint;
-      case 'LEGAL_ACTION':
-        return '#8b5cf6';
-      case 'WARNING':
-        return '#f59e0b';
-      case 'ACTION_FORM':
-        return '#10b981';
+      case "NEARBY_JOB":
+        return "#3B82F6";
+      case "JOB_MESSAGE":
+        return "#10B981";
+      case "APPLICATION_UPDATE":
+        return "#F59E0B";
+      case "SYSTEM":
+        return isDark ? "#22D3EE" : "#06B6D4";
+      case "LEGAL_ACTION":
+        return "#E8B86D";
+      case "WARNING":
+        return "#f59e0b";
+      case "ACTION_FORM":
+        return "#10b981";
       default:
-        return colors.tint;
+        return isDark ? "#22D3EE" : "#06B6D4";
     }
   };
 
   const getNotificationTypeLabel = (type: string) => {
     switch (type) {
-      case 'NEARBY_JOB':
+      case "NEARBY_JOB":
         return t("notifications.jobOpportunities");
-      case 'JOB_MESSAGE':
+      case "JOB_MESSAGE":
         return t("notifications.messages");
-      case 'APPLICATION_UPDATE':
+      case "APPLICATION_UPDATE":
         return t("notifications.applicationUpdates");
-      case 'SYSTEM':
+      case "SYSTEM":
         return t("notifications.systemNotifications");
       default:
         return t("notifications.other");
@@ -307,7 +331,7 @@ export default function NotificationsScreen() {
 
   // Toggle section expand/collapse
   const toggleSection = (sectionType: string) => {
-    setExpandedSections(prev => {
+    setExpandedSections((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(sectionType)) {
         newSet.delete(sectionType);
@@ -321,15 +345,15 @@ export default function NotificationsScreen() {
   // Initialize all sections as expanded by default
   useEffect(() => {
     if (notifications.length > 0) {
-      const types = new Set(notifications.map(n => n.type || 'SYSTEM'));
-      setExpandedSections(prev => {
+      const types = new Set(notifications.map((n) => n.type || "SYSTEM"));
+      setExpandedSections((prev) => {
         // Only initialize if empty, otherwise preserve user's choices
         if (prev.size === 0) {
           return types;
         }
         // Add any new types that weren't there before
         const newSet = new Set(prev);
-        types.forEach(type => {
+        types.forEach((type) => {
           if (!newSet.has(type)) {
             newSet.add(type);
           }
@@ -342,9 +366,9 @@ export default function NotificationsScreen() {
   // Group notifications by type
   const groupedNotifications = useMemo(() => {
     const groups: Record<string, Notification[]> = {};
-    
-    notifications.forEach(notification => {
-      const type = notification.type || 'SYSTEM';
+
+    notifications.forEach((notification) => {
+      const type = notification.type || "SYSTEM";
       if (!groups[type]) {
         groups[type] = [];
       }
@@ -355,8 +379,9 @@ export default function NotificationsScreen() {
     const sections = Object.entries(groups).map(([type, items]) => ({
       title: getNotificationTypeLabel(type),
       type,
-      data: items.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      data: items.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
     }));
 
@@ -373,10 +398,27 @@ export default function NotificationsScreen() {
       <GradientBackground>
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>{t("notifications.title")}</Text>
+            <Text
+              style={[
+                styles.headerLabel,
+                {
+                  color: isDark
+                    ? "rgba(201,150,63,0.6)"
+                    : "rgba(184,130,42,0.5)",
+                },
+              ]}
+            >
+              INTEL FEED
+            </Text>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {t("notifications.title")}
+            </Text>
           </View>
           <View style={styles.center}>
-            <ActivityIndicator size="large" color={colors.tint} />
+            <ActivityIndicator
+              size="large"
+              color={isDark ? "#22D3EE" : "#06B6D4"}
+            />
           </View>
         </SafeAreaView>
       </GradientBackground>
@@ -387,12 +429,36 @@ export default function NotificationsScreen() {
     <GradientBackground>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>{t("notifications.title")}</Text>
+          <Text
+            style={[
+              styles.headerLabel,
+              {
+                color: isDark ? "rgba(201,150,63,0.6)" : "rgba(184,130,42,0.5)",
+              },
+            ]}
+          >
+            INTEL FEED
+          </Text>
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {t("notifications.title")}
+            </Text>
+            <View
+              style={[
+                styles.ledDot,
+                {
+                  backgroundColor:
+                    notifications.length > 0 ? "#22c55e" : "#f59e0b",
+                  shadowColor: notifications.length > 0 ? "#22c55e" : "#f59e0b",
+                },
+              ]}
+            />
+          </View>
         </View>
         <SectionList
-          sections={groupedNotifications.map(section => ({
+          sections={groupedNotifications.map((section) => ({
             ...section,
-            data: expandedSections.has(section.type) ? section.data : []
+            data: expandedSections.has(section.type) ? section.data : [],
           }))}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
@@ -400,8 +466,8 @@ export default function NotificationsScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={colors.tint}
-              colors={[colors.tint]}
+              tintColor={isDark ? "#22D3EE" : "#06B6D4"}
+              colors={[isDark ? "#22D3EE" : "#06B6D4"]}
             />
           }
           renderSectionHeader={({ section }) => {
@@ -412,41 +478,49 @@ export default function NotificationsScreen() {
                 style={[
                   styles.sectionHeader,
                   {
-                    backgroundColor: isDark 
-                      ? 'rgba(30, 41, 59, 0.4)' 
-                      : 'rgba(255,255,255,0.5)',
+                    backgroundColor: isDark
+                      ? "rgba(12, 22, 42, 0.85)"
+                      : "rgba(255,250,240,0.92)",
                     borderLeftColor: iconColor,
-                  }
+                    borderColor: isDark
+                      ? "rgba(201,150,63,0.2)"
+                      : "rgba(184,130,42,0.15)",
+                  },
                 ]}
                 onPress={() => toggleSection(section.type)}
                 activeOpacity={0.7}
               >
-                <View style={[
-                  styles.sectionIconContainer,
-                  { backgroundColor: isDark ? `${iconColor}30` : `${iconColor}20` }
-                ]}>
-                  <Ionicons 
-                    name={getNotificationIcon(section.type) as any} 
-                    size={16} 
-                    color={iconColor} 
+                <View
+                  style={[
+                    styles.sectionIconContainer,
+                    {
+                      backgroundColor: isDark
+                        ? `${iconColor}30`
+                        : `${iconColor}20`,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name={getNotificationIcon(section.type) as any}
+                    size={16}
+                    color={iconColor}
                   />
                 </View>
-                <Text style={[
-                  styles.sectionTitle,
-                  { color: colors.text }
-                ]}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
                   {section.title}
                 </Text>
-                <Text style={[
-                  styles.sectionCount,
-                  { color: isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8' }
-                ]}>
+                <Text
+                  style={[
+                    styles.sectionCount,
+                    { color: isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A" },
+                  ]}
+                >
                   {section.data.length}
                 </Text>
-                <Ionicons 
-                  name={isExpanded ? "chevron-up" : "chevron-down"} 
-                  size={20} 
-                  color={isDark ? 'rgba(255,255,255,0.6)' : '#64748b'} 
+                <Ionicons
+                  name={isExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color={isDark ? "rgba(255,250,240,0.6)" : "#64748b"}
                   style={{ marginLeft: 8 }}
                 />
               </TouchableOpacity>
@@ -455,7 +529,7 @@ export default function NotificationsScreen() {
           renderItem={({ item, section }) => {
             const isRead = !!item.readAt;
             const iconColor = getNotificationColor(item.type);
-            
+
             return (
               <TouchableOpacity
                 onPress={() => handleNotificationPress(item)}
@@ -463,73 +537,101 @@ export default function NotificationsScreen() {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: isDark 
-                      ? (isRead ? 'rgba(30, 41, 59, 0.6)' : 'rgba(30, 41, 59, 0.85)')
-                      : (isRead ? 'rgba(255,255,255,0.7)' : '#ffffff'),
-                    borderColor: isDark 
-                      ? (isRead ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)')
-                      : (isRead ? 'rgba(0,0,0,0.05)' : 'rgba(0,0,0,0.08)'),
-                    borderLeftWidth: isRead ? 0 : 3,
-                    borderLeftColor: isRead ? 'transparent' : iconColor,
+                    backgroundColor: isDark
+                      ? isRead
+                        ? "rgba(12, 22, 42, 0.65)"
+                        : "rgba(12, 22, 42, 0.85)"
+                      : isRead
+                        ? "rgba(255,250,240,0.8)"
+                        : "rgba(255,250,240,0.95)",
+                    borderColor: isDark
+                      ? isRead
+                        ? "rgba(201,150,63,0.1)"
+                        : "rgba(201,150,63,0.25)"
+                      : isRead
+                        ? "rgba(184,130,42,0.08)"
+                        : "rgba(184,130,42,0.2)",
+                    borderLeftWidth: isRead ? 0 : 2,
+                    borderLeftColor: isRead ? "transparent" : iconColor,
                     marginLeft: 12,
                     marginRight: 12,
-                  }
+                  },
                 ]}
               >
-                <View style={[
-                  styles.iconContainer,
-                  { backgroundColor: isDark ? `${iconColor}30` : `${iconColor}20` }
-                ]}>
-                  <Ionicons name={getNotificationIcon(item.type) as any} size={20} color={iconColor} />
+                <View
+                  style={[
+                    styles.iconContainer,
+                    {
+                      backgroundColor: isDark
+                        ? `${iconColor}30`
+                        : `${iconColor}20`,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name={getNotificationIcon(item.type) as any}
+                    size={20}
+                    color={iconColor}
+                  />
                 </View>
                 <View style={styles.textContainer}>
-                  <Text style={[
-                    styles.cardTitle,
-                    { 
-                      color: colors.text,
-                      fontWeight: isRead ? '500' : '600',
-                      opacity: isRead ? 0.8 : 1
-                    }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.cardTitle,
+                      {
+                        color: colors.text,
+                        fontWeight: isRead ? "500" : "600",
+                        opacity: isRead ? 0.8 : 1,
+                      },
+                    ]}
+                  >
                     {item.title || t("notifications.notification")}
                   </Text>
-                  <Text style={[
-                    styles.cardMessage,
-                    { 
-                      color: isDark ? 'rgba(255,255,255,0.7)' : '#64748b',
-                      opacity: isRead ? 0.7 : 1
-                    }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.cardMessage,
+                      {
+                        color: isDark ? "rgba(240,232,213,0.7)" : "#64748b",
+                        opacity: isRead ? 0.7 : 1,
+                      },
+                    ]}
+                  >
                     {item.body || t("notifications.noMessage")}
                   </Text>
-                  <Text style={[
-                    styles.time,
-                    { 
-                      color: isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8'
-                    }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.time,
+                      {
+                        color: isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A",
+                      },
+                    ]}
+                  >
                     {formatTime(item.createdAt)}
                   </Text>
                 </View>
                 {!isRead && (
-                  <View style={[styles.unreadDot, { backgroundColor: iconColor }]} />
+                  <View
+                    style={[styles.unreadDot, { backgroundColor: iconColor }]}
+                  />
                 )}
               </TouchableOpacity>
             );
           }}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Ionicons 
-                name="notifications-outline" 
-                size={64} 
-                color={isDark ? 'rgba(255,255,255,0.3)' : '#94a3b8'} 
+              <Ionicons
+                name="notifications-outline"
+                size={64}
+                color={isDark ? "rgba(201,150,63,0.25)" : "#9A8E7A"}
               />
-              <Text style={[
-                styles.empty,
-                { 
-                  color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b'
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.empty,
+                  {
+                    color: isDark ? "rgba(255,250,240,0.5)" : "#64748b",
+                  },
+                ]}
+              >
                 {t("notifications.noNotifications")}
               </Text>
             </View>
@@ -543,41 +645,74 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { padding: 20, paddingBottom: 10 },
-  title: { fontSize: 28, fontWeight: "bold" },
-  listContent: { paddingHorizontal: 20, paddingBottom: 20 },
+  headerLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 3,
+    marginBottom: 6,
+    textTransform: "uppercase",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.5 },
+  ledDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    elevation: 0,
+  },
+  listContent: { paddingHorizontal: 12, paddingBottom: 20 },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   card: {
     flexDirection: "row",
-    marginBottom: 12,
-    borderRadius: 12,
+    marginBottom: 10,
+    borderRadius: 4,
     padding: 16,
     alignItems: "flex-start",
     borderWidth: 1,
+    shadowColor: "#C9963F",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: Platform.OS === 'android' ? 0 : 2,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 0,
   },
   iconContainer: {
     padding: 8,
-    borderRadius: 8,
+    borderRadius: 4,
     marginRight: 12,
     minWidth: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   textContainer: { flex: 1 },
-  cardTitle: { fontSize: 16, marginBottom: 4 },
-  cardMessage: { fontSize: 14, marginBottom: 8, lineHeight: 20 },
-  time: { fontSize: 12 },
-  empty: { 
-    textAlign: "center", 
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 4,
+    letterSpacing: 0.2,
+  },
+  cardMessage: {
+    fontSize: 13,
+    marginBottom: 8,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+  },
+  time: { fontSize: 11, fontWeight: "600", letterSpacing: 0.5 },
+  empty: {
+    textAlign: "center",
     marginTop: 40,
     fontSize: 16,
+    letterSpacing: 0.5,
   },
   unreadDot: {
     width: 8,
@@ -586,31 +721,34 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 8,
-    borderRadius: 8,
-    borderLeftWidth: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 6,
+    borderRadius: 4,
+    borderLeftWidth: 2,
+    borderWidth: 1,
   },
   sectionIconContainer: {
     padding: 6,
-    borderRadius: 6,
+    borderRadius: 4,
     marginRight: 10,
     minWidth: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 11,
+    letterSpacing: 1.5,
+    textTransform: "uppercase" as const,
+    fontWeight: "700",
     flex: 1,
   },
   sectionCount: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
 });

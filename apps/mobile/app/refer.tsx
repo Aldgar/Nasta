@@ -87,49 +87,49 @@ export default function Refer() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Feather name="arrow-left" size={24} color={isDark ? "#fff" : colors.text} />
+            <Feather name="arrow-left" size={24} color={isDark ? "#FFFAF0" : colors.text} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: isDark ? "#fff" : colors.text }]}>{t("refer.title")}</Text>
+          <Text style={[styles.title, { color: isDark ? "#FFFAF0" : colors.text }]}>{t("refer.title")}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={[styles.heroIcon, { backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.1)" }]}>
+          <View style={[styles.heroIcon, { backgroundColor: isDark ? "rgba(201, 150, 63, 0.1)" : "rgba(201, 150, 63, 0.1)" }]}>
             <Feather name="gift" size={48} color={colors.tint} />
           </View>
-          <Text style={[styles.heading, { color: isDark ? "#fff" : colors.text }]}>{t("refer.inviteAndEarn")}</Text>
-          <Text style={[styles.subtext, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+          <Text style={[styles.heading, { color: isDark ? "#FFFAF0" : colors.text }]}>{t("refer.inviteAndEarn")}</Text>
+          <Text style={[styles.subtext, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
             {t("refer.inviteAndEarnDescription")}
           </Text>
 
           <View style={styles.form}>
-            <Text style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}>{t("refer.friendsName")}</Text>
+            <Text style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}>{t("refer.friendsName")}</Text>
             <TextInput
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.5)" : "rgba(255,255,255,0.9)",
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.55)" : "rgba(255,250,240,0.92)",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
                   color: colors.text,
                 },
               ]}
               placeholder={t("refer.friendsNamePlaceholder")}
-              placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
               value={name}
               onChangeText={setName}
             />
 
-            <Text style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}>{t("auth.email")}</Text>
+            <Text style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}>{t("auth.email")}</Text>
             <TextInput
               style={[
                 styles.input,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.5)" : "rgba(255,255,255,0.9)",
-                  borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.55)" : "rgba(255,250,240,0.92)",
+                  borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
                   color: colors.text,
                 },
               ]}
               placeholder={t("auth.emailPlaceholder")}
-              placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -140,7 +140,7 @@ export default function Refer() {
               style={[
                 styles.button,
                 {
-                  backgroundColor: isDark ? "#6366f1" : colors.tint,
+                  backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
                   opacity: loading ? 0.7 : 1,
                 },
               ]}
@@ -148,9 +148,9 @@ export default function Refer() {
               disabled={loading || !name.trim() || !email.trim()}
             >
               {loading ? (
-                <ActivityIndicator color="#ffffff" />
+                <ActivityIndicator color="#FFFAF0" />
               ) : (
-                <Text style={[styles.buttonText, { color: "#ffffff" }]}>
+                <Text style={[styles.buttonText, { color: "#FFFAF0" }]}>
                   {t("refer.sendInvite")}
                 </Text>
               )}
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)'
+    borderBottomColor: 'rgba(255,250,240,0.06)'
   },
   backButton: { marginRight: 16 },
   title: { fontSize: 20, fontWeight: "700" },
@@ -182,19 +182,19 @@ const styles = StyleSheet.create({
   heading: { fontSize: 24, fontWeight: "800", marginBottom: 12 },
   subtext: { textAlign: "center", marginBottom: 32, lineHeight: 22 },
   form: { width: '100%' },
-  label: { fontWeight: "600", marginBottom: 8, marginLeft: 4 },
+  label: { fontWeight: "700", marginBottom: 8, marginLeft: 4 },
   input: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 20,
     fontSize: 16
   },
   button: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: 'center',
     marginTop: 8
   },
-  buttonText: { fontWeight: "700", fontSize: 16, color: "#ffffff" }
+  buttonText: { fontWeight: "700", fontSize: 16, color: "#FFFAF0" }
 });

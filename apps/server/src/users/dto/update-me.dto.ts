@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, Matches } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateMeDto {
@@ -15,4 +15,9 @@ export class UpdateMeDto {
     message: 'Phone can contain digits, spaces, +, -, and parentheses',
   })
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['en', 'pt'], { message: 'Language must be "en" or "pt"' })
+  language?: string;
 }

@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Alert,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, Alert, StyleSheet, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { getApiBase } from "../lib/api";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,13 +9,15 @@ import GradientBackground from "../components/GradientBackground";
 
 /**
  * Email verification screen via deep linking
- * Handles: cumprido://verify-email?token=XXX and https://cumprido.com/verify-email?token=XXX
+ * Handles: nasta://verify-email?token=XXX and https://nasta.app/verify-email?token=XXX
  */
 export default function VerifyEmailScreen() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
   const params = useLocalSearchParams<{ token?: string }>();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  );
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [hasVerified, setHasVerified] = useState(false);
 
@@ -82,7 +78,7 @@ export default function VerifyEmailScreen() {
                   router.replace("/login" as never);
                 },
               },
-            ]
+            ],
           );
         }, 500);
       } catch (error: any) {
@@ -115,9 +111,7 @@ export default function VerifyEmailScreen() {
 
           {status === "success" && (
             <>
-              <Text style={[styles.successIcon, { color: "#10b981" }]}>
-                ✓
-              </Text>
+              <Text style={[styles.successIcon, { color: "#10b981" }]}>✓</Text>
               <Text style={[styles.message, { color: colors.text }]}>
                 {t("auth.verification.successMessage")}
               </Text>
@@ -126,15 +120,11 @@ export default function VerifyEmailScreen() {
 
           {status === "error" && (
             <>
-              <Text style={[styles.errorIcon, { color: "#ef4444" }]}>
-                ✕
-              </Text>
+              <Text style={[styles.errorIcon, { color: "#ef4444" }]}>✕</Text>
               <Text style={[styles.message, { color: colors.text }]}>
                 {errorMessage || t("auth.verification.failed")}
               </Text>
-              <Text
-                style={[styles.subMessage, { color: colors.icon }]}
-              >
+              <Text style={[styles.subMessage, { color: colors.icon }]}>
                 {t("auth.verification.errorSubMessage")}
               </Text>
             </>
@@ -170,10 +160,10 @@ const styles = StyleSheet.create({
   },
   successIcon: {
     fontSize: 64,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   errorIcon: {
     fontSize: 64,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
 });

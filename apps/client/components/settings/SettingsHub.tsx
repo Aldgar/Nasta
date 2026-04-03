@@ -94,7 +94,7 @@ export default function SettingsHub() {
       >
         <SectionHeader
           title="Payments"
-          subtitle="Employers add a card; job seekers add payout details."
+          subtitle="Employers add a card; service providers add payout details."
           open={active === "financial"}
           onToggle={() => setActive("financial")}
           collapsible={isMobile}

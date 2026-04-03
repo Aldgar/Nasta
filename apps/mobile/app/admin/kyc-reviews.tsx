@@ -121,7 +121,7 @@ export default function KYCReviewsScreen() {
       case "MANUAL_REVIEW":
         return "#f59e0b";
       default:
-        return "#64748b";
+        return "#8A7B68";
     }
   };
 
@@ -132,7 +132,7 @@ export default function KYCReviewsScreen() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.backButton, { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }]}
+            style={[styles.backButton, { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
           >
             <Feather name="arrow-left" size={20} color={colors.text} />
           </TouchableOpacity>
@@ -144,15 +144,15 @@ export default function KYCReviewsScreen() {
             style={[
               styles.filterButton,
               scope === "all" 
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setScope("all")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: scope === "all" ? "#fff" : colors.text },
+                { color: scope === "all" ? "#FFFAF0" : colors.text },
               ]}
             >
               All
@@ -162,15 +162,15 @@ export default function KYCReviewsScreen() {
             style={[
               styles.filterButton,
               scope === "mine" 
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setScope("mine")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: scope === "mine" ? "#fff" : colors.text },
+                { color: scope === "mine" ? "#FFFAF0" : colors.text },
               ]}
             >
               My Reviews
@@ -180,15 +180,15 @@ export default function KYCReviewsScreen() {
             style={[
               styles.filterButton,
               scope === "unassigned" 
-                ? { backgroundColor: isDark ? "#6366f1" : colors.tint }
-                : { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" },
+                ? { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }
+                : { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)" },
             ]}
             onPress={() => setScope("unassigned")}
           >
             <Text
               style={[
                 styles.filterText,
-                { color: scope === "unassigned" ? "#fff" : colors.text },
+                { color: scope === "unassigned" ? "#FFFAF0" : colors.text },
               ]}
             >
               Unassigned
@@ -221,11 +221,11 @@ export default function KYCReviewsScreen() {
                     styles.card,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "rgba(255,255,255,0.9)",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "rgba(255,250,240,0.92)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -245,7 +245,7 @@ export default function KYCReviewsScreen() {
                           : "Unknown User"}
                       </Text>
                       <Text
-                        style={[styles.userEmail, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+                        style={[styles.userEmail, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
                       >
                         {verification.user?.email || "N/A"}
                       </Text>
@@ -275,15 +275,15 @@ export default function KYCReviewsScreen() {
                     Type: {verification.verificationType?.replace("_", " ") || "N/A"}
                   </Text>
                   
-                  <Text style={[styles.dateText, { color: isDark ? "#cbd5e1" : "#64748b" }]}>
+                  <Text style={[styles.dateText, { color: isDark ? "#B8A88A" : "#8A7B68" }]}>
                     Submitted: {new Date(verification.createdAt).toLocaleDateString()}
                   </Text>
                   
                   <View style={styles.viewDetailsHint}>
-                    <Text style={[styles.viewDetailsText, { color: isDark ? "#cbd5e1" : "#64748b" }]}>
+                    <Text style={[styles.viewDetailsText, { color: isDark ? "#B8A88A" : "#8A7B68" }]}>
                       Tap to view details and manage
                     </Text>
-                    <Feather name="chevron-right" size={16} color={isDark ? "#cbd5e1" : "#64748b"} />
+                    <Feather name="chevron-right" size={16} color={isDark ? "#B8A88A" : "#8A7B68"} />
                   </View>
                 </TouchableOpacity>
               ))
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   center: {
     flex: 1,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   typeText: {
     fontSize: 14,

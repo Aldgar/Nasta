@@ -17,7 +17,15 @@ import { useLanguage } from "../context/LanguageContext";
 import { ActivityIndicator } from "react-native";
 
 // Helper function to decode JWT token (without verification)
-function decodeJwtPayload(token: string): { exp?: number; iat?: number; sub?: string; id?: string; role?: string } | null {
+function decodeJwtPayload(
+  token: string,
+): {
+  exp?: number;
+  iat?: number;
+  sub?: string;
+  id?: string;
+  role?: string;
+} | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -26,7 +34,7 @@ function decodeJwtPayload(token: string): { exp?: number; iat?: number; sub?: st
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
     return JSON.parse(json);
   } catch {
@@ -78,18 +86,31 @@ export default function KycStartScreen() {
             "Content-Type": "application/json",
           },
         });
-        
+
         console.log("📥 Status check response:", statusRes.status);
 
         if (statusRes.ok) {
           const statusData = await statusRes.json();
           const currentVerification = statusData?.current;
-          
+
           // If there's a verification in progress, redirect to capture screen
           if (currentVerification?.id) {
             const status = currentVerification.status;
-            console.log("✅ Found existing verification:", currentVerification.id, "Status:", status);
-            if (['PENDING', 'IN_PROGRESS', 'MANUAL_REVIEW'].includes(status)) {
+            console.log(
+              "✅ Found existing verification:",
+              currentVerification.id,
+              "Status:",
+              status,
+            );
+            if (
+              [
+                "PENDING",
+                "IN_PROGRESS",
+                "MANUAL_REVIEW",
+                "VERIFIED",
+                "APPROVED",
+              ].includes(status)
+            ) {
               router.replace({
                 pathname: "/kyc-capture",
                 params: { verificationId: currentVerification.id },
@@ -100,10 +121,16 @@ export default function KycStartScreen() {
             console.log("ℹ️ No existing verification found");
           }
         } else if (statusRes.status === 401) {
-          console.error("❌ 401 Unauthorized during status check - token invalid");
+          console.error(
+            "❌ 401 Unauthorized during status check - token invalid",
+          );
           await SecureStore.deleteItemAsync("auth_token");
         } else {
-          console.warn("⚠️ Status check failed:", statusRes.status, statusRes.statusText);
+          console.warn(
+            "⚠️ Status check failed:",
+            statusRes.status,
+            statusRes.statusText,
+          );
         }
       } catch (err) {
         // Log error but don't block user
@@ -131,8 +158,11 @@ export default function KycStartScreen() {
       }
 
       // Debug: Log token presence (don't log the actual token for security)
-      console.log("🔑 Token retrieved:", token ? `Token exists (${token.length} chars)` : "No token");
-      
+      console.log(
+        "🔑 Token retrieved:",
+        token ? `Token exists (${token.length} chars)` : "No token",
+      );
+
       // Validate token format (should be a JWT with 3 parts separated by dots)
       const tokenParts = token.split(".");
       if (tokenParts.length !== 3) {
@@ -142,12 +172,14 @@ export default function KycStartScreen() {
         router.replace("/login" as never);
         return;
       }
-      
+
       // Check if token is expired
       if (isTokenExpired(token)) {
         console.error("❌ Token is expired");
         const payload = decodeJwtPayload(token);
-        const exp = payload?.exp ? new Date(payload.exp * 1000).toLocaleString() : "unknown";
+        const exp = payload?.exp
+          ? new Date(payload.exp * 1000).toLocaleString()
+          : "unknown";
         Alert.alert(
           t("auth.sessionExpired"),
           t("auth.sessionExpiredAt", { exp }),
@@ -159,16 +191,23 @@ export default function KycStartScreen() {
                 router.replace("/login" as never);
               },
             },
-          ]
+          ],
         );
         return;
       }
-      
+
       // Log token info (without exposing the actual token)
       const payload = decodeJwtPayload(token);
       if (payload) {
-        const exp = payload.exp ? new Date(payload.exp * 1000).toLocaleString() : "unknown";
-        console.log("✅ Token valid - expires:", exp, "Role:", payload.role || "N/A");
+        const exp = payload.exp
+          ? new Date(payload.exp * 1000).toLocaleString()
+          : "unknown";
+        console.log(
+          "✅ Token valid - expires:",
+          exp,
+          "Role:",
+          payload.role || "N/A",
+        );
       }
 
       const base = getApiBase();
@@ -180,10 +219,15 @@ export default function KycStartScreen() {
           method: "GET",
         });
         if (!healthCheck.ok && healthCheck.status !== 404) {
-          console.warn(`Server health check returned status: ${healthCheck.status}`);
+          console.warn(
+            `Server health check returned status: ${healthCheck.status}`,
+          );
         }
       } catch (healthErr) {
-        console.warn("Health check failed (this is okay if endpoint doesn't exist):", healthErr);
+        console.warn(
+          "Health check failed (this is okay if endpoint doesn't exist):",
+          healthErr,
+        );
         // Continue anyway - health endpoint might not exist
       }
 
@@ -192,8 +236,11 @@ export default function KycStartScreen() {
       try {
         const url = `${base}/kyc/initiate`;
         console.log("📤 Sending KYC initiation request to:", url);
-        console.log("📤 Authorization header:", `Bearer ${token.substring(0, 20)}...`);
-        
+        console.log(
+          "📤 Authorization header:",
+          `Bearer ${token.substring(0, 20)}...`,
+        );
+
         kycRes = await fetch(url, {
           method: "POST",
           headers: {
@@ -205,15 +252,18 @@ export default function KycStartScreen() {
             consent: { accepted: true, version: "v1" },
           }),
         });
-        
+
         console.log("📥 Response status:", kycRes.status, kycRes.statusText);
       } catch (fetchErr) {
         const errorMsg = (fetchErr as Error).message;
         console.error("❌ Fetch error:", errorMsg);
-        if (errorMsg.includes("Network request failed") || errorMsg.includes("fetch")) {
+        if (
+          errorMsg.includes("Network request failed") ||
+          errorMsg.includes("fetch")
+        ) {
           throw new Error(
             `Network error: Cannot connect to ${base}/kyc/initiate. ` +
-            `Please check your internet connection and ensure the server is running.`
+              `Please check your internet connection and ensure the server is running.`,
           );
         }
         throw fetchErr;
@@ -238,10 +288,12 @@ export default function KycStartScreen() {
           errorText = `Server error: ${kycRes.status} ${kycRes.statusText}`;
           console.error("❌ Failed to read error response");
         }
-        
+
         // If it's a 401 Unauthorized, the token is likely invalid or expired
         if (kycRes.status === 401) {
-          console.error("❌ 401 Unauthorized - token may be invalid or expired");
+          console.error(
+            "❌ 401 Unauthorized - token may be invalid or expired",
+          );
           Alert.alert(
             t("auth.sessionExpired"),
             t("auth.sessionExpiredMessage"),
@@ -253,13 +305,16 @@ export default function KycStartScreen() {
                   router.replace("/login" as never);
                 },
               },
-            ]
+            ],
           );
           return;
         }
 
         // If error is "already in progress", check status and redirect
-        if (errorText.includes("already have") && errorText.includes("verification")) {
+        if (
+          errorText.includes("already have") &&
+          errorText.includes("verification")
+        ) {
           try {
             const statusRes = await fetch(`${base}/kyc/my-status`, {
               method: "GET",
@@ -272,7 +327,7 @@ export default function KycStartScreen() {
             if (statusRes.ok) {
               const statusData = await statusRes.json();
               const currentVerification = statusData?.current;
-              
+
               if (currentVerification?.id) {
                 Alert.alert(
                   t("kyc.verificationInProgress"),
@@ -291,7 +346,7 @@ export default function KycStartScreen() {
                         } as never);
                       },
                     },
-                  ]
+                  ],
                 );
                 return;
               }
@@ -310,16 +365,18 @@ export default function KycStartScreen() {
 
       // Initiate background check (optional, don't fail if this fails)
       try {
-      const bgRes = await fetch(`${base}/background-checks/initiate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ consent: { accepted: true } }),
-      });
-      if (!bgRes.ok) {
-          console.warn("Background check initiation failed, continuing with KYC");
+        const bgRes = await fetch(`${base}/background-checks/initiate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ consent: { accepted: true } }),
+        });
+        if (!bgRes.ok) {
+          console.warn(
+            "Background check initiation failed, continuing with KYC",
+          );
         }
       } catch (bgErr) {
         console.warn("Background check initiation error:", bgErr);
@@ -348,9 +405,22 @@ export default function KycStartScreen() {
     return (
       <GradientBackground>
         <SafeAreaView style={styles.safeArea}>
-          <View style={[styles.contentContainer, { justifyContent: "center", alignItems: "center" }]}>
+          <View
+            style={[
+              styles.contentContainer,
+              { justifyContent: "center", alignItems: "center" },
+            ]}
+          >
             <ActivityIndicator size="large" color={colors.tint} />
-            <Text style={[styles.subtitle, { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b", marginTop: 16 }]}>
+            <Text
+              style={[
+                styles.subtitle,
+                {
+                  color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68",
+                  marginTop: 16,
+                },
+              ]}
+            >
               Checking verification status...
             </Text>
           </View>
@@ -367,19 +437,32 @@ export default function KycStartScreen() {
             style={[
               styles.topButton,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
-                borderColor: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.1)",
+                backgroundColor: isDark
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.06)",
+                borderColor: isDark
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => router.back()}
           >
-            <Text style={[styles.topButtonText, { color: colors.text }]}>{t("common.back")}</Text>
+            <Text style={[styles.topButtonText, { color: colors.text }]}>
+              {t("common.back")}
+            </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.contentContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>{t("kyc.verifyIdentity")}</Text>
-          <Text style={[styles.subtitle, { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" }]}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {t("kyc.verifyIdentity")}
+          </Text>
+          <Text
+            style={[
+              styles.subtitle,
+              { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
+            ]}
+          >
             {t("kyc.verifyIdentitySubtitle")}
           </Text>
 
@@ -393,19 +476,27 @@ export default function KycStartScreen() {
                 styles.checkbox,
                 {
                   borderColor: consent
-                    ? (isDark ? "#6366f1" : "#4f46e5")
+                    ? isDark
+                      ? "#10B981"
+                      : "#059669"
                     : isDark
-                      ? "rgba(255,255,255,0.6)"
-                      : "#94a3b8",
+                      ? "rgba(255,250,240,0.6)"
+                      : "#9A8E7A",
                   backgroundColor: consent
-                    ? (isDark ? "#4f46e5" : "#4338ca")
+                    ? isDark
+                      ? "#C9963F"
+                      : "#A67A25"
                     : "transparent",
                 },
                 consent && styles.checkboxChecked,
               ]}
             >
               {consent && (
-                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>✓</Text>
+                <Text
+                  style={{ color: "#FFFAF0", fontSize: 16, fontWeight: "700" }}
+                >
+                  ✓
+                </Text>
               )}
             </View>
             <Text style={[styles.checkboxLabel, { color: colors.text }]}>
@@ -417,9 +508,25 @@ export default function KycStartScreen() {
             style={[
               styles.button,
               {
-                backgroundColor: consent ? (isDark ? "#4f46e5" : colors.tint) : (isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.05)"),
-                borderColor: consent ? (isDark ? "#6366f1" : colors.tint) : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)"),
-                shadowColor: consent ? (isDark ? "#4f46e5" : colors.tint) : "transparent",
+                backgroundColor: consent
+                  ? isDark
+                    ? "#10B981"
+                    : "#059669"
+                  : isDark
+                    ? "rgba(255,250,240,0.12)"
+                    : "rgba(184,130,42,0.06)",
+                borderColor: consent
+                  ? isDark
+                    ? "#10B981"
+                    : "#059669"
+                  : isDark
+                    ? "rgba(201,150,63,0.3)"
+                    : "rgba(184,130,42,0.3)",
+                shadowColor: consent
+                  ? isDark
+                    ? "#10B981"
+                    : "#059669"
+                  : "transparent",
               },
               loading && styles.buttonLoading,
             ]}
@@ -427,11 +534,11 @@ export default function KycStartScreen() {
             disabled={loading || !consent}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#FFFAF0" />
             ) : (
-            <Text style={styles.buttonLabel}>
-              {loading ? t("common.loading") : t("kyc.startVerification")}
-            </Text>
+              <Text style={styles.buttonLabel}>
+                {loading ? t("common.loading") : t("kyc.startVerification")}
+              </Text>
             )}
           </TouchableOpacity>
 
@@ -439,7 +546,12 @@ export default function KycStartScreen() {
             style={styles.secondaryAction}
             onPress={() => router.replace("/user-home" as never)}
           >
-            <Text style={[styles.secondaryText, { color: isDark ? "rgba(255,255,255,0.8)" : "#64748b" }]}>
+            <Text
+              style={[
+                styles.secondaryText,
+                { color: isDark ? "rgba(240,232,213,0.8)" : "#8A7B68" },
+              ]}
+            >
               {t("kyc.doThisLater")}
             </Text>
           </TouchableOpacity>
@@ -462,11 +574,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  topButtonText: { fontSize: 12, fontWeight: "600" },
+  topButtonText: { fontSize: 12, fontWeight: "700" },
   contentContainer: {
     flex: 1,
     justifyContent: "center",
-    paddingBottom: 40, 
+    paddingBottom: 40,
   },
   title: {
     fontSize: 28,
@@ -500,7 +612,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    borderRadius: 16,
+    borderRadius: 4,
     paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -509,7 +621,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: Platform.OS === 'android' ? 0 : 4,
+    elevation: 0,
   },
   buttonLoading: {
     opacity: 0.7,

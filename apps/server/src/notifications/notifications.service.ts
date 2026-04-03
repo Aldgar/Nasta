@@ -8,6 +8,7 @@ export type DeletionRequestCreatedEvent = {
   userId: string;
   requestId: string;
   reason?: string;
+  ticketNumber?: string;
 };
 
 export type BackgroundCheckSubmittedEvent = {
@@ -31,8 +32,8 @@ export class NotificationsService {
 
   private ensureMailReady() {
     if (this.mailReady) return true;
-    const apiKey = this.config.get<string>('RESEND_API_KEY');
-    const from = this.config.get<string>('RESEND_FROM');
+    const apiKey = this.config.get<string>('POSTMARK_API_TOKEN');
+    const from = this.config.get<string>('POSTMARK_FROM_EMAIL');
     if (!apiKey || !from) return false;
     this.mailReady = true;
     return true;
@@ -54,17 +55,36 @@ export class NotificationsService {
     return language?.toLowerCase().startsWith('pt') ? 'pt' : 'en';
   }
 
+  private isHttpUrl(value: string | undefined): value is string {
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
   private getServerPublicUrl(): string {
     // Prefer a public server URL so email links work without the web client deployed.
-    const raw =
-      this.config.get<string>('SERVER_PUBLIC_URL') ||
-      this.config.get<string>('CLIENT_BASE_URL') ||
-      'http://localhost:3001';
-    return raw;
+    const serverPublic = this.config.get<string>('SERVER_PUBLIC_URL');
+    if (this.isHttpUrl(serverPublic)) return serverPublic;
+
+    // Backwards-compatible fallback: only use CLIENT_BASE_URL when it's actually HTTP(S).
+    const clientBase = this.config.get<string>('CLIENT_BASE_URL');
+    if (this.isHttpUrl(clientBase)) return clientBase;
+
+    return 'http://localhost:3001';
+  }
+
+  private getClientUrl(): string {
+    const clientBase = this.config.get<string>('CLIENT_BASE_URL');
+    if (this.isHttpUrl(clientBase)) return clientBase;
+    return 'http://localhost:3002';
   }
 
   private buildVerifyEmailRedirectLink(token: string): string {
-    const base = this.getServerPublicUrl();
+    const base = this.getClientUrl();
     const url = new URL('/verify-email', base);
     url.searchParams.set('token', token);
     return url.toString();
@@ -110,27 +130,27 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.referral.invitationTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.referral.invitationHeader')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.referral.invitationHeader')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.referral.invitationGreeting', { friendName })} 👋</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.referral.invitationGreeting', { friendName })} 👋</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.referral.invitationMessage1', { referrerName, referrerEmail })}
               </p>
               
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.referral.invitationMessage2')}
               </p>
               
@@ -138,15 +158,15 @@ export class NotificationsService {
               <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 32px 0;">
                 <tr>
                   <td align="center" style="padding: 0;">
-                    <a href="${signupLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">${t('email.referral.joinButton')}</a>
+                    <a href="${signupLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #C9963F 0%, #D4A853 50%, #C9963F 100%); color: #0A1628; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(201, 150, 63, 0.35);">${t('email.referral.joinButton')}</a>
                   </td>
                 </tr>
               </table>
               
               <!-- Features -->
-              <div style="margin: 40px 0 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.referral.whyJoin')}</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+              <div style="margin: 40px 0 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.referral.whyJoin')}</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.referral.benefit1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.referral.benefit2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.referral.benefit3')}</li>
@@ -154,7 +174,7 @@ export class NotificationsService {
                 </ul>
               </div>
               
-              <p style="margin: 32px 0 0; color: #6b7280; font-size: 14px; line-height: 1.6; text-align: center;">
+              <p style="margin: 32px 0 0; color: #8B7A5E; font-size: 14px; line-height: 1.6; text-align: center;">
                 ${t('email.referral.invitationFooter', { referrerName })}
               </p>
             </td>
@@ -162,8 +182,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; text-align: center; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            <td style="padding: 30px 40px; text-align: center; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px;">
                 ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
               </p>
             </td>
@@ -216,40 +236,40 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.jobs.jobReferralTitle', { employerName })}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.jobs.jobReferralHeader')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.jobs.jobReferralHeader')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.jobs.jobReferralGreeting', { candidateName })} 👋</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.jobs.jobReferralGreeting', { candidateName })} 👋</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.jobReferralMessage', { employerName, employerEmail })}
               </p>
               
               <!-- Job Details Card -->
-              <div style="margin: 32px 0; padding: 24px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 20px; font-weight: 600;">${job.title}</h3>
+              <div style="margin: 32px 0; padding: 24px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 20px; font-weight: 600;">${job.title}</h3>
                 
-                ${job.category ? `<p style="margin: 0 0 12px; color: #4b5563; font-size: 15px;"><strong>${t('email.jobs.category')}:</strong> ${job.category.name}</p>` : ''}
+                ${job.category ? `<p style="margin: 0 0 12px; color: #B8A88A; font-size: 15px;"><strong>${t('email.jobs.category')}:</strong> ${job.category.name}</p>` : ''}
                 
-                <p style="margin: 0 0 12px; color: #4b5563; font-size: 15px;"><strong>${t('email.jobs.location')}:</strong> ${locationText}</p>
+                <p style="margin: 0 0 12px; color: #B8A88A; font-size: 15px;"><strong>${t('email.jobs.location')}:</strong> ${locationText}</p>
                 
-                ${job.rateAmount ? `<p style="margin: 0 0 12px; color: #4b5563; font-size: 15px;"><strong>${t('email.jobs.rate')}:</strong> ${rateText}</p>` : ''}
+                ${job.rateAmount ? `<p style="margin: 0 0 12px; color: #B8A88A; font-size: 15px;"><strong>${t('email.jobs.rate')}:</strong> ${rateText}</p>` : ''}
                 
                 
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-                  <p style="margin: 0 0 8px; color: #1f2937; font-size: 15px; font-weight: 600;">${t('email.jobs.description')}:</p>
-                  <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${job.description}</p>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #1E3048;">
+                  <p style="margin: 0 0 8px; color: #F5E6C8; font-size: 15px; font-weight: 600;">${t('email.jobs.description')}:</p>
+                  <p style="margin: 0; color: #B8A88A; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${job.description}</p>
                 </div>
               </div>
               
@@ -257,12 +277,12 @@ export class NotificationsService {
               <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 32px 0;">
                 <tr>
                   <td align="center" style="padding: 0;">
-                    <a href="${jobLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">${t('email.jobs.viewAndApplyButton')}</a>
+                    <a href="${jobLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #C9963F 0%, #D4A853 50%, #C9963F 100%); color: #0A1628; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(201, 150, 63, 0.35);">${t('email.jobs.viewAndApplyButton')}</a>
                   </td>
                 </tr>
               </table>
               
-              <p style="margin: 32px 0 0; color: #6b7280; font-size: 14px; line-height: 1.6; text-align: center;">
+              <p style="margin: 32px 0 0; color: #8B7A5E; font-size: 14px; line-height: 1.6; text-align: center;">
                 ${t('email.jobs.jobReferralFooter', { employerName })}
               </p>
             </td>
@@ -270,8 +290,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; text-align: center; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px;">
+            <td style="padding: 30px 40px; text-align: center; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px;">
                 ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
               </p>
             </td>
@@ -393,91 +413,30 @@ export class NotificationsService {
         if (!this.mailConfigWarned) {
           this.mailConfigWarned = true;
           this.logger.warn(
-            'Email is not configured (missing RESEND_API_KEY and/or RESEND_FROM). Skipping email sends.',
+            'Email is not configured (missing POSTMARK_API_TOKEN and/or POSTMARK_FROM_EMAIL). Skipping email sends.',
           );
         }
         return false;
       }
 
-      const apiKey = this.config.get<string>('RESEND_API_KEY') || '';
-      const fromEmail = this.config.get<string>('RESEND_FROM') || '';
+      const apiToken = this.config.get<string>('POSTMARK_API_TOKEN') || '';
+      const fromEmail = this.config.get<string>('POSTMARK_FROM_EMAIL') || '';
 
-      // Format from field with display name: "Cumprido <email@domain.com>"
-      // Always use "Cumprido" as the display name, extract email if format already includes display name
-      let emailAddress = fromEmail;
-      if (fromEmail.includes('<') && fromEmail.includes('>')) {
-        // Extract email from format like "Name <email@domain.com>"
-        const match = fromEmail.match(/<([^>]+)>/);
-        if (match && match[1]) {
-          emailAddress = match[1];
-        }
-      }
+      // Dynamic import of Postmark SDK
+      const postmark = await import('postmark');
+      const client = new postmark.ServerClient(apiToken);
 
-      // Always format as "Cumprido <email@domain.com>"
-      // Note: Brand name in from field is intentional and not translated
-      const from = emailAddress ? `Cumprido <${emailAddress}>` : fromEmail;
-
-      // Dynamic import of Resend SDK
-      type ResendClient = {
-        emails: {
-          send: (args: {
-            from: string;
-            to: string | string[];
-            subject: string;
-            text?: string;
-            html?: string;
-          }) => Promise<{ data?: { id: string }; error?: { message: string } }>;
-        };
-      };
-
-      // Resend constructor takes apiKey as a string parameter, not an object
-      type ResendConstructor = new (apiKey?: string) => ResendClient;
-      const resendMod = (await import('resend')) as {
-        Resend: ResendConstructor;
-      };
-
-      const Resend = resendMod.Resend;
-      const resend = new Resend(apiKey);
-
-      const result = await resend.emails.send({
-        from,
-        to,
-        subject,
-        text,
-        html,
+      const result = await client.sendEmail({
+        From: fromEmail,
+        To: to,
+        Subject: subject,
+        TextBody: text,
+        HtmlBody: html || '',
       });
 
-      if (result.error) {
-        this.logger.error(
-          `Resend email send failed to ${to}: ${result.error.message}`,
-          result.error,
-        );
-        return false;
-      }
-
-      // Log the email ID if available for tracking
-      const emailId = result.data?.id || 'unknown';
       this.logger.log(
-        `Email sent to ${to} via Resend (ID: ${emailId}): ${subject}`,
+        `Email sent to ${to} via Postmark (MessageID: ${result.MessageID}): ${subject}`,
       );
-
-      // Additional debug logging with full response
-      this.logger.debug(
-        `Email details - From: ${from}, To: ${to}, Subject: ${subject}`,
-      );
-      this.logger.debug(`Resend response: ${JSON.stringify(result, null, 2)}`);
-
-      // Check if email was actually queued/sent
-      if (!result.data?.id) {
-        this.logger.warn(
-          `Email sent to ${to} but no ID returned from Resend. Full response: ${JSON.stringify(result)}`,
-        );
-      } else {
-        // Log helpful troubleshooting info
-        this.logger.log(
-          `📧 Email queued successfully. Check Resend dashboard: https://resend.com/emails/${emailId} | Troubleshooting: Check spam folder, verify domain in Resend, ensure account is not in test mode`,
-        );
-      }
 
       return true;
     } catch (err) {
@@ -502,27 +461,27 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.auth.welcomeTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.auth.welcomeHeader')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.auth.welcomeHeader')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.auth.welcomeGreeting', { firstName })} 👋</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.auth.welcomeGreeting', { firstName })} 👋</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.auth.welcomeMessage1')}
               </p>
               
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.auth.welcomeMessage2')}
               </p>
               
@@ -530,21 +489,21 @@ export class NotificationsService {
               <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 32px 0;">
                 <tr>
                   <td align="center" style="padding: 0;">
-                    <a href="${universalLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">${t('email.auth.verifyEmailButton')}</a>
+                    <a href="${universalLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #C9963F 0%, #D4A853 50%, #C9963F 100%); color: #0A1628; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(201, 150, 63, 0.35);">${t('email.auth.verifyEmailButton')}</a>
                   </td>
                 </tr>
               </table>
 
               <!-- Verification Code Fallback -->
-              <div style="margin: 0 0 32px; padding: 20px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-                <p style="margin: 0 0 8px; color: #374151; font-size: 14px; font-weight: 600;">${t('email.auth.alternativeCode')}</p>
-                <p style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; letter-spacing: 2px;">${token}</p>
+              <div style="margin: 0 0 32px; padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+                <p style="margin: 0 0 8px; color: #D4A853; font-size: 14px; font-weight: 600;">${t('email.auth.alternativeCode')}</p>
+                <p style="margin: 0; color: #F5E6C8; font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; letter-spacing: 2px;">${token}</p>
               </div>
               
               <!-- Features -->
-              <div style="margin: 40px 0 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+              <div style="margin: 40px 0 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep3')}</li>
@@ -556,11 +515,11 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 12px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0 0 12px; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.auth.ignoreEmail')}
               </p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.6;">
+              <p style="margin: 0; color: #5C4F3A; font-size: 12px; line-height: 1.6;">
                 ${t('email.auth.verificationExpiry')}
               </p>
             </td>
@@ -568,7 +527,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -594,23 +553,23 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.auth.verifyEmailTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.auth.verifyEmailWelcome')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.auth.verifyEmailWelcome')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.auth.verifyEmailMessage')}
               </p>
               
@@ -618,32 +577,32 @@ export class NotificationsService {
               <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 32px 0;">
                 <tr>
                   <td align="center" style="padding: 0;">
-                    <a href="${universalLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">${t('email.auth.verifyEmailButton')}</a>
+                    <a href="${universalLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #C9963F 0%, #D4A853 50%, #C9963F 100%); color: #0A1628; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(201, 150, 63, 0.35);">${t('email.auth.verifyEmailButton')}</a>
                   </td>
                 </tr>
               </table>
               
               <!-- Alternative Link -->
-              <p style="margin: 32px 0 0; color: #6b7280; font-size: 14px; line-height: 1.6; text-align: center;">
+              <p style="margin: 32px 0 0; color: #8B7A5E; font-size: 14px; line-height: 1.6; text-align: center;">
                 ${t('email.auth.alternativeLink')}<br>
-                <a href="${universalLink}" style="color: #6366f1; text-decoration: none; word-break: break-all;">${universalLink}</a>
+                <a href="${universalLink}" style="color: #C9963F; text-decoration: none; word-break: break-all;">${universalLink}</a>
               </p>
               
               <!-- Token Fallback -->
-              <div style="margin: 32px 0 0; padding: 20px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-                <p style="margin: 0 0 8px; color: #374151; font-size: 14px; font-weight: 600;">${t('email.auth.alternativeCode')}</p>
-                <p style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; letter-spacing: 2px;">${token}</p>
+              <div style="margin: 32px 0 0; padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+                <p style="margin: 0 0 8px; color: #D4A853; font-size: 14px; font-weight: 600;">${t('email.auth.alternativeCode')}</p>
+                <p style="margin: 0; color: #F5E6C8; font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; letter-spacing: 2px;">${token}</p>
               </div>
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 12px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0 0 12px; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.auth.ignoreEmail')}
               </p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.6;">
+              <p style="margin: 0; color: #5C4F3A; font-size: 12px; line-height: 1.6;">
                 ${t('email.auth.verificationExpiry')}
               </p>
             </td>
@@ -651,7 +610,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -680,45 +639,45 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.kyc.documentRequiredTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.kyc.documentRequiredHeader')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.kyc.documentRequiredHeader')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.kyc.documentRequiredGreeting', { firstName })}
               </p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.kyc.documentRequiredMessage')}
               </p>
               
               <!-- Document Details Card -->
-              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid #6366f1;">
-                <p style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 600;">
+              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(201, 150, 63, 0.08) 0%, rgba(212, 168, 83, 0.08) 100%); border-radius: 8px; border-left: 4px solid #C9963F;">
+                <p style="margin: 0 0 12px; color: #F5E6C8; font-size: 16px; font-weight: 600;">
                   <strong>${t('email.kyc.document')}:</strong> ${documentName}
                 </p>
-                <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6;">
+                <p style="margin: 0; color: #B8A88A; font-size: 14px; line-height: 1.6;">
                   <strong>${t('email.kyc.reason')}:</strong> ${reason}
                 </p>
               </div>
               
               <!-- Instructions -->
-              <div style="margin: 32px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                <p style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 600;">
+              <div style="margin: 32px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px;">
+                <p style="margin: 0 0 12px; color: #F5E6C8; font-size: 16px; font-weight: 600;">
                   ${t('email.kyc.whatToDoNext')}:
                 </p>
-                <ol style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.8;">
+                <ol style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 14px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.kyc.instruction1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.kyc.instruction2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.kyc.instruction3')}</li>
@@ -730,8 +689,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.common.supportMessage')}
               </p>
             </td>
@@ -739,7 +698,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -763,40 +722,40 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.auth.emailVerifiedTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.auth.emailVerifiedHeader')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.auth.emailVerifiedHeader')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.auth.emailVerifiedGreeting', { firstName })}
               </p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.auth.emailVerifiedMessage')}
               </p>
               
               <!-- Success Icon/Message -->
-              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid #6366f1;">
-                <p style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600; text-align: center;">
+              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(201, 150, 63, 0.08) 0%, rgba(212, 168, 83, 0.08) 100%); border-radius: 8px; border-left: 4px solid #C9963F;">
+                <p style="margin: 0; color: #F5E6C8; font-size: 16px; font-weight: 600; text-align: center;">
                   ✓ ${t('email.auth.accountActivated')}
                 </p>
               </div>
               
               <!-- Next Steps -->
-              <div style="margin: 40px 0 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+              <div style="margin: 40px 0 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.auth.nextStep3')}</li>
@@ -808,8 +767,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.common.supportMessage')}
               </p>
             </td>
@@ -817,7 +776,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -858,7 +817,7 @@ export class NotificationsService {
         const cleaned = from.replace(/[^a-z0-9]/gi, '').slice(0, 11);
         if (!cleaned) {
           this.logger.warn(
-            `Invalid SMS sender name: ${from}. Set SMS_FROM to something like "Cumprido".`,
+            `Invalid SMS sender name: ${from}. Set SMS_FROM to something like "Nasta".`,
           );
           return false;
         }
@@ -967,17 +926,118 @@ export class NotificationsService {
     this.emitter.on('deletion.request.created', listener);
   }
 
+  async emitDeletionRequestReviewed(event: {
+    userId: string;
+    requestId: string;
+    ticketNumber: string;
+    decision: 'APPROVED' | 'DENIED';
+    adminNotes?: string;
+  }) {
+    this.logger.debug(
+      `DeletionRequestReviewed user=${event.userId} decision=${event.decision} ticket=${event.ticketNumber}`,
+    );
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: event.userId },
+        select: { email: true, firstName: true },
+      });
+      if (user?.email) {
+        const t = await this.emailTranslations.getTranslatorForUser(
+          event.userId,
+        );
+        const firstName = user.firstName || t('email.common.there');
+        if (event.decision === 'APPROVED') {
+          const subject = t('email.deletion.requestApprovedSubject', {
+            ticketNumber: event.ticketNumber,
+          });
+          const text = t('email.deletion.requestApprovedText', {
+            firstName,
+            ticketNumber: event.ticketNumber,
+          });
+          await this.sendEmail(user.email, subject, text);
+        } else {
+          const subject = t('email.deletion.requestDeniedSubject', {
+            ticketNumber: event.ticketNumber,
+          });
+          const text = t('email.deletion.requestDeniedText', {
+            firstName,
+            ticketNumber: event.ticketNumber,
+            adminNotes: event.adminNotes || t('email.common.na'),
+          });
+          await this.sendEmail(user.email, subject, text);
+        }
+      }
+
+      const title =
+        event.decision === 'APPROVED'
+          ? 'Account Deletion Approved'
+          : 'Account Deletion Request Denied';
+      const body =
+        event.decision === 'APPROVED'
+          ? `Your deletion request ${event.ticketNumber} has been approved. Your account will be permanently removed.`
+          : `Your deletion request ${event.ticketNumber} has been denied. Your account remains active.`;
+
+      await this.createNotification({
+        userId: event.userId,
+        type: 'SYSTEM',
+        title,
+        body,
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Send deletion review email failed: ${(err as Error).message}`,
+      );
+    }
+  }
+
   onBackgroundCheckSubmitted(
     listener: (e: BackgroundCheckSubmittedEvent) => void,
   ) {
     this.emitter.on('backgroundCheck.submitted', listener);
   }
 
-  emitDeletionRequestCreated(event: DeletionRequestCreatedEvent) {
+  async emitDeletionRequestCreated(event: DeletionRequestCreatedEvent) {
     this.logger.debug(
-      `DeletionRequestCreated user=${event.userId} request=${event.requestId}`,
+      `DeletionRequestCreated user=${event.userId} request=${event.requestId} ticket=${event.ticketNumber}`,
     );
     this.emitter.emit('deletion.request.created', event);
+
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: event.userId },
+        select: { email: true, firstName: true },
+      });
+
+      const t = await this.emailTranslations.getTranslatorForUser(event.userId);
+
+      if (user?.email) {
+        const firstName = user.firstName || t('email.common.there');
+        const ticket = event.ticketNumber || event.requestId;
+        const subject = t('email.deletion.requestCreatedSubject', {
+          ticketNumber: ticket,
+        });
+        const text = t('email.deletion.requestCreatedText', {
+          firstName,
+          ticketNumber: ticket,
+          reason: event.reason || t('email.common.na'),
+        });
+        await this.sendEmail(user.email, subject, text);
+      }
+
+      const ticketNumber = event.ticketNumber || event.requestId || '';
+      await this.createNotification({
+        userId: event.userId,
+        type: 'SYSTEM',
+        title: t('notifications.templates.accountDeletionRequestTitle'),
+        body: t('notifications.templates.accountDeletionRequestBody', {
+          ticketNumber,
+        }),
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Send deletion request email failed: ${(err as Error).message}`,
+      );
+    }
   }
 
   emitBackgroundCheckSubmitted(event: BackgroundCheckSubmittedEvent) {
@@ -996,7 +1056,7 @@ export class NotificationsService {
       });
       if (user?.email) {
         // Deep link for mobile app (primary)
-        const deepLink = `cumprido://verify-email?token=${token}`;
+        const deepLink = `nasta://verify-email?token=${token}`;
 
         // Clickable HTTPS link that redirects into the app (does not require the web client)
         const universalLink = this.buildVerifyEmailRedirectLink(token);
@@ -1042,7 +1102,7 @@ export class NotificationsService {
       });
       if (user?.email) {
         // Deep link for mobile app (primary)
-        const deepLink = `cumprido://verify-email?token=${event.token}`;
+        const deepLink = `nasta://verify-email?token=${event.token}`;
 
         // Clickable HTTPS link that redirects into the app (does not require the web client)
         const universalLink = this.buildVerifyEmailRedirectLink(event.token);
@@ -1570,54 +1630,54 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.jobs.applicationSubmittedTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationSubmittedHeader')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationSubmittedHeader')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationSubmittedGreeting', { firstName })}
               </p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationSubmittedMessage')}
               </p>
               
               <!-- Job Details Card -->
-              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid #6366f1;">
-                <h3 style="margin: 0 0 12px; color: #1f2937; font-size: 18px; font-weight: 600;">${jobTitle}</h3>
-                <p style="margin: 0 0 8px; color: #4b5563; font-size: 14px;">
+              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(201, 150, 63, 0.08) 0%, rgba(212, 168, 83, 0.08) 100%); border-radius: 8px; border-left: 4px solid #C9963F;">
+                <h3 style="margin: 0 0 12px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${jobTitle}</h3>
+                <p style="margin: 0 0 8px; color: #B8A88A; font-size: 14px;">
                   <strong>${t('email.jobs.employer')}:</strong> ${employerName}
                 </p>
-                <p style="margin: 0; color: #4b5563; font-size: 14px;">
+                <p style="margin: 0; color: #B8A88A; font-size: 14px;">
                   <strong>${t('email.jobs.location')}:</strong> ${jobLocation}
                 </p>
               </div>
               
               <!-- Status Info -->
-              <div style="margin: 32px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                <p style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 600;">
+              <div style="margin: 32px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px;">
+                <p style="margin: 0 0 12px; color: #F5E6C8; font-size: 16px; font-weight: 600;">
                   ✓ ${t('email.jobs.applicationStatusPending')}
                 </p>
-                <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6;">
+                <p style="margin: 0; color: #B8A88A; font-size: 14px; line-height: 1.6;">
                   ${t('email.jobs.applicationStatusMessage')}
                 </p>
               </div>
               
               <!-- Next Steps -->
-              <div style="margin: 40px 0 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+              <div style="margin: 40px 0 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.jobs.nextStep1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.nextStep2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.nextStep3')}</li>
@@ -1629,8 +1689,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.common.supportMessage')}
               </p>
             </td>
@@ -1638,7 +1698,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -1668,32 +1728,32 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.jobs.applicationAcceptedTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationAcceptedHeader')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationAcceptedHeader')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationAcceptedGreeting', { firstName })}
               </p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationAcceptedMessage', { jobTitle, employerName })}
               </p>
               
               <!-- Success Card -->
               <div style="margin: 32px 0; padding: 24px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border-radius: 8px; border-left: 4px solid #22c55e;">
-                <p style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 700; text-align: center;">
+                <p style="margin: 0; color: #F5E6C8; font-size: 18px; font-weight: 700; text-align: center;">
                   ✓ ${t('email.jobs.applicationAcceptedBadge')}
                 </p>
               </div>
@@ -1702,18 +1762,18 @@ export class NotificationsService {
                 message
                   ? `
               <!-- Employer Message -->
-              <div style="margin: 32px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                <p style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 600;">${t('email.jobs.messageFromEmployer')}:</p>
-                <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">${message}</p>
+              <div style="margin: 32px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px;">
+                <p style="margin: 0 0 12px; color: #F5E6C8; font-size: 16px; font-weight: 600;">${t('email.jobs.messageFromEmployer')}:</p>
+                <p style="margin: 0; color: #B8A88A; font-size: 15px; line-height: 1.6;">${message}</p>
               </div>
               `
                   : ''
               }
               
               <!-- Next Steps -->
-              <div style="margin: 40px 0 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+              <div style="margin: 40px 0 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.auth.whatsNext')}</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.jobs.acceptedNextStep1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.acceptedNextStep2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.acceptedNextStep3')}</li>
@@ -1725,8 +1785,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.common.supportMessage')}
               </p>
             </td>
@@ -1734,7 +1794,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -1764,26 +1824,26 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t('email.jobs.applicationUpdateTitle')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${t('email.common.brandName')}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationUpdateHeader')}</h2>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <h2 style="margin: 0 0 20px; color: #F5E6C8; font-size: 24px; font-weight: 600;">${t('email.jobs.applicationUpdateHeader')}</h2>
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationUpdateGreeting', { firstName })}
               </p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 24px; color: #B8A88A; font-size: 16px; line-height: 1.6;">
                 ${t('email.jobs.applicationRejectedMessage', { jobTitle, employerName })}
               </p>
               
@@ -1791,21 +1851,21 @@ export class NotificationsService {
                 message
                   ? `
               <!-- Employer Message -->
-              <div style="margin: 32px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                <p style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 600;">${t('email.jobs.messageFromEmployer')}:</p>
-                <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">${message}</p>
+              <div style="margin: 32px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px;">
+                <p style="margin: 0 0 12px; color: #F5E6C8; font-size: 16px; font-weight: 600;">${t('email.jobs.messageFromEmployer')}:</p>
+                <p style="margin: 0; color: #B8A88A; font-size: 15px; line-height: 1.6;">${message}</p>
               </div>
               `
                   : ''
               }
               
               <!-- Encouragement -->
-              <div style="margin: 32px 0; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-                <h3 style="margin: 0 0 16px; color: #1f2937; font-size: 18px; font-weight: 600;">${t('email.jobs.keepGoing')}</h3>
-                <p style="margin: 0 0 12px; color: #4b5563; font-size: 15px; line-height: 1.6;">
+              <div style="margin: 32px 0; padding: 24px; background-color: #0E1B32; border-radius: 8px;">
+                <h3 style="margin: 0 0 16px; color: #F5E6C8; font-size: 18px; font-weight: 600;">${t('email.jobs.keepGoing')}</h3>
+                <p style="margin: 0 0 12px; color: #B8A88A; font-size: 15px; line-height: 1.6;">
                   ${t('email.jobs.keepGoingMessage')}
                 </p>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 15px; line-height: 1.8;">
+                <ul style="margin: 0; padding-left: 20px; color: #B8A88A; font-size: 15px; line-height: 1.8;">
                   <li style="margin-bottom: 8px;">${t('email.jobs.rejectedNextStep1')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.rejectedNextStep2')}</li>
                   <li style="margin-bottom: 8px;">${t('email.jobs.rejectedNextStep3')}</li>
@@ -1817,8 +1877,8 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
                 ${t('email.common.supportMessage')}
               </p>
             </td>
@@ -1826,7 +1886,7 @@ export class NotificationsService {
         </table>
         
         <!-- Footer Text -->
-        <p style="margin: 24px 0 0; color: #9ca3af; font-size: 12px; text-align: center;">
+        <p style="margin: 24px 0 0; color: #5C4F3A; font-size: 12px; text-align: center;">
           ${t('email.common.copyright', { year: new Date().getFullYear().toString() })}
         </p>
       </td>
@@ -1925,30 +1985,30 @@ export class NotificationsService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - ${translator('email.common.brandName')}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #080F1E;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #080F1E;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #0D1A30; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 150, 63, 0.2);">
           <!-- Header -->
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">${title}</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #0D1A30 0%, #162540 50%, #0D1A30 100%); border-top: 3px solid #C9963F; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #F5E6C8; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">${title}</h1>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
             <td style="padding: 40px;">
-              <p style="margin: 0 0 24px; color: #1f2937; font-size: 16px; line-height: 1.6; font-weight: 500;">${greeting}</p>
-              <div style="color: #4b5563; font-size: 16px; line-height: 1.7;">
+              <p style="margin: 0 0 24px; color: #F5E6C8; font-size: 16px; line-height: 1.6; font-weight: 500;">${greeting}</p>
+              <div style="color: #B8A88A; font-size: 16px; line-height: 1.7;">
                 ${content}
               </div>
               ${
                 footerNote
                   ? `
-              <div style="margin-top: 32px; padding: 20px; background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #6366f1;">
-                <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">${footerNote}</p>
+              <div style="margin-top: 32px; padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+                <p style="margin: 0; color: #8B7A5E; font-size: 14px; line-height: 1.6;">${footerNote}</p>
               </div>
               `
                   : ''
@@ -1958,11 +2018,11 @@ export class NotificationsService {
           
           <!-- Footer -->
           <tr>
-            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 12px; color: #6b7280; font-size: 14px; line-height: 1.6;">
-                <a href="mailto:${translator('email.common.supportEmail')}" style="color: #6366f1; text-decoration: none;">${translator('email.common.supportEmail')}</a>
+            <td style="padding: 30px 40px; background-color: #0E1B32; border-radius: 0 0 12px 12px; border-top: 1px solid #1E3048;">
+              <p style="margin: 0 0 12px; color: #8B7A5E; font-size: 14px; line-height: 1.6;">
+                <a href="mailto:${translator('email.common.supportEmail')}" style="color: #C9963F; text-decoration: none;">${translator('email.common.supportEmail')}</a>
               </p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.6;">
+              <p style="margin: 0; color: #5C4F3A; font-size: 12px; line-height: 1.6;">
                 ${translator('email.common.copyright', { year: new Date().getFullYear().toString() })}
               </p>
             </td>

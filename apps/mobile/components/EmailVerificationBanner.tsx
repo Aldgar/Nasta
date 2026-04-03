@@ -109,7 +109,7 @@ export default function EmailVerificationBanner({
         style={[
           styles.button,
           {
-            backgroundColor: isDark ? "#6366f1" : colors.tint,
+            backgroundColor: isDark ? "#C9963F" : colors.tint,
           },
         ]}
         onPress={() => {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   message: {
@@ -165,9 +165,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buttonText: {
-    color: "#ffffff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });
 

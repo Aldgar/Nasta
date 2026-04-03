@@ -111,6 +111,7 @@ export class ChatService {
         type: true,
         title: true,
         jobId: true,
+        locked: true,
         createdAt: true,
         updatedAt: true,
         participants: {
@@ -184,6 +185,7 @@ export class ChatService {
       type: c.type,
       title: c.title,
       jobId: c.jobId,
+      locked: c.locked,
       updatedAt: c.updatedAt,
       lastMessage: c.messages[0] ?? null,
       others: c.participants.map((p) => {
@@ -242,9 +244,14 @@ export class ChatService {
     );
     const conv = await this.prisma.conversation.findUnique({
       where: { id: dto.conversationId },
-      select: { id: true },
+      select: { id: true, locked: true },
     });
     if (!conv) throw new NotFoundException('Conversation not found');
+    if (conv.locked) {
+      throw new ForbiddenException(
+        'This conversation is locked. Messages cannot be sent after the job is completed.',
+      );
+    }
     const msg = await this.prisma.message.create({
       data: {
         conversationId: dto.conversationId,
@@ -300,5 +307,38 @@ export class ChatService {
     );
 
     return msg;
+  }
+
+  /**
+   * Lock all conversations associated with a specific jobId.
+   * Used when a job is completed to prevent off-platform deals.
+   */
+  async lockConversationsByJobId(jobId: string) {
+    const result = await this.prisma.conversation.updateMany({
+      where: { jobId, locked: false },
+      data: { locked: true },
+    });
+    return result.count;
+  }
+
+  /**
+   * Get conversation details including locked status.
+   */
+  async getConversation(userId: string, conversationId: string) {
+    await this.assertParticipant(userId, conversationId);
+    const conv = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: {
+        id: true,
+        type: true,
+        title: true,
+        jobId: true,
+        locked: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    if (!conv) throw new NotFoundException('Conversation not found');
+    return conv;
   }
 }

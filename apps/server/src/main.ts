@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -7,6 +7,7 @@ import { json, raw, urlencoded } from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -67,13 +68,13 @@ async function bootstrap() {
     'http://localhost:3002',
   ];
   const corsEnv = process.env.CORS_ORIGIN;
-  const origin = isProd
-    ? (corsEnv ?? defaultOrigins[0])
-    : (corsEnv
-        ?.split(',')
-        .map((s) => s.trim())
-        .filter(Boolean) ?? defaultOrigins);
+  // In development, allow any origin (including mobile apps on local network)
+  // In production, use configured origin or default
+  const origin = isProd ? (corsEnv ?? defaultOrigins[0]) : true; // Allow all origins in development for mobile testing
   app.enableCors({ origin, credentials: true });
+
+  // Global exception filter — prevents stack trace leaks in production
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -108,15 +109,17 @@ async function bootstrap() {
     }) as Parameters<typeof app.use>[0],
   );
 
-  // Swagger / OpenAPI
-  const config = new DocumentBuilder()
-    .setTitle('Cumprido API')
-    .setDescription('REST API for the Cumprido platform')
-    .setVersion('1.0.0')
-    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  // Swagger / OpenAPI — only in non-production
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Nasta API')
+      .setDescription('REST API for the Nasta platform')
+      .setVersion('1.0.0')
+      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('docs', app, document);
+  }
 
   // Attach metrics middleware to measure HTTP requests
   try {
@@ -138,7 +141,8 @@ async function bootstrap() {
   }
 
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 Server running on http://localhost:${port}`);
-  console.log(`📘 Swagger docs at http://localhost:${port}/docs`);
+  const logger = new Logger('Bootstrap');
+  logger.log(`Server running on http://localhost:${port}`);
+  logger.log(`Swagger docs at http://localhost:${port}/docs`);
 }
 void bootstrap();

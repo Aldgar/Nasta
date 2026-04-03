@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
   TouchableOpacity,
   ActivityIndicator,
   Platform,
@@ -57,54 +57,63 @@ export default function ManageApplications() {
 
   const fetchApplications = async () => {
     try {
-        setLoading(true);
-        const token = await SecureStore.getItemAsync("auth_token");
-        if (!token) return;
+      setLoading(true);
+      const token = await SecureStore.getItemAsync("auth_token");
+      if (!token) return;
 
-        const base = getApiBase();
-        // Use the employer-specific endpoint
-        const res = await fetch(`${base}/applications/employer`, { 
-            headers: { Authorization: `Bearer ${token}` } 
-        });
+      const base = getApiBase();
+      // Use the employer-specific endpoint
+      const res = await fetch(`${base}/applications/employer`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (res.ok) {
-            const data: BackendApplication[] = await res.json();
-            // Transform backend data to frontend format
-            const transformed = (Array.isArray(data) ? data : []).map((app: BackendApplication) => {
-              // Map status from backend enum to frontend display status
-              let displayStatus: "New" | "Reviewed" | "Accepted" | "Rejected" = "New";
-              if (app.status === "PENDING") {
-                displayStatus = "New";
-              } else if (app.status === "REVIEWING" || app.status === "SHORTLISTED" || app.status === "INTERVIEW") {
-                displayStatus = "Reviewed";
-              } else if (app.status === "ACCEPTED") {
-                displayStatus = "Accepted";
-              } else if (app.status === "REJECTED") {
-                displayStatus = "Rejected";
-              }
-              // Note: Status values are kept as-is for display logic, but will be translated in the UI
+      if (res.ok) {
+        const data: BackendApplication[] = await res.json();
+        // Transform backend data to frontend format
+        const transformed = (Array.isArray(data) ? data : []).map(
+          (app: BackendApplication) => {
+            // Map status from backend enum to frontend display status
+            let displayStatus: "New" | "Reviewed" | "Accepted" | "Rejected" =
+              "New";
+            if (app.status === "PENDING") {
+              displayStatus = "New";
+            } else if (
+              app.status === "REVIEWING" ||
+              app.status === "SHORTLISTED" ||
+              app.status === "INTERVIEW"
+            ) {
+              displayStatus = "Reviewed";
+            } else if (app.status === "ACCEPTED") {
+              displayStatus = "Accepted";
+            } else if (app.status === "REJECTED") {
+              displayStatus = "Rejected";
+            }
+            // Note: Status values are kept as-is for display logic, but will be translated in the UI
 
-              return {
-                id: app.id,
-                jobTitle: app.job?.title || t("manageApplications.unknownJob"),
-                candidateName: `${app.applicant?.firstName || ""} ${app.applicant?.lastName || ""}`.trim() || t("manageApplications.unknownCandidate"),
-                candidateId: app.applicant?.id || "",
-                status: displayStatus,
-                createdAt: app.appliedAt,
-                isInstantJob: app.job?.isInstantBook === true,
-              };
-            });
-            setApplications(transformed);
-        } else {
-            const error = await res.json().catch(() => ({}));
-            console.log("Error fetching applications:", error);
-            setApplications([]); 
-        }
-    } catch (err) {
-        console.log("Error fetching applications", err);
+            return {
+              id: app.id,
+              jobTitle: app.job?.title || t("manageApplications.unknownJob"),
+              candidateName:
+                `${app.applicant?.firstName || ""} ${app.applicant?.lastName || ""}`.trim() ||
+                t("manageApplications.unknownCandidate"),
+              candidateId: app.applicant?.id || "",
+              status: displayStatus,
+              createdAt: app.appliedAt,
+              isInstantJob: app.job?.isInstantBook === true,
+            };
+          },
+        );
+        setApplications(transformed);
+      } else {
+        const error = await res.json().catch(() => ({}));
+        console.log("Error fetching applications:", error);
         setApplications([]);
+      }
+    } catch (err) {
+      console.log("Error fetching applications", err);
+      setApplications([]);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -122,42 +131,63 @@ export default function ManageApplications() {
               setDeletingId(applicationId);
               const token = await SecureStore.getItemAsync("auth_token");
               if (!token) {
-                Alert.alert(t("common.error"), t("applications.authenticationRequired"));
+                Alert.alert(
+                  t("common.error"),
+                  t("applications.authenticationRequired"),
+                );
                 return;
               }
 
               const base = getApiBase();
-              const res = await fetch(`${base}/applications/${applicationId}/delete-instant`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
+              const res = await fetch(
+                `${base}/applications/${applicationId}/delete-instant`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
                 },
-              });
+              );
 
               if (res.ok) {
-                Alert.alert(t("common.success"), t("manageApplications.instantJobDeleted"));
+                Alert.alert(
+                  t("common.success"),
+                  t("manageApplications.instantJobDeleted"),
+                );
                 await fetchApplications();
               } else {
-                const errorData = await res.json().catch(() => ({ message: t("manageApplications.failedToDeleteInstantJob") }));
-                Alert.alert(t("common.error"), errorData.message || t("manageApplications.failedToDeleteInstantJob"));
+                const errorData = await res
+                  .json()
+                  .catch(() => ({
+                    message: t("manageApplications.failedToDeleteInstantJob"),
+                  }));
+                Alert.alert(
+                  t("common.error"),
+                  errorData.message ||
+                    t("manageApplications.failedToDeleteInstantJob"),
+                );
               }
             } catch (error: any) {
               console.error("Error deleting instant job request:", error);
-              Alert.alert(t("common.error"), error?.message || t("manageApplications.failedToDeleteInstantJob"));
+              Alert.alert(
+                t("common.error"),
+                error?.message ||
+                  t("manageApplications.failedToDeleteInstantJob"),
+              );
             } finally {
               setDeletingId(null);
             }
           },
         },
-      ]
+      ],
     );
   };
 
   useFocusEffect(
     useCallback(() => {
-        fetchApplications();
-    }, [])
+      fetchApplications();
+    }, []),
   );
 
   // Filter applications based on active tab
@@ -177,222 +207,387 @@ export default function ManageApplications() {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         <Stack.Screen options={{ headerShown: false }} />
-        
+
         {/* Header */}
         <View style={styles.header}>
-           <TouchableOpacity 
-             style={[styles.backBtn, { 
-               backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "rgba(0,0,0,0.05)",
-               borderColor: isDark ? "rgba(255,255,255,0.1)" : "transparent",
-               borderWidth: isDark ? 1 : 0,
-             }]}
-             onPress={() => router.back()}
-           >
-             <Feather name="arrow-left" size={24} color={colors.text} />
-           </TouchableOpacity>
-           <Text style={[styles.headerTitle, { color: colors.text }]}>{t("manageApplications.applications")}</Text>
-           <View style={{ width: 40 }} />
-         </View>
+          <TouchableOpacity
+            style={[
+              styles.backBtn,
+              {
+                backgroundColor: isDark
+                  ? "rgba(12, 22, 42, 0.75)"
+                  : "rgba(184,130,42,0.06)",
+                borderColor: isDark
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.15)",
+                borderWidth: 1,
+              },
+            ]}
+            onPress={() => router.back()}
+          >
+            <Feather name="arrow-left" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                letterSpacing: 3,
+                color: isDark ? "rgba(201,150,63,0.6)" : "rgba(184,130,42,0.5)",
+                textTransform: "uppercase",
+                marginBottom: 2,
+              }}
+            >
+              OPERATIONS
+            </Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              {t("manageApplications.applications")}
+            </Text>
+          </View>
+          <View style={{ width: 40 }} />
+        </View>
 
-         {/* Tabs */}
-         <View style={styles.tabsContainer}>
-           <TouchableOpacity
-             style={[
-               styles.tab,
-               activeTab === "all" && styles.tabActive,
-               {
-                 backgroundColor: activeTab === "all" 
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : "transparent",
-                 borderColor: activeTab === "all"
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-               },
-             ]}
-             onPress={() => setActiveTab("all")}
-           >
-             <Text
-               style={[
-                 styles.tabText,
-                 {
-                   color: activeTab === "all" ? "#fff" : colors.text,
-                   fontWeight: activeTab === "all" ? "700" : "500",
-                 },
-               ]}
-             >
-               {t("manageApplications.all")} ({applications.length})
-             </Text>
-           </TouchableOpacity>
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === "all" && styles.tabActive,
+              {
+                backgroundColor:
+                  activeTab === "all"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : "transparent",
+                borderColor:
+                  activeTab === "all"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : isDark
+                      ? "rgba(255,250,240,0.15)"
+                      : "rgba(184,130,42,0.2)",
+              },
+            ]}
+            onPress={() => setActiveTab("all")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: activeTab === "all" ? "#FFFAF0" : colors.text,
+                  fontWeight: activeTab === "all" ? "700" : "500",
+                },
+              ]}
+            >
+              {t("manageApplications.all")} ({applications.length})
+            </Text>
+          </TouchableOpacity>
 
-           <TouchableOpacity
-             style={[
-               styles.tab,
-               activeTab === "instant" && styles.tabActive,
-               {
-                 backgroundColor: activeTab === "instant" 
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : "transparent",
-                 borderColor: activeTab === "instant"
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-               },
-             ]}
-             onPress={() => setActiveTab("instant")}
-           >
-             <Feather 
-               name="zap" 
-               size={16} 
-               color={activeTab === "instant" ? "#fff" : colors.text} 
-               style={{ marginRight: 6 }}
-             />
-             <Text
-               style={[
-                 styles.tabText,
-                 {
-                   color: activeTab === "instant" ? "#fff" : colors.text,
-                   fontWeight: activeTab === "instant" ? "700" : "500",
-                 },
-               ]}
-             >
-               {t("manageApplications.instant")} ({instantJobCount})
-             </Text>
-           </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === "instant" && styles.tabActive,
+              {
+                backgroundColor:
+                  activeTab === "instant"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : "transparent",
+                borderColor:
+                  activeTab === "instant"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : isDark
+                      ? "rgba(255,250,240,0.15)"
+                      : "rgba(184,130,42,0.2)",
+              },
+            ]}
+            onPress={() => setActiveTab("instant")}
+          >
+            <Feather
+              name="zap"
+              size={16}
+              color={activeTab === "instant" ? "#FFFAF0" : colors.text}
+              style={{ marginRight: 6 }}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: activeTab === "instant" ? "#FFFAF0" : colors.text,
+                  fontWeight: activeTab === "instant" ? "700" : "500",
+                },
+              ]}
+            >
+              {t("manageApplications.instant")} ({instantJobCount})
+            </Text>
+          </TouchableOpacity>
 
-           <TouchableOpacity
-             style={[
-               styles.tab,
-               activeTab === "normal" && styles.tabActive,
-               {
-                 backgroundColor: activeTab === "normal" 
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : "transparent",
-                 borderColor: activeTab === "normal"
-                   ? (isDark ? "#6366f1" : "#4f46e5")
-                   : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-               },
-             ]}
-             onPress={() => setActiveTab("normal")}
-           >
-             <Text
-               style={[
-                 styles.tabText,
-                 {
-                   color: activeTab === "normal" ? "#fff" : colors.text,
-                   fontWeight: activeTab === "normal" ? "700" : "500",
-                 },
-               ]}
-             >
-               {t("manageApplications.jobPosts")} ({normalJobCount})
-             </Text>
-           </TouchableOpacity>
-         </View>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === "normal" && styles.tabActive,
+              {
+                backgroundColor:
+                  activeTab === "normal"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : "transparent",
+                borderColor:
+                  activeTab === "normal"
+                    ? isDark
+                      ? "#E8B86D"
+                      : "#C9963F"
+                    : isDark
+                      ? "rgba(255,250,240,0.15)"
+                      : "rgba(184,130,42,0.2)",
+              },
+            ]}
+            onPress={() => setActiveTab("normal")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: activeTab === "normal" ? "#FFFAF0" : colors.text,
+                  fontWeight: activeTab === "normal" ? "700" : "500",
+                },
+              ]}
+            >
+              {t("manageApplications.jobPosts")} ({normalJobCount})
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-         {loading ? (
-             <View style={styles.emptyContainer}>
-                 <ActivityIndicator size="large" color={colors.tint} />
-             </View>
-         ) : (
-             <FlatList
-               data={filteredApplications}
-               keyExtractor={(item) => item.id}
-               contentContainerStyle={styles.listContent}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
-                  style={[
-                    styles.itemCard, 
-                    { 
-                      backgroundColor: isDark ? "rgba(30, 41, 59, 0.85)" : "#fff",
-                      borderColor: item.isInstantJob
-                        ? (isDark ? "rgba(99, 102, 241, 0.4)" : "rgba(99, 102, 241, 0.3)")
-                        : (isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb"),
-                      borderWidth: item.isInstantJob ? 2 : 1,
-                    }
-                  ]}
-                  onPress={() => router.push({
+        {loading ? (
+          <View style={styles.emptyContainer}>
+            <ActivityIndicator size="large" color={colors.tint} />
+          </View>
+        ) : (
+          <FlatList
+            data={filteredApplications}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[
+                  styles.itemCard,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(12, 22, 42, 0.82)"
+                      : "#FFFAF0",
+                    borderColor: item.isInstantJob
+                      ? isDark
+                        ? "rgba(201, 150, 63, 0.4)"
+                        : "rgba(201, 150, 63, 0.3)"
+                      : isDark
+                        ? "rgba(255,250,240,0.12)"
+                        : "#E8D8B8",
+                    borderWidth: item.isInstantJob ? 2 : 1,
+                  },
+                ]}
+                onPress={() =>
+                  router.push({
                     pathname: `/applicant/${item.id}`,
                     params: item.isInstantJob ? { instantJob: "true" } : {},
-                  } as any)}
-                >
-                  <View style={styles.row}>
-                    <View style={{ flex: 1 }}>
-                      {item.isInstantJob && (
-                        <View style={[styles.instantBadge, { backgroundColor: isDark ? "rgba(99, 102, 241, 0.2)" : "rgba(99, 102, 241, 0.1)" }]}>
-                          <Feather name="zap" size={12} color={isDark ? "#818cf8" : "#6366f1"} />
-                          <Text style={[styles.instantBadgeText, { color: isDark ? "#818cf8" : "#6366f1" }]}>
-                            {t("manageApplications.instantJob")}
-                          </Text>
-                        </View>
-                      )}
-                      <Text style={[styles.jobTitle, { color: isDark ? "#94a3b8" : "#6b7280" }]}>{item.jobTitle}</Text>
-                      <Text style={[styles.candidate, { color: colors.tint }]}>{item.candidateName}</Text>
-                    </View>
-                    <View style={[styles.statusBadge, { backgroundColor: item.status === "New" ? "#10b981" : "#6b7280" }]}>
-                      <Text style={styles.statusText}>
-                        {item.status === "New" ? t("manageApplications.new") : 
-                         item.status === "Reviewed" ? t("manageApplications.reviewed") :
-                         item.status === "Accepted" ? t("manageApplications.accepted") :
-                         t("manageApplications.rejected")}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                        <Text style={[styles.date, { color: isDark ? "#94a3b8" : "#6b7280" }]}>
-                              {new Date(item.createdAt).toLocaleDateString()} • {new Date(item.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  } as any)
+                }
+              >
+                <View style={styles.row}>
+                  <View style={{ flex: 1 }}>
+                    {item.isInstantJob && (
+                      <View
+                        style={[
+                          styles.instantBadge,
+                          {
+                            backgroundColor: isDark
+                              ? "rgba(201, 150, 63, 0.2)"
+                              : "rgba(201, 150, 63, 0.1)",
+                          },
+                        ]}
+                      >
+                        <Feather
+                          name="zap"
+                          size={12}
+                          color={isDark ? "#E8B86D" : "#B8822A"}
+                        />
+                        <Text
+                          style={[
+                            styles.instantBadgeText,
+                            { color: isDark ? "#E8B86D" : "#B8822A" },
+                          ]}
+                        >
+                          {t("manageApplications.instantJob")}
                         </Text>
-                        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                          {/* Delete button for instant job requests (only if not accepted) */}
-                          {item.isInstantJob && item.status !== "Accepted" && (
-                            <TouchableOpacity
-                              style={[styles.deleteBtn, { 
-                                backgroundColor: isDark ? "rgba(239, 68, 68, 0.15)" : "#fef2f2",
-                                borderColor: isDark ? "rgba(239, 68, 68, 0.3)" : "#fecaca",
-                              }]}
-                              onPress={(e) => {
-                                e.stopPropagation();
-                                handleDeleteInstantJob(item.id);
-                              }}
-                              disabled={deletingId === item.id}
+                      </View>
+                    )}
+                    <Text
+                      style={[
+                        styles.jobTitle,
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
+                      ]}
+                    >
+                      {item.jobTitle}
+                    </Text>
+                    <Text style={[styles.candidate, { color: colors.tint }]}>
+                      {item.candidateName}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      {
+                        backgroundColor:
+                          item.status === "New" ? "#10b981" : "#8A7B68",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.statusText}>
+                      {item.status === "New"
+                        ? t("manageApplications.new")
+                        : item.status === "Reviewed"
+                          ? t("manageApplications.reviewed")
+                          : item.status === "Accepted"
+                            ? t("manageApplications.accepted")
+                            : t("manageApplications.rejected")}
+                    </Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: 8,
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.date,
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
+                    ]}
+                  >
+                    {new Date(item.createdAt).toLocaleDateString()} •{" "}
+                    {new Date(item.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 8,
+                      alignItems: "center",
+                    }}
+                  >
+                    {/* Delete button for instant job requests (only if not accepted) */}
+                    {item.isInstantJob && item.status !== "Accepted" && (
+                      <TouchableOpacity
+                        style={[
+                          styles.deleteBtn,
+                          {
+                            backgroundColor: isDark
+                              ? "rgba(239, 68, 68, 0.15)"
+                              : "#fef2f2",
+                            borderColor: isDark
+                              ? "rgba(239, 68, 68, 0.3)"
+                              : "#fecaca",
+                          },
+                        ]}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleDeleteInstantJob(item.id);
+                        }}
+                        disabled={deletingId === item.id}
+                      >
+                        {deletingId === item.id ? (
+                          <ActivityIndicator size="small" color="#ef4444" />
+                        ) : (
+                          <>
+                            <Feather
+                              name="trash-2"
+                              size={14}
+                              color="#ef4444"
+                              style={{ marginRight: 4 }}
+                            />
+                            <Text
+                              style={[
+                                styles.deleteBtnText,
+                                { color: "#ef4444" },
+                              ]}
                             >
-                              {deletingId === item.id ? (
-                                <ActivityIndicator size="small" color="#ef4444" />
-                              ) : (
-                                <>
-                                  <Feather name="trash-2" size={14} color="#ef4444" style={{ marginRight: 4 }} />
-                                  <Text style={[styles.deleteBtnText, { color: "#ef4444" }]}>Delete</Text>
-                                </>
-                              )}
-                            </TouchableOpacity>
-                          )}
-                          {(item.status === "Accepted" || item.status === "Reviewed") && (
-                            <TouchableOpacity
-                                style={[styles.rateBtn, { borderColor: colors.tint }]}
-                                onPress={(e) => {
-                                  e.stopPropagation();
-                                  router.push({ pathname: "/rate-provider", params: { id: item.candidateId, name: item.candidateName } });
-                                }}
-                            >
-                                <Feather name="star" size={14} color={colors.tint} style={{ marginRight: 6 }} />
-                                <Text style={[styles.rateBtnText, { color: colors.tint }]}>Rate Provider</Text>
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                    </View>
-                  </TouchableOpacity>
-               )}
-               ListEmptyComponent={
-                 <View style={styles.emptyContainer}>
-                   <Feather name="inbox" size={48} color={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} />
-                   <Text style={[styles.emptyText, { color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }]}>
-                     {activeTab === "instant" 
-                       ? t("manageApplications.noInstantJobRequestsYet")
-                       : activeTab === "normal"
-                       ? t("manageApplications.noJobPostApplicationsYet")
-                       : t("manageApplications.noApplicationsYet")}
-                   </Text>
-                 </View>
-               }
-             />
-         )}
+                              Delete
+                            </Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    )}
+                    {(item.status === "Accepted" ||
+                      item.status === "Reviewed") && (
+                      <TouchableOpacity
+                        style={[styles.rateBtn, { borderColor: colors.tint }]}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          router.push({
+                            pathname: "/rate-provider",
+                            params: {
+                              id: item.candidateId,
+                              name: item.candidateName,
+                            },
+                          });
+                        }}
+                      >
+                        <Feather
+                          name="star"
+                          size={14}
+                          color={colors.tint}
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text
+                          style={[styles.rateBtnText, { color: colors.tint }]}
+                        >
+                          Rate Provider
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Feather
+                  name="inbox"
+                  size={48}
+                  color={
+                    isDark ? "rgba(255,250,240,0.15)" : "rgba(184,130,42,0.3)"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.emptyText,
+                    {
+                      color: isDark
+                        ? "rgba(255,250,240,0.5)"
+                        : "rgba(0,0,0,0.5)",
+                    },
+                  ]}
+                >
+                  {activeTab === "instant"
+                    ? t("manageApplications.noInstantJobRequestsYet")
+                    : activeTab === "normal"
+                      ? t("manageApplications.noJobPostApplicationsYet")
+                      : t("manageApplications.noApplicationsYet")}
+                </Text>
+              </View>
+            }
+          />
+        )}
       </SafeAreaView>
     </GradientBackground>
   );
@@ -410,7 +605,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -431,7 +626,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   tabActive: {},
@@ -443,14 +638,14 @@ const styles = StyleSheet.create({
   },
   itemCard: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: Platform.OS === 'android' ? 0 : 3,
+    elevation: 0,
   },
   row: {
     flexDirection: "row",
@@ -486,7 +681,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 10,
     fontWeight: "700",
   },
@@ -503,11 +698,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   rateBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 1,
   },
   rateBtnText: {
@@ -515,11 +710,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   deleteBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 1,
   },
   deleteBtnText: {

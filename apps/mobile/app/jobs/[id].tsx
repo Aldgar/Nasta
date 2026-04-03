@@ -93,7 +93,7 @@ const DatePickerModal = ({
         <View
           style={[
             styles.modalContent,
-            { backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff" },
+            { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -120,20 +120,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedYear === year
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedYear === year ? 0 : 1,
                         borderColor:
                           selectedYear === year
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedYear(year)}
@@ -141,7 +141,10 @@ const DatePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedYear === year ? "#fff" : colors.text },
+                        {
+                          color:
+                            selectedYear === year ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {year}
@@ -165,20 +168,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedMonth === month
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedMonth === month ? 0 : 1,
                         borderColor:
                           selectedMonth === month
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedMonth(month)}
@@ -187,7 +190,8 @@ const DatePickerModal = ({
                       style={[
                         styles.datePickerOptionText,
                         {
-                          color: selectedMonth === month ? "#fff" : colors.text,
+                          color:
+                            selectedMonth === month ? "#FFFAF0" : colors.text,
                         },
                       ]}
                     >
@@ -214,20 +218,20 @@ const DatePickerModal = ({
                         backgroundColor:
                           selectedDay === day
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedDay === day ? 0 : 1,
                         borderColor:
                           selectedDay === day
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedDay(day)}
@@ -235,7 +239,9 @@ const DatePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedDay === day ? "#fff" : colors.text },
+                        {
+                          color: selectedDay === day ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {day}
@@ -252,10 +258,10 @@ const DatePickerModal = ({
                 styles.modalButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "#e2e8f0",
+                    ? "rgba(255,250,240,0.12)"
+                    : "#F0E8D5",
                   borderWidth: 1,
-                  borderColor: isDark ? "rgba(255,255,255,0.25)" : "#cbd5e1",
+                  borderColor: isDark ? "rgba(201,150,63,0.2)" : "#B8A88A",
                 },
               ]}
               onPress={onClose}
@@ -263,7 +269,7 @@ const DatePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: colors.text, fontWeight: "600" },
+                  { color: colors.text, fontWeight: "700" },
                 ]}
               >
                 {t("common.cancel")}
@@ -274,14 +280,14 @@ const DatePickerModal = ({
                 styles.modalButton,
                 styles.modalButtonPrimary,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
-                  shadowColor: isDark ? "#4f46e5" : "#6366f1",
+                  borderColor: isDark ? "#E8B86D" : "#C9963F",
+                  shadowColor: isDark ? "#C9963F" : "#B8822A",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 0,
                 },
               ]}
               onPress={handleConfirm}
@@ -289,7 +295,7 @@ const DatePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: "#fff", fontWeight: "700" },
+                  { color: "#FFFAF0", fontWeight: "700" },
                 ]}
               >
                 {t("common.confirm")}
@@ -381,7 +387,7 @@ const TimePickerModal = ({
         <View
           style={[
             styles.modalContent,
-            { backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff" },
+            { backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0" },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -408,20 +414,20 @@ const TimePickerModal = ({
                         backgroundColor:
                           selectedHour === hour
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedHour === hour ? 0 : 1,
                         borderColor:
                           selectedHour === hour
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedHour(hour)}
@@ -429,7 +435,10 @@ const TimePickerModal = ({
                     <Text
                       style={[
                         styles.datePickerOptionText,
-                        { color: selectedHour === hour ? "#fff" : colors.text },
+                        {
+                          color:
+                            selectedHour === hour ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {hour.toString().padStart(2, "0")}
@@ -453,20 +462,20 @@ const TimePickerModal = ({
                         backgroundColor:
                           selectedMinute === minute
                             ? isDark
-                              ? "#4f46e5"
-                              : "#6366f1"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(201,150,63,0.12)"
+                              : "rgba(184,130,42,0.06)",
                         borderWidth: selectedMinute === minute ? 0 : 1,
                         borderColor:
                           selectedMinute === minute
                             ? isDark
-                              ? "#6366f1"
-                              : "#4f46e5"
+                              ? "#C9963F"
+                              : "#C9963F"
                             : isDark
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(255,250,240,0.15)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setSelectedMinute(minute)}
@@ -476,7 +485,7 @@ const TimePickerModal = ({
                         styles.datePickerOptionText,
                         {
                           color:
-                            selectedMinute === minute ? "#fff" : colors.text,
+                            selectedMinute === minute ? "#FFFAF0" : colors.text,
                         },
                       ]}
                     >
@@ -494,10 +503,10 @@ const TimePickerModal = ({
                 styles.modalButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.15)"
-                    : "#e2e8f0",
+                    ? "rgba(255,250,240,0.12)"
+                    : "#F0E8D5",
                   borderWidth: 1,
-                  borderColor: isDark ? "rgba(255,255,255,0.25)" : "#cbd5e1",
+                  borderColor: isDark ? "rgba(201,150,63,0.2)" : "#B8A88A",
                 },
               ]}
               onPress={onClose}
@@ -505,7 +514,7 @@ const TimePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: colors.text, fontWeight: "600" },
+                  { color: colors.text, fontWeight: "700" },
                 ]}
               >
                 {t("common.cancel")}
@@ -516,14 +525,14 @@ const TimePickerModal = ({
                 styles.modalButton,
                 styles.modalButtonPrimary,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
-                  shadowColor: isDark ? "#4f46e5" : "#6366f1",
+                  borderColor: isDark ? "#E8B86D" : "#C9963F",
+                  shadowColor: isDark ? "#C9963F" : "#B8822A",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.3,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 0,
                 },
               ]}
               onPress={handleConfirm}
@@ -531,7 +540,7 @@ const TimePickerModal = ({
               <Text
                 style={[
                   styles.modalButtonText,
-                  { color: "#fff", fontWeight: "700" },
+                  { color: "#FFFAF0", fontWeight: "700" },
                 ]}
               >
                 {t("common.confirm")}
@@ -546,7 +555,7 @@ const TimePickerModal = ({
 
 // Lightweight JWT payload decode
 function decodeJwtPayload(
-  token: string
+  token: string,
 ): { sub?: string; email?: string; role?: string; userId?: string } | null {
   try {
     const parts = token.split(".");
@@ -556,7 +565,7 @@ function decodeJwtPayload(
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
     return JSON.parse(json);
   } catch {
@@ -600,7 +609,7 @@ interface Job {
 // Helper function to translate category names
 const translateCategoryName = (
   categoryName: string | undefined,
-  t: (key: string) => string
+  t: (key: string) => string,
 ): string => {
   if (!categoryName) return "";
   const categoryMap: Record<string, string> = {
@@ -661,7 +670,7 @@ export default function JobDetailScreen() {
   const [editUrgency, setEditUrgency] = useState<"NORMAL" | "URGENT">("NORMAL");
   const [editRequirements, setEditRequirements] = useState<string[]>([]);
   const [editResponsibilities, setEditResponsibilities] = useState<string[]>(
-    []
+    [],
   );
   const [editStartDate, setEditStartDate] = useState<Date | null>(null);
   const [editStartTime, setEditStartTime] = useState<Date | null>(null);
@@ -674,6 +683,7 @@ export default function JobDetailScreen() {
   const [phoneVerified, setPhoneVerified] = useState<boolean>(false);
   const [idVerified, setIdVerified] = useState<boolean>(false);
   const [backgroundVerified, setBackgroundVerified] = useState<boolean>(false);
+  const [hasProfilePhoto, setHasProfilePhoto] = useState<boolean>(false);
 
   const JOB_CATEGORIES = [
     t("jobs.categories.cleaning"),
@@ -711,11 +721,15 @@ export default function JobDetailScreen() {
         setEmailVerified(!!u?.emailVerifiedAt);
         setPhoneVerified(!!u?.phoneVerifiedAt);
         setIdVerified(
-          !!(u?.isIdVerified || u?.idVerificationStatus === "VERIFIED")
+          !!(u?.isIdVerified || u?.idVerificationStatus === "VERIFIED"),
         );
         setBackgroundVerified(
-          !!(u?.isBackgroundVerified || u?.backgroundCheckStatus === "APPROVED")
+          !!(
+            u?.isBackgroundVerified || u?.backgroundCheckStatus === "APPROVED"
+          ),
         );
+        const p = data.profile;
+        setHasProfilePhoto(!!(p?.avatarUrl || u?.avatar));
       }
     } catch (err) {
       console.log("Error fetching verification status:", err);
@@ -781,7 +795,7 @@ export default function JobDetailScreen() {
               ? appData
               : appData.applications || [];
             const application = applications.find(
-              (app: any) => app.job?.id === jobId || app.jobId === jobId
+              (app: any) => app.job?.id === jobId || app.jobId === jobId,
             );
 
             if (application?.id) {
@@ -855,7 +869,7 @@ export default function JobDetailScreen() {
             setHasApplied(!!matchingApp);
             setApplicationId(matchingApp?.id || null);
             console.log(
-              `Application status checked for job ${jobId}: ${matchingApp ? "Applied" : "Not Applied"}`
+              `Application status checked for job ${jobId}: ${matchingApp ? "Applied" : "Not Applied"}`,
             );
           }
         } else {
@@ -906,7 +920,7 @@ export default function JobDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("jobs.failedToUpdateStatus")
+          error.message || t("jobs.failedToUpdateStatus"),
         );
       }
     } catch (error) {
@@ -949,7 +963,7 @@ export default function JobDetailScreen() {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === "granted") {
           const locationData = await Location.geocodeAsync(
-            `${editLocation}, ${editCity}, ${editCountry}`
+            `${editLocation}, ${editCity}, ${editCountry}`,
           );
           if (locationData && locationData.length > 0) {
             lat = locationData[0].latitude;
@@ -1013,7 +1027,7 @@ export default function JobDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("jobs.failedToUpdateJob")
+          error.message || t("jobs.failedToUpdateJob"),
         );
       }
     } catch (error) {
@@ -1059,7 +1073,8 @@ export default function JobDetailScreen() {
       !emailVerified ||
       !phoneVerified ||
       !idVerified ||
-      !backgroundVerified
+      !backgroundVerified ||
+      !hasProfilePhoto
     ) {
       const missingVerifications = [];
       if (!emailVerified) missingVerifications.push(t("settings.email"));
@@ -1067,6 +1082,8 @@ export default function JobDetailScreen() {
       if (!idVerified) missingVerifications.push(t("kyc.idType"));
       if (!backgroundVerified)
         missingVerifications.push(t("kyc.criminalRecordCertificate"));
+      if (!hasProfilePhoto)
+        missingVerifications.push(t("settings.profilePhoto"));
 
       Alert.alert(
         t("home.verificationRequired"),
@@ -1079,7 +1096,7 @@ export default function JobDetailScreen() {
             text: t("applications.goToSettings"),
             onPress: () => router.push("/(tabs)/settings" as any),
           },
-        ]
+        ],
       );
       return;
     }
@@ -1123,12 +1140,12 @@ export default function JobDetailScreen() {
           setCoverLetter("");
           Alert.alert(
             t("jobs.alreadyApplied"),
-            t("jobs.alreadyAppliedMessage")
+            t("jobs.alreadyAppliedMessage"),
           );
         } else {
           Alert.alert(
             t("common.error"),
-            error.message || t("jobs.failedToSubmit")
+            error.message || t("jobs.failedToSubmit"),
           );
         }
       }
@@ -1164,7 +1181,7 @@ export default function JobDetailScreen() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ reason: withdrawReason.trim() }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -1195,7 +1212,7 @@ export default function JobDetailScreen() {
           .catch(() => ({ message: t("jobs.failedToWithdraw") }));
         Alert.alert(
           t("common.error"),
-          error.message || t("jobs.failedToWithdraw")
+          error.message || t("jobs.failedToWithdraw"),
         );
       }
     } catch (error) {
@@ -1263,7 +1280,7 @@ export default function JobDetailScreen() {
               text: t("common.ok"),
               onPress: () => router.back(),
             },
-          ]
+          ],
         );
       } else {
         const error = await res
@@ -1271,7 +1288,7 @@ export default function JobDetailScreen() {
           .catch(() => ({ message: t("jobs.failedToDeleteJob") }));
         Alert.alert(
           t("common.error"),
-          error.message || t("jobs.failedToDeleteJob")
+          error.message || t("jobs.failedToDeleteJob"),
         );
       }
     } catch (error) {
@@ -1294,8 +1311,8 @@ export default function JobDetailScreen() {
                 styles.backBtn,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.06)",
                 },
               ]}
               onPress={() => setIsEditing(false)}
@@ -1326,13 +1343,15 @@ export default function JobDetailScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#fff",
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.12)"
+                      : "#FFFAF0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 placeholder={t("jobs.jobTitlePlaceholder")}
-                placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                 value={editTitle}
                 onChangeText={setEditTitle}
               />
@@ -1347,8 +1366,10 @@ export default function JobDetailScreen() {
                   styles.input,
                   styles.categoryInput,
                   {
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#fff",
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.12)"
+                      : "#FFFAF0",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 onPress={() => setShowCategoryModal(true)}
@@ -1360,8 +1381,8 @@ export default function JobDetailScreen() {
                       color: editCategory
                         ? colors.text
                         : isDark
-                          ? "#9ca3af"
-                          : "#9ca3af",
+                          ? "#9A8E7A"
+                          : "#9A8E7A",
                     },
                   ]}
                 >
@@ -1370,7 +1391,7 @@ export default function JobDetailScreen() {
                 <Feather
                   name="chevron-down"
                   size={20}
-                  color={isDark ? "#9ca3af" : "#9ca3af"}
+                  color={isDark ? "#9A8E7A" : "#9A8E7A"}
                 />
               </TouchableButton>
 
@@ -1380,16 +1401,16 @@ export default function JobDetailScreen() {
                     styles.input,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#fff",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#FFFAF0",
                       color: colors.text,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#e5e7eb",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#E8D8B8",
                     },
                   ]}
                   placeholder={t("jobs.enterCustomCategory")}
-                  placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                   value={editCustomCategory}
                   onChangeText={setEditCustomCategory}
                 />
@@ -1405,13 +1426,15 @@ export default function JobDetailScreen() {
                   styles.input,
                   styles.textArea,
                   {
-                    backgroundColor: isDark ? "rgba(30, 41, 59, 0.6)" : "#fff",
+                    backgroundColor: isDark
+                      ? "rgba(12, 22, 42, 0.65)"
+                      : "#FFFAF0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 placeholder={t("jobs.describeTaskDetail")}
-                placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                 multiline
                 numberOfLines={5}
                 value={editDescription}
@@ -1434,19 +1457,19 @@ export default function JobDetailScreen() {
                         backgroundColor:
                           editWorkMode === mode
                             ? isDark
-                              ? "#4f46e5"
+                              ? "#C9963F"
                               : colors.tint
                             : isDark
                               ? "transparent"
-                              : "rgba(0,0,0,0.05)",
+                              : "rgba(184,130,42,0.06)",
                         borderColor:
                           editWorkMode === mode
                             ? isDark
-                              ? "#6366f1"
+                              ? "#C9963F"
                               : colors.tint
                             : isDark
-                              ? "rgba(255,255,255,0.3)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.25)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setEditWorkMode(mode)}
@@ -1454,7 +1477,10 @@ export default function JobDetailScreen() {
                     <Text
                       style={[
                         styles.optionText,
-                        { color: editWorkMode === mode ? "#fff" : colors.text },
+                        {
+                          color:
+                            editWorkMode === mode ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {mode === "ON_SITE"
@@ -1484,21 +1510,21 @@ export default function JobDetailScreen() {
                             ? urg === "URGENT"
                               ? "#dc2626"
                               : isDark
-                                ? "#4f46e5"
+                                ? "#C9963F"
                                 : colors.tint
                             : isDark
                               ? "transparent"
-                              : "rgba(0,0,0,0.05)",
+                              : "rgba(184,130,42,0.06)",
                         borderColor:
                           editUrgency === urg
                             ? urg === "URGENT"
                               ? "#ef4444"
                               : isDark
-                                ? "#6366f1"
+                                ? "#C9963F"
                                 : colors.tint
                             : isDark
-                              ? "rgba(255,255,255,0.3)"
-                              : "rgba(0,0,0,0.1)",
+                              ? "rgba(201,150,63,0.25)"
+                              : "rgba(184,130,42,0.2)",
                       },
                     ]}
                     onPress={() => setEditUrgency(urg)}
@@ -1506,7 +1532,9 @@ export default function JobDetailScreen() {
                     <Text
                       style={[
                         styles.optionText,
-                        { color: editUrgency === urg ? "#fff" : colors.text },
+                        {
+                          color: editUrgency === urg ? "#FFFAF0" : colors.text,
+                        },
                       ]}
                     >
                       {urg === "NORMAL" ? t("jobs.normal") : t("jobs.urgent")}
@@ -1523,13 +1551,15 @@ export default function JobDetailScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#fff",
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.12)"
+                      : "#FFFAF0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 placeholder={t("jobs.streetAddress")}
-                placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                 value={editLocation}
                 onChangeText={setEditLocation}
               />
@@ -1538,13 +1568,15 @@ export default function JobDetailScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#fff",
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.12)"
+                      : "#FFFAF0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 placeholder={t("jobs.city")}
-                placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                 value={editCity}
                 onChangeText={setEditCity}
               />
@@ -1553,13 +1585,15 @@ export default function JobDetailScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#fff",
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.12)"
+                      : "#FFFAF0",
                     color: colors.text,
-                    borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e5e7eb",
+                    borderColor: isDark ? "rgba(255,250,240,0.12)" : "#E8D8B8",
                   },
                 ]}
                 placeholder={t("jobs.country")}
-                placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                 value={editCountry}
                 onChangeText={setEditCountry}
               />
@@ -1576,12 +1610,12 @@ export default function JobDetailScreen() {
                       {
                         flex: 1,
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "#fff",
+                          ? "rgba(201,150,63,0.12)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#E8D8B8",
                       },
                     ]}
                     value={req}
@@ -1589,7 +1623,7 @@ export default function JobDetailScreen() {
                     placeholder={t("jobs.requirementPlaceholder", {
                       number: index + 1,
                     })}
-                    placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                    placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                   />
                   <TouchableOpacity
                     onPress={() => removeRequirement(index)}
@@ -1627,12 +1661,12 @@ export default function JobDetailScreen() {
                       {
                         flex: 1,
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "#fff",
+                          ? "rgba(201,150,63,0.12)"
+                          : "#FFFAF0",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#E8D8B8",
                       },
                     ]}
                     value={resp}
@@ -1640,7 +1674,7 @@ export default function JobDetailScreen() {
                     placeholder={t("jobs.responsibilityPlaceholder", {
                       number: index + 1,
                     })}
-                    placeholderTextColor={isDark ? "#9ca3af" : "#9ca3af"}
+                    placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                   />
                   <TouchableOpacity
                     onPress={() => removeResponsibility(index)}
@@ -1675,7 +1709,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.modalSubLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("jobs.date")}
@@ -1685,11 +1719,11 @@ export default function JobDetailScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "#fff",
+                          ? "rgba(201,150,63,0.12)"
+                          : "#FFFAF0",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#E8D8B8",
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -1710,8 +1744,8 @@ export default function JobDetailScreen() {
                           color: editStartDate
                             ? colors.text
                             : isDark
-                              ? "#9ca3af"
-                              : "#9ca3af",
+                              ? "#9A8E7A"
+                              : "#9A8E7A",
                         }}
                       >
                         {editStartDate
@@ -1725,7 +1759,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.modalSubLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("jobs.time")}
@@ -1735,11 +1769,11 @@ export default function JobDetailScreen() {
                       styles.input,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "#fff",
+                          ? "rgba(201,150,63,0.12)"
+                          : "#FFFAF0",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#E8D8B8",
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -1760,8 +1794,8 @@ export default function JobDetailScreen() {
                           color: editStartTime
                             ? colors.text
                             : isDark
-                              ? "#9ca3af"
-                              : "#9ca3af",
+                              ? "#9A8E7A"
+                              : "#9A8E7A",
                         }}
                       >
                         {editStartTime
@@ -1781,9 +1815,9 @@ export default function JobDetailScreen() {
                 style={[
                   styles.submitBtn,
                   {
-                    backgroundColor: isDark ? "#4f46e5" : colors.tint,
-                    borderColor: isDark ? "#6366f1" : colors.tint,
-                    shadowColor: isDark ? "#4f46e5" : colors.tint,
+                    backgroundColor: isDark ? "#C9963F" : colors.tint,
+                    borderColor: isDark ? "#C9963F" : colors.tint,
+                    shadowColor: isDark ? "#C9963F" : colors.tint,
                   },
                   processing && styles.submitBtnDisabled,
                 ]}
@@ -1791,7 +1825,7 @@ export default function JobDetailScreen() {
                 disabled={processing}
               >
                 {processing ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color="#FFFAF0" />
                 ) : (
                   <Text style={styles.submitBtnText}>
                     {t("jobs.saveChanges")}
@@ -1838,8 +1872,8 @@ export default function JobDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -1863,8 +1897,8 @@ export default function JobDetailScreen() {
                           editCategory === cat
                             ? colors.tint
                             : isDark
-                              ? "rgba(255,255,255,0.05)"
-                              : "rgba(0,0,0,0.05)",
+                              ? "rgba(255,250,240,0.06)"
+                              : "rgba(184,130,42,0.06)",
                       },
                     ]}
                     onPress={() => {
@@ -1876,7 +1910,7 @@ export default function JobDetailScreen() {
                       style={[
                         styles.categoryOptionText,
                         {
-                          color: editCategory === cat ? "#fff" : colors.text,
+                          color: editCategory === cat ? "#FFFAF0" : colors.text,
                         },
                       ]}
                     >
@@ -1904,8 +1938,8 @@ export default function JobDetailScreen() {
                 styles.backButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1939,8 +1973,8 @@ export default function JobDetailScreen() {
                 styles.backButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1966,11 +2000,11 @@ export default function JobDetailScreen() {
       case "ACTIVE":
         return "#22c55e";
       case "CLOSED":
-        return "#6b7280";
+        return "#8A7B68";
       case "DRAFT":
         return "#f59e0b";
       default:
-        return "#6b7280";
+        return "#8A7B68";
     }
   };
 
@@ -2005,11 +2039,11 @@ export default function JobDetailScreen() {
       case "HIGH":
         return "#f59e0b";
       case "NORMAL":
-        return "#3b82f6";
+        return "#C9963F";
       case "LOW":
-        return "#6b7280";
+        return "#8A7B68";
       default:
-        return "#6b7280";
+        return "#8A7B68";
     }
   };
 
@@ -2024,8 +2058,8 @@ export default function JobDetailScreen() {
               styles.backButton,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -2052,11 +2086,11 @@ export default function JobDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -2069,7 +2103,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.companyName,
-                      { color: isDark ? "#cbd5e1" : "#64748b" },
+                      { color: isDark ? "#B8A88A" : "#8A7B68" },
                     ]}
                   >
                     {job.company.name}
@@ -2079,7 +2113,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.categoryName,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {translateCategoryName(job.category.name, t)}
@@ -2123,12 +2157,12 @@ export default function JobDetailScreen() {
               <Feather
                 name="map-pin"
                 size={16}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.locationText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {[job.location, job.city, job.country]
@@ -2142,12 +2176,12 @@ export default function JobDetailScreen() {
                 <Feather
                   name="briefcase"
                   size={14}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text
                   style={[
                     styles.metaText,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {getTypeLabel(job.type)}
@@ -2157,12 +2191,12 @@ export default function JobDetailScreen() {
                 <Feather
                   name="home"
                   size={14}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text
                   style={[
                     styles.metaText,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {getWorkModeLabel(job.workMode)}
@@ -2196,11 +2230,11 @@ export default function JobDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -2210,7 +2244,7 @@ export default function JobDetailScreen() {
             <Text
               style={[
                 styles.descriptionText,
-                { color: isDark ? "#cbd5e1" : "#475569" },
+                { color: isDark ? "#B8A88A" : "#6B6355" },
               ]}
             >
               {job.description}
@@ -2224,11 +2258,11 @@ export default function JobDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.3)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.25)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -2240,7 +2274,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.bullet,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     •
@@ -2248,7 +2282,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.listText,
-                      { color: isDark ? "#cbd5e1" : "#475569" },
+                      { color: isDark ? "#B8A88A" : "#6B6355" },
                     ]}
                   >
                     {req}
@@ -2265,11 +2299,11 @@ export default function JobDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.3)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.25)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -2281,7 +2315,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.bullet,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     •
@@ -2289,7 +2323,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.listText,
-                      { color: isDark ? "#cbd5e1" : "#475569" },
+                      { color: isDark ? "#B8A88A" : "#6B6355" },
                     ]}
                   >
                     {resp}
@@ -2305,11 +2339,11 @@ export default function JobDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.95)"
-                  : "rgba(255,255,255,0.9)",
+                  ? "rgba(12, 22, 42, 0.90)"
+                  : "rgba(255,250,240,0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.25)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -2317,12 +2351,12 @@ export default function JobDetailScreen() {
               <Feather
                 name="calendar"
                 size={16}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.dateText,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("jobs.posted")}:{" "}
@@ -2332,7 +2366,7 @@ export default function JobDetailScreen() {
                     month: "long",
                     day: "numeric",
                     year: "numeric",
-                  }
+                  },
                 )}
               </Text>
             </View>
@@ -2345,8 +2379,8 @@ export default function JobDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: hasApplied ? "#22c55e" : colors.tint + "40",
                   borderWidth: 2,
                 },
@@ -2366,11 +2400,11 @@ export default function JobDetailScreen() {
                         styles.viewApplicationButton,
                         {
                           backgroundColor: isDark
-                            ? "rgba(99, 102, 241, 0.2)"
-                            : "rgba(99, 102, 241, 0.1)",
+                            ? "rgba(201, 150, 63, 0.2)"
+                            : "rgba(201, 150, 63, 0.1)",
                           borderColor: isDark
-                            ? "rgba(99, 102, 241, 0.4)"
-                            : "rgba(99, 102, 241, 0.3)",
+                            ? "rgba(201, 150, 63, 0.4)"
+                            : "rgba(201, 150, 63, 0.3)",
                         },
                       ]}
                       onPress={() =>
@@ -2422,13 +2456,13 @@ export default function JobDetailScreen() {
                   style={[
                     styles.applyButton,
                     {
-                      backgroundColor: isDark ? "#4f46e5" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
                     },
                   ]}
                   onPress={() => setShowApplyModal(true)}
                 >
-                  <Feather name="send" size={20} color="#fff" />
+                  <Feather name="send" size={20} color="#FFFAF0" />
                   <Text style={styles.applyButtonText}>
                     {t("jobs.applyForThisJob")}
                   </Text>
@@ -2447,8 +2481,8 @@ export default function JobDetailScreen() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: colors.tint + "40",
                     borderWidth: 2,
                   },
@@ -2469,7 +2503,7 @@ export default function JobDetailScreen() {
                   style={[
                     styles.descriptionText,
                     {
-                      color: isDark ? "#cbd5e1" : "#475569",
+                      color: isDark ? "#B8A88A" : "#6B6355",
                       marginTop: 8,
                       marginBottom: 16,
                     },
@@ -2482,10 +2516,10 @@ export default function JobDetailScreen() {
                     styles.manageButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.1)"
+                        ? "rgba(201,150,63,0.12)"
                         : colors.tint,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.2)"
+                        ? "rgba(255,250,240,0.15)"
                         : colors.tint,
                       borderWidth: 1,
                       marginTop: 8,
@@ -2498,12 +2532,12 @@ export default function JobDetailScreen() {
                   <Feather
                     name="edit-2"
                     size={18}
-                    color={isDark ? colors.text : "#fff"}
+                    color={isDark ? colors.text : "#FFFAF0"}
                   />
                   <Text
                     style={[
                       styles.manageButtonText,
-                      { color: isDark ? colors.text : "#fff" },
+                      { color: isDark ? colors.text : "#FFFAF0" },
                     ]}
                   >
                     {t("jobs.editJobPost")}
@@ -2564,8 +2598,8 @@ export default function JobDetailScreen() {
                   styles.modalContent,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "#FFFAF0",
                     maxHeight: "85%",
                   },
                 ]}
@@ -2575,8 +2609,8 @@ export default function JobDetailScreen() {
                     styles.modalHeader,
                     {
                       borderBottomColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                     },
                   ]}
                 >
@@ -2587,7 +2621,7 @@ export default function JobDetailScreen() {
                     <Text
                       style={[
                         styles.modalSubtitle,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("jobs.provideReasonForWithdrawing")}
@@ -2603,7 +2637,7 @@ export default function JobDetailScreen() {
                     <Feather
                       name="x"
                       size={22}
-                      color={isDark ? "#94a3b8" : "#64748b"}
+                      color={isDark ? "#9A8E7A" : "#8A7B68"}
                     />
                   </TouchableButton>
                 </View>
@@ -2670,16 +2704,16 @@ export default function JobDetailScreen() {
                         styles.modalTextArea,
                         {
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.08)"
+                            ? "rgba(255,250,240,0.10)"
                             : "#f9fafb",
                           color: colors.text,
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.12)"
-                            : "#e5e7eb",
+                            ? "rgba(255,250,240,0.12)"
+                            : "#E8D8B8",
                         },
                       ]}
                       placeholder={t("jobs.withdrawReasonPlaceholder")}
-                      placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                      placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                       multiline
                       numberOfLines={4}
                       value={withdrawReason}
@@ -2694,11 +2728,11 @@ export default function JobDetailScreen() {
                     styles.modalButtons,
                     {
                       borderTopColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "#ffffff",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "#FFFAF0",
                     },
                   ]}
                 >
@@ -2708,11 +2742,11 @@ export default function JobDetailScreen() {
                       styles.modalButtonCancel,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.08)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.10)"
+                          : "#F0E8D5",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#cbd5e1",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#B8A88A",
                         borderWidth: 1,
                       },
                     ]}
@@ -2738,7 +2772,7 @@ export default function JobDetailScreen() {
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
-                        elevation: 4,
+                        elevation: 0,
                         borderWidth: 1,
                         paddingHorizontal: 16,
                         minWidth: 0,
@@ -2749,7 +2783,7 @@ export default function JobDetailScreen() {
                     disabled={withdrawing || !withdrawReason.trim()}
                   >
                     {withdrawing ? (
-                      <ActivityIndicator color="#fff" />
+                      <ActivityIndicator color="#FFFAF0" />
                     ) : (
                       <View
                         style={{
@@ -2759,7 +2793,7 @@ export default function JobDetailScreen() {
                           flexShrink: 1,
                         }}
                       >
-                        <Feather name="x-circle" size={18} color="#fff" />
+                        <Feather name="x-circle" size={18} color="#FFFAF0" />
                         <Text
                           style={[
                             styles.modalButtonTextSubmit,
@@ -2801,8 +2835,8 @@ export default function JobDetailScreen() {
                   styles.modalContent,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "#FFFAF0",
                     maxHeight: "85%",
                   },
                 ]}
@@ -2812,8 +2846,8 @@ export default function JobDetailScreen() {
                     styles.modalHeader,
                     {
                       borderBottomColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                     },
                   ]}
                 >
@@ -2824,7 +2858,7 @@ export default function JobDetailScreen() {
                     <Text
                       style={[
                         styles.modalSubtitle,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("jobs.selectDeleteReasonMessage")}
@@ -2841,7 +2875,7 @@ export default function JobDetailScreen() {
                     <Feather
                       name="x"
                       size={22}
-                      color={isDark ? "#94a3b8" : "#64748b"}
+                      color={isDark ? "#9A8E7A" : "#8A7B68"}
                     />
                   </TouchableButton>
                 </View>
@@ -2930,19 +2964,19 @@ export default function JobDetailScreen() {
                             backgroundColor:
                               deleteReason === reasonOption.value
                                 ? isDark
-                                  ? "rgba(79, 70, 229, 0.3)"
-                                  : "rgba(99, 102, 241, 0.1)"
+                                  ? "rgba(201, 150, 63, 0.3)"
+                                  : "rgba(201, 150, 63, 0.1)"
                                 : isDark
-                                  ? "rgba(255,255,255,0.05)"
+                                  ? "rgba(255,250,240,0.06)"
                                   : "#f9fafb",
                             borderColor:
                               deleteReason === reasonOption.value
                                 ? isDark
-                                  ? "#6366f1"
-                                  : "#6366f1"
+                                  ? "#C9963F"
+                                  : "#C9963F"
                                 : isDark
-                                  ? "rgba(255,255,255,0.1)"
-                                  : "#e5e7eb",
+                                  ? "rgba(201,150,63,0.12)"
+                                  : "#E8D8B8",
                             borderWidth:
                               deleteReason === reasonOption.value ? 2 : 1,
                           },
@@ -2963,17 +2997,17 @@ export default function JobDetailScreen() {
                                 backgroundColor:
                                   deleteReason === reasonOption.value
                                     ? isDark
-                                      ? "#6366f1"
-                                      : "#6366f1"
+                                      ? "#C9963F"
+                                      : "#C9963F"
                                     : "transparent",
                                 borderColor:
                                   deleteReason === reasonOption.value
                                     ? isDark
-                                      ? "#6366f1"
-                                      : "#6366f1"
+                                      ? "#C9963F"
+                                      : "#C9963F"
                                     : isDark
-                                      ? "#94a3b8"
-                                      : "#64748b",
+                                      ? "#9A8E7A"
+                                      : "#8A7B68",
                               },
                             ]}
                           >
@@ -3010,19 +3044,19 @@ export default function JobDetailScreen() {
                             styles.textInput,
                             {
                               backgroundColor: isDark
-                                ? "rgba(255,255,255,0.05)"
+                                ? "rgba(255,250,240,0.06)"
                                 : "#f9fafb",
                               borderColor: !otherReasonText.trim()
                                 ? "#ef4444"
                                 : isDark
-                                  ? "rgba(255,255,255,0.1)"
-                                  : "#e5e7eb",
+                                  ? "rgba(201,150,63,0.12)"
+                                  : "#E8D8B8",
                               borderWidth: !otherReasonText.trim() ? 2 : 1,
                               color: colors.text,
                             },
                           ]}
                           placeholder={t("jobs.enterDeleteReasonRequired")}
-                          placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                          placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                           value={otherReasonText}
                           onChangeText={setOtherReasonText}
                           multiline
@@ -3050,11 +3084,11 @@ export default function JobDetailScreen() {
                     styles.modalButtons,
                     {
                       borderTopColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "#ffffff",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "#FFFAF0",
                     },
                   ]}
                 >
@@ -3064,11 +3098,11 @@ export default function JobDetailScreen() {
                       styles.modalButtonCancel,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.08)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.10)"
+                          : "#F0E8D5",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#cbd5e1",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#B8A88A",
                         borderWidth: 1,
                       },
                     ]}
@@ -3095,7 +3129,7 @@ export default function JobDetailScreen() {
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
-                        elevation: 4,
+                        elevation: 0,
                         borderWidth: 1,
                       },
                       deleting && { opacity: 0.6 },
@@ -3108,10 +3142,10 @@ export default function JobDetailScreen() {
                     }
                   >
                     {deleting ? (
-                      <ActivityIndicator color="#fff" />
+                      <ActivityIndicator color="#FFFAF0" />
                     ) : (
                       <>
-                        <Feather name="trash-2" size={16} color="#fff" />
+                        <Feather name="trash-2" size={16} color="#FFFAF0" />
                         <Text style={styles.modalButtonTextSubmit}>
                           {t("jobs.deleteJob")}
                         </Text>
@@ -3137,8 +3171,8 @@ export default function JobDetailScreen() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   maxHeight: "85%",
                 },
               ]}
@@ -3148,8 +3182,8 @@ export default function JobDetailScreen() {
                   styles.modalHeader,
                   {
                     borderBottomColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e5e7eb",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#E8D8B8",
                   },
                 ]}
               >
@@ -3160,7 +3194,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.modalSubtitle,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("jobs.completeApplicationBelow")}
@@ -3176,7 +3210,7 @@ export default function JobDetailScreen() {
                   <Feather
                     name="x"
                     size={22}
-                    color={isDark ? "#94a3b8" : "#64748b"}
+                    color={isDark ? "#9A8E7A" : "#8A7B68"}
                   />
                 </TouchableButton>
               </View>
@@ -3212,7 +3246,7 @@ export default function JobDetailScreen() {
                       <Text
                         style={[
                           styles.optionalBadgeText,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {t("common.optional")}
@@ -3224,16 +3258,16 @@ export default function JobDetailScreen() {
                       styles.modalTextArea,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.08)"
+                          ? "rgba(255,250,240,0.10)"
                           : "#f9fafb",
                         color: colors.text,
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.12)"
-                          : "#e5e7eb",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#E8D8B8",
                       },
                     ]}
                     placeholder={t("jobs.moreAboutYouPlaceholder")}
-                    placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                    placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                     multiline
                     numberOfLines={6}
                     value={coverLetter}
@@ -3243,7 +3277,7 @@ export default function JobDetailScreen() {
                   <Text
                     style={[
                       styles.modalHint,
-                      { color: isDark ? "#64748b" : "#94a3b8" },
+                      { color: isDark ? "#8A7B68" : "#9A8E7A" },
                     ]}
                   >
                     {t("jobs.shareMoreAboutYourself")}
@@ -3256,11 +3290,11 @@ export default function JobDetailScreen() {
                   styles.modalButtons,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "#e5e7eb",
+                      ? "rgba(201,150,63,0.12)"
+                      : "#E8D8B8",
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "#FFFAF0",
                   },
                 ]}
               >
@@ -3270,11 +3304,11 @@ export default function JobDetailScreen() {
                     styles.modalButtonCancel,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "#f1f5f9",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#e2e8f0",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#F0E8D5",
                     },
                   ]}
                   onPress={() => {
@@ -3293,13 +3327,13 @@ export default function JobDetailScreen() {
                     styles.modalButton,
                     styles.modalButtonSubmit,
                     {
-                      backgroundColor: isDark ? "#4f46e5" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
-                      shadowColor: isDark ? "#4f46e5" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
+                      borderColor: isDark ? "#C9963F" : colors.tint,
+                      shadowColor: isDark ? "#C9963F" : colors.tint,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
                       shadowRadius: 8,
-                      elevation: 4,
+                      elevation: 0,
                       paddingHorizontal: 16,
                       minWidth: 0,
                     },
@@ -3309,7 +3343,7 @@ export default function JobDetailScreen() {
                   disabled={applying}
                 >
                   {applying ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <View
                       style={{
@@ -3319,7 +3353,7 @@ export default function JobDetailScreen() {
                         flexShrink: 1,
                       }}
                     >
-                      <Feather name="send" size={16} color="#fff" />
+                      <Feather name="send" size={16} color="#FFFAF0" />
                       <Text
                         style={[
                           styles.modalButtonTextSubmit,
@@ -3355,7 +3389,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -3368,12 +3402,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     marginTop: 16,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -3423,10 +3457,10 @@ const styles = StyleSheet.create({
   optionButtonActive: {},
   optionText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   submitBtn: {
-    borderRadius: 12,
+    borderRadius: 4,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 32,
@@ -3434,13 +3468,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 4,
+    elevation: 0,
   },
   submitBtnDisabled: {
     opacity: 0.6,
   },
   submitBtnText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -3495,7 +3529,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   card: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -3513,7 +3547,7 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   categoryName: {
@@ -3527,7 +3561,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   instantBadge: {
     flexDirection: "row",
@@ -3540,7 +3574,7 @@ const styles = StyleSheet.create({
   },
   instantText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   infoRow: {
     flexDirection: "row",
@@ -3573,10 +3607,12 @@ const styles = StyleSheet.create({
   },
   urgencyText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   sectionTitle: {
     fontSize: 18,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 12,
   },
@@ -3608,7 +3644,7 @@ const styles = StyleSheet.create({
   },
   paymentRange: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
   },
   paymentType: {
@@ -3621,12 +3657,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
   },
   manageButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalOverlay: {
     flex: 1,
@@ -3642,7 +3678,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 16,
+    elevation: 0,
   },
   modalHeader: {
     flexDirection: "row",
@@ -3668,7 +3704,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: "rgba(184,130,42,0.06)",
   },
   modalScrollView: {
     flexGrow: 1,
@@ -3684,7 +3720,7 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
   },
   optionalBadge: {
@@ -3695,7 +3731,7 @@ const styles = StyleSheet.create({
   },
   optionalBadgeText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -3705,13 +3741,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   modalInput: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 12,
     borderWidth: 1,
     fontSize: 16,
   },
   modalTextArea: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1.5,
     fontSize: 15,
@@ -3731,7 +3767,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   listItemInput: {
     flexDirection: "row",
@@ -3760,7 +3796,7 @@ const styles = StyleSheet.create({
   modalCancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -3768,13 +3804,13 @@ const styles = StyleSheet.create({
   modalSaveButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalHint: {},
   modalButtonPrimary: {},
@@ -3784,12 +3820,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 8,
   },
   applyButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -3802,13 +3838,13 @@ const styles = StyleSheet.create({
   },
   appliedText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   cvFileContainer: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     marginBottom: 8,
   },
@@ -3826,7 +3862,7 @@ const styles = StyleSheet.create({
   },
   cvFileName: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 2,
   },
   cvFileSize: {
@@ -3847,7 +3883,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 20,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 2,
     marginBottom: 8,
   },
@@ -3860,7 +3896,7 @@ const styles = StyleSheet.create({
   },
   uploadCvButtonText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 2,
   },
   uploadCvSubtext: {
@@ -3870,7 +3906,7 @@ const styles = StyleSheet.create({
   modalButtonTextSubmit: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#fff",
+    color: "#FFFAF0",
   },
   modalButtons: {
     flexDirection: "row",
@@ -3883,7 +3919,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
@@ -3902,14 +3938,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginTop: 12,
     gap: 8,
   },
   viewApplicationButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   withdrawButton: {
     flexDirection: "row",
@@ -3917,18 +3953,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginTop: 12,
     gap: 8,
   },
   withdrawButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   reasonOption: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     borderWidth: 1,
   },
@@ -3949,13 +3985,13 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFAF0",
   },
   warningBanner: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     marginTop: 8,
   },
@@ -3967,7 +4003,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     fontSize: 15,
     minHeight: 80,
@@ -3984,7 +4020,7 @@ const styles = StyleSheet.create({
   },
   datePickerLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 12,
     textAlign: "center",
   },

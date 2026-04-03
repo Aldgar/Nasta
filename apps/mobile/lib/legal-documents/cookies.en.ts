@@ -4,7 +4,7 @@ export const COOKIES_EN = `# Cookies Settings
 
 ## Understanding Cookies and Tracking
 
-Cumprido uses cookies and similar tracking technologies to enhance your experience, analyze app usage, and provide personalized content.
+Nasta uses cookies and similar tracking technologies to enhance your experience, analyze app usage, and provide personalized content.
 
 ## Cookie Categories
 

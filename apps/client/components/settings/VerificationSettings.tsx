@@ -12,12 +12,12 @@ export default function VerificationSettings() {
   if (role !== "JOB_SEEKER") {
     return (
       <div className="rounded-xl border border-neutral-200 bg-white p-6 text-sm text-neutral-700 ring-1 ring-inset ring-soft-blue/20">
-        <p>Verification is only required for job seekers.</p>
+        <p>Verification is only required for service providers.</p>
       </div>
     );
   }
 
-  const mobileLink = "cumprido://verification/start";
+  const mobileLink = "nasta://verification/start";
 
   return (
     <div className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm ring-1 ring-inset ring-soft-blue/20">

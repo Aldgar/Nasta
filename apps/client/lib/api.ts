@@ -1,6 +1,14 @@
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
 
+export function resolveAvatarUrl(raw?: string | null): string {
+  if (!raw) return "";
+  if (raw.startsWith("http")) return raw;
+  const base = API_BASE.replace(/\/+$/, "");
+  const path = raw.startsWith("/") ? raw.slice(1) : raw;
+  return `${base}/${path}`;
+}
+
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export async function api<T = unknown>(

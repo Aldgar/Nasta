@@ -1,0 +1,24 @@
+
+<svg width="600" height="300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .meroitic {
+      font-family: 'Noto Sans Meroitic', sans-serif;
+      font-size: 140px;
+      fill: #D5A560;
+    }
+    .piye {
+      font-family: 'Arial', sans-serif;
+      font-size: 72px;
+      fill: #D5A560;
+      letter-spacing: 10px;
+    }
+  </style>
+
+  <!-- Meroitic script on top -->
+  <g transform="translate(100,150) rotate(10)">
+    <text class="meroitic">𐦠𐦴𐦯𐦡𐦩</text>
+  </g>
+
+  <!-- NASTA text below -->
+  <text x="150" y="270" class="piye">NASTA</text>
+</svg>

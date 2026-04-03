@@ -31,6 +31,7 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: secret,
+      algorithms: ['HS256'],
     });
   }
 

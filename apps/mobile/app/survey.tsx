@@ -239,7 +239,7 @@ export default function SurveyScreen() {
           {t("survey.employer.introTitle")}
         </Text>
         <Text
-          style={[styles.introText, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+          style={[styles.introText, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
         >
           {t("survey.employer.introText")}
         </Text>
@@ -254,13 +254,13 @@ export default function SurveyScreen() {
           style={[
             styles.textInput,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.employer.question1Placeholder")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           value={employerData.serviceType}
           onChangeText={(text) => updateEmployerData("serviceType", text)}
         />
@@ -272,7 +272,7 @@ export default function SurveyScreen() {
           {t("survey.employer.question2")}
         </Text>
         <Text
-          style={[styles.hintText, { color: isDark ? "#94a3b8" : "#64748b" }]}
+          style={[styles.hintText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}
         >
           {t("survey.employer.question2Hint")}
         </Text>
@@ -286,19 +286,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     employerData.satisfaction === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     employerData.satisfaction === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateEmployerData("satisfaction", num.toString())}
@@ -309,7 +309,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       employerData.satisfaction === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -327,7 +327,7 @@ export default function SurveyScreen() {
           {t("survey.employer.question3")}
         </Text>
         <Text
-          style={[styles.hintText, { color: isDark ? "#94a3b8" : "#64748b" }]}
+          style={[styles.hintText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}
         >
           {t("survey.employer.question3Hint")}
         </Text>
@@ -341,19 +341,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     employerData.npsScore === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     employerData.npsScore === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateEmployerData("npsScore", num.toString())}
@@ -364,7 +364,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       employerData.npsScore === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -394,7 +394,7 @@ export default function SurveyScreen() {
             <Text
               style={[
                 styles.subQuestionText,
-                { color: isDark ? "#cbd5e1" : "#64748b" },
+                { color: isDark ? "#B8A88A" : "#8A7B68" },
               ]}
             >
               {label} {t("survey.employer.question4SubHint")}
@@ -409,19 +409,19 @@ export default function SurveyScreen() {
                       backgroundColor:
                         employerData[key] === num.toString()
                           ? isDark
-                            ? "#6366f1"
+                            ? "#C9963F"
                             : colors.tint
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.05)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.06)",
                       borderColor:
                         employerData[key] === num.toString()
                           ? isDark
-                            ? "#6366f1"
+                            ? "#C9963F"
                             : colors.tint
                           : isDark
-                            ? "rgba(255,255,255,0.2)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(255,250,240,0.15)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => updateEmployerData(key, num.toString())}
@@ -432,7 +432,7 @@ export default function SurveyScreen() {
                       {
                         color:
                           employerData[key] === num.toString()
-                            ? "#fff"
+                            ? "#FFFAF0"
                             : colors.text,
                       },
                     ]}
@@ -465,19 +465,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     employerData.hasTools === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     employerData.hasTools === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateEmployerData("hasTools", option)}
@@ -487,7 +487,7 @@ export default function SurveyScreen() {
                   styles.optionText,
                   {
                     color:
-                      employerData.hasTools === option ? "#fff" : colors.text,
+                      employerData.hasTools === option ? "#FFFAF0" : colors.text,
                   },
                 ]}
               >
@@ -513,19 +513,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     employerData.completedOnTime === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     employerData.completedOnTime === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateEmployerData("completedOnTime", option)}
@@ -536,7 +536,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       employerData.completedOnTime === option
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -552,16 +552,16 @@ export default function SurveyScreen() {
               styles.textInput,
               styles.textArea,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                 color: colors.text,
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
                 marginTop: 12,
               },
             ]}
             placeholder={t("survey.pleaseBrieflyExplain")}
-            placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+            placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
             multiline
             numberOfLines={3}
             value={employerData.timeExplanation}
@@ -591,19 +591,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     employerData.bookingEase === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     employerData.bookingEase === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateEmployerData("bookingEase", option)}
@@ -614,7 +614,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       employerData.bookingEase === option
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -636,13 +636,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareWhatYouEnjoyed")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={4}
           value={employerData.likedMost}
@@ -660,13 +660,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareYourSuggestions")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={4}
           value={employerData.improvements}
@@ -684,13 +684,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.employer.question10Placeholder")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={3}
           value={employerData.futureServices}
@@ -703,7 +703,7 @@ export default function SurveyScreen() {
           style={[
             styles.submitButton,
             {
-              backgroundColor: isDark ? "#6366f1" : colors.tint,
+              backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
               opacity: submitting ? 0.6 : 1,
             },
           ]}
@@ -711,7 +711,7 @@ export default function SurveyScreen() {
           disabled={submitting}
         >
           {submitting ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#FFFAF0" />
           ) : (
             <Text style={styles.submitButtonText}>
               {t("survey.employer.submitSurvey")}
@@ -732,7 +732,7 @@ export default function SurveyScreen() {
           {t("survey.serviceProvider.introTitle")}
         </Text>
         <Text
-          style={[styles.introText, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+          style={[styles.introText, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
         >
           {t("survey.serviceProvider.introText")}
         </Text>
@@ -744,7 +744,7 @@ export default function SurveyScreen() {
           {t("survey.serviceProvider.question1")}
         </Text>
         <Text
-          style={[styles.hintText, { color: isDark ? "#94a3b8" : "#64748b" }]}
+          style={[styles.hintText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}
         >
           {t("survey.serviceProvider.question1Hint")}
         </Text>
@@ -758,19 +758,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.platformSatisfaction === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.platformSatisfaction === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() =>
@@ -783,7 +783,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.platformSatisfaction === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -801,7 +801,7 @@ export default function SurveyScreen() {
           {t("survey.serviceProvider.question2")}
         </Text>
         <Text
-          style={[styles.hintText, { color: isDark ? "#94a3b8" : "#64748b" }]}
+          style={[styles.hintText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}
         >
           {t("survey.serviceProvider.question2Hint")}
         </Text>
@@ -815,19 +815,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.npsScore === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.npsScore === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateProviderData("npsScore", num.toString())}
@@ -838,7 +838,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.npsScore === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -865,19 +865,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.jobAvailability === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.jobAvailability === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() =>
@@ -890,7 +890,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.jobAvailability === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -917,19 +917,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.paymentProcess === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.paymentProcess === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() =>
@@ -942,7 +942,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.paymentProcess === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -969,19 +969,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.employerCommunication === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.employerCommunication === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() =>
@@ -994,7 +994,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.employerCommunication === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -1027,19 +1027,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.appUsability === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.appUsability === option
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => updateProviderData("appUsability", option)}
@@ -1050,7 +1050,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.appUsability === option
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -1077,19 +1077,19 @@ export default function SurveyScreen() {
                   backgroundColor:
                     providerData.supportQuality === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.06)",
                   borderColor:
                     providerData.supportQuality === num.toString()
                       ? isDark
-                        ? "#6366f1"
+                        ? "#C9963F"
                         : colors.tint
                       : isDark
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(255,250,240,0.15)"
+                        : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() =>
@@ -1102,7 +1102,7 @@ export default function SurveyScreen() {
                   {
                     color:
                       providerData.supportQuality === num.toString()
-                        ? "#fff"
+                        ? "#FFFAF0"
                         : colors.text,
                   },
                 ]}
@@ -1124,13 +1124,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.serviceProvider.question8Placeholder")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={4}
           value={providerData.likedMost}
@@ -1148,13 +1148,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareYourSuggestions")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={4}
           value={providerData.improvements}
@@ -1172,13 +1172,13 @@ export default function SurveyScreen() {
             styles.textInput,
             styles.textArea,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+              backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.serviceProvider.question10Placeholder")}
-          placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+          placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
           multiline
           numberOfLines={3}
           value={providerData.futureFeatures}
@@ -1191,7 +1191,7 @@ export default function SurveyScreen() {
           style={[
             styles.submitButton,
             {
-              backgroundColor: isDark ? "#6366f1" : colors.tint,
+              backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
               opacity: submitting ? 0.6 : 1,
             },
           ]}
@@ -1199,7 +1199,7 @@ export default function SurveyScreen() {
           disabled={submitting}
         >
           {submitting ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#FFFAF0" />
           ) : (
             <Text style={styles.submitButtonText}>
               {t("survey.employer.submitSurvey")}
@@ -1267,7 +1267,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
   },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
+  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
   scrollView: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
   loadingContainer: {
@@ -1296,7 +1296,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   hintText: {
@@ -1313,7 +1313,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   textInput: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1,
     fontSize: 16,
@@ -1331,7 +1331,7 @@ const styles = StyleSheet.create({
   ratingButton: {
     width: 50,
     height: 50,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -1355,7 +1355,7 @@ const styles = StyleSheet.create({
   },
   npsText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   optionsContainer: {
     flexDirection: "row",
@@ -1365,12 +1365,12 @@ const styles = StyleSheet.create({
   optionButton: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
   },
   optionText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   submitContainer: {
     marginTop: 32,
@@ -1378,12 +1378,12 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   submitButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontWeight: "700",
     fontSize: 16,
   },

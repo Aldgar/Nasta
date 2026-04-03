@@ -46,15 +46,15 @@ export default function EmployerReceiptsScreen() {
 
   const themeStyles = {
     textPrimary: { color: colors.text },
-    textSecondary: { color: isDark ? "#94a3b8" : "#64748b" },
+    textSecondary: { color: isDark ? "#9A8E7A" : "#8A7B68" },
     background: { backgroundColor: colors.background },
     cardBackground: {
       backgroundColor: isDark
-        ? "rgba(30, 41, 59, 0.85)"
-        : "rgba(255, 255, 255, 0.9)",
+        ? "rgba(12, 22, 42, 0.82)"
+        : "rgba(255, 250, 240, 0.92)",
     },
     border: {
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+      borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(0,0,0,0.08)",
     },
   };
 
@@ -186,7 +186,7 @@ export default function EmployerReceiptsScreen() {
           title: t("navigation.receipts"),
           headerTitleAlign: "center",
           headerStyle: {
-            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+            backgroundColor: isDark ? "#0f172a" : "#FFFAF0",
           },
           headerTintColor: colors.text,
           headerLeft: () => (
@@ -196,8 +196,8 @@ export default function EmployerReceiptsScreen() {
                 styles.headerIconButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "rgba(0, 0, 0, 0.05)",
+                    ? "rgba(201, 150, 63, 0.12)"
+                    : "rgba(184, 130, 42, 0.06)",
                 },
               ]}
               accessibilityRole="button"
@@ -219,8 +219,8 @@ export default function EmployerReceiptsScreen() {
                   styles.headerIconButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "rgba(0, 0, 0, 0.05)",
+                      ? "rgba(201, 150, 63, 0.12)"
+                      : "rgba(184, 130, 42, 0.06)",
                   },
                 ]}
                 accessibilityRole="button"
@@ -331,7 +331,7 @@ export default function EmployerReceiptsScreen() {
                       <Feather
                         name="user"
                         size={12}
-                        color={isDark ? "#64748b" : "#94a3b8"}
+                        color={isDark ? "#8A7B68" : "#9A8E7A"}
                       />
                       <Text
                         style={[styles.infoText, themeStyles.textSecondary]}
@@ -344,7 +344,7 @@ export default function EmployerReceiptsScreen() {
                       <Feather
                         name="calendar"
                         size={12}
-                        color={isDark ? "#64748b" : "#94a3b8"}
+                        color={isDark ? "#8A7B68" : "#9A8E7A"}
                       />
                       <Text
                         style={[styles.infoText, themeStyles.textSecondary]}
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 14,
     marginBottom: 2,
     shadowColor: "#000",
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.03,
     shadowRadius: 4,
-    elevation: 1,
+    elevation: 0,
   },
   cardHeader: {
     flexDirection: "row",
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10,
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
   },
   breakdownValue: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   statusContainer: {
     marginTop: 2,
@@ -592,6 +592,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

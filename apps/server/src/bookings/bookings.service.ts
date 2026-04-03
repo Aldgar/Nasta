@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  Logger,
   NotFoundException,
   Inject,
   forwardRef,
@@ -15,6 +16,8 @@ import { PaymentsService } from '../payments/payments.service';
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly availability: AvailabilityService,
@@ -184,7 +187,7 @@ export class BookingsService {
     const pageSize = Math.min(100, Math.max(1, options?.pageSize ?? 20));
     const skip = (page - 1) * pageSize;
 
-    console.log(
+    this.logger.log(
       `[BookingsService] listForSeeker called with userId=${userId}, status=${options?.status || 'undefined'}, page=${page}, pageSize=${pageSize}`,
     );
 
@@ -198,14 +201,14 @@ export class BookingsService {
           .catch((err: unknown) => {
             const message =
               err instanceof Error ? err.message : 'Unknown error';
-            console.error(
+            this.logger.error(
               `[BookingsService] Background sync failed: ${message}`,
             );
           });
       } catch (err: unknown) {
         // Silently fail - sync is best effort
         const message = err instanceof Error ? err.message : 'Unknown error';
-        console.log(
+        this.logger.log(
           `[BookingsService] Could not auto-sync bookings: ${message}`,
         );
       }
@@ -227,6 +230,13 @@ export class BookingsService {
             city: true,
             country: true,
             coordinates: true,
+            type: true,
+            workMode: true,
+            startDate: true,
+            rateAmount: true,
+            currency: true,
+            paymentType: true,
+            category: { select: { id: true, name: true } },
           },
         },
         employer: {
@@ -277,7 +287,7 @@ export class BookingsService {
       // If booking has a jobId, the job must exist and not be null
       if (booking.jobId) {
         if (!booking.job || !booking.job.id) {
-          console.log(
+          this.logger.log(
             `[BookingsService] Filtering out booking ${booking.id} - job was deleted (jobId: ${booking.jobId}, job: ${booking.job ? 'exists' : 'null'})`,
           );
           return false;
@@ -288,11 +298,11 @@ export class BookingsService {
       return true;
     });
 
-    console.log(
+    this.logger.log(
       `[BookingsService] Found ${rows.length} bookings for seeker ${userId}, ${validBookings.length} valid (after filtering deleted jobs)`,
     );
     if (validBookings.length > 0) {
-      console.log(
+      this.logger.log(
         `[BookingsService] Valid booking IDs:`,
         validBookings.map((r) => r.id),
       );
@@ -304,7 +314,7 @@ export class BookingsService {
           return false;
         })
         .map((b) => b.id);
-      console.log(
+      this.logger.log(
         `[BookingsService] Filtered out ${rows.length - validBookings.length} bookings with deleted jobs:`,
         filteredIds,
       );
@@ -321,7 +331,7 @@ export class BookingsService {
     const pageSize = Math.min(100, Math.max(1, options?.pageSize ?? 20));
     const skip = (page - 1) * pageSize;
 
-    console.log(
+    this.logger.log(
       `[BookingsService] listForEmployer called with userId=${userId}, status=${options?.status}, page=${page}, pageSize=${pageSize}`,
     );
 
@@ -361,7 +371,7 @@ export class BookingsService {
       // If booking has a jobId, the job must exist and not be null
       if (booking.jobId) {
         if (!booking.job || !booking.job.id) {
-          console.log(
+          this.logger.log(
             `[BookingsService] Filtering out booking ${booking.id} - job was deleted (jobId: ${booking.jobId}, job: ${booking.job ? 'exists' : 'null'})`,
           );
           return false;
@@ -440,7 +450,7 @@ export class BookingsService {
               orphanedBookingIds.add(booking.id);
             } catch (error) {
               // Log error but continue
-              console.error(
+              this.logger.error(
                 `[BookingsService] Failed to delete orphaned booking ${booking.id}:`,
                 error,
               );
@@ -455,11 +465,11 @@ export class BookingsService {
       (b) => !orphanedBookingIds.has(b.id),
     );
 
-    console.log(
+    this.logger.log(
       `[BookingsService] Found ${rows.length} bookings for employer ${userId}, ${finalValidBookings.length} valid (after filtering deleted jobs and orphaned bookings)`,
     );
     if (finalValidBookings.length > 0) {
-      console.log(
+      this.logger.log(
         `[BookingsService] Valid booking IDs:`,
         finalValidBookings.map((r) => r.id),
       );
@@ -471,7 +481,7 @@ export class BookingsService {
           return false;
         })
         .map((b) => b.id);
-      console.log(
+      this.logger.log(
         `[BookingsService] Filtered out ${rows.length - finalValidBookings.length} bookings with deleted jobs:`,
         filteredIds,
       );
@@ -745,7 +755,7 @@ export class BookingsService {
 
   // Debug method to list all bookings for a user (for debugging)
   async debugListAll(userId: string) {
-    console.log(`[Debug] Listing all bookings for userId: ${userId}`);
+    this.logger.log(`[Debug] Listing all bookings for userId: ${userId}`);
 
     // Get all bookings where user is employer
     const asEmployer = await this.prisma.booking.findMany({
@@ -769,7 +779,7 @@ export class BookingsService {
       },
     });
 
-    console.log(
+    this.logger.log(
       `[Debug] Found ${asEmployer.length} bookings as employer, ${asSeeker.length} as seeker`,
     );
 

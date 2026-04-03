@@ -1,28 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  /* Neutral surfaces & text */
-  --light-bg: #F8F9FA; /* Light Background */
-  --dark-navy: #242835; /* Primary text */
-  --soft-gray: #B6B6B6; /* Secondary text, borders */
+  /* Nubian Gold – Light Mode */
+  --light-bg: #FAFAF7;
+  --dark-navy: #1A1710; /* Primary text */
+  --soft-gray: #A69E8E; /* Secondary text, borders */
 
   /* Brand & accent colors */
-  --primary: #1F3379; /* Primary Blue */
-  --soft-blue: #5B7FBF; /* Hover/secondary/buttons/links */
-  --warm-coral: #E75F3E; /* CTA accents */
-  --gentle-peach: #FFAD87; /* Friendly accents */
+  --primary: #B8822A; /* Primary Gold */
+  --soft-blue: #C9963F; /* Hover/secondary gold */
+  --warm-coral: #E8B86D; /* Accent Gold */
+  --gentle-peach: #F0E8D5; /* Warm light accent */
   --alert-red: #D50D0D; /* Errors */
   --achievement-green: #4CAF50; /* Success */
-  --fulfillment-gold: #FFB74D; /* Rewards */
+  --fulfillment-gold: #C9963F; /* Rewards gold */
 
   /* Map to base UI tokens */
   --background: var(--light-bg);
   --foreground: var(--dark-navy);
 
-  --surface: #ffffff;
-  --surface-alt: #f2f4f7;
-  --border-color: #d9dce2;
-  --muted-text: #6b7280;
+  --surface: #FFFFFF;
+  --surface-alt: #F5F0E6;
+  --border-color: #D4C9B0;
+  --muted-text: #6B6355;
 }
 
 @theme inline {
@@ -50,15 +50,59 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Keep dark mode neutral; accents still use brand tokens above */
-    --background: #0e1116;
-    --foreground: #f2f5f9;
-    --surface: #1a1f27;
-    --surface-alt: #252c37;
-    --border-color: #2f3742;
-    --muted-text: #9ca3af;
+  :root:not(.light) {
+    /* Piye Mission Control – Dark Mode (Deep Navy & Gold) */
+    --light-bg: #0A1628;
+    --dark-navy: #F0E8D5;
+    --soft-gray: #7A7265;
+    --primary: #C9963F;
+    --soft-blue: #E8B86D;
+    --warm-coral: #E8B86D;
+    --gentle-peach: #F0E8D5;
+    --fulfillment-gold: #E8B86D;
+    --background: #0A1628;
+    --foreground: #F0E8D5;
+    --surface: rgba(12, 22, 42, 0.85);
+    --surface-alt: #0D1A30;
+    --border-color: rgba(201, 150, 63, 0.3);
+    --muted-text: rgba(240, 232, 213, 0.5);
   }
+}
+
+/* Explicit dark mode via class (overrides system preference) */
+:root.dark {
+  --light-bg: #0A1628;
+  --dark-navy: #F0E8D5;
+  --soft-gray: #7A7265;
+  --primary: #C9963F;
+  --soft-blue: #E8B86D;
+  --warm-coral: #E8B86D;
+  --gentle-peach: #F0E8D5;
+  --fulfillment-gold: #E8B86D;
+  --background: #0A1628;
+  --foreground: #F0E8D5;
+  --surface: rgba(12, 22, 42, 0.85);
+  --surface-alt: #0D1A30;
+  --border-color: rgba(201, 150, 63, 0.3);
+  --muted-text: rgba(240, 232, 213, 0.5);
+}
+
+/* Explicit light mode via class (overrides system dark preference) */
+:root.light {
+  --light-bg: #FAFAF7;
+  --dark-navy: #1A1710;
+  --soft-gray: #A69E8E;
+  --primary: #B8822A;
+  --soft-blue: #C9963F;
+  --warm-coral: #E8B86D;
+  --gentle-peach: #F0E8D5;
+  --fulfillment-gold: #C9963F;
+  --background: var(--light-bg);
+  --foreground: var(--dark-navy);
+  --surface: #FFFFFF;
+  --surface-alt: #F5F0E6;
+  --border-color: #D4C9B0;
+  --muted-text: #6B6355;
 }
 
 body { background: var(--background); color: var(--foreground); font-family: var(--font-sans), system-ui, sans-serif; }
@@ -76,6 +120,42 @@ button,
 [type="reset"] {
   -webkit-appearance: none;
   appearance: none;
+  cursor: pointer;
+}
+
+/* Ensure all interactive elements show pointer cursor */
+a,
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+select,
+label[for],
+summary,
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+input,
+textarea {
+  cursor: text;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+input[type="file"],
+input[type="color"],
+input[type="date"] {
+  cursor: pointer;
+}
+
+input:disabled,
+textarea:disabled,
+button:disabled,
+select:disabled {
+  cursor: not-allowed;
 }
 
 /* Utility animations for conic gradient elements */
@@ -91,27 +171,88 @@ button,
   animation: spin 28s linear infinite;
 }
 
-/* Subtle glass card helper (optional) */
+/* HUD panel card (matching mobile panel style) */
 .glass-surface {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.28),
-    rgba(255, 255, 255, 0.12)
-  );
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 20px 40px -18px rgba(0, 0, 0, 0.35);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+:root.dark .glass-surface,
+@media (prefers-color-scheme: dark) { :root:not(.light) .glass-surface {
+  background: rgba(12, 22, 42, 0.85);
+  border-color: rgba(201, 150, 63, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+} }
+
+/* Input field styling (matching mobile) */
+.input-field {
+  border-radius: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(201, 150, 63, 0.12);
+  background: rgba(255, 250, 240, 0.12);
+  color: #F0E8D5;
+  font-size: 16px;
+  min-height: 50px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.input-field::placeholder { color: #9A8E7A; }
+.input-field:focus { border-color: rgba(201, 150, 63, 0.4); }
+
+/* Brand hero background: Piye Mission Control gradient (matching mobile) */
+.bg-brand-gradient {
+  background:
+    linear-gradient(135deg, rgba(201,150,63,0.04), transparent, rgba(201,150,63,0.02)),
+    linear-gradient(180deg, #080F1E 0%, #0A1628 15%, #0D1A30 35%, #0E1B32 55%, #10182C 75%, #0C1322 100%);
 }
 
-/* Brand hero background: dark blue to purple gradient (matching mobile app) */
-.bg-brand-gradient {
-  /* Dark blue to purple gradient matching mobile app */
-  background:
-    radial-gradient(120vmax 80vmax at 10% -10%, rgba(124, 58, 237, 0.3), transparent 60%),
-    radial-gradient(90vmax 60vmax at 90% 110%, rgba(59, 130, 246, 0.2), transparent 55%),
-    linear-gradient(180deg, #1e3a8a 0%, #3b82f6 25%, #7c3aed 75%, #9333ea 100%);
+/* Scan line accent (matching mobile GradientBackground) */
+.bg-brand-gradient::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(201, 150, 63, 0.12);
+  z-index: 1;
+}
+
+.bg-brand-gradient::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(201, 150, 63, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(201, 150, 63, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 150, 63, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px, 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 35%, black 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 35%, black 10%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  50%, 100% { transform: translateX(100%); }
+}
+
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.14) 50%, rgba(255, 255, 255, 0.08) 55%, transparent 100%);
+  transform: translateX(-100%);
+  animation: sweep 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Animated gradient underline for the navbar */
@@ -137,11 +278,11 @@ button,
   left: 0;
   right: 0;
   top: 0;
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, var(--primary), var(--soft-blue), var(--warm-coral), var(--gentle-peach), var(--primary));
   background-size: 300% 100%;
   animation: gradient-slide 10s linear infinite;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 /* Theming transitions (respect reduced motion) */
@@ -199,6 +340,11 @@ button,
   }
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.6s ease-in both;
 }
@@ -213,4 +359,32 @@ button,
   .animate-fade-in {
     animation: none !important;
   }
+  /* Disable card hover lift for users who prefer reduced motion */
+  a[class*="rounded-"],
+  button[class*="rounded-"],
+  div[class*="rounded-"][role="button"] {
+    transform: none !important;
+  }
+}
+
+/* Global card hover lift — applies to all interactive card-like elements */
+a[class*="rounded-xl"],
+a[class*="rounded-2xl"],
+button[class*="rounded-2xl"],
+div[class*="rounded-2xl"][role="button"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+a[class*="rounded-xl"]:hover,
+a[class*="rounded-2xl"]:hover,
+button[class*="rounded-2xl"]:hover,
+div[class*="rounded-2xl"][role="button"]:hover {
+  transform: translateY(-2px);
+}
+
+a[class*="rounded-xl"]:active,
+a[class*="rounded-2xl"]:active,
+button[class*="rounded-2xl"]:active,
+div[class*="rounded-2xl"][role="button"]:active {
+  transform: translateY(0px);
 }

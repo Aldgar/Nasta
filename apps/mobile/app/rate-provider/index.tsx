@@ -79,7 +79,7 @@ export default function RateProviderScreen() {
         <Feather 
             name="star" 
             size={40} 
-            color={filled ? "#fbbf24" : (isDark ? "#4b5563" : "#d1d5db")} 
+            color={filled ? "#fbbf24" : (isDark ? "#6B6355" : "#D4C0A0")} 
             style={{ marginHorizontal: 4 }}
         />
     </TouchableOpacity>
@@ -98,8 +98,8 @@ export default function RateProviderScreen() {
 
         <ScrollView contentContainerStyle={styles.content}>
             <View style={styles.profileSection}>
-                <View style={[styles.avatarPlaceholder, { backgroundColor: isDark ? "#374151" : "#e5e7eb" }]}>
-                    <Text style={{ fontSize: 32, fontWeight: "bold", color: "#9ca3af" }}>
+                <View style={[styles.avatarPlaceholder, { backgroundColor: isDark ? "#5C5548" : "#E8D8B8" }]}>
+                    <Text style={{ fontSize: 32, fontWeight: "800", color: "#9A8E7A" }}>
                         {(typeof name === 'string' ? name : "U").charAt(0)}
                     </Text>
                 </View>
@@ -116,15 +116,15 @@ export default function RateProviderScreen() {
                 {rating > 0 ? [t("rateProvider.poor"), t("rateProvider.fair"), t("rateProvider.good"), t("rateProvider.veryGood"), t("rateProvider.excellent")][rating - 1] : t("rateProvider.tapToRate")}
             </Text>
 
-            <View style={[styles.inputContainer, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#fff" }]}>
+            <View style={[styles.inputContainer, { backgroundColor: isDark ? "rgba(255,250,240,0.06)" : "#FFFAF0" }]}>
                 <Text style={[styles.label, { color: colors.text }]}>{t("rateProvider.writeReview")}</Text>
                 <TextInput
                     style={[styles.textArea, { 
                         color: colors.text,
-                        borderColor: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb"
+                        borderColor: isDark ? "rgba(201,150,63,0.12)" : "#E8D8B8"
                     }]}
                     placeholder={t("rateProvider.reviewPlaceholder")}
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#9A8E7A"
                     multiline
                     numberOfLines={5}
                     value={review}
@@ -136,16 +136,16 @@ export default function RateProviderScreen() {
                 style={[
                     styles.submitBtn, 
                     {
-                        backgroundColor: isDark ? "#6366f1" : "#4f46e5",
+                        backgroundColor: isDark ? "#38BDF8" : "#0284C7",
                         borderWidth: 1,
-                        borderColor: isDark ? "#6366f1" : "#4f46e5",
+                        borderColor: isDark ? "#38BDF8" : "#0284C7",
                     },
                     submitting && { opacity: 0.7 }
                 ]}
                 onPress={handleSubmit}
                 disabled={submitting}
             >
-                <Text style={[styles.submitBtnText, { color: "#ffffff" }]}>
+                <Text style={[styles.submitBtnText, { color: "#FFFAF0" }]}>
                     {submitting ? t("rateProvider.submitting") : t("rateProvider.submitReview")}
                 </Text>
             </TouchableOpacity>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  headerTitle: { fontSize: 18, fontWeight: "bold" },
+  headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: 1.5 },
   backBtn: { padding: 4 },
   content: { padding: 24, alignItems: 'center' },
   profileSection: { alignItems: 'center', marginBottom: 32 },
@@ -176,11 +176,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  name: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
-  subtitle: { fontSize: 16, color: "#9ca3af" },
+  name: { fontSize: 24, fontWeight: "800", marginBottom: 4 },
+  subtitle: { fontSize: 16, color: "#9A8E7A" },
   starsContainer: { flexDirection: 'row', marginBottom: 12 },
-  ratingLabel: { fontSize: 18, fontWeight: "600", marginBottom: 40 },
-  inputContainer: { width: '100%', borderRadius: 16, padding: 16, marginBottom: 24 },
+  ratingLabel: { fontSize: 18, fontWeight: "700", marginBottom: 40 },
+  inputContainer: { width: '100%', borderRadius: 4, padding: 16, marginBottom: 24 },
   label: { fontSize: 14, fontWeight: "700", marginBottom: 12 },
   textArea: {
     height: 120,
@@ -190,14 +190,14 @@ const styles = StyleSheet.create({
   submitBtn: {
     width: '100%',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === 'android' ? 0 : 3,
+    elevation: 0,
   },
-  submitBtnText: { fontWeight: "bold", fontSize: 16 },
+  submitBtnText: { fontWeight: "800", fontSize: 16 },
 });
 

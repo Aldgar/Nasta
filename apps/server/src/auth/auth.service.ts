@@ -94,6 +94,7 @@ export class AuthService {
         findUnique: (args: unknown) => Promise<AdminRecord | null>;
         findFirst: (args: unknown) => Promise<Pick<AdminRecord, 'id'> | null>;
         create: (args: unknown) => Promise<AdminRecord>;
+        update: (args: unknown) => Promise<AdminRecord>;
       };
     };
     return prisma.admin;
@@ -114,9 +115,9 @@ export class AuthService {
         ? saltRounds
         : 12;
 
-    console.log('🔐 Salt rounds config value:', saltRoundsStr);
-    console.log('🔐 Salt rounds parsed:', saltRounds);
-    console.log(
+    this.logger.log('🔐 Salt rounds config value:', saltRoundsStr);
+    this.logger.log('🔐 Salt rounds parsed:', saltRounds);
+    this.logger.log(
       '🔐 Salt rounds final (type/value):',
       typeof validSaltRounds,
       validSaltRounds,
@@ -203,7 +204,7 @@ export class AuthService {
 
   // Register new user
   async register(dto: RegisterDto, languageHint?: string) {
-    console.log('🔍 Registration attempt for:', dto.email);
+    this.logger.log('🔍 Registration attempt for:', dto.email);
 
     try {
       // Check if user already exists
@@ -212,15 +213,15 @@ export class AuthService {
       });
 
       if (existingUser) {
-        console.log('❌ User already exists:', dto.email);
+        this.logger.log('❌ User already exists:', dto.email);
         throw new ConflictException('User with this email already exists');
       }
 
-      console.log('🔐 Hashing password...');
+      this.logger.log('🔐 Hashing password...');
       // Hash password
       const hashedPassword = await this.hashPassword(dto.password);
 
-      console.log('💾 Creating user in database...');
+      this.logger.log('💾 Creating user in database...');
       // Create user
       const user = await this.prisma.user.create({
         data: {
@@ -252,11 +253,11 @@ export class AuthService {
         }
       }
 
-      console.log('🎫 Generating tokens...');
+      this.logger.log('🎫 Generating tokens...');
       // Generate tokens
       const tokens = this.generateTokens(user.id, user.email, user.role);
 
-      console.log('✅ Registration successful for:', user.email);
+      this.logger.log('✅ Registration successful for:', user.email);
 
       // Send welcome email with verification
       const verificationToken = this.generateToken(16);
@@ -278,7 +279,7 @@ export class AuthService {
           'User registered successfully. Please check your email for a welcome message and verification link.',
       };
     } catch (error) {
-      console.error('❌ Registration error:', error);
+      this.logger.error('❌ Registration error:', error);
       if (
         error instanceof ConflictException ||
         error instanceof UnauthorizedException
@@ -362,10 +363,20 @@ export class AuthService {
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException('Account is deactivated');
+      const pendingDeletion = await this.prisma.deletionRequest.findFirst({
+        where: { userId: user.id, status: 'PENDING' },
+        select: { id: true },
+      });
+      if (pendingDeletion) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { isActive: true },
+        });
+      } else {
+        throw new UnauthorizedException('Account is deactivated');
+      }
     }
 
-    // Verify password
     const isPasswordValid = await this.verifyPassword(
       dto.password,
       user.password,
@@ -423,8 +434,22 @@ export class AuthService {
         isActive: true,
       },
     });
-    if (!user || !user.isActive || user.role !== role) {
+    if (!user || user.role !== role) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!user.isActive) {
+      const pendingDeletion = await this.prisma.deletionRequest.findFirst({
+        where: { userId: user.id, status: 'PENDING' },
+        select: { id: true },
+      });
+      if (pendingDeletion) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { isActive: true },
+        });
+      } else {
+        throw new UnauthorizedException('Account is deactivated');
+      }
     }
     const ok = await this.verifyPassword(dto.password, user.password);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
@@ -471,7 +496,7 @@ export class AuthService {
       this.configService.get<string>('NODE_ENV') === 'development';
 
     if (enableDebugLogs) {
-      console.log('🔍 AdminLogin attempt for:', dto.email);
+      this.logger.log('🔍 AdminLogin attempt for:', dto.email);
     }
 
     // Find admin user - fix for MongoDB
@@ -490,7 +515,7 @@ export class AuthService {
     });
 
     if (enableDebugLogs) {
-      console.log(
+      this.logger.log(
         '👤 Found user:',
         admin
           ? {
@@ -505,32 +530,32 @@ export class AuthService {
 
     // Check if user exists and is admin
     if (!admin) {
-      if (enableDebugLogs) console.log('❌ No user found');
+      if (enableDebugLogs) this.logger.log('❌ No user found');
       throw new UnauthorizedException('Invalid admin credentials');
     }
 
     // role field comes from token we issue; persistence is separate Admin model
 
     if (!admin.isActive) {
-      if (enableDebugLogs) console.log('❌ Admin account is not active');
+      if (enableDebugLogs) this.logger.log('❌ Admin account is not active');
       throw new UnauthorizedException('Admin account is deactivated');
     }
 
     // Verify password
-    if (enableDebugLogs) console.log('🔐 Verifying password...');
+    if (enableDebugLogs) this.logger.log('🔐 Verifying password...');
     const isPasswordValid = await this.verifyPassword(
       dto.password,
       admin.password,
     );
 
-    if (enableDebugLogs) console.log('🔐 Password valid:', isPasswordValid);
+    if (enableDebugLogs) this.logger.log('🔐 Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
-      if (enableDebugLogs) console.log('❌ Invalid password');
+      if (enableDebugLogs) this.logger.log('❌ Invalid password');
       throw new UnauthorizedException('Invalid admin credentials');
     }
 
-    if (enableDebugLogs) console.log('✅ Admin login successful');
+    if (enableDebugLogs) this.logger.log('✅ Admin login successful');
 
     // Generate tokens with admin privileges
     const tokens = this.generateTokens(admin.id, admin.email, 'ADMIN');
@@ -855,21 +880,31 @@ export class AuthService {
         message: 'If the email exists, a temporary password was sent',
       };
 
-    // Generate a temporary password (12 characters: 8 alphanumeric + 4 special)
     const tempPassword = this.generateTemporaryPassword();
     const hashed = await this.hashPassword(tempPassword);
 
-    // Update user password and set temporary password flag
+    const verifyBeforeSave = await this.verifyPassword(tempPassword, hashed);
+    if (!verifyBeforeSave) {
+      throw new Error('Password hash verification failed');
+    }
+
     await this.prisma.user.update({
       where: { id: user.id },
-      data: {
-        password: hashed,
-        // Store temporary password flag in metadata or use a separate field
-        // For now, we'll use a metadata field to track this
-      },
+      data: { password: hashed },
     });
 
-    // Store temporary password flag in user profile links/metadata
+    const updated = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { password: true },
+    });
+    const verifyAfterSave = await this.verifyPassword(
+      tempPassword,
+      updated!.password,
+    );
+    if (!verifyAfterSave) {
+      throw new Error('Stored password does not match generated password');
+    }
+
     const userProfile = await this.prisma.userProfile.findUnique({
       where: { userId: user.id },
     });
@@ -882,7 +917,6 @@ export class AuthService {
         data: { links },
       });
     } else {
-      // Create profile if it doesn't exist
       await this.prisma.userProfile.create({
         data: {
           userId: user.id,
@@ -902,26 +936,21 @@ export class AuthService {
   }
 
   private generateTemporaryPassword(): string {
-    // Generate a secure temporary password: 8 alphanumeric + 4 special chars
     const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const lowercase = 'abcdefghijkmnpqrstuvwxyz';
     const numbers = '23456789';
-    const special = '!@#$%&*';
 
     let password = '';
-    // Ensure at least one of each type
     password += uppercase[Math.floor(Math.random() * uppercase.length)];
     password += lowercase[Math.floor(Math.random() * lowercase.length)];
     password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += special[Math.floor(Math.random() * special.length)];
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
 
-    // Fill the rest randomly
-    const allChars = uppercase + lowercase + numbers + special;
-    for (let i = password.length; i < 12; i++) {
+    const allChars = uppercase + lowercase + numbers;
+    for (let i = password.length; i < 10; i++) {
       password += allChars[Math.floor(Math.random() * allChars.length)];
     }
 
-    // Shuffle the password
     return password
       .split('')
       .sort(() => Math.random() - 0.5)
@@ -954,7 +983,27 @@ export class AuthService {
     userId: string,
     currentPassword: string,
     newPassword: string,
+    role?: string,
   ) {
+    // Admin users live in the admins collection
+    if (role === 'ADMIN') {
+      const admin = await this.admins.findUnique({
+        where: { id: userId },
+        select: { id: true, password: true, isActive: true },
+      });
+      if (!admin || !admin.isActive) {
+        throw new UnauthorizedException('Admin not found or inactive');
+      }
+      const ok = await this.verifyPassword(currentPassword, admin.password);
+      if (!ok) throw new BadRequestException('Current password is incorrect');
+      const hashed = await this.hashPassword(newPassword);
+      await this.admins.update({
+        where: { id: userId },
+        data: { password: hashed },
+      });
+      return { success: true, message: 'Password changed successfully' };
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, password: true, isActive: true },

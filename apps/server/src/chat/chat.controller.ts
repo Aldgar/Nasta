@@ -60,6 +60,12 @@ export class ChatController {
     });
   }
 
+  @Get('conversations/:id')
+  async getConversation(@Req() req: RequestWithUser, @Param('id') id: string) {
+    const userId = String(req.user?.userId ?? req.user?.id);
+    return this.chat.getConversation(userId, id);
+  }
+
   @Get('conversations/:id/messages')
   async listMessages(
     @Req() req: RequestWithUser,

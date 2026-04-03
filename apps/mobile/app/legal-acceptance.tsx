@@ -244,7 +244,7 @@ export default function LegalAcceptanceScreen() {
             <Text
               style={[
                 styles.text,
-                { color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b" },
+                { color: isDark ? "rgba(240,232,213,0.8)" : "#0A1628" },
               ]}
             >
               {listText}
@@ -257,7 +257,7 @@ export default function LegalAcceptanceScreen() {
             key={key++}
             style={[
               styles.text,
-              { color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b" },
+              { color: isDark ? "rgba(240,232,213,0.8)" : "#0A1628" },
             ]}
           >
             {trimmed}
@@ -299,8 +299,8 @@ export default function LegalAcceptanceScreen() {
               styles.progressBar,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -334,11 +334,11 @@ export default function LegalAcceptanceScreen() {
                   styles.settingsCard,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.8)"
-                      : "rgba(255, 255, 255, 0.9)",
+                      ? "rgba(12, 22, 42, 0.80)"
+                      : "rgba(255, 250, 240, 0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
               >
@@ -355,7 +355,7 @@ export default function LegalAcceptanceScreen() {
                     <Text
                       style={[
                         styles.settingDesc,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("cookies.essentialDescription")}
@@ -365,10 +365,10 @@ export default function LegalAcceptanceScreen() {
                     value={true}
                     disabled={true}
                     trackColor={{
-                      false: isDark ? "#475569" : "#cbd5e1",
-                      true: isDark ? "#475569" : "#cbd5e1",
+                      false: isDark ? "#6B6355" : "#B8A88A",
+                      true: isDark ? "#6B6355" : "#B8A88A",
                     }}
-                    thumbColor={isDark ? "#6366f1" : colors.tint}
+                    thumbColor={isDark ? "#C9963F" : colors.tint}
                   />
                 </View>
 
@@ -381,7 +381,7 @@ export default function LegalAcceptanceScreen() {
                     <Text
                       style={[
                         styles.settingDesc,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("cookies.analyticsDescription")}
@@ -391,17 +391,17 @@ export default function LegalAcceptanceScreen() {
                     value={analyticsEnabled}
                     onValueChange={handleAnalyticsToggle}
                     trackColor={{
-                      false: isDark ? "#475569" : "#cbd5e1",
-                      true: isDark ? "#475569" : "#cbd5e1",
+                      false: isDark ? "#6B6355" : "#B8A88A",
+                      true: isDark ? "#6B6355" : "#B8A88A",
                     }}
                     thumbColor={
                       analyticsEnabled
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "#64748b"
-                          : "#94a3b8"
+                          ? "#8A7B68"
+                          : "#9A8E7A"
                     }
                   />
                 </View>
@@ -415,7 +415,7 @@ export default function LegalAcceptanceScreen() {
                     <Text
                       style={[
                         styles.settingDesc,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("cookies.marketingDescription")}
@@ -425,17 +425,17 @@ export default function LegalAcceptanceScreen() {
                     value={marketingEnabled}
                     onValueChange={handleMarketingToggle}
                     trackColor={{
-                      false: isDark ? "#475569" : "#cbd5e1",
-                      true: isDark ? "#475569" : "#cbd5e1",
+                      false: isDark ? "#6B6355" : "#B8A88A",
+                      true: isDark ? "#6B6355" : "#B8A88A",
                     }}
                     thumbColor={
                       marketingEnabled
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : isDark
-                          ? "#64748b"
-                          : "#94a3b8"
+                          ? "#8A7B68"
+                          : "#9A8E7A"
                     }
                   />
                 </View>
@@ -445,12 +445,12 @@ export default function LegalAcceptanceScreen() {
                 <Feather
                   name="info"
                   size={16}
-                  color={isDark ? "#3b82f6" : "#2563eb"}
+                  color={isDark ? "#C9963F" : "#B8822A"}
                 />
                 <Text
                   style={[
                     styles.infoText,
-                    { color: isDark ? "#93c5fd" : "#1e40af" },
+                    { color: isDark ? "#E8B86D" : "#A67A25" },
                   ]}
                 >
                   {t("cookies.preferencesInfo")}
@@ -467,8 +467,8 @@ export default function LegalAcceptanceScreen() {
             {
               backgroundColor: "transparent",
               borderTopColor: isDark
-                ? "rgba(255,255,255,0.1)"
-                : "rgba(0,0,0,0.1)",
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
         >
@@ -503,7 +503,7 @@ export default function LegalAcceptanceScreen() {
             style={[
               styles.acceptButton,
               {
-                backgroundColor: isDark ? "#6366f1" : "#0a7ea4",
+                backgroundColor: isDark ? "#C9963F" : "#B8822A",
                 opacity: canAccept ? 1 : 0.5,
               },
             ]}
@@ -514,7 +514,7 @@ export default function LegalAcceptanceScreen() {
               {isAccepted ? `✓ ${t("legal.accepted")}` : t("legal.iAccept")}
             </Text>
             {currentPageIndex < legalPages.length - 1 && (
-              <Feather name="arrow-right" size={20} color="#fff" />
+              <Feather name="arrow-right" size={20} color="#FFFAF0" />
             )}
           </TouchableOpacity>
         </View>
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   },
   pageIndicator: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   progressContainer: {
     paddingHorizontal: 20,
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
   },
   h3: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     marginTop: 12,
   },
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   },
   scrollHintText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   acceptButton: {
     flexDirection: "row",
@@ -628,22 +628,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
   },
   acceptButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },
   settingsCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginTop: 24,
     borderWidth: 1,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 20, letterSpacing: 1.2, textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 20,
   },
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
   },
   settingRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    borderBottomColor: "rgba(184,130,42,0.06)",
   },
   settingInfo: {
     flex: 1,
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   settingDesc: {
@@ -675,8 +675,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginTop: 24,
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
     gap: 12,
   },
   infoText: {

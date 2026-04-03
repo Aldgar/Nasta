@@ -2,7 +2,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import PaymentSettings from "@/components/settings/PaymentSettings";
 import BackButton from "@/components/navigation/BackButton";
 
-export const metadata = { title: "Payment Settings | Cumprido" };
+export const metadata = { title: "Payment Settings | Nasta" };
 
 export default function PaymentSettingsPage() {
   return (

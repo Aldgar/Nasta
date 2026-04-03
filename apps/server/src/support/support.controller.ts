@@ -3,9 +3,12 @@ import {
   Post,
   Get,
   Body,
+  Logger,
   Param,
   Query,
   Req,
+  UploadedFiles,
+  UseInterceptors,
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
@@ -18,21 +21,35 @@ import { SupportService } from './support.service';
 import { CreateSupportTicketDto } from './dto/create-support-ticket.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { supportUploadConfig } from './config/file-upload.config';
+import { SupportFileUploadService } from './support-file-upload.service';
 
 type SupportStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
 @ApiTags('support')
 @Controller('support')
 export class SupportController {
+  private readonly logger = new Logger(SupportController.name);
+
   constructor(
     private readonly supportService: SupportService,
     private readonly authService: AuthService,
+    private readonly supportFileUpload: SupportFileUploadService,
   ) {}
 
   @Post('contact')
   @Public()
   @ApiOperation({ summary: 'Create a support ticket (public endpoint)' })
+  @UseInterceptors(
+    FilesInterceptor('files', supportUploadConfig.maxFiles, {
+      storage: memoryStorage(),
+      limits: { fileSize: supportUploadConfig.maxFileSize },
+    }),
+  )
   async createTicket(
+    @UploadedFiles() files: Express.Multer.File[] = [],
     @Body() dto: CreateSupportTicketDto,
     @Req() req: Request,
   ) {
@@ -41,7 +58,7 @@ export class SupportController {
 
     // Extract userId from token if present (optional auth)
     let userId: string | undefined;
-    
+
     try {
       // Manually extract and validate token from Authorization header
       const authHeader = req.headers.authorization;
@@ -51,23 +68,46 @@ export class SupportController {
           const user = await this.authService.validateToken(token);
           if (user?.id) {
             userId = user.id;
-            console.log(`[SupportController] Extracted userId from token: ${userId}`);
+            this.logger.log(
+              `[SupportController] Extracted userId from token: ${userId}`,
+            );
           }
         } catch (tokenError) {
-          console.log(`[SupportController] Token validation failed (expected for anonymous): ${tokenError}`);
+          this.logger.log(
+            `[SupportController] Token validation failed (expected for anonymous): ${tokenError}`,
+          );
         }
       } else {
-        console.log(`[SupportController] No Authorization header found`);
+        this.logger.log(`[SupportController] No Authorization header found`);
       }
     } catch (e) {
       // Ignore auth errors for public endpoint - token might be missing or invalid
       // This is fine for a public endpoint
-      console.log(`[SupportController] Error extracting userId: ${e}`);
+      this.logger.log(`[SupportController] Error extracting userId: ${e}`);
     }
 
-    return this.supportService.createTicket({
+    let message = dto.message;
+    let attachmentPaths: string[] = [];
+
+    if (files?.length) {
+      if (files.length > supportUploadConfig.maxFiles) {
+        throw new BadRequestException(
+          `Too many files. Maximum is ${supportUploadConfig.maxFiles}.`,
+        );
+      }
+
+      attachmentPaths = await Promise.all(
+        files.map((file) => this.supportFileUpload.saveFile(file)),
+      );
+
+      message += `\n\nAttachments:\n${attachmentPaths
+        .map((p) => `- /${p}`)
+        .join('\n')}`;
+    }
+
+    const result = await this.supportService.createTicket({
       subject: dto.subject || 'Contact Form Submission',
-      message: dto.message,
+      message,
       category: dto.category,
       priority: dto.priority,
       userId,
@@ -76,13 +116,20 @@ export class SupportController {
       ipAddress,
       userAgent,
     });
+
+    return {
+      ...result,
+      attachments: attachmentPaths,
+    };
   }
 
   @Get('admin/tickets')
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: List support tickets (all admins can access)' })
+  @ApiOperation({
+    summary: 'Admin: List support tickets (all admins can access)',
+  })
   async listTickets(
     @Req() req: Request,
     @Query('status') status?: SupportStatus,
@@ -90,7 +137,9 @@ export class SupportController {
     @Query('category') category?: string,
   ) {
     const admin = req.user as { id: string; adminCapabilities?: string[] };
-    const isSuperAdmin = (admin.adminCapabilities || []).includes('SUPER_ADMIN');
+    const isSuperAdmin = (admin.adminCapabilities || []).includes(
+      'SUPER_ADMIN',
+    );
 
     return this.supportService.listTickets(admin.id, {
       status,
@@ -104,7 +153,9 @@ export class SupportController {
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: Get support ticket details (all admins can access)' })
+  @ApiOperation({
+    summary: 'Admin: Get support ticket details (all admins can access)',
+  })
   async getTicket(@Param('id') id: string) {
     return this.supportService.getTicket(id);
   }
@@ -113,7 +164,9 @@ export class SupportController {
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: Assign ticket to yourself (all admins can access)' })
+  @ApiOperation({
+    summary: 'Admin: Assign ticket to yourself (all admins can access)',
+  })
   async assignTicket(@Param('id') id: string, @Req() req: Request) {
     const admin = req.user as { id: string; adminCapabilities?: string[] };
     return this.supportService.assignTicket(
@@ -127,7 +180,9 @@ export class SupportController {
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: Resolve a support ticket (all admins can access)' })
+  @ApiOperation({
+    summary: 'Admin: Resolve a support ticket (all admins can access)',
+  })
   async resolveTicket(
     @Param('id') id: string,
     @Body() body: { resolution: string; notes?: string },
@@ -148,7 +203,9 @@ export class SupportController {
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: Update ticket status (all admins can access)' })
+  @ApiOperation({
+    summary: 'Admin: Update ticket status (all admins can access)',
+  })
   async updateStatus(
     @Param('id') id: string,
     @Body() body: { status: SupportStatus; notes?: string },
@@ -167,7 +224,9 @@ export class SupportController {
   @Public()
   @UseGuards(AdminJwtGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: Respond to a support ticket (sends email to user)' })
+  @ApiOperation({
+    summary: 'Admin: Respond to a support ticket (sends email to user)',
+  })
   async respondToTicket(
     @Param('id') id: string,
     @Body() body: { response: string },
@@ -181,4 +240,3 @@ export class SupportController {
     return this.supportService.respondToTicket(id, admin.id, body.response);
   }
 }
-

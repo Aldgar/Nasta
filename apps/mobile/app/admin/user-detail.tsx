@@ -194,13 +194,13 @@ export default function UserDetailScreen() {
               {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
-              }
+              },
             );
 
             if (res.ok) {
               Alert.alert(
                 t("common.success"),
-                t("admin.actionRevokedSuccessfully")
+                t("admin.actionRevokedSuccessfully"),
               );
               fetchUserActions();
               fetchUserDetails(); // Refresh to update user status if needed
@@ -208,7 +208,7 @@ export default function UserDetailScreen() {
               const error = await res.json();
               Alert.alert(
                 t("common.error"),
-                error.message || t("admin.failedToRevokeAction")
+                error.message || t("admin.failedToRevokeAction"),
               );
             }
           } catch (error) {
@@ -275,12 +275,12 @@ export default function UserDetailScreen() {
         if (res.status === 401 || res.status === 403) {
           Alert.alert(
             t("admin.permissionDenied"),
-            t("admin.onlySuperAdminsCanDeleteUsers")
+            t("admin.onlySuperAdminsCanDeleteUsers"),
           );
         } else {
           Alert.alert(
             t("common.error"),
-            error.message || t("admin.failedToDeleteUser")
+            error.message || t("admin.failedToDeleteUser"),
           );
         }
       }
@@ -298,7 +298,7 @@ export default function UserDetailScreen() {
       Alert.alert(
         t("admin.permissionRequired"),
         t("admin.onlySuperAdminsCanDeleteUsers"),
-        [{ text: t("common.ok") }]
+        [{ text: t("common.ok") }],
       );
       return;
     }
@@ -342,7 +342,7 @@ export default function UserDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToSendRequest")
+          error.message || t("admin.failedToSendRequest"),
         );
       }
     } catch (error) {
@@ -393,7 +393,7 @@ export default function UserDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToRecordLegalAction")
+          error.message || t("admin.failedToRecordLegalAction"),
         );
       }
     } catch (error) {
@@ -444,7 +444,7 @@ export default function UserDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToIssueWarning")
+          error.message || t("admin.failedToIssueWarning"),
         );
       }
     } catch (error) {
@@ -495,7 +495,7 @@ export default function UserDetailScreen() {
         const error = await res.json();
         Alert.alert(
           t("common.error"),
-          error.message || t("admin.failedToSubmitActionForm")
+          error.message || t("admin.failedToSubmitActionForm"),
         );
       }
     } catch (error) {
@@ -510,7 +510,7 @@ export default function UserDetailScreen() {
     if (!userDetails?.user) return;
     const userName = `${userDetails.user.firstName} ${userDetails.user.lastName}`;
     router.push(
-      `/chat/room?userId=${userDetails.user.id}&userName=${userName}` as never
+      `/chat/room?userId=${userDetails.user.id}&userName=${userName}` as never,
     );
   };
 
@@ -566,8 +566,8 @@ export default function UserDetailScreen() {
               styles.backButton,
               {
                 backgroundColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.05)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.06)",
               },
             ]}
           >
@@ -590,11 +590,11 @@ export default function UserDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.8)"
-                  : "rgba(255, 255, 255, 0.9)",
+                  ? "rgba(12, 22, 42, 0.80)"
+                  : "rgba(255, 250, 240, 0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -604,8 +604,8 @@ export default function UserDetailScreen() {
                   styles.avatarContainer,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.2)"
-                      : "rgba(99, 102, 241, 0.1)",
+                      ? "rgba(201, 150, 63, 0.2)"
+                      : "rgba(201, 150, 63, 0.1)",
                   },
                 ]}
               >
@@ -613,7 +613,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.avatarText,
-                      { color: isDark ? "#818cf8" : "#6366f1" },
+                      { color: isDark ? "#A78BFA" : "#7C3AED" },
                     ]}
                   >
                     {user.firstName[0]}
@@ -623,7 +623,7 @@ export default function UserDetailScreen() {
                   <Feather
                     name="user"
                     size={32}
-                    color={isDark ? "#818cf8" : "#6366f1"}
+                    color={isDark ? "#A78BFA" : "#7C3AED"}
                   />
                 )}
               </View>
@@ -634,7 +634,7 @@ export default function UserDetailScreen() {
                 <Text
                   style={[
                     styles.userRole,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {user.role === "JOB_SEEKER"
@@ -649,7 +649,7 @@ export default function UserDetailScreen() {
                 <Feather
                   name="mail"
                   size={16}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text style={[styles.infoText, { color: colors.text }]}>
                   {user.email}
@@ -660,7 +660,7 @@ export default function UserDetailScreen() {
                   <Feather
                     name="phone"
                     size={16}
-                    color={isDark ? "#94a3b8" : "#64748b"}
+                    color={isDark ? "#9A8E7A" : "#8A7B68"}
                   />
                   <Text style={[styles.infoText, { color: colors.text }]}>
                     {user.phone}
@@ -671,7 +671,7 @@ export default function UserDetailScreen() {
                 <Feather
                   name="map-pin"
                   size={16}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text style={[styles.infoText, { color: colors.text }]}>
                   {userLocation}
@@ -681,7 +681,7 @@ export default function UserDetailScreen() {
                 <Feather
                   name="calendar"
                   size={16}
-                  color={isDark ? "#94a3b8" : "#64748b"}
+                  color={isDark ? "#9A8E7A" : "#8A7B68"}
                 />
                 <Text style={[styles.infoText, { color: colors.text }]}>
                   {t("admin.joined")} {formatDate(user.createdAt)}
@@ -692,7 +692,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.bioLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.bio")}:
@@ -714,7 +714,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.verificationLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.email")}
@@ -747,7 +747,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.verificationLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.phone")}
@@ -781,7 +781,7 @@ export default function UserDetailScreen() {
                       <Text
                         style={[
                           styles.verificationLabel,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {t("admin.id")}
@@ -814,7 +814,7 @@ export default function UserDetailScreen() {
                       <Text
                         style={[
                           styles.verificationLabel,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {t("admin.background")}
@@ -857,11 +857,11 @@ export default function UserDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.8)"
-                  : "rgba(255, 255, 255, 0.9)",
+                  ? "rgba(12, 22, 42, 0.80)"
+                  : "rgba(255, 250, 240, 0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -876,7 +876,7 @@ export default function UserDetailScreen() {
                 <Text
                   style={[
                     styles.statLabel,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("admin.rating")} ({stats.ratingCount})
@@ -890,7 +890,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.statLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.activeServices")}
@@ -904,7 +904,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.statLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.jobPosts")}
@@ -918,7 +918,7 @@ export default function UserDetailScreen() {
                 <Text
                   style={[
                     styles.statLabel,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("admin.reportedIssues")}
@@ -934,11 +934,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -953,7 +953,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.statLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.totalProviders")}
@@ -966,7 +966,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.statLabel,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("admin.thisMonth")}
@@ -982,11 +982,11 @@ export default function UserDetailScreen() {
               styles.card,
               {
                 backgroundColor: isDark
-                  ? "rgba(30, 41, 59, 0.8)"
-                  : "rgba(255, 255, 255, 0.9)",
+                  ? "rgba(12, 22, 42, 0.80)"
+                  : "rgba(255, 250, 240, 0.92)",
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -997,11 +997,11 @@ export default function UserDetailScreen() {
               <TouchableOpacity
                 style={[
                   styles.actionButton,
-                  { backgroundColor: isDark ? "#3b82f6" : "#2563eb" },
+                  { backgroundColor: isDark ? "#C9963F" : "#B8822A" },
                 ]}
                 onPress={handleContactChat}
               >
-                <Feather name="message-circle" size={20} color="#fff" />
+                <Feather name="message-circle" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.contactViaChat")}
                 </Text>
@@ -1011,11 +1011,11 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.actionButton,
-                    { backgroundColor: isDark ? "#6366f1" : colors.tint },
+                    { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" },
                   ]}
                   onPress={handleManageVerifications}
                 >
-                  <Feather name="shield" size={20} color="#fff" />
+                  <Feather name="shield" size={20} color="#FFFAF0" />
                   <Text style={styles.actionButtonText}>
                     {t("admin.manageVerifications")}
                   </Text>
@@ -1026,22 +1026,22 @@ export default function UserDetailScreen() {
                   styles.actionButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(99, 102, 241, 0.8)"
-                      : "rgba(99, 102, 241, 0.8)",
+                      ? "rgba(201, 150, 63, 0.8)"
+                      : "rgba(201, 150, 63, 0.8)",
                   },
                 ]}
                 onPress={() => setShowRequestInfoModal(true)}
               >
-                <Feather name="info" size={20} color="#fff" />
+                <Feather name="info" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.requestInfo")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: "#8b5cf6" }]}
+                style={[styles.actionButton, { backgroundColor: "#E8B86D" }]}
                 onPress={() => setShowLegalActionModal(true)}
               >
-                <Feather name="briefcase" size={20} color="#fff" />
+                <Feather name="briefcase" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.legalAction")}
                 </Text>
@@ -1050,7 +1050,7 @@ export default function UserDetailScreen() {
                 style={[styles.actionButton, { backgroundColor: "#f59e0b" }]}
                 onPress={() => setShowWarningModal(true)}
               >
-                <Feather name="alert-triangle" size={20} color="#fff" />
+                <Feather name="alert-triangle" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.warnings")}
                 </Text>
@@ -1059,7 +1059,7 @@ export default function UserDetailScreen() {
                 style={[styles.actionButton, { backgroundColor: "#10b981" }]}
                 onPress={() => setShowActionFormModal(true)}
               >
-                <Feather name="file-text" size={20} color="#fff" />
+                <Feather name="file-text" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.actionForm")}
                 </Text>
@@ -1071,14 +1071,14 @@ export default function UserDetailScreen() {
                     backgroundColor: isSuperAdmin
                       ? "#ef4444"
                       : isDark
-                        ? "#475569"
-                        : "#94a3b8",
+                        ? "#6B6355"
+                        : "#9A8E7A",
                     opacity: isSuperAdmin ? 1 : 0.6,
                   },
                 ]}
                 onPress={handleDeletePress}
               >
-                <Feather name="trash-2" size={20} color="#fff" />
+                <Feather name="trash-2" size={20} color="#FFFAF0" />
                 <Text style={styles.actionButtonText}>
                   {t("admin.deleteUser")}
                 </Text>
@@ -1119,11 +1119,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1134,8 +1134,8 @@ export default function UserDetailScreen() {
                       styles.sectionIconContainer,
                       {
                         backgroundColor: isDark
-                          ? "rgba(99, 102, 241, 0.2)"
-                          : "rgba(99, 102, 241, 0.1)",
+                          ? "rgba(201, 150, 63, 0.2)"
+                          : "rgba(201, 150, 63, 0.1)",
                       },
                     ]}
                   >
@@ -1155,11 +1155,11 @@ export default function UserDetailScreen() {
                     styles.actionCountBadge,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.25)"
-                        : "rgba(99, 102, 241, 0.15)",
+                        ? "rgba(201, 150, 63, 0.25)"
+                        : "rgba(201, 150, 63, 0.15)",
                       borderColor: isDark
-                        ? "rgba(99, 102, 241, 0.4)"
-                        : "rgba(99, 102, 241, 0.3)",
+                        ? "rgba(201, 150, 63, 0.4)"
+                        : "rgba(201, 150, 63, 0.3)",
                     },
                   ]}
                 >
@@ -1182,12 +1182,12 @@ export default function UserDetailScreen() {
                         case "LEGAL_ACTION":
                           return {
                             icon: "briefcase",
-                            color: "#8b5cf6",
-                            lightColor: "#a78bfa",
+                            color: "#E8B86D",
+                            lightColor: "#E8B86D",
                             bgColor: isDark
-                              ? "rgba(139, 92, 246, 0.12)"
-                              : "rgba(139, 92, 246, 0.06)",
-                            borderColor: "#8b5cf6",
+                              ? "rgba(232, 184, 109, 0.12)"
+                              : "rgba(232, 184, 109, 0.06)",
+                            borderColor: "#E8B86D",
                             label: t("admin.legalActionLabel", {
                               actionType:
                                 action.actionData?.actionType ||
@@ -1236,12 +1236,12 @@ export default function UserDetailScreen() {
                         case "REQUEST_INFO":
                           return {
                             icon: "info",
-                            color: "#6366f1",
-                            lightColor: "#818cf8",
+                            color: "#C9963F",
+                            lightColor: "#E8B86D",
                             bgColor: isDark
-                              ? "rgba(99, 102, 241, 0.12)"
-                              : "rgba(99, 102, 241, 0.06)",
-                            borderColor: "#6366f1",
+                              ? "rgba(201, 150, 63, 0.12)"
+                              : "rgba(201, 150, 63, 0.06)",
+                            borderColor: "#C9963F",
                             label: t("admin.informationRequest"),
                             details:
                               action.actionData?.request ||
@@ -1253,8 +1253,8 @@ export default function UserDetailScreen() {
                             color: colors.tint,
                             lightColor: colors.tint,
                             bgColor: isDark
-                              ? "rgba(99, 102, 241, 0.12)"
-                              : "rgba(99, 102, 241, 0.06)",
+                              ? "rgba(201, 150, 63, 0.12)"
+                              : "rgba(201, 150, 63, 0.06)",
                             borderColor: colors.tint,
                             label: t("admin.unknownAction"),
                             details: t("admin.noDetailsAvailable"),
@@ -1272,10 +1272,10 @@ export default function UserDetailScreen() {
                           styles.actionHistoryCard,
                           {
                             backgroundColor: isDark
-                              ? "rgba(30, 41, 59, 0.6)"
-                              : "rgba(255, 255, 255, 0.7)",
+                              ? "rgba(12, 22, 42, 0.65)"
+                              : "rgba(240, 232, 213, 0.7)",
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.08)"
+                              ? "rgba(255,250,240,0.10)"
                               : "rgba(0,0,0,0.08)",
                           },
                           index !== userActions.length - 1 &&
@@ -1353,8 +1353,8 @@ export default function UserDetailScreen() {
                                   styles.actionHistoryDetails,
                                   {
                                     color: isDark
-                                      ? "rgba(255,255,255,0.7)"
-                                      : "#64748b",
+                                      ? "rgba(240,232,213,0.7)"
+                                      : "#8A7B68",
                                   },
                                 ]}
                                 numberOfLines={2}
@@ -1368,8 +1368,8 @@ export default function UserDetailScreen() {
                               styles.actionHistoryFooter,
                               {
                                 borderTopColor: isDark
-                                  ? "rgba(255,255,255,0.05)"
-                                  : "rgba(0,0,0,0.05)",
+                                  ? "rgba(255,250,240,0.06)"
+                                  : "rgba(184,130,42,0.06)",
                               },
                             ]}
                           >
@@ -1378,12 +1378,12 @@ export default function UserDetailScreen() {
                                 <Feather
                                   name="calendar"
                                   size={11}
-                                  color={isDark ? "#64748b" : "#94a3b8"}
+                                  color={isDark ? "#8A7B68" : "#9A8E7A"}
                                 />
                                 <Text
                                   style={[
                                     styles.actionHistoryMetaText,
-                                    { color: isDark ? "#64748b" : "#94a3b8" },
+                                    { color: isDark ? "#8A7B68" : "#9A8E7A" },
                                   ]}
                                 >
                                   {formatDate(action.createdAt)}
@@ -1396,8 +1396,8 @@ export default function UserDetailScreen() {
                                       styles.actionHistoryMetaDivider,
                                       {
                                         backgroundColor: isDark
-                                          ? "rgba(255,255,255,0.1)"
-                                          : "rgba(0,0,0,0.1)",
+                                          ? "rgba(201,150,63,0.12)"
+                                          : "rgba(184,130,42,0.2)",
                                       },
                                     ]}
                                   />
@@ -1405,13 +1405,13 @@ export default function UserDetailScreen() {
                                     <Feather
                                       name="hash"
                                       size={11}
-                                      color={isDark ? "#64748b" : "#94a3b8"}
+                                      color={isDark ? "#8A7B68" : "#9A8E7A"}
                                     />
                                     <Text
                                       style={[
                                         styles.actionHistoryTicket,
                                         {
-                                          color: isDark ? "#64748b" : "#94a3b8",
+                                          color: isDark ? "#8A7B68" : "#9A8E7A",
                                         },
                                       ]}
                                     >
@@ -1428,11 +1428,11 @@ export default function UserDetailScreen() {
                                 styles.revokeActionButton,
                                 {
                                   backgroundColor: isDark
-                                    ? "rgba(99, 102, 241, 0.15)"
-                                    : "rgba(99, 102, 241, 0.1)",
+                                    ? "rgba(201, 150, 63, 0.15)"
+                                    : "rgba(201, 150, 63, 0.1)",
                                   borderColor: isDark
-                                    ? "rgba(99, 102, 241, 0.3)"
-                                    : "rgba(99, 102, 241, 0.25)",
+                                    ? "rgba(201, 150, 63, 0.3)"
+                                    : "rgba(201, 150, 63, 0.25)",
                                 },
                               ]}
                               onPress={() => handleRevokeAction(action.id)}
@@ -1469,11 +1469,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1497,7 +1497,7 @@ export default function UserDetailScreen() {
                     <Text
                       style={[
                         styles.reviewComment,
-                        { color: isDark ? "#cbd5e1" : "#475569" },
+                        { color: isDark ? "#B8A88A" : "#6B6355" },
                       ]}
                     >
                       {review.comment}
@@ -1506,7 +1506,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.reviewDate,
-                      { color: isDark ? "#64748b" : "#94a3b8" },
+                      { color: isDark ? "#8A7B68" : "#9A8E7A" },
                     ]}
                   >
                     {formatDate(review.createdAt)}
@@ -1523,11 +1523,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1542,7 +1542,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.bookingStatus,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     Status: {booking.status}
@@ -1558,11 +1558,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1577,7 +1577,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.jobStatus,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     Status: {job.status}
@@ -1594,11 +1594,11 @@ export default function UserDetailScreen() {
                 styles.card,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
+                    ? "rgba(12, 22, 42, 0.80)"
+                    : "rgba(255, 250, 240, 0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
             >
@@ -1612,7 +1612,7 @@ export default function UserDetailScreen() {
                   onPress={() => {
                     if (issue.ticketNumber) {
                       router.push(
-                        `/admin/support-ticket-detail?ticketId=${issue.id}` as never
+                        `/admin/support-ticket-detail?ticketId=${issue.id}` as never,
                       );
                     }
                   }}
@@ -1623,7 +1623,7 @@ export default function UserDetailScreen() {
                   <Text
                     style={[
                       styles.issueCategory,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {issue.category} • {issue.status}
@@ -1641,7 +1641,7 @@ export default function UserDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -1651,7 +1651,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.areYouSureDeleteUser", { userName })}
@@ -1660,7 +1660,7 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.modalButton,
-                    { backgroundColor: isDark ? "#334155" : "#e2e8f0" },
+                    { backgroundColor: isDark ? "#334155" : "#F0E8D5" },
                   ]}
                   onPress={() => setShowDeleteModal(false)}
                 >
@@ -1676,7 +1676,7 @@ export default function UserDetailScreen() {
                   disabled={deleting}
                 >
                   {deleting ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonText}>
                       {t("common.delete")}
@@ -1695,7 +1695,7 @@ export default function UserDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -1705,7 +1705,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.whatInformationNeeded", { userName })}
@@ -1717,12 +1717,12 @@ export default function UserDetailScreen() {
                     backgroundColor: isDark ? "#334155" : "#f1f5f9",
                     color: colors.text,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 placeholder={t("admin.enterYourRequest")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={requestInfoText}
                 onChangeText={setRequestInfoText}
                 multiline
@@ -1732,7 +1732,7 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.modalButton,
-                    { backgroundColor: isDark ? "#334155" : "#e2e8f0" },
+                    { backgroundColor: isDark ? "#334155" : "#F0E8D5" },
                   ]}
                   onPress={() => {
                     setShowRequestInfoModal(false);
@@ -1746,12 +1746,12 @@ export default function UserDetailScreen() {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.modalButton, { backgroundColor: "#6366f1" }]}
+                  style={[styles.modalButton, { backgroundColor: "#C9963F" }]}
                   onPress={handleRequestInfo}
                   disabled={sendingRequest}
                 >
                   {sendingRequest ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonText}>
                       {t("admin.sendRequest")}
@@ -1770,7 +1770,7 @@ export default function UserDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -1780,7 +1780,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.recordLegalAction", { userName })}
@@ -1788,7 +1788,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.actionType")}
@@ -1800,16 +1800,16 @@ export default function UserDetailScreen() {
                     {
                       backgroundColor:
                         legalActionType === "BAN"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
                             ? "#334155"
                             : "#f1f5f9",
                       borderColor:
                         legalActionType === "BAN"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setLegalActionType("BAN")}
@@ -1826,16 +1826,16 @@ export default function UserDetailScreen() {
                     {
                       backgroundColor:
                         legalActionType === "SUSPEND"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
                             ? "#334155"
                             : "#f1f5f9",
                       borderColor:
                         legalActionType === "SUSPEND"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setLegalActionType("SUSPEND")}
@@ -1852,16 +1852,16 @@ export default function UserDetailScreen() {
                     {
                       backgroundColor:
                         legalActionType === "RESTRICT"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
                             ? "#334155"
                             : "#f1f5f9",
                       borderColor:
                         legalActionType === "RESTRICT"
-                          ? "#8b5cf6"
+                          ? "#E8B86D"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setLegalActionType("RESTRICT")}
@@ -1876,7 +1876,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569", marginTop: 16 },
+                  { color: isDark ? "#B8A88A" : "#6B6355", marginTop: 16 },
                 ]}
               >
                 Reason
@@ -1888,12 +1888,12 @@ export default function UserDetailScreen() {
                     backgroundColor: isDark ? "#334155" : "#f1f5f9",
                     color: colors.text,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 placeholder={t("admin.enterReasonForLegalAction")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={legalActionReason}
                 onChangeText={setLegalActionReason}
                 multiline
@@ -1903,7 +1903,7 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.modalButton,
-                    { backgroundColor: isDark ? "#334155" : "#e2e8f0" },
+                    { backgroundColor: isDark ? "#334155" : "#F0E8D5" },
                   ]}
                   onPress={() => {
                     setShowLegalActionModal(false);
@@ -1918,12 +1918,12 @@ export default function UserDetailScreen() {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.modalButton, { backgroundColor: "#8b5cf6" }]}
+                  style={[styles.modalButton, { backgroundColor: "#E8B86D" }]}
                   onPress={handleLegalAction}
                   disabled={submittingLegalAction}
                 >
                   {submittingLegalAction ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonText}>
                       {t("admin.submit")}
@@ -1942,7 +1942,7 @@ export default function UserDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -1952,7 +1952,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.issueWarningTo", { userName })}
@@ -1960,7 +1960,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.warningType")}
@@ -1980,8 +1980,8 @@ export default function UserDetailScreen() {
                         warningType === "MINOR"
                           ? "#f59e0b"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setWarningType("MINOR")}
@@ -2006,8 +2006,8 @@ export default function UserDetailScreen() {
                         warningType === "MAJOR"
                           ? "#f59e0b"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setWarningType("MAJOR")}
@@ -2032,8 +2032,8 @@ export default function UserDetailScreen() {
                         warningType === "FINAL"
                           ? "#f59e0b"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setWarningType("FINAL")}
@@ -2048,7 +2048,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569", marginTop: 16 },
+                  { color: isDark ? "#B8A88A" : "#6B6355", marginTop: 16 },
                 ]}
               >
                 {t("admin.warningMessage")}
@@ -2060,12 +2060,12 @@ export default function UserDetailScreen() {
                     backgroundColor: isDark ? "#334155" : "#f1f5f9",
                     color: colors.text,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 placeholder={t("admin.enterWarningMessage")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={warningMessage}
                 onChangeText={setWarningMessage}
                 multiline
@@ -2075,7 +2075,7 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.modalButton,
-                    { backgroundColor: isDark ? "#334155" : "#e2e8f0" },
+                    { backgroundColor: isDark ? "#334155" : "#F0E8D5" },
                   ]}
                   onPress={() => {
                     setShowWarningModal(false);
@@ -2095,7 +2095,7 @@ export default function UserDetailScreen() {
                   disabled={submittingWarning}
                 >
                   {submittingWarning ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonText}>
                       {t("admin.issueWarning")}
@@ -2114,7 +2114,7 @@ export default function UserDetailScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#fff",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
                 },
               ]}
             >
@@ -2124,7 +2124,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalText,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.submitActionFormFor", { userName })}
@@ -2132,7 +2132,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569" },
+                  { color: isDark ? "#B8A88A" : "#6B6355" },
                 ]}
               >
                 {t("admin.actionType")}
@@ -2152,8 +2152,8 @@ export default function UserDetailScreen() {
                         actionFormType === "NOTICE"
                           ? "#10b981"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setActionFormType("NOTICE")}
@@ -2178,8 +2178,8 @@ export default function UserDetailScreen() {
                         actionFormType === "REQUIREMENT"
                           ? "#10b981"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setActionFormType("REQUIREMENT")}
@@ -2204,8 +2204,8 @@ export default function UserDetailScreen() {
                         actionFormType === "INVESTIGATION"
                           ? "#10b981"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => setActionFormType("INVESTIGATION")}
@@ -2220,7 +2220,7 @@ export default function UserDetailScreen() {
               <Text
                 style={[
                   styles.modalLabel,
-                  { color: isDark ? "#cbd5e1" : "#475569", marginTop: 16 },
+                  { color: isDark ? "#B8A88A" : "#6B6355", marginTop: 16 },
                 ]}
               >
                 {t("admin.details")}
@@ -2232,12 +2232,12 @@ export default function UserDetailScreen() {
                     backgroundColor: isDark ? "#334155" : "#f1f5f9",
                     color: colors.text,
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                   },
                 ]}
                 placeholder={t("admin.enterActionDetails")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={actionFormDetails}
                 onChangeText={setActionFormDetails}
                 multiline
@@ -2247,7 +2247,7 @@ export default function UserDetailScreen() {
                 <TouchableOpacity
                   style={[
                     styles.modalButton,
-                    { backgroundColor: isDark ? "#334155" : "#e2e8f0" },
+                    { backgroundColor: isDark ? "#334155" : "#F0E8D5" },
                   ]}
                   onPress={() => {
                     setShowActionFormModal(false);
@@ -2267,7 +2267,7 @@ export default function UserDetailScreen() {
                   disabled={submittingActionForm}
                 >
                   {submittingActionForm ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.modalButtonText}>
                       {t("admin.submit")}
@@ -2315,7 +2315,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
@@ -2323,7 +2323,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 0,
   },
   userHeader: {
     flexDirection: "row",
@@ -2380,10 +2380,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: "rgba(201,150,63,0.12)",
   },
   sectionTitle: {
     fontSize: 18,
+    letterSpacing: 1.2,
+    textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 16,
   },
@@ -2408,7 +2410,7 @@ const styles = StyleSheet.create({
   actionCountBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 4,
     minWidth: 36,
     alignItems: "center",
     justifyContent: "center",
@@ -2442,7 +2444,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   statsGrid: {
     flexDirection: "row",
@@ -2462,6 +2464,9 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     textAlign: "center",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    fontWeight: "700",
   },
   actionsGrid: {
     gap: 12,
@@ -2472,18 +2477,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 10,
   },
   actionButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   reviewItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   reviewHeader: {
     flexDirection: "row",
@@ -2493,7 +2498,7 @@ const styles = StyleSheet.create({
   },
   reviewerName: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   ratingContainer: {
     flexDirection: "row",
@@ -2502,7 +2507,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   reviewComment: {
     fontSize: 13,
@@ -2515,11 +2520,11 @@ const styles = StyleSheet.create({
   bookingItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   bookingTitle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   bookingStatus: {
@@ -2528,11 +2533,11 @@ const styles = StyleSheet.create({
   jobItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   jobTitle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   jobStatus: {
@@ -2541,11 +2546,11 @@ const styles = StyleSheet.create({
   issueItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   issueSubject: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   issueCategory: {
@@ -2556,7 +2561,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionHistoryCard: {
-    borderRadius: 14,
+    borderRadius: 4,
     borderWidth: 1,
     overflow: "hidden",
     flexDirection: "row",
@@ -2598,7 +2603,7 @@ const styles = StyleSheet.create({
   },
   actionHistoryLabel: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
     letterSpacing: 0.2,
   },
@@ -2647,7 +2652,7 @@ const styles = StyleSheet.create({
   },
   actionHistoryTicket: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
     fontFamily: "monospace",
     letterSpacing: 0.2,
   },
@@ -2665,7 +2670,7 @@ const styles = StyleSheet.create({
   },
   revokeActionText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
     letterSpacing: 0.3,
   },
   modalOverlay: {
@@ -2676,7 +2681,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 24,
     width: "100%",
     maxWidth: 400,
@@ -2710,13 +2715,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   selectContainer: {
@@ -2750,7 +2755,7 @@ const styles = StyleSheet.create({
   actionHistoryItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: "rgba(255,250,240,0.06)",
   },
   actionHistoryHeader: {
     flexDirection: "row",
@@ -2766,7 +2771,7 @@ const styles = StyleSheet.create({
   actionIconContainer: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -2776,7 +2781,7 @@ const styles = StyleSheet.create({
   },
   actionHistoryTitle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   actionHistoryDate: {
@@ -2785,7 +2790,7 @@ const styles = StyleSheet.create({
   revokeButton: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -2805,6 +2810,6 @@ const styles = StyleSheet.create({
   },
   actionStatusText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

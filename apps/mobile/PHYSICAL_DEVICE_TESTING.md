@@ -13,7 +13,7 @@ This guide explains how to test the Cumprido mobile app on your physical iPhone 
 ### Mac/Linux:
 ```bash
 ifconfig | grep "inet " | grep -v 127.0.0.1
-2. **API Reachable**: By default the app uses the production API at `https://api.cumprido.com`.
+2. **API Reachable**: By default the app uses the production API at `https://api.nesta.app`.
    - If you want to test against a local backend on your machine, it must be reachable from your phone (same WiFi, firewall open, server listening on `0.0.0.0`).
 ipconfig getifaddr en0
 ```
@@ -50,7 +50,7 @@ The app is already configured to use `192.168.1.210` for physical devices. If yo
 ## Step 3: Start the Backend Server
 
 
-**Production API**: `https://api.cumprido.com`
+**Production API**: `https://api.nesta.app`
 
 **Local Backend URL Example**: `http://192.168.1.210:3001` (set via `EXPO_PUBLIC_API_URL`)
 ```bash

@@ -54,7 +54,7 @@ export default function TemporaryPasswordBanner({
           <Text
             style={[
               styles.message,
-              { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+              { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
             ]}
             numberOfLines={2}
           >
@@ -74,7 +74,7 @@ export default function TemporaryPasswordBanner({
             onPress={onDismiss}
             style={styles.dismissButton}
           >
-            <Feather name="x" size={18} color={isDark ? "#9ca3af" : "#6b7280"} />
+            <Feather name="x" size={18} color={isDark ? "#9A8E7A" : "#8A7B68"} />
           </TouchableOpacity>
         )}
       </View>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 12,
     marginBottom: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
   },
   bannerContent: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   message: {
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   updateButtonText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   dismissButton: {
     padding: 4,

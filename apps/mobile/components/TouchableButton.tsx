@@ -1,14 +1,31 @@
 import React from "react";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
+import {
+  TouchableOpacity,
+  TouchableOpacityProps,
+  StyleSheet,
+} from "react-native";
 
-/**
- * TouchableOpacity with Android ripple effect disabled
- * Use this instead of TouchableOpacity to prevent blue square ripple on Android
- */
 export const TouchableButton = React.forwardRef<any, TouchableOpacityProps>(
   (props, ref) => {
-    return <TouchableOpacity {...props} ref={ref} activeOpacity={0.7} />;
-  }
+    return (
+      <TouchableOpacity
+        {...props}
+        ref={ref}
+        activeOpacity={0.7}
+        style={[btnShadow.base, props.style]}
+      />
+    );
+  },
 );
 
 TouchableButton.displayName = "TouchableButton";
+
+const btnShadow = StyleSheet.create({
+  base: {
+    shadowColor: "#C9963F",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 0,
+  },
+});

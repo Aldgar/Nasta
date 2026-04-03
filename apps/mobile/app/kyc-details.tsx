@@ -94,7 +94,7 @@ export default function KycDetails() {
             value={documentNumber}
             onChangeText={setDocumentNumber}
             placeholder={t("kyc.documentNumberPlaceholder")}
-            placeholderTextColor="rgba(255,255,255,0.6)"
+            placeholderTextColor="rgba(255,250,240,0.6)"
           />
           <Text style={styles.label}>{t("kyc.issuingCountryIso")}</Text>
           <TextInput
@@ -103,7 +103,7 @@ export default function KycDetails() {
             onChangeText={setDocumentCountry}
             placeholder={t("kyc.issuingCountryPlaceholder")}
             autoCapitalize="characters"
-            placeholderTextColor="rgba(255,255,255,0.6)"
+            placeholderTextColor="rgba(255,250,240,0.6)"
           />
           <Text style={styles.label}>{t("kyc.expiryYyyyMmDd")}</Text>
           <TextInput
@@ -111,7 +111,7 @@ export default function KycDetails() {
             value={documentExpiry}
             onChangeText={setDocumentExpiry}
             placeholder={t("kyc.expiryPlaceholder")}
-            placeholderTextColor="rgba(255,255,255,0.6)"
+            placeholderTextColor="rgba(255,250,240,0.6)"
           />
         </View>
 
@@ -131,32 +131,32 @@ export default function KycDetails() {
 
 const styles = StyleSheet.create({
   container: { paddingTop: 12 },
-  title: { color: "#fff", fontSize: 28, fontWeight: "800", marginBottom: 6 },
-  subtitle: { color: "rgba(255,255,255,0.7)", marginBottom: 16 },
+  title: { color: "#FFFAF0", fontSize: 28, fontWeight: "800", marginBottom: 6 },
+  subtitle: { color: "rgba(240,232,213,0.7)", marginBottom: 16 },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,250,240,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
     marginBottom: 12,
   },
-  label: { color: "#fff", marginBottom: 6 },
+  label: { color: "#FFFAF0", marginBottom: 6 },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.7)",
+    borderColor: "rgba(240,232,213,0.7)",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    color: "#fff",
+    color: "#FFFAF0",
     marginBottom: 12,
   },
   button: {
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.7)",
+    borderColor: "rgba(240,232,213,0.7)",
     paddingVertical: 10,
     alignItems: "center",
   },
-  buttonLabel: { color: "#fff", fontWeight: "600" },
+  buttonLabel: { color: "#FFFAF0", fontWeight: "700" },
 });

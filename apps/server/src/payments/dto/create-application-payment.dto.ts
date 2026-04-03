@@ -1,4 +1,14 @@
-import { IsArray, IsInt, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SelectedRateDto {
@@ -13,6 +23,10 @@ class SelectedRateDto {
   @IsOptional()
   @IsString()
   otherSpecification?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 export class CreateApplicationPaymentDto {
@@ -24,5 +38,12 @@ export class CreateApplicationPaymentDto {
   @IsNumber()
   @Min(0)
   totalAmount!: number;
-}
 
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @IsOptional()
+  @IsString()
+  clientOrigin?: string;
+}

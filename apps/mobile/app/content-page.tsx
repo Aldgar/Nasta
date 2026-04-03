@@ -66,7 +66,7 @@ const parseMarkdown = (text: string, isDark: boolean, colors: any) => {
           <Text
             style={[
               styles.text,
-              { color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b" },
+              { color: isDark ? "rgba(240,232,213,0.8)" : "#0A1628" },
             ]}
           >
             {listText}
@@ -80,7 +80,7 @@ const parseMarkdown = (text: string, isDark: boolean, colors: any) => {
           key={key++}
           style={[
             styles.text,
-            { color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b" },
+            { color: isDark ? "rgba(240,232,213,0.8)" : "#0A1628" },
           ]}
         >
           {trimmed}
@@ -364,8 +364,8 @@ export default function ContentPage() {
                         ? "#22c55e"
                         : "#16a34a"
                       : isDark
-                        ? "#6366f1"
-                        : "#0a7ea4",
+                        ? "#C9963F"
+                        : "#B8822A",
                     opacity: accepted ? 0.7 : 1,
                   },
                 ]}
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: { padding: 4 },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
+  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
   scroll: { padding: 20, paddingBottom: 100 },
   contentContainer: {
     marginBottom: 20,
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   h3: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
     marginTop: 16,
     marginBottom: 8,
     lineHeight: 26,
@@ -446,17 +446,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
+    borderTopColor: "rgba(184,130,42,0.2)",
   },
   acceptButton: {
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
   acceptButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     fontWeight: "700",
   },

@@ -2,7 +2,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import SettingsHub from "@/components/settings/SettingsHub";
 import BackButton from "@/components/navigation/BackButton";
 
-export const metadata = { title: "Settings | Cumprido" };
+export const metadata = { title: "Settings | Nasta" };
 
 export default function SettingsPage() {
   return (

@@ -4,11 +4,11 @@
 
 ## 1. Acceptance of Terms
 
-By accessing and using the Cumprido mobile application ("App", "Platform", "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Service.
+By accessing and using the Nesta mobile application ("App", "Platform", "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Service.
 
 ## 2. Description of Service
 
-Cumprido is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with employers seeking services. The Platform facilitates:
+Nesta is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with employers seeking services. The Platform facilitates:
 
 - Job posting and application management
 - Service provider discovery and matching
@@ -63,7 +63,7 @@ You agree NOT to:
 
 ### 5.1 Payment Processing
 - All payments are processed through Stripe, a third-party payment processor
-- Cumprido acts as an intermediary and does not hold funds
+- Nesta acts as an intermediary and does not hold funds
 - Payment processing is subject to Stripe's terms and conditions
 
 ### 5.2 Payment Timeline
@@ -84,10 +84,10 @@ You agree NOT to:
 ## 6. Off-Platform Transactions and Equipment Purchases
 
 ### 6.1 Prohibited Off-Platform Transactions
-**IMPORTANT**: All transactions, communications, and agreements must occur within the Cumprido Platform. Any attempt to conduct business outside the Platform is strictly prohibited and may result in immediate account termination.
+**IMPORTANT**: All transactions, communications, and agreements must occur within the Nesta Platform. Any attempt to conduct business outside the Platform is strictly prohibited and may result in immediate account termination.
 
 ### 6.2 Equipment and Service Purchases
-**Cumprido is NOT responsible for:**
+**Nesta is NOT responsible for:**
 - Any equipment, tools, or materials purchased outside the Platform
 - Any services arranged or paid for outside the Platform
 - Any agreements, contracts, or arrangements made outside the Platform
@@ -100,13 +100,13 @@ You agree NOT to:
   - Loss of access to Platform features
   - Legal action for breach of contract
   - Reporting to relevant authorities
-- Off-platform agreements are not protected by Cumprido's dispute resolution process
+- Off-platform agreements are not protected by Nesta's dispute resolution process
 - Users engaging in off-platform transactions do so at their own risk and may be subject to legal consequences under applicable law
 
 ### 6.4 Legal Consequences
 Any agreements made outside the Platform are:
 - Not governed by these Terms of Service
-- Not subject to Cumprido's dispute resolution
+- Not subject to Nesta's dispute resolution
 - Subject to applicable local, state, and federal laws
 - May result in civil or criminal liability
 - Users are solely responsible for any legal consequences
@@ -120,7 +120,7 @@ Any agreements made outside the Platform are:
 - Verification status is displayed on user profiles
 
 ### 7.2 Verification Accuracy
-- Cumprido verifies information to the best of its ability but does not guarantee accuracy
+- Nesta verifies information to the best of its ability but does not guarantee accuracy
 - Users are responsible for providing accurate information
 - False or fraudulent information may result in account termination
 
@@ -156,12 +156,12 @@ Any agreements made outside the Platform are:
 
 ### 10.1 Internal Resolution
 - Disputes should first be resolved through direct communication
-- If unresolved, disputes may be escalated to Cumprido support
+- If unresolved, disputes may be escalated to Nesta support
 - Support tickets are reviewed by our team within 24-48 hours
 - Decisions are made based on available evidence and platform policies
 
 ### 10.2 Mediation
-- For complex disputes, Cumprido may offer mediation services
+- For complex disputes, Nesta may offer mediation services
 - Mediation is voluntary and both parties must agree to participate
 - Mediation decisions are binding on both parties
 
@@ -192,13 +192,13 @@ Violations of these Terms may result in:
 ## 12. Intellectual Property
 
 ### 12.1 Platform Content
-- All content on the Platform is owned by Cumprido or its licensors
+- All content on the Platform is owned by Nesta or its licensors
 - Users may not copy, modify, or distribute Platform content without permission
-- User-generated content remains the property of the user but grants Cumprido a license to use it
+- User-generated content remains the property of the user but grants Nesta a license to use it
 
 ### 12.2 User Content
 - Users retain ownership of content they post
-- By posting content, users grant Cumprido a worldwide, non-exclusive license to use, display, and distribute the content
+- By posting content, users grant Nesta a worldwide, non-exclusive license to use, display, and distribute the content
 - Users are responsible for ensuring they have rights to any content they post
 
 ## 13. Privacy and Data Protection
@@ -208,7 +208,7 @@ Your use of the Platform is also governed by our Privacy Policy. Please review i
 ## 14. Limitation of Liability
 
 ### 14.1 Platform Liability
-- Cumprido provides the Platform "as is" without warranties
+- Nesta provides the Platform "as is" without warranties
 - We do not guarantee uninterrupted or error-free service
 - We are not liable for any indirect, incidental, or consequential damages
 - Our total liability is limited to the amount you paid in fees in the 12 months preceding the claim
@@ -216,7 +216,7 @@ Your use of the Platform is also governed by our Privacy Policy. Please review i
 ### 14.2 User Liability
 - Users are responsible for their own actions and content
 - Users are liable for any damages caused by violations of these Terms
-- Users must indemnify Cumprido against claims arising from their use of the Platform
+- Users must indemnify Nesta against claims arising from their use of the Platform
 
 ## 15. Termination
 
@@ -225,7 +225,7 @@ Your use of the Platform is also governed by our Privacy Policy. Please review i
 - Account deletion requests are processed within 30 days
 - Outstanding payments must be resolved before account deletion
 
-### 15.2 By Cumprido
+### 15.2 By Nesta
 - We may suspend or terminate accounts for violations of these Terms
 - We may terminate accounts that are inactive for extended periods
 - Termination does not relieve users of outstanding obligations
@@ -258,7 +258,7 @@ Your use of the Platform is also governed by our Privacy Policy. Please review i
 ## 19. Contact Information
 
 For questions about these Terms, please contact:
-- Email: support@cumprido.com
+- Email: support@nesta.app
 - Support Portal: Available in the App
 
 
@@ -268,9 +268,9 @@ If any provision of these Terms is found to be unenforceable, the remaining prov
 
 ## 21. Entire Agreement
 
-These Terms, together with the Privacy Policy, constitute the entire agreement between you and Cumprido regarding the use of the Platform.
+These Terms, together with the Privacy Policy, constitute the entire agreement between you and Nesta regarding the use of the Platform.
 
 ---
 
-**By using Cumprido, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.**
+**By using Nesta, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.**
 

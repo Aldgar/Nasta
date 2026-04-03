@@ -1,4 +1,4 @@
-// This is Cumprido Prisma schema file,
+// This is Nasta Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -109,9 +109,15 @@ model User {
   availabilities           Availability[]
   supportTickets           SupportTicket[]
 
+  // No-show tracking
+  noShowCount    Int @default(0)
+  accountBalance Int @default(0) // In minor units (cents). Can go negative for penalties.
+
   // Profiles (1:1)
   userProfile     UserProfile?
   employerProfile EmployerProfile?
+
+  noShowRecords NoShowRecord[]
 
   @@map("users")
 }
@@ -218,14 +224,15 @@ model Admin {
 
 // GDPR Account Deletion Requests
 model DeletionRequest {
-  id         String                @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String                @db.ObjectId
-  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reason     String?
-  status     DeletionRequestStatus @default(PENDING)
-  adminNotes String?
-  reviewedBy String?               @db.ObjectId
-  reviewedAt DateTime?
+  id           String                @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String                @db.ObjectId
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketNumber String?               @unique
+  reason       String?
+  status       DeletionRequestStatus @default(PENDING)
+  adminNotes   String?
+  reviewedBy   String?               @db.ObjectId
+  reviewedAt   DateTime?
 
   // Assignment routing
   assignedTo         String?          @db.ObjectId
@@ -805,6 +812,7 @@ enum JobStatus {
   PAUSED
   CLOSED
   EXPIRED
+  CANCELLED_NO_SHOW
 }
 
 enum PaymentType {
@@ -1094,6 +1102,7 @@ model Conversation {
   title       String?
   jobId       String?          @db.ObjectId
   createdById String           @db.ObjectId
+  locked      Boolean          @default(false)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -1141,4 +1150,30 @@ enum ParticipantRole {
   EMPLOYER
   JOB_SEEKER
   BOT
+}
+
+// No-Show tracking for service providers
+model NoShowRecord {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  serviceProviderId String       @db.ObjectId
+  serviceProvider User           @relation(fields: [serviceProviderId], references: [id], onDelete: Cascade)
+  applicationId   String         @db.ObjectId
+  jobId           String         @db.ObjectId
+  reportedBy      String         @db.ObjectId // Employer who reported
+  offenseNumber   Int            // 1st, 2nd, 3rd...
+  severity        NoShowSeverity // WARNING or PENALTY
+  penaltyAmount   Int?           // In minor units (cents), null for warnings
+  penaltyCurrency String?        // e.g. "EUR"
+  resolved        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([serviceProviderId])
+  @@index([applicationId])
+  @@map("no_show_records")
+}
+
+enum NoShowSeverity {
+  WARNING
+  PENALTY
 }

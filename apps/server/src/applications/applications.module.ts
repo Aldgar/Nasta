@@ -3,6 +3,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { BookingsModule } from '../bookings/bookings.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { NoShowModule } from '../no-show/no-show.module';
+import { ChatModule } from '../chat/chat.module';
 import { ApplicationsService } from './applications.service';
 import {
   ApplicationsController,
@@ -11,7 +13,14 @@ import {
 } from './applications.controller';
 
 @Module({
-  imports: [PrismaModule, NotificationsModule, BookingsModule, PaymentsModule],
+  imports: [
+    PrismaModule,
+    NotificationsModule,
+    BookingsModule,
+    PaymentsModule,
+    NoShowModule,
+    ChatModule,
+  ],
   controllers: [
     ApplicationsController,
     AdminApplicationsController,

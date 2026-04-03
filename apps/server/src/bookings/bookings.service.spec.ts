@@ -3,6 +3,9 @@ import { Test } from '@nestjs/testing';
 import { BookingsService } from './bookings.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AvailabilityService } from '../availability/availability.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { EmailTranslationsService } from '../notifications/email-translations.service';
+import { PaymentsService } from '../payments/payments.service';
 
 describe('BookingsService', () => {
   const prismaTyped: any = {};
@@ -19,6 +22,9 @@ describe('BookingsService', () => {
         BookingsService,
         { provide: PrismaService, useValue: prismaTyped },
         { provide: AvailabilityService, useValue: availabilityTyped },
+        { provide: NotificationsService, useValue: {} },
+        { provide: EmailTranslationsService, useValue: {} },
+        { provide: PaymentsService, useValue: {} },
       ],
     })
       .compile()
@@ -28,7 +34,10 @@ describe('BookingsService', () => {
   });
 
   it('throws if seeker not found', async () => {
-    prismaTyped.user.findUnique.mockResolvedValue(null);
+    // 1st call: employer lookup → active employer
+    prismaTyped.user.findUnique.mockResolvedValueOnce({ isActive: true });
+    // 2nd call: seeker lookup → not found
+    prismaTyped.user.findUnique.mockResolvedValueOnce(null);
     await expect(
       service.createDirectBooking('emp1', {
         jobSeekerId: 'seeker1',
@@ -42,7 +51,11 @@ describe('BookingsService', () => {
   });
 
   it('throws if seeker not payments-enabled', async () => {
-    prismaTyped.user.findUnique.mockResolvedValue({ id: 'seeker1' });
+    prismaTyped.user.findUnique.mockResolvedValueOnce({ isActive: true });
+    prismaTyped.user.findUnique.mockResolvedValueOnce({
+      id: 'seeker1',
+      isActive: true,
+    });
     availabilityTyped.hasAvailabilityCoverage.mockResolvedValue(true);
     await expect(
       service.createDirectBooking('emp1', {
@@ -57,8 +70,10 @@ describe('BookingsService', () => {
   });
 
   it('throws when not covered by availability', async () => {
-    prismaTyped.user.findUnique.mockResolvedValue({
+    prismaTyped.user.findUnique.mockResolvedValueOnce({ isActive: true });
+    prismaTyped.user.findUnique.mockResolvedValueOnce({
       id: 'seeker1',
+      isActive: true,
       connectedAccountId: 'acct_123',
     });
     availabilityTyped.hasAvailabilityCoverage.mockResolvedValue(false);
@@ -75,8 +90,10 @@ describe('BookingsService', () => {
   });
 
   it('throws when conflicts with existing booking', async () => {
-    prismaTyped.user.findUnique.mockResolvedValue({
+    prismaTyped.user.findUnique.mockResolvedValueOnce({ isActive: true });
+    prismaTyped.user.findUnique.mockResolvedValueOnce({
       id: 'seeker1',
+      isActive: true,
       connectedAccountId: 'acct_123',
     });
     availabilityTyped.hasAvailabilityCoverage.mockResolvedValue(true);
@@ -94,8 +111,10 @@ describe('BookingsService', () => {
   });
 
   it('creates booking on happy path', async () => {
-    prismaTyped.user.findUnique.mockResolvedValue({
+    prismaTyped.user.findUnique.mockResolvedValueOnce({ isActive: true });
+    prismaTyped.user.findUnique.mockResolvedValueOnce({
       id: 'seeker1',
+      isActive: true,
       connectedAccountId: 'acct_123',
     });
     availabilityTyped.hasAvailabilityCoverage.mockResolvedValue(true);

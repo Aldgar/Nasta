@@ -33,7 +33,7 @@ const decodeJwtPayload = (token: string) => {
     if (parts.length !== 3) return null;
     const payload = parts[1];
     const decoded = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
     );
     return decoded;
   } catch {
@@ -120,7 +120,7 @@ export default function KycCapture() {
   >(null);
   const [loading, setLoading] = useState(true);
   const [backgroundCheckId, setBackgroundCheckId] = useState<string | null>(
-    null
+    null,
   );
   const [previewModal, setPreviewModal] = useState<{
     visible: boolean;
@@ -136,10 +136,13 @@ export default function KycCapture() {
 
   // ID Type options
   const idTypeOptions: { value: IdType; label: string }[] = [
-    { value: "PASSPORT", label: t("kyc.idType.passport") },
-    { value: "RESIDENCE_PERMIT", label: t("kyc.idType.residencePermit") },
-    { value: "NATIONAL_ID", label: t("kyc.idType.nationalId") },
-    { value: "OTHER", label: t("kyc.idType.other") },
+    { value: "PASSPORT", label: t("kyc.idTypeOptions.passport") },
+    {
+      value: "RESIDENCE_PERMIT",
+      label: t("kyc.idTypeOptions.residencePermit"),
+    },
+    { value: "NATIONAL_ID", label: t("kyc.idTypeOptions.nationalId") },
+    { value: "OTHER", label: t("kyc.idTypeOptions.other") },
   ];
 
   // Debug: Log modal state changes
@@ -184,10 +187,17 @@ export default function KycCapture() {
             const documentStatuses =
               (verification.documentStatuses as Record<string, string>) || {};
 
+            // If overall verification is approved/verified, all documents should show as approved
+            const overallStatus = verification.status as DocumentStatus;
+            const isOverallApproved =
+              overallStatus === "VERIFIED" || overallStatus === "APPROVED";
+
             // Document URLs and individual statuses are now included in my-status response
-            // Use individual document status if available, otherwise fall back to overall status
-            const frontStatus = (documentStatuses["documentFront"] ||
-              verification.status) as DocumentStatus;
+            // If overall is approved, use that; otherwise use individual status, falling back to overall
+            const frontStatus = isOverallApproved
+              ? overallStatus
+              : ((documentStatuses["documentFront"] ||
+                  verification.status) as DocumentStatus);
             if (verification.documentFrontUrl) {
               setFrontDoc({
                 uri: null,
@@ -198,8 +208,10 @@ export default function KycCapture() {
               setFrontDoc((prev) => ({ ...prev, status: frontStatus }));
             }
 
-            const backStatus = (documentStatuses["documentBack"] ||
-              verification.status) as DocumentStatus;
+            const backStatus = isOverallApproved
+              ? overallStatus
+              : ((documentStatuses["documentBack"] ||
+                  verification.status) as DocumentStatus);
             if (verification.documentBackUrl) {
               setBackDoc({
                 uri: null,
@@ -210,8 +222,10 @@ export default function KycCapture() {
               setBackDoc((prev) => ({ ...prev, status: backStatus }));
             }
 
-            const selfieStatus = (documentStatuses["selfie"] ||
-              verification.status) as DocumentStatus;
+            const selfieStatus = isOverallApproved
+              ? overallStatus
+              : ((documentStatuses["selfie"] ||
+                  verification.status) as DocumentStatus);
             if (verification.selfieUrl) {
               setSelfieDoc({
                 uri: null,
@@ -260,7 +274,7 @@ export default function KycCapture() {
           // Check all verifications for driver's license
           const allVerifications = allKycData?.allVerifications || [];
           const dlVerification = allVerifications.find(
-            (v: any) => v.verificationType === "DRIVERS_LICENSE"
+            (v: any) => v.verificationType === "DRIVERS_LICENSE",
           );
 
           if (dlVerification) {
@@ -312,7 +326,7 @@ export default function KycCapture() {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ consent: { accepted: true } }),
-              }
+              },
             );
             if (initiateRes.ok) {
               const initiateData = await initiateRes.json();
@@ -334,7 +348,7 @@ export default function KycCapture() {
 
   const pickImage = async (
     setter: (doc: DocumentInfo) => void,
-    useCamera = true
+    useCamera = true,
   ) => {
     // Check if we're in a simulator/emulator (camera not available)
     const isSimulator =
@@ -382,13 +396,16 @@ export default function KycCapture() {
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           selectionLimit: 1,
           aspect: [4, 3], // Standard aspect ratio
+          ...(Platform.OS === "ios"
+            ? ({ preferredAssetRepresentationMode: "compatible" } as any)
+            : null),
         });
       }
     } catch (error: any) {
       // If camera fails and we were trying to use camera, automatically fall back to file picker
       if (useCamera) {
         console.log(
-          "Camera unavailable, automatically falling back to image library"
+          "Camera unavailable, automatically falling back to image library",
         );
         try {
           // Request media library permission if we don't have it
@@ -397,7 +414,7 @@ export default function KycCapture() {
           if (libPerm.status !== "granted") {
             Alert.alert(
               t("kyc.permissionRequired"),
-              t("kyc.pleaseAllowPhotosAccess")
+              t("kyc.pleaseAllowPhotosAccess"),
             );
             return;
           }
@@ -411,11 +428,14 @@ export default function KycCapture() {
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             selectionLimit: 1,
             aspect: [4, 3], // Standard aspect ratio
+            ...(Platform.OS === "ios"
+              ? ({ preferredAssetRepresentationMode: "compatible" } as any)
+              : null),
           });
         } catch (fallbackError: any) {
           console.error(
             "Fallback to image library also failed:",
-            fallbackError
+            fallbackError,
           );
           const errorMessage =
             fallbackError?.message || t("kyc.unableToAccessCameraOrPhotos");
@@ -434,12 +454,12 @@ export default function KycCapture() {
                   text: t("common.retry"),
                   onPress: () => pickImage(setter, false), // Retry with image library
                 },
-              ]
+              ],
             );
           } else {
             Alert.alert(
               t("common.error"),
-              t("kyc.unableToAccessCameraOrPhotos")
+              t("kyc.unableToAccessCameraOrPhotos"),
             );
           }
           return;
@@ -463,7 +483,7 @@ export default function KycCapture() {
                 text: t("common.retry"),
                 onPress: () => pickImage(setter, false), // Retry
               },
-            ]
+            ],
           );
         } else {
           Alert.alert(t("common.error"), t("kyc.failedToAccessPhotoLibrary"));
@@ -501,7 +521,7 @@ export default function KycCapture() {
                 text: t("kyc.tryCamera"),
                 onPress: () => pickImage(setter, true), // Try camera instead
               },
-            ]
+            ],
           );
         } else {
           Alert.alert(t("common.error"), t("kyc.failedToProcessImage"));
@@ -538,7 +558,7 @@ export default function KycCapture() {
         return "#f59e0b"; // amber
       case "PENDING":
       case "SUBMITTED":
-        return "#6b7280"; // gray
+        return "#8A7B68"; // gray
       default:
         return "transparent";
     }
@@ -608,7 +628,7 @@ export default function KycCapture() {
       if (frontDoc.uri) {
         form.append(
           "documentFront",
-          makeFile(frontDoc.uri, "document-front.jpg")
+          makeFile(frontDoc.uri, "document-front.jpg"),
         );
       }
       if (backDoc.uri) {
@@ -685,7 +705,7 @@ export default function KycCapture() {
 
   const uploadSingleDocument = async (
     documentType: "front" | "back" | "selfie",
-    doc: DocumentInfo
+    doc: DocumentInfo,
   ) => {
     if (!verificationId) {
       Alert.alert(t("kyc.missingId"), t("kyc.verificationIdNotFound"));
@@ -784,14 +804,14 @@ export default function KycCapture() {
         t("common.required"),
         side === "front"
           ? t("kyc.pleaseSelectLicenseFront")
-          : t("kyc.pleaseSelectLicenseBack")
+          : t("kyc.pleaseSelectLicenseBack"),
       );
       return;
     }
 
     try {
       setUploadingDocument(
-        side === "front" ? "driversLicenseFront" : "driversLicenseBack"
+        side === "front" ? "driversLicenseFront" : "driversLicenseBack",
       );
       const token = await SecureStore.getItemAsync("auth_token");
       if (!token) {
@@ -876,7 +896,7 @@ export default function KycCapture() {
           const statusData = await statusRes.json();
           // Find the driver's license verification
           const dlVerification = statusData.allVerifications?.find(
-            (v: any) => v.verificationType === "DRIVERS_LICENSE"
+            (v: any) => v.verificationType === "DRIVERS_LICENSE",
           );
           if (dlVerification) {
             serverUrl =
@@ -891,7 +911,7 @@ export default function KycCapture() {
         t("kyc.uploaded"),
         side === "front"
           ? t("kyc.licenseFrontUploaded")
-          : t("kyc.licenseBackUploaded")
+          : t("kyc.licenseBackUploaded"),
       );
 
       // Update the specific document state - clear URI and set URL and status
@@ -941,7 +961,7 @@ export default function KycCapture() {
 
       form.append(
         "certificate",
-        makeFile(criminalRecordDoc.uri, fileName, "application/pdf")
+        makeFile(criminalRecordDoc.uri, fileName, "application/pdf"),
       );
 
       const res = await fetch(
@@ -953,7 +973,7 @@ export default function KycCapture() {
             Accept: "application/json",
           },
           body: form,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -975,7 +995,7 @@ export default function KycCapture() {
           `${base}/background-checks/${backgroundCheckId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (statusRes.ok) {
           const statusData = await statusRes.json();
@@ -985,7 +1005,7 @@ export default function KycCapture() {
 
       Alert.alert(
         t("kyc.uploaded"),
-        t("kyc.criminalRecordUploadedSuccessfully")
+        t("kyc.criminalRecordUploadedSuccessfully"),
       );
       setCriminalRecordDoc({
         uri: null,
@@ -1028,7 +1048,7 @@ export default function KycCapture() {
 
       form.append(
         "certification",
-        makeFile(cert.uri, fileName, "application/pdf")
+        makeFile(cert.uri, fileName, "application/pdf"),
       );
 
       const res = await fetch(
@@ -1040,7 +1060,7 @@ export default function KycCapture() {
             Accept: "application/json",
           },
           body: form,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -1061,7 +1081,7 @@ export default function KycCapture() {
       setCertifications(updatedCerts);
       Alert.alert(
         t("kyc.uploaded"),
-        t("kyc.certificationUploadedSuccessfully")
+        t("kyc.certificationUploadedSuccessfully"),
       );
     } catch (e) {
       Alert.alert(t("kyc.uploadFailed"), (e as Error).message);
@@ -1154,12 +1174,14 @@ export default function KycCapture() {
     doc: DocumentInfo,
     setter: (doc: DocumentInfo) => void,
     required = false,
-    documentType?: "front" | "back" | "selfie"
+    documentType?: "front" | "back" | "selfie",
   ) => {
     const hasLocalImage = !!doc.uri;
     const hasUploadedImage = !!doc.url && !doc.uri; // Uploaded but no local selection
     const isUploaded = hasUploadedImage;
     const isUploading = documentType && uploadingDocument === documentType;
+    const isDocApproved =
+      doc.status === "VERIFIED" || doc.status === "APPROVED";
 
     // If doc.url is already a full URL, use it; otherwise construct it
     // Add validation to ensure we have a valid URI
@@ -1203,11 +1225,11 @@ export default function KycCapture() {
               styles.previewButton,
               {
                 backgroundColor: isDark
-                  ? "rgba(99, 102, 241, 0.25)"
-                  : "rgba(79, 70, 229, 0.15)",
+                  ? "rgba(201, 150, 63, 0.25)"
+                  : "rgba(201, 150, 63, 0.15)",
                 borderColor: isDark
-                  ? "rgba(99, 102, 241, 0.6)"
-                  : "rgba(79, 70, 229, 0.4)",
+                  ? "rgba(201, 150, 63, 0.6)"
+                  : "rgba(201, 150, 63, 0.4)",
               },
             ]}
             onPress={() => {
@@ -1249,51 +1271,56 @@ export default function KycCapture() {
           <Text style={styles.cardText}>{t("kyc.noDocumentUploaded")}</Text>
         )}
 
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => pickImage(setter, true)}
-          >
-            <Text style={styles.buttonLabel}>{t("kyc.useCamera")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => pickImage(setter, false)}
-          >
-            <Text style={styles.buttonLabel}>{t("kyc.pickFile")}</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Hide upload buttons if document is already approved/verified */}
+        {!isDocApproved && (
+          <>
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => pickImage(setter, true)}
+              >
+                <Text style={styles.buttonLabel}>{t("kyc.useCamera")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => pickImage(setter, false)}
+              >
+                <Text style={styles.buttonLabel}>{t("kyc.pickFile")}</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Upload button - show if local image selected OR if already uploaded (to allow re-upload) */}
-        {documentType && (
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.buttonPrimary,
-              styles.uploadButton,
-              isUploading && { opacity: 0.7 },
-            ]}
-            onPress={() => {
-              if (hasLocalImage) {
-                // Upload the selected document
-                uploadSingleDocument(documentType, doc);
-              } else if (isUploaded) {
-                // If already uploaded, allow selecting new document to replace
-                pickImage(setter, false);
-              }
-            }}
-            disabled={isUploading || (!hasLocalImage && !isUploaded)}
-          >
-            <Text style={styles.buttonLabel}>
-              {isUploading
-                ? t("kyc.uploading")
-                : isUploaded
-                  ? t("kyc.uploadAnotherDocument")
-                  : hasLocalImage
-                    ? t("kyc.upload")
-                    : t("kyc.noDocumentSelected")}
-            </Text>
-          </TouchableOpacity>
+            {/* Upload button - show if local image selected OR if already uploaded (to allow re-upload) */}
+            {documentType && (
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.buttonPrimary,
+                  styles.uploadButton,
+                  isUploading && { opacity: 0.7 },
+                ]}
+                onPress={() => {
+                  if (hasLocalImage) {
+                    // Upload the selected document
+                    uploadSingleDocument(documentType, doc);
+                  } else if (isUploaded) {
+                    // If already uploaded, allow selecting new document to replace
+                    pickImage(setter, false);
+                  }
+                }}
+                disabled={isUploading || (!hasLocalImage && !isUploaded)}
+              >
+                <Text style={styles.buttonLabel}>
+                  {isUploading
+                    ? t("kyc.uploading")
+                    : isUploaded
+                      ? t("kyc.uploadAnotherDocument")
+                      : hasLocalImage
+                        ? t("kyc.upload")
+                        : t("kyc.noDocumentSelected")}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     );
@@ -1381,7 +1408,7 @@ export default function KycCapture() {
                 onPress={() => {
                   console.log(
                     "Dropdown pressed, opening modal. Current state:",
-                    showIdTypeModal
+                    showIdTypeModal,
                   );
                   setShowIdTypeModal(true);
                   console.log("Modal state set to true");
@@ -1391,7 +1418,7 @@ export default function KycCapture() {
                 <Text
                   style={[
                     styles.dropdownText,
-                    !idType && { color: "rgba(255,255,255,0.5)" },
+                    !idType && { color: "rgba(255,250,240,0.5)" },
                   ]}
                 >
                   {idType
@@ -1405,7 +1432,7 @@ export default function KycCapture() {
                 <TextInput
                   style={styles.otherInput}
                   placeholder={t("kyc.specifyDocumentType")}
-                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  placeholderTextColor="rgba(255,250,240,0.5)"
                   value={otherIdType}
                   onChangeText={setOtherIdType}
                 />
@@ -1420,7 +1447,7 @@ export default function KycCapture() {
                   frontDoc,
                   setFrontDoc,
                   true,
-                  "front"
+                  "front",
                 )}
                 {shouldShowBackOfId &&
                   renderDocumentCard(
@@ -1428,7 +1455,7 @@ export default function KycCapture() {
                     backDoc,
                     setBackDoc,
                     true,
-                    "back"
+                    "back",
                   )}
               </>
             )}
@@ -1439,7 +1466,7 @@ export default function KycCapture() {
               selfieDoc,
               setSelfieDoc,
               true,
-              "selfie"
+              "selfie",
             )}
 
             {/* Driver's License Section (Optional) */}
@@ -1491,7 +1518,7 @@ export default function KycCapture() {
                             styles.statusBadge,
                             {
                               backgroundColor: getStatusColor(
-                                driversLicenseFront.status
+                                driversLicenseFront.status,
                               ),
                             },
                           ]}
@@ -1508,16 +1535,16 @@ export default function KycCapture() {
                           styles.previewButton,
                           {
                             backgroundColor: isDark
-                              ? "rgba(99, 102, 241, 0.25)"
-                              : "rgba(79, 70, 229, 0.15)",
+                              ? "rgba(201, 150, 63, 0.25)"
+                              : "rgba(201, 150, 63, 0.15)",
                             borderColor: isDark
-                              ? "rgba(99, 102, 241, 0.6)"
-                              : "rgba(79, 70, 229, 0.4)",
+                              ? "rgba(201, 150, 63, 0.6)"
+                              : "rgba(201, 150, 63, 0.4)",
                           },
                         ]}
                         onPress={() => {
                           const fullUrl = driversLicenseFront.url?.startsWith(
-                            "http"
+                            "http",
                           )
                             ? driversLicenseFront.url
                             : `${getApiBase()}${driversLicenseFront.url?.startsWith("/") ? "" : "/"}${driversLicenseFront.url}`;
@@ -1610,7 +1637,7 @@ export default function KycCapture() {
                             styles.statusBadge,
                             {
                               backgroundColor: getStatusColor(
-                                driversLicenseBack.status
+                                driversLicenseBack.status,
                               ),
                             },
                           ]}
@@ -1627,11 +1654,11 @@ export default function KycCapture() {
                           styles.previewButton,
                           {
                             backgroundColor: isDark
-                              ? "rgba(99, 102, 241, 0.25)"
-                              : "rgba(79, 70, 229, 0.15)",
+                              ? "rgba(201, 150, 63, 0.25)"
+                              : "rgba(201, 150, 63, 0.15)",
                             borderColor: isDark
-                              ? "rgba(99, 102, 241, 0.6)"
-                              : "rgba(79, 70, 229, 0.4)",
+                              ? "rgba(201, 150, 63, 0.6)"
+                              : "rgba(201, 150, 63, 0.4)",
                           },
                         ]}
                         onPress={() => {
@@ -1733,7 +1760,7 @@ export default function KycCapture() {
                       styles.statusBadge,
                       {
                         backgroundColor: getStatusColor(
-                          criminalRecordDoc.status
+                          criminalRecordDoc.status,
                         ),
                       },
                     ]}
@@ -1752,11 +1779,11 @@ export default function KycCapture() {
                     styles.previewButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(99, 102, 241, 0.25)"
-                        : "rgba(79, 70, 229, 0.15)",
+                        ? "rgba(201, 150, 63, 0.25)"
+                        : "rgba(201, 150, 63, 0.15)",
                       borderColor: isDark
-                        ? "rgba(99, 102, 241, 0.6)"
-                        : "rgba(79, 70, 229, 0.4)",
+                        ? "rgba(201, 150, 63, 0.6)"
+                        : "rgba(201, 150, 63, 0.4)",
                     },
                   ]}
                   onPress={() => {
@@ -1879,11 +1906,11 @@ export default function KycCapture() {
                         styles.previewButton,
                         {
                           backgroundColor: isDark
-                            ? "rgba(99, 102, 241, 0.25)"
-                            : "rgba(79, 70, 229, 0.15)",
+                            ? "rgba(201, 150, 63, 0.25)"
+                            : "rgba(201, 150, 63, 0.15)",
                           borderColor: isDark
-                            ? "rgba(99, 102, 241, 0.6)"
-                            : "rgba(79, 70, 229, 0.4)",
+                            ? "rgba(201, 150, 63, 0.6)"
+                            : "rgba(201, 150, 63, 0.4)",
                         },
                       ]}
                       onPress={() => {
@@ -2039,11 +2066,11 @@ export default function KycCapture() {
                         styles.previewButton,
                         {
                           backgroundColor: isDark
-                            ? "rgba(99, 102, 241, 0.25)"
-                            : "rgba(79, 70, 229, 0.15)",
+                            ? "rgba(201, 150, 63, 0.25)"
+                            : "rgba(201, 150, 63, 0.15)",
                           borderColor: isDark
-                            ? "rgba(99, 102, 241, 0.6)"
-                            : "rgba(79, 70, 229, 0.4)",
+                            ? "rgba(201, 150, 63, 0.6)"
+                            : "rgba(201, 150, 63, 0.4)",
                         },
                       ]}
                       onPress={() => {
@@ -2193,12 +2220,12 @@ export default function KycCapture() {
                   }
                   style={styles.modalBackButton}
                 >
-                  <Feather name="arrow-left" size={24} color="#fff" />
+                  <Feather name="arrow-left" size={24} color="#FFFAF0" />
                 </TouchableOpacity>
                 <Text
                   style={[
                     styles.modalTitle,
-                    { color: "#fff", flex: 1, textAlign: "center" },
+                    { color: "#FFFAF0", flex: 1, textAlign: "center" },
                   ]}
                 >
                   {previewModal.title}
@@ -2214,7 +2241,7 @@ export default function KycCapture() {
                   }
                   style={styles.modalCloseButton}
                 >
-                  <Feather name="x" size={24} color="#fff" />
+                  <Feather name="x" size={24} color="#FFFAF0" />
                 </TouchableOpacity>
               </View>
               {previewModal.isPdf && previewModal.uri ? (
@@ -2224,22 +2251,22 @@ export default function KycCapture() {
                       styles.pdfPreviewContainer,
                       {
                         backgroundColor: isDark
-                          ? "rgba(30, 41, 59, 0.8)"
-                          : "rgba(255,255,255,0.1)",
+                          ? "rgba(12, 22, 42, 0.80)"
+                          : "rgba(201,150,63,0.12)",
                       },
                     ]}
                   >
                     <Feather name="file-text" size={64} color={colors.tint} />
-                    <Text style={[styles.pdfPreviewText, { color: "#fff" }]}>
+                    <Text style={[styles.pdfPreviewText, { color: "#FFFAF0" }]}>
                       {t("kyc.pdfDocument")}
                     </Text>
                     <TouchableOpacity
                       style={[
                         styles.openPdfButton,
                         {
-                          backgroundColor: isDark ? "#6366f1" : "#4f46e5",
+                          backgroundColor: isDark ? "#10B981" : "#059669",
                           borderWidth: 1,
-                          borderColor: isDark ? "#6366f1" : "#4f46e5",
+                          borderColor: isDark ? "#10B981" : "#059669",
                         },
                       ]}
                       onPress={async () => {
@@ -2251,12 +2278,12 @@ export default function KycCapture() {
                         } catch (err) {
                           Alert.alert(
                             t("common.error"),
-                            t("kyc.couldNotOpenPdf")
+                            t("kyc.couldNotOpenPdf"),
                           );
                         }
                       }}
                     >
-                      <Feather name="external-link" size={18} color="#fff" />
+                      <Feather name="external-link" size={18} color="#FFFAF0" />
                       <Text style={styles.openPdfButtonText}>
                         {t("kyc.openPdfInBrowser")}
                       </Text>
@@ -2280,14 +2307,14 @@ export default function KycCapture() {
                     onError={(error) => {
                       console.warn(
                         "Image load error:",
-                        error.nativeEvent.error
+                        error.nativeEvent.error,
                       );
                     }}
                   />
                 </ScrollView>
               ) : previewModal.uri ? (
                 <View style={styles.previewModalImageContainer}>
-                  <Text style={{ color: "#fff", textAlign: "center" }}>
+                  <Text style={{ color: "#FFFAF0", textAlign: "center" }}>
                     {t("kyc.invalidImageUri")}
                   </Text>
                 </View>
@@ -2299,9 +2326,9 @@ export default function KycCapture() {
                   style={[
                     styles.modalBackButtonBottom,
                     {
-                      backgroundColor: isDark ? "#6366f1" : "#4f46e5",
+                      backgroundColor: isDark ? "#10B981" : "#059669",
                       borderWidth: 1,
-                      borderColor: isDark ? "#6366f1" : "#4f46e5",
+                      borderColor: isDark ? "#10B981" : "#059669",
                     },
                   ]}
                   onPress={() =>
@@ -2313,8 +2340,10 @@ export default function KycCapture() {
                     })
                   }
                 >
-                  <Feather name="arrow-left" size={20} color="#fff" />
-                  <Text style={[styles.modalBackButtonText, { color: "#fff" }]}>
+                  <Feather name="arrow-left" size={20} color="#FFFAF0" />
+                  <Text
+                    style={[styles.modalBackButtonText, { color: "#FFFAF0" }]}
+                  >
                     {t("common.back")}
                   </Text>
                 </TouchableOpacity>
@@ -2346,7 +2375,7 @@ export default function KycCapture() {
           <View
             style={[
               styles.modalContent,
-              { backgroundColor: isDark ? "#1f2937" : "#fff" },
+              { backgroundColor: isDark ? "#1A1710" : "#FFFAF0" },
             ]}
             pointerEvents="box-none"
           >
@@ -2419,21 +2448,21 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201,150,63,0.12)",
     justifyContent: "center",
     alignItems: "center",
   },
   scrollContent: { paddingBottom: 24 },
   container: { paddingTop: 12, paddingHorizontal: 20 },
-  title: { color: "#fff", fontSize: 28, fontWeight: "800", marginBottom: 6 },
-  subtitle: { color: "#9ca3af", marginBottom: 16 },
+  title: { color: "#FFFAF0", fontSize: 28, fontWeight: "800", marginBottom: 6 },
+  subtitle: { color: "#9A8E7A", marginBottom: 16 },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     backgroundColor: "rgba(17,24,39,0.6)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
+    borderColor: "rgba(255,250,240,0.12)",
     marginBottom: 12,
     shadowColor: "#000",
     shadowOpacity: 0.25,
@@ -2447,7 +2476,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   cardTitle: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 18,
     fontWeight: "700",
     flex: 1,
@@ -2461,24 +2490,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
-  cardText: { color: "rgba(255,255,255,0.8)", marginBottom: 10 },
+  cardText: { color: "rgba(240,232,213,0.8)", marginBottom: 10 },
   row: { flexDirection: "row", gap: 8, marginTop: 8 },
   button: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
+    borderColor: "rgba(201,150,63,0.2)",
     paddingVertical: 12,
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,250,240,0.08)",
   },
   buttonSecondary: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderColor: "rgba(255,255,255,0.25)",
+    backgroundColor: "rgba(255,250,240,0.08)",
+    borderColor: "rgba(201,150,63,0.2)",
     marginTop: 8,
   },
   removeButton: {
@@ -2487,11 +2516,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(239, 68, 68, 0.1)",
   },
   buttonPrimary: {
-    backgroundColor: "#2563eb",
-    borderColor: "#1d4ed8",
+    backgroundColor: "#059669",
+    borderColor: "#059669",
     marginTop: 8,
   },
-  buttonLabel: { color: "#fff", fontWeight: "700" },
+  buttonLabel: { color: "#FFFAF0", fontWeight: "700" },
   uploadButton: {
     marginTop: 8,
   },
@@ -2499,10 +2528,10 @@ const styles = StyleSheet.create({
   previewButton: {
     marginTop: 8,
     marginBottom: 8,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.5)",
-    backgroundColor: "rgba(99, 102, 241, 0.2)",
+    borderColor: "rgba(201, 150, 63, 0.5)",
+    backgroundColor: "rgba(201, 150, 63, 0.2)",
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
@@ -2514,7 +2543,7 @@ const styles = StyleSheet.create({
   },
   previewButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   toggle: {
     marginLeft: 12,
@@ -2522,24 +2551,24 @@ const styles = StyleSheet.create({
   toggleTrack: {
     width: 44,
     height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 4,
+    backgroundColor: "rgba(255,250,240,0.15)",
     paddingHorizontal: 2,
     justifyContent: "center",
   },
   toggleTrackActive: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#059669",
   },
   toggleThumb: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFAF0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 0,
     alignSelf: "flex-start",
   },
   toggleThumbActive: {
@@ -2551,14 +2580,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(201,150,63,0.2)",
+    backgroundColor: "rgba(255,250,240,0.08)",
     marginTop: 8,
   },
   dropdownText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
     flex: 1,
   },
@@ -2566,11 +2595,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingVertical: 12,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    color: "#fff",
+    borderColor: "rgba(201,150,63,0.2)",
+    backgroundColor: "rgba(255,250,240,0.08)",
+    color: "#FFFAF0",
   },
   modalOverlay: {
     flex: 1,
@@ -2594,16 +2623,16 @@ const styles = StyleSheet.create({
   modalBackButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201,150,63,0.12)",
     alignItems: "center",
     justifyContent: "center",
   },
   modalCloseButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201,150,63,0.12)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -2621,12 +2650,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
   },
   modalBackButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalOption: {
     flexDirection: "row",
@@ -2635,7 +2664,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: "rgba(201,150,63,0.12)",
   },
   modalOptionText: {
     fontSize: 16,
@@ -2655,10 +2684,10 @@ const styles = StyleSheet.create({
   previewModalImage: {
     width: "100%",
     height: "80%",
-    borderRadius: 12,
+    borderRadius: 4,
   },
   pdfPreviewContainer: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 40,
     alignItems: "center",
     justifyContent: "center",
@@ -2668,20 +2697,20 @@ const styles = StyleSheet.create({
   pdfPreviewText: {
     marginTop: 16,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   openPdfButton: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     marginTop: 24,
     gap: 8,
   },
   openPdfButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
     fontSize: 16,
   },
 });

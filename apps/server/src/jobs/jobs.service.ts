@@ -54,6 +54,19 @@ export class JobsService {
       currency: true,
       company: { select: { id: true, name: true } },
       category: { select: { id: true, name: true } },
+      employer: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          city: true,
+          country: true,
+          avatar: true,
+          isVerified: true,
+          company: { select: { name: true } },
+        },
+      },
+      _count: { select: { applications: true } },
     } as const;
 
     // Build where clause for filtering
@@ -85,18 +98,25 @@ export class JobsService {
       });
       // Sort by urgency: URGENT > HIGH > NORMAL > LOW
       const urgencyOrder = { URGENT: 4, HIGH: 3, NORMAL: 2, LOW: 1 };
-      return jobs.sort((a, b) => {
-        const urgencyA =
-          urgencyOrder[(a.urgency as keyof typeof urgencyOrder) || 'NORMAL'] ||
-          2;
-        const urgencyB =
-          urgencyOrder[(b.urgency as keyof typeof urgencyOrder) || 'NORMAL'] ||
-          2;
-        if (urgencyA !== urgencyB) {
-          return urgencyB - urgencyA; // Higher urgency first
-        }
-        return 0;
-      });
+      return jobs
+        .sort((a, b) => {
+          const urgencyA =
+            urgencyOrder[
+              (a.urgency as keyof typeof urgencyOrder) || 'NORMAL'
+            ] || 2;
+          const urgencyB =
+            urgencyOrder[
+              (b.urgency as keyof typeof urgencyOrder) || 'NORMAL'
+            ] || 2;
+          if (urgencyA !== urgencyB) {
+            return urgencyB - urgencyA;
+          }
+          return 0;
+        })
+        .map((j) => ({
+          ...j,
+          applicantCount: (j as any)._count?.applications ?? 0,
+        }));
     }
 
     const radiusKm =
@@ -144,7 +164,11 @@ export class JobsService {
         return a.distanceKm - b.distanceKm;
       })
       .slice(0, limit)
-      .map((x) => ({ ...x.job, distanceKm: x.distanceKm }));
+      .map((x) => ({
+        ...x.job,
+        distanceKm: x.distanceKm,
+        applicantCount: (x.job as any)._count?.applications ?? 0,
+      }));
     return enriched;
   }
 
@@ -168,7 +192,6 @@ export class JobsService {
         urgency: true,
         employerId: true,
         startDate: true,
-        // Payment information
         salaryMin: true,
         salaryMax: true,
         paymentType: true,
@@ -176,9 +199,31 @@ export class JobsService {
         currency: true,
         company: { select: { id: true, name: true } },
         category: { select: { id: true, name: true } },
+        employer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            city: true,
+            country: true,
+            avatar: true,
+            isVerified: true,
+            company: { select: { name: true } },
+          },
+        },
+        _count: { select: { applications: true } },
       },
     });
     if (!job) throw new NotFoundException('Job not found');
+
+    let myApplication: { id: string; status: string; appliedAt: Date } | null =
+      null;
+    if (userId) {
+      myApplication = await this.prisma.application.findUnique({
+        where: { applicantId_jobId: { applicantId: userId, jobId: id } },
+        select: { id: true, status: true, appliedAt: true },
+      });
+    }
 
     // Fix status if job has accepted applications but status is still ACTIVE
     // Only update if not already updated (to avoid race conditions)
@@ -226,16 +271,20 @@ export class JobsService {
     const isEmployer = userRole === 'EMPLOYER' || userRole === 'ADMIN';
     const isJobOwner = userId && job.employerId === userId;
 
+    const enriched = {
+      ...job,
+      applicantCount: (job as any)._count?.applications ?? 0,
+      myApplication: myApplication ?? undefined,
+    };
+
     if (isEmployer && isJobOwner) {
-      // Employer viewing their own job - return it regardless of status
-      return job;
+      return enriched;
     }
 
-    // For non-employers or non-owners, only return ACTIVE jobs
     if (job.status !== 'ACTIVE') {
       throw new NotFoundException('Job not found or not available');
     }
-    return job;
+    return enriched;
   }
 
   async applyToJob(
@@ -854,16 +903,16 @@ export class JobsService {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4f46e5;">${t('email.jobs.jobNoLongerAvailableTitle')}</h2>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #080F1E; color: #B8A88A;">
+          <h2 style="color: #C9963F;">${t('email.jobs.jobNoLongerAvailableTitle')}</h2>
           <p>${t('email.jobs.greeting', { applicantName })}</p>
           <p>${t('email.jobs.jobNoLongerAvailableMessage', { jobTitle })}</p>
-          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <div style="background-color: #0E1B32; padding: 16px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0;"><strong>${t('email.jobs.reason')}:</strong> ${reason}</p>
           </div>
           <p>${t('email.jobs.jobNoLongerAvailableBrowse')}</p>
           <p>${t('email.jobs.jobNoLongerAvailableAppreciate')}</p>
-          <p>${t('email.common.bestRegards')}<br>${t('email.common.cumpridoTeam')}</p>
+          <p>${t('email.common.bestRegards')}<br>${t('email.common.nestaTeam')}</p>
         </body>
         </html>
       `;
@@ -1114,6 +1163,19 @@ export class JobsService {
     };
   }
 
+  async getEmployerJobStats(employerId: string) {
+    const jobs = await this.prisma.job.findMany({
+      where: { employerId },
+      select: { status: true },
+    });
+    const active = jobs.filter(
+      (j) => j.status === 'ACTIVE' || j.status === 'ASSIGNED',
+    ).length;
+    const completed = jobs.filter((j) => j.status === 'COMPLETED').length;
+    const total = jobs.length;
+    return { active, completed, total };
+  }
+
   async getMyJobs(employerId: string) {
     const jobs = await this.prisma.job.findMany({
       where: {
@@ -1140,8 +1202,13 @@ export class JobsService {
         paymentType: true,
         rateAmount: true,
         currency: true,
+        startDate: true,
+        endDate: true,
+        requirements: true,
+        responsibilities: true,
         company: { select: { id: true, name: true } },
         category: { select: { id: true, name: true } },
+        _count: { select: { applications: true } },
       },
       orderBy: { createdAt: 'desc' },
     });

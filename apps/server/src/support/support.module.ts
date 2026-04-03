@@ -4,12 +4,12 @@ import { SupportService } from './support.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthModule } from '../auth/auth.module';
+import { SupportFileUploadService } from './support-file-upload.service';
 
 @Module({
   imports: [PrismaModule, NotificationsModule, AuthModule],
   controllers: [SupportController],
-  providers: [SupportService],
+  providers: [SupportService, SupportFileUploadService],
   exports: [SupportService],
 })
 export class SupportModule {}
-

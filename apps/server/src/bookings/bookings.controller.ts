@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   Delete,
   Query,
@@ -23,6 +24,8 @@ interface RequestWithUser extends Request {
 
 @Controller('bookings')
 export class BookingsController {
+  private readonly logger = new Logger(BookingsController.name);
+
   constructor(private readonly bookings: BookingsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -106,7 +109,7 @@ export class BookingsController {
   @Get('debug/all')
   async debugAllBookings(@Req() req: RequestWithUser) {
     const userId = String(req.user?.userId ?? req.user?.id);
-    console.log(`[Debug] User ID from token: ${userId}`);
+    this.logger.log(`[Debug] User ID from token: ${userId}`);
     const allBookings = await this.bookings.debugListAll(userId);
     return {
       userId,

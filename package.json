@@ -4,11 +4,23 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "ios": "pnpm -C apps/mobile ios",
+    "android": "pnpm -C apps/mobile android",
+    "eas:build:android": "pnpm -C apps/mobile exec eas build --platform android",
+    "eas:build:ios": "pnpm -C apps/mobile exec eas build --platform ios",
+    "eas:build:all": "pnpm -C apps/mobile exec eas build --platform all",
+    "eas:build:android:prod": "pnpm -C apps/mobile exec eas build --platform android --profile production",
+    "eas:build:ios:prod": "pnpm -C apps/mobile exec eas build --platform ios --profile production",
+    "eas:build:all:prod": "pnpm -C apps/mobile exec eas build --platform all --profile production",
+    "eas:submit:android": "pnpm -C apps/mobile exec eas submit --platform android --latest",
+    "eas:submit:ios": "pnpm -C apps/mobile exec eas submit --platform ios --latest",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "babel-preset-expo": "~54.0.9",
+    "eas-cli": "^16.28.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "5.9.2"
@@ -16,5 +28,6 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
-  }
+  },
+  "pnpm": {}
 }

@@ -6,11 +6,11 @@ export const LEGAL_TEXT = {
 
 ## 1. Acceptance of Terms
 
-By accessing and using the Cumprido platform ("Platform", "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Service.
+By accessing and using the Nasta platform ("Platform", "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Service.
 
 ## 2. Description of Service
 
-Cumprido is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with employers seeking services. The Platform facilitates:
+Nasta is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with employers seeking services. The Platform facilitates:
 
 - Job posting and application management
 - Service provider discovery and matching
@@ -61,12 +61,12 @@ You agree NOT to:
 ## 6. Intellectual Property
 
 - All content on the Platform is protected by copyright and other intellectual property laws
-- You retain ownership of content you post, but grant Cumprido a license to use it
-- You may not use Cumprido's trademarks or logos without permission
+- You retain ownership of content you post, but grant Nasta a license to use it
+- You may not use Nasta's trademarks or logos without permission
 
 ## 7. Limitation of Liability
 
-- Cumprido provides the Platform "as is" without warranties
+- Nasta provides the Platform "as is" without warranties
 - We are not liable for any indirect, incidental, or consequential damages
 - Our total liability is limited to the amount you paid us in the past 12 months
 
@@ -90,8 +90,8 @@ You agree NOT to:
 ## 11. Contact Information
 
 For questions about these Terms, please contact:
-- **Email**: legal@cumprido.com
-- **Website**: https://cumprido.com/terms
+- **Email**: legal@nasta.app
+- **Website**: https://nasta.app/terms
 
 ## 12. Severability
 
@@ -99,9 +99,9 @@ If any provision of these Terms is found to be unenforceable, the remaining prov
 
 ## 13. Entire Agreement
 
-These Terms, together with the Privacy Policy, constitute the entire agreement between you and Cumprido regarding the use of the Platform.
+These Terms, together with the Privacy Policy, constitute the entire agreement between you and Nasta regarding the use of the Platform.
 
-**By using Cumprido, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.**
+**By using Nasta, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.**
 `,
 
   PRIVACY_POLICY: `
@@ -111,7 +111,7 @@ These Terms, together with the Privacy Policy, constitute the entire agreement b
 
 ## Introduction
 
-Cumprido ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform ("App" or "Platform").
+Nasta ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform ("App" or "Platform").
 
 ## 1. Information We Collect
 
@@ -203,10 +203,10 @@ You have the right to:
 ## 11. Contact Us
 
 For privacy-related questions or requests:
-- **Email**: privacy@cumprido.com
-- **Website**: https://cumprido.com/privacy
+- **Email**: privacy@nasta.app
+- **Website**: https://nasta.app/privacy
 
-**By using Cumprido, you acknowledge that you have read and understood this Privacy Policy.**
+**By using Nasta, you acknowledge that you have read and understood this Privacy Policy.**
 `,
 
   COOKIES: `
@@ -258,7 +258,7 @@ You can manage your cookie preferences using the toggles below. Essential cookie
 
 ## Introduction
 
-These Platform Rules ("Rules") govern acceptable behavior and conduct on Cumprido. All users must follow these Rules to maintain a safe, respectful, and professional environment.
+These Platform Rules ("Rules") govern acceptable behavior and conduct on Nasta. All users must follow these Rules to maintain a safe, respectful, and professional environment.
 
 ## 1. General Conduct
 
@@ -330,7 +330,7 @@ You may NOT:
 
 ## 6. Enforcement
 
-Cumprido administrators may take the following actions to maintain platform safety and enforce rules:
+Nasta administrators may take the following actions to maintain platform safety and enforce rules:
 - Issue warnings
 - Suspend accounts temporarily
 - Permanently ban accounts
@@ -363,10 +363,10 @@ If you believe you were unfairly penalized:
 ## 10. Contact
 
 For questions about Platform Rules:
-- **Email**: support@cumprido.com
+- **Email**: support@nasta.app
 - **In-App**: Use the support ticket system
 
-**By using Cumprido, you agree to follow these Platform Rules. Violations may result in penalties up to and including account termination.**
+**By using Nasta, you agree to follow these Platform Rules. Violations may result in penalties up to and including account termination.**
 `,
 
   ACCOUNT_DELETION: `
@@ -376,7 +376,7 @@ For questions about Platform Rules:
 
 ## How to request account deletion
 
-- Open the Cumprido mobile app
+- Open the Nasta mobile app
 - Go to **Settings**
 - Tap **Delete account**
 - Select a reason, optionally add details, confirm, and submit
@@ -388,7 +388,7 @@ For questions about Platform Rules:
 
 ## If you cannot access the app
 
-- Email **support@cumprido.com** from the email address associated with your account.
+- Email **support@nasta.app** from the email address associated with your account.
 - Use the subject: **Account Deletion Request**
 `,
 };

@@ -335,7 +335,8 @@ export class KycService {
   async adminList(
     statuses: Array<'PENDING' | 'IN_PROGRESS' | 'MANUAL_REVIEW'>,
   ) {
-    return this.prisma.idVerification.findMany({
+    // Query without user relation to avoid Prisma error on orphaned records
+    const verifications = await this.prisma.idVerification.findMany({
       where: { status: { in: statuses } },
       orderBy: { createdAt: 'asc' },
       select: {
@@ -349,11 +350,24 @@ export class KycService {
         documentNumber: true,
         documentCountry: true,
         documentExpiry: true,
-        user: {
-          select: { id: true, firstName: true, lastName: true, email: true },
-        },
+        userId: true,
       },
     });
+
+    // Batch-fetch users and filter out orphaned records
+    const userIds = [...new Set(verifications.map((v) => v.userId))];
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, firstName: true, lastName: true, email: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    return verifications
+      .filter((v) => userMap.has(v.userId))
+      .map(({ userId, ...rest }) => ({
+        ...rest,
+        user: userMap.get(userId)!,
+      }));
   }
 
   async adminGetVerification(verificationId: string) {
@@ -657,16 +671,16 @@ export class KycService {
 
       const emailContent =
         data.decision === 'APPROVED'
-          ? `<p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.kyc.documentApprovedMessage', { documentName })}</p>
-           <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 20px 0;">
-             <p style="margin: 0; color: #065f46; font-size: 16px; font-weight: 600;">✓ ${t('email.kyc.documentStatusApproved')}</p>
+          ? `<p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.kyc.documentApprovedMessage', { documentName })}</p>
+           <div style="background-color: rgba(16, 185, 129, 0.08); padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 20px 0;">
+             <p style="margin: 0; color: #34d399; font-size: 16px; font-weight: 600;">✓ ${t('email.kyc.documentStatusApproved')}</p>
            </div>
-           <p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.kyc.verificationProgressing')}</p>`
-          : `<p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.kyc.documentRejectedMessage', { documentName })}</p>
-           <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
-             <p style="margin: 0; color: #991b1b; font-size: 16px; font-weight: 600;">✗ ${t('email.kyc.documentStatusRejected')}</p>
+           <p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.kyc.verificationProgressing')}</p>`
+          : `<p style="color: #D4A853; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">${t('email.kyc.documentRejectedMessage', { documentName })}</p>
+           <div style="background-color: rgba(239, 68, 68, 0.08); padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
+             <p style="margin: 0; color: #f87171; font-size: 16px; font-weight: 600;">✗ ${t('email.kyc.documentStatusRejected')}</p>
            </div>
-           <p style="color: #374151; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.kyc.uploadNewDocument')}</p>`;
+           <p style="color: #D4A853; font-size: 14px; line-height: 1.6; margin-top: 20px;">${t('email.kyc.uploadNewDocument')}</p>`;
 
       const emailHtml = this.notifications.getBrandedEmailTemplate(
         emailSubject,

@@ -1,34 +1,36 @@
 {
   "expo": {
-    "name": "Cumprido",
-    "slug": "cumprido",
+    "name": "Nasta",
+    "slug": "nasta",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
-    "scheme": "cumprido",
+    "scheme": "nasta",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mohamedibrahim.cumprido",
+      "bundleIdentifier": "com.mohamedibrahim.nasta",
       "deploymentTarget": "16.0",
-      "displayName": "Cumprido",
+      "displayName": "Nasta",
       "icon": "./assets/images/app-icon-ios.png",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to share it with your employer or track your service provider.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "associatedDomains": ["applinks:cumprido.com"]
+      "associatedDomains": [
+        "applinks:nasta.app"
+      ]
     },
     "android": {
-      "package": "com.mohamedibrahim.cumprido",
+      "package": "com.mohamedibrahim.nasta",
       "config": {
         "googleMaps": {
           "apiKey": ""
         }
       },
       "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./assets/images/app-icon.png"
+        "backgroundColor": "#0A1628",
+        "foregroundImage": "./assets/images/adaptive-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -43,11 +45,14 @@
           "data": [
             {
               "scheme": "https",
-              "host": "cumprido.com",
+              "host": "nasta.app",
               "pathPrefix": "/verify-email"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -60,12 +65,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/CumpridoLogoLight.png",
-          "imageWidth": 180,
+          "image": "./assets/images/NastaLogoLight.png",
+          "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#1A1F2E",
+          "backgroundColor": "#0A1628",
           "dark": {
-            "backgroundColor": "#1A1F2E"
+            "backgroundColor": "#0A1628"
           }
         }
       ],
@@ -86,15 +91,15 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/CumpridoLogoDark.png",
-          "color": "#6366f1",
+          "icon": "./assets/images/NastaLogoDark.png",
+          "color": "#C9963F",
           "sounds": []
         }
       ],
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.mohamedibrahim.cumprido",
+          "merchantIdentifier": "merchant.com.mohamedibrahim.nasta",
           "enableGooglePay": false
         }
       ],
@@ -103,15 +108,22 @@
       "expo-web-browser"
     ],
     "extra": {
-      "apiBaseURL": "https://api.cumprido.com",
+      "apiBaseURL": "https://api.nasta.app",
       "router": {},
       "eas": {
-        "projectId": "aa642c82-df86-4eb0-b7f0-2ae78e15b855"
+        "projectId": "5ded41ee-3c4b-4612-8ac7-17c3aebc2356"
       }
     },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/aa642c82-df86-4eb0-b7f0-2ae78e15b855"
+    },
+    "owner": "aldgar"
   }
 }

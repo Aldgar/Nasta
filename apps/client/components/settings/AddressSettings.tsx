@@ -23,12 +23,12 @@ export default function AddressSettings() {
   const [address, setAddress] = useState<string>(() =>
     typeof window === "undefined"
       ? ""
-      : localStorage.getItem("user_address") || ""
+      : localStorage.getItem("user_address") || "",
   );
   const [coords, setCoords] = useState<string>(() =>
     typeof window === "undefined"
       ? ""
-      : localStorage.getItem("user_coords") || ""
+      : localStorage.getItem("user_coords") || "",
   );
   const [status, setStatus] = useState<string>("");
   const [resolving, setResolving] = useState(false);
@@ -76,13 +76,13 @@ export default function AddressSettings() {
         setResolving(false);
         setTimeout(() => setStatus(""), 3000);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 10000 },
     );
   }
 
   async function reverseGeocode(
     lat: string,
-    lng: string
+    lng: string,
   ): Promise<ReverseResult> {
     try {
       // Use OpenStreetMap Nominatim (no key). Respect usage: 1 request per second.
@@ -91,7 +91,7 @@ export default function AddressSettings() {
         format: "jsonv2",
         lat: String(lat),
         lon: String(lng),
-        email: "support@cumprido.com",
+        email: "support@nasta.app",
       });
       const url = `https://nominatim.openstreetmap.org/reverse?${params.toString()}`;
       const r = await fetch(url, {

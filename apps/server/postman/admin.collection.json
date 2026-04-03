@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Cumprido Admin",
+    "name": "Nasta Admin",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Admin management and background-check review endpoints"
   },

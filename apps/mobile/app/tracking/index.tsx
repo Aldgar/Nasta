@@ -82,7 +82,7 @@ const SafeMapView = ({ children, ...props }: any) => {
             error?.message?.includes("API_KEY")
           ) {
             setErrorMessage(
-              "Google Maps API key is missing. Please configure it in app.json"
+              "Google Maps API key is missing. Please configure it in app.json",
             );
           }
         }}
@@ -110,11 +110,11 @@ export default function TrackingScreen() {
   let colors, isDark;
   try {
     const theme = useTheme();
-    colors = theme?.colors || { text: "#000", tint: "#6366f1" };
+    colors = theme?.colors || { text: "#000", tint: "#14B8A6" };
     isDark = theme?.isDark || false;
   } catch (themeErr) {
     console.log("Theme context error:", themeErr);
-    colors = { text: "#000", tint: "#6366f1" };
+    colors = { text: "#000", tint: "#14B8A6" };
     isDark = false;
   }
 
@@ -132,7 +132,7 @@ export default function TrackingScreen() {
   const [roleDetermined, setRoleDetermined] = useState(false);
 
   const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
+    null,
   );
   const [otherPersonLocation, setOtherPersonLocation] = useState<{
     latitude: number;
@@ -165,7 +165,7 @@ export default function TrackingScreen() {
         atob(base64)
           .split("")
           .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
+          .join(""),
       );
       return JSON.parse(json);
     } catch {
@@ -345,7 +345,7 @@ export default function TrackingScreen() {
             // Check if booking's job has been deleted
             if (data.jobId && !data.job) {
               setError(
-                "This booking is no longer available. The associated job has been removed."
+                "This booking is no longer available. The associated job has been removed.",
               );
               setBooking(null);
               setLoadingBooking(false);
@@ -496,7 +496,7 @@ export default function TrackingScreen() {
                   text: t("tracking.openSettings"),
                   onPress: () => Linking.openSettings(),
                 },
-              ]
+              ],
             );
           }
           return;
@@ -511,7 +511,7 @@ export default function TrackingScreen() {
               accuracy: Location.Accuracy.Balanced, // Changed from High to Balanced for faster response
             }),
             new Promise<Location.LocationObject>((_, reject) =>
-              setTimeout(() => reject(new Error("Location timeout")), 10000)
+              setTimeout(() => reject(new Error("Location timeout")), 10000),
             ),
           ]);
 
@@ -544,7 +544,7 @@ export default function TrackingScreen() {
                     console.log("Socket update error:", socketErr);
                   }
                 }
-              }
+              },
             );
           } catch (watchErr) {
             console.log("Error watching position:", watchErr);
@@ -560,7 +560,7 @@ export default function TrackingScreen() {
             if (locErr?.message !== "Location timeout") {
               Alert.alert(
                 t("tracking.locationError"),
-                t("tracking.failedToGetLocation")
+                t("tracking.failedToGetLocation"),
               );
             }
           }
@@ -599,7 +599,7 @@ export default function TrackingScreen() {
             <View style={styles.center}>
               <ActivityIndicator
                 size="large"
-                color={colors?.tint || "#6366f1"}
+                color={colors?.tint || "#14B8A6"}
               />
               <Text
                 style={[
@@ -626,8 +626,8 @@ export default function TrackingScreen() {
           }}
         >
           <Stack.Screen options={{ headerShown: false }} />
-          <ActivityIndicator size="large" color="#6366f1" />
-          <Text style={{ color: "#fff", marginTop: 16 }}>
+          <ActivityIndicator size="large" color="#14B8A6" />
+          <Text style={{ color: "#FFFAF0", marginTop: 16 }}>
             {t("common.loading")}
           </Text>
         </View>
@@ -667,8 +667,8 @@ export default function TrackingScreen() {
                     styles.backButton,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "rgba(0,0,0,0.05)",
+                        ? "rgba(255,250,240,0.12)"
+                        : "rgba(184,130,42,0.06)",
                     },
                   ]}
                 >
@@ -687,7 +687,7 @@ export default function TrackingScreen() {
                 <Text
                   style={[
                     styles.loadingText,
-                    { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+                    { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
                   ]}
                 >
                   {t("tracking.loadingBookings")}
@@ -698,7 +698,7 @@ export default function TrackingScreen() {
                 <Ionicons
                   name="location-outline"
                   size={64}
-                  color={isDark ? "rgba(255,255,255,0.3)" : "#94a3b8"}
+                  color={isDark ? "rgba(201,150,63,0.25)" : "#9A8E7A"}
                 />
                 <Text style={[styles.emptyTitle, { color: colors.text }]}>
                   {t("tracking.noActiveBookings")}
@@ -706,7 +706,7 @@ export default function TrackingScreen() {
                 <Text
                   style={[
                     styles.emptySub,
-                    { color: isDark ? "rgba(255,255,255,0.6)" : "#64748b" },
+                    { color: isDark ? "rgba(255,250,240,0.6)" : "#8A7B68" },
                   ]}
                 >
                   {t("tracking.noActiveBookingsMessage")}
@@ -752,7 +752,7 @@ export default function TrackingScreen() {
                         onPress: () => {
                           // Navigate to map view when card is clicked and tracking is active
                           router.push(
-                            `/tracking?bookingId=${b.id}&role=${role}` as any
+                            `/tracking?bookingId=${b.id}&role=${role}` as any,
                           );
                         },
                         activeOpacity: 0.7,
@@ -767,10 +767,10 @@ export default function TrackingScreen() {
                         styles.bookingCard,
                         {
                           backgroundColor: isDark
-                            ? "rgba(30, 41, 59, 0.85)"
-                            : "#ffffff",
+                            ? "rgba(12, 22, 42, 0.82)"
+                            : "#FFFAF0",
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.15)"
+                            ? "rgba(255,250,240,0.12)"
                             : "rgba(0,0,0,0.08)",
                         },
                       ]}
@@ -779,7 +779,7 @@ export default function TrackingScreen() {
                         <View
                           style={[
                             styles.bookingAvatar,
-                            { backgroundColor: isDark ? "#475569" : "#1E293B" },
+                            { backgroundColor: isDark ? "#6B6355" : "#1E293B" },
                           ]}
                         >
                           <Ionicons name="person" size={24} color="white" />
@@ -798,8 +798,8 @@ export default function TrackingScreen() {
                               styles.bookingJobTitle,
                               {
                                 color: isDark
-                                  ? "rgba(255,255,255,0.6)"
-                                  : "#64748b",
+                                  ? "rgba(255,250,240,0.6)"
+                                  : "#8A7B68",
                               },
                             ]}
                           >
@@ -814,7 +814,7 @@ export default function TrackingScreen() {
                                 ? "#22C55E"
                                 : b.status === "CONFIRMED"
                                   ? "#3B82F6"
-                                  : "#6b7280",
+                                  : "#8A7B68",
                             },
                           ]}
                         >
@@ -828,7 +828,7 @@ export default function TrackingScreen() {
                           styles.bookingCardFooter,
                           {
                             borderTopColor: isDark
-                              ? "rgba(255,255,255,0.1)"
+                              ? "rgba(201,150,63,0.12)"
                               : "#F1F5F9",
                           },
                         ]}
@@ -864,7 +864,7 @@ export default function TrackingScreen() {
                                           setDeletingBooking(b.id);
                                           const token =
                                             await SecureStore.getItemAsync(
-                                              "auth_token"
+                                              "auth_token",
                                             );
                                           if (!token) {
                                             setDeletingBooking(null);
@@ -880,82 +880,83 @@ export default function TrackingScreen() {
                                               headers: {
                                                 Authorization: `Bearer ${token}`,
                                               },
-                                            }
+                                            },
                                           );
 
                                           if (res.ok) {
                                             // Remove booking from list
                                             setBookings(
                                               bookings.filter(
-                                                (booking) => booking.id !== b.id
-                                              )
+                                                (booking) =>
+                                                  booking.id !== b.id,
+                                              ),
                                             );
 
                                             // If we're viewing this booking, navigate back to list
                                             if (bookingId === b.id) {
                                               setBooking(null);
                                               router.replace(
-                                                `/tracking?role=${role}` as any
+                                                `/tracking?role=${role}` as any,
                                               );
                                             }
 
                                             Alert.alert(
                                               t("tracking.success"),
                                               t(
-                                                "tracking.bookingDeletedSuccessfully"
-                                              )
+                                                "tracking.bookingDeletedSuccessfully",
+                                              ),
                                             );
                                           } else {
                                             const errorData = await res
                                               .json()
                                               .catch(() => ({
                                                 message: t(
-                                                  "tracking.failedToDeleteBooking"
+                                                  "tracking.failedToDeleteBooking",
                                                 ),
                                               }));
                                             Alert.alert(
                                               t("tracking.error"),
                                               errorData.message ||
                                                 t(
-                                                  "tracking.failedToDeleteBooking"
-                                                )
+                                                  "tracking.failedToDeleteBooking",
+                                                ),
                                             );
                                           }
                                         } catch (err) {
                                           console.error(
                                             "Error deleting booking:",
-                                            err
+                                            err,
                                           );
                                           Alert.alert(
                                             t("tracking.error"),
                                             t(
-                                              "tracking.failedToDeleteBookingTryAgain"
-                                            )
+                                              "tracking.failedToDeleteBookingTryAgain",
+                                            ),
                                           );
                                         } finally {
                                           setDeletingBooking(null);
                                         }
                                       },
                                     },
-                                  ]
+                                  ],
                                 );
                               } catch (err) {
                                 console.error(
                                   "Error showing delete confirmation:",
-                                  err
+                                  err,
                                 );
                               }
                             }}
                             disabled={isDeleting}
                           >
                             {isDeleting ? (
-                              <ActivityIndicator color="#fff" size="small" />
+                              <ActivityIndicator color="#FFFAF0" size="small" />
                             ) : (
                               <>
                                 <Ionicons
                                   name="trash-outline"
                                   size={18}
-                                  color="#fff"
+                                  color="#FFFAF0"
                                 />
                                 <Text style={styles.deleteBookingText}>
                                   {t("tracking.deleteBooking")}
@@ -968,9 +969,7 @@ export default function TrackingScreen() {
                             style={[
                               styles.startTrackingButton,
                               {
-                                backgroundColor: isDark
-                                  ? "#4f46e5"
-                                  : colors.tint,
+                                backgroundColor: isDark ? "#14B8A6" : "#0891B2",
                                 opacity: isStarting ? 0.6 : 1,
                               },
                             ]}
@@ -998,7 +997,7 @@ export default function TrackingScreen() {
                                     body: JSON.stringify({
                                       status: "IN_PROGRESS",
                                     }),
-                                  }
+                                  },
                                 );
 
                                 if (res.ok) {
@@ -1014,12 +1013,12 @@ export default function TrackingScreen() {
                                       headers: {
                                         Authorization: `Bearer ${token}`,
                                       },
-                                    }
+                                    },
                                   );
                                   if (refreshRes.ok) {
                                     const refreshData = await refreshRes.json();
                                     const allBookings = Array.isArray(
-                                      refreshData
+                                      refreshData,
                                     )
                                       ? refreshData
                                       : refreshData?.items ||
@@ -1029,7 +1028,7 @@ export default function TrackingScreen() {
                                     const activeBookings = allBookings.filter(
                                       (booking: any) =>
                                         booking.status === "CONFIRMED" ||
-                                        booking.status === "IN_PROGRESS"
+                                        booking.status === "IN_PROGRESS",
                                     );
                                     setBookings(activeBookings);
                                   }
@@ -1044,31 +1043,31 @@ export default function TrackingScreen() {
                                         onPress: () => {
                                           // Navigate to tracking map - it will show because status is now IN_PROGRESS
                                           router.push(
-                                            `/tracking?bookingId=${b.id}&role=${role}` as any
+                                            `/tracking?bookingId=${b.id}&role=${role}` as any,
                                           );
                                         },
                                       },
-                                    ]
+                                    ],
                                   );
                                 } else {
                                   const errorData = await res
                                     .json()
                                     .catch(() => ({
                                       message: t(
-                                        "tracking.failedToStartTracking"
+                                        "tracking.failedToStartTracking",
                                       ),
                                     }));
                                   Alert.alert(
                                     t("tracking.error"),
                                     errorData.message ||
-                                      t("tracking.failedToStartTracking")
+                                      t("tracking.failedToStartTracking"),
                                   );
                                 }
                               } catch (err) {
                                 console.error("Error starting tracking:", err);
                                 Alert.alert(
                                   t("tracking.error"),
-                                  t("tracking.failedToStartTrackingTryAgain")
+                                  t("tracking.failedToStartTrackingTryAgain"),
                                 );
                               } finally {
                                 setStartingTracking(null);
@@ -1077,13 +1076,13 @@ export default function TrackingScreen() {
                             disabled={isStarting}
                           >
                             {isStarting ? (
-                              <ActivityIndicator color="#fff" size="small" />
+                              <ActivityIndicator color="#FFFAF0" size="small" />
                             ) : (
                               <>
                                 <Ionicons
                                   name="navigate"
                                   size={18}
-                                  color="#fff"
+                                  color="#FFFAF0"
                                 />
                                 <Text style={styles.startTrackingText}>
                                   {t("tracking.startTracking")}
@@ -1128,7 +1127,7 @@ export default function TrackingScreen() {
                                     body: JSON.stringify({
                                       status: "CONFIRMED",
                                     }),
-                                  }
+                                  },
                                 );
 
                                 if (res.ok) {
@@ -1136,7 +1135,7 @@ export default function TrackingScreen() {
                                   if (bookingId === b.id) {
                                     setBooking(null); // Clear booking state immediately
                                     router.replace(
-                                      `/tracking?role=${role}` as any
+                                      `/tracking?role=${role}` as any,
                                     );
                                   }
 
@@ -1151,12 +1150,12 @@ export default function TrackingScreen() {
                                       headers: {
                                         Authorization: `Bearer ${token}`,
                                       },
-                                    }
+                                    },
                                   );
                                   if (refreshRes.ok) {
                                     const refreshData = await refreshRes.json();
                                     const allBookings = Array.isArray(
-                                      refreshData
+                                      refreshData,
                                     )
                                       ? refreshData
                                       : refreshData?.items ||
@@ -1166,7 +1165,7 @@ export default function TrackingScreen() {
                                     const activeBookings = allBookings.filter(
                                       (booking: any) =>
                                         booking.status === "CONFIRMED" ||
-                                        booking.status === "IN_PROGRESS"
+                                        booking.status === "IN_PROGRESS",
                                     );
                                     setBookings(activeBookings);
                                   }
@@ -1176,7 +1175,7 @@ export default function TrackingScreen() {
                                     Alert.alert(
                                       t("tracking.trackingStopped"),
                                       t("tracking.trackingStoppedMessage"),
-                                      [{ text: t("common.ok") }]
+                                      [{ text: t("common.ok") }],
                                     );
                                   }, 100);
                                 } else {
@@ -1184,20 +1183,20 @@ export default function TrackingScreen() {
                                     .json()
                                     .catch(() => ({
                                       message: t(
-                                        "tracking.failedToStopTracking"
+                                        "tracking.failedToStopTracking",
                                       ),
                                     }));
                                   Alert.alert(
                                     t("tracking.error"),
                                     errorData.message ||
-                                      t("tracking.failedToStopTracking")
+                                      t("tracking.failedToStopTracking"),
                                   );
                                 }
                               } catch (err) {
                                 console.error("Error stopping tracking:", err);
                                 Alert.alert(
                                   t("tracking.error"),
-                                  t("tracking.failedToStopTrackingTryAgain")
+                                  t("tracking.failedToStopTrackingTryAgain"),
                                 );
                               } finally {
                                 setStoppingTracking(null);
@@ -1206,13 +1205,13 @@ export default function TrackingScreen() {
                             disabled={isStopping}
                           >
                             {isStopping ? (
-                              <ActivityIndicator color="#fff" size="small" />
+                              <ActivityIndicator color="#FFFAF0" size="small" />
                             ) : (
                               <>
                                 <Ionicons
                                   name="stop-circle"
                                   size={18}
-                                  color="#fff"
+                                  color="#FFFAF0"
                                 />
                                 <Text style={styles.startTrackingText}>
                                   {t("tracking.stopTracking")}
@@ -1237,7 +1236,7 @@ export default function TrackingScreen() {
                                 e.stopPropagation();
                               }
                               router.push(
-                                `/tracking?bookingId=${b.id}&role=${role}` as any
+                                `/tracking?bookingId=${b.id}&role=${role}` as any,
                               );
                             }}
                           >
@@ -1276,7 +1275,7 @@ export default function TrackingScreen() {
                                 e.stopPropagation();
                               }
                               router.push(
-                                `/tracking?bookingId=${b.id}&role=${role}` as any
+                                `/tracking?bookingId=${b.id}&role=${role}` as any,
                               );
                             }}
                           >
@@ -1316,7 +1315,7 @@ export default function TrackingScreen() {
           <Stack.Screen options={{ headerShown: false }} />
           <Text
             style={{
-              color: "#fff",
+              color: "#FFFAF0",
               fontSize: 16,
               textAlign: "center",
               marginBottom: 20,
@@ -1325,10 +1324,10 @@ export default function TrackingScreen() {
             {t("tracking.errorLoadingBookings")}
           </Text>
           <TouchableOpacity
-            style={{ backgroundColor: "#6366f1", padding: 12, borderRadius: 8 }}
+            style={{ backgroundColor: "#0891B2", padding: 12, borderRadius: 8 }}
             onPress={() => router.back()}
           >
-            <Text style={{ color: "#fff", fontWeight: "600" }}>
+            <Text style={{ color: "#FFFAF0", fontWeight: "700" }}>
               {t("tracking.goBack")}
             </Text>
           </TouchableOpacity>
@@ -1359,8 +1358,8 @@ export default function TrackingScreen() {
                   styles.backButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(184,130,42,0.06)",
                   },
                 ]}
               >
@@ -1376,7 +1375,7 @@ export default function TrackingScreen() {
             <Ionicons
               name="map-outline"
               size={64}
-              color={isDark ? "rgba(255,255,255,0.3)" : "#94a3b8"}
+              color={isDark ? "rgba(201,150,63,0.25)" : "#9A8E7A"}
             />
             <Text style={[styles.emptyTitle, { color: colors.text }]}>
               {mapsError
@@ -1387,7 +1386,7 @@ export default function TrackingScreen() {
               style={[
                 styles.emptySub,
                 {
-                  color: isDark ? "rgba(255,255,255,0.6)" : "#64748b",
+                  color: isDark ? "rgba(255,250,240,0.6)" : "#8A7B68",
                   textAlign: "center",
                   paddingHorizontal: 40,
                   marginTop: 8,
@@ -1406,7 +1405,7 @@ export default function TrackingScreen() {
                       : "#fee2e2",
                     marginTop: 24,
                     padding: 16,
-                    borderRadius: 12,
+                    borderRadius: 4,
                   },
                 ]}
               >
@@ -1422,7 +1421,7 @@ export default function TrackingScreen() {
                   style={[
                     styles.bookingInfoText,
                     {
-                      color: isDark ? "rgba(255,255,255,0.8)" : "#991b1b",
+                      color: isDark ? "rgba(240,232,213,0.8)" : "#991b1b",
                       fontSize: 12,
                     },
                   ]}
@@ -1439,8 +1438,8 @@ export default function TrackingScreen() {
                   styles.bookingInfoCard,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.85)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.82)"
+                      : "#FFFAF0",
                     marginTop: 24,
                   },
                 ]}
@@ -1451,7 +1450,7 @@ export default function TrackingScreen() {
                 <Text
                   style={[
                     styles.bookingInfoText,
-                    { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+                    { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
                   ]}
                 >
                   {role === "EMPLOYER"
@@ -1461,7 +1460,7 @@ export default function TrackingScreen() {
                 <Text
                   style={[
                     styles.bookingInfoText,
-                    { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+                    { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
                   ]}
                 >
                   Status: {booking.status}
@@ -1505,7 +1504,7 @@ export default function TrackingScreen() {
                 errorMsg.includes("com.google.android.geo.API_KEY")
               ) {
                 setMapsError(
-                  "Google Maps API key is missing. Please configure it in app.json"
+                  "Google Maps API key is missing. Please configure it in app.json",
                 );
                 setMapsLoaded(false);
               }
@@ -1548,7 +1547,7 @@ export default function TrackingScreen() {
             <Ionicons
               name="map-outline"
               size={64}
-              color={isDark ? "rgba(255,255,255,0.3)" : "#94a3b8"}
+              color={isDark ? "rgba(201,150,63,0.25)" : "#9A8E7A"}
             />
             <Text
               style={[styles.emptyTitle, { color: colors.text, marginTop: 16 }]}
@@ -1560,7 +1559,7 @@ export default function TrackingScreen() {
                 style={[
                   styles.emptySub,
                   {
-                    color: isDark ? "rgba(255,255,255,0.6)" : "#64748b",
+                    color: isDark ? "rgba(255,250,240,0.6)" : "#8A7B68",
                     textAlign: "center",
                     paddingHorizontal: 40,
                     marginTop: 8,
@@ -1574,7 +1573,7 @@ export default function TrackingScreen() {
                 style={[
                   styles.emptySub,
                   {
-                    color: isDark ? "rgba(255,255,255,0.6)" : "#64748b",
+                    color: isDark ? "rgba(255,250,240,0.6)" : "#8A7B68",
                     textAlign: "center",
                     paddingHorizontal: 40,
                     marginTop: 8,
@@ -1599,7 +1598,7 @@ export default function TrackingScreen() {
                   router.replace(`/tracking?role=${role}` as any);
                 }}
               >
-                <Ionicons name="list" size={18} color="#fff" />
+                <Ionicons name="list" size={18} color="#FFFAF0" />
                 <Text style={styles.startTrackingText}>
                   {t("tracking.viewBookingsList")}
                 </Text>
@@ -1617,9 +1616,9 @@ export default function TrackingScreen() {
                   styles.backButton,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "rgba(255,255,255,0.95)",
-                    shadowColor: isDark ? "#000" : "rgba(0,0,0,0.2)",
+                      ? "rgba(255,250,240,0.12)"
+                      : "rgba(255,250,240,0.95)",
+                    shadowColor: isDark ? "#000" : "rgba(184,130,42,0.3)",
                   },
                 ]}
               >
@@ -1635,10 +1634,10 @@ export default function TrackingScreen() {
                 styles.loadingCard,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.15)"
+                    ? "rgba(255,250,240,0.12)"
                     : "rgba(0,0,0,0.08)",
                 },
               ]}
@@ -1654,10 +1653,10 @@ export default function TrackingScreen() {
                 styles.bottomCard,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                   borderTopColor: isDark
-                    ? "rgba(255,255,255,0.15)"
+                    ? "rgba(255,250,240,0.12)"
                     : "rgba(0,0,0,0.08)",
                 },
               ]}
@@ -1667,8 +1666,8 @@ export default function TrackingScreen() {
                   styles.handle,
                   {
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.3)"
-                      : "#E5E7EB",
+                      ? "rgba(201,150,63,0.25)"
+                      : "#E8D8B8",
                   },
                 ]}
               />
@@ -1678,7 +1677,7 @@ export default function TrackingScreen() {
               <Text
                 style={[
                   styles.cardSub,
-                  { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+                  { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
                 ]}
               >
                 {role === "JOB_SEEKER"
@@ -1747,7 +1746,7 @@ export default function TrackingScreen() {
                             Authorization: `Bearer ${token}`,
                           },
                           body: JSON.stringify({ status: "CONFIRMED" }),
-                        }
+                        },
                       );
 
                       if (res.ok) {
@@ -1774,7 +1773,7 @@ export default function TrackingScreen() {
                             const activeBookings = allBookings.filter(
                               (booking: any) =>
                                 booking.status === "CONFIRMED" ||
-                                booking.status === "IN_PROGRESS"
+                                booking.status === "IN_PROGRESS",
                             );
                             setBookings(activeBookings);
                           }
@@ -1785,26 +1784,24 @@ export default function TrackingScreen() {
                           Alert.alert(
                             "Tracking Stopped",
                             "Location sharing has been stopped. You can start tracking again when ready.",
-                            [{ text: "OK" }]
+                            [{ text: "OK" }],
                           );
                         }, 300);
                       } else {
-                        const errorData = await res
-                          .json()
-                          .catch(() => ({
-                            message: t("tracking.failedToStopTracking"),
-                          }));
+                        const errorData = await res.json().catch(() => ({
+                          message: t("tracking.failedToStopTracking"),
+                        }));
                         Alert.alert(
                           t("tracking.error"),
                           errorData.message ||
-                            t("tracking.failedToStopTracking")
+                            t("tracking.failedToStopTracking"),
                         );
                       }
                     } catch (err) {
                       console.error("Error stopping tracking:", err);
                       Alert.alert(
                         t("tracking.error"),
-                        t("tracking.failedToStopTrackingTryAgain")
+                        t("tracking.failedToStopTrackingTryAgain"),
                       );
                     } finally {
                       setStoppingTracking(null);
@@ -1813,10 +1810,10 @@ export default function TrackingScreen() {
                   disabled={stoppingTracking === bookingId}
                 >
                   {stoppingTracking === bookingId ? (
-                    <ActivityIndicator color="#fff" size="small" />
+                    <ActivityIndicator color="#FFFAF0" size="small" />
                   ) : (
                     <>
-                      <Ionicons name="stop-circle" size={18} color="#fff" />
+                      <Ionicons name="stop-circle" size={18} color="#FFFAF0" />
                       <Text style={styles.startTrackingText}>
                         {t("tracking.stopTracking")}
                       </Text>
@@ -1830,7 +1827,7 @@ export default function TrackingScreen() {
                   styles.driverRow,
                   {
                     borderTopColor: isDark
-                      ? "rgba(255,255,255,0.1)"
+                      ? "rgba(201,150,63,0.12)"
                       : "#F1F5F9",
                   },
                 ]}
@@ -1838,7 +1835,7 @@ export default function TrackingScreen() {
                 <View
                   style={[
                     styles.avatar,
-                    { backgroundColor: isDark ? "#475569" : "#1E293B" },
+                    { backgroundColor: isDark ? "#6B6355" : "#1E293B" },
                   ]}
                 >
                   <Ionicons name="person" size={24} color="white" />
@@ -1850,7 +1847,7 @@ export default function TrackingScreen() {
                   <Text
                     style={[
                       styles.driverSub,
-                      { color: isDark ? "rgba(255,255,255,0.6)" : "#64748b" },
+                      { color: isDark ? "rgba(255,250,240,0.6)" : "#8A7B68" },
                     ]}
                   >
                     Service Provider
@@ -1931,11 +1928,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 4,
+    elevation: 0,
   },
   carMarker: {
     padding: 8,
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 2,
     borderColor: "white",
     shadowColor: "#000",
@@ -1947,7 +1944,7 @@ const styles = StyleSheet.create({
   loadingCard: {
     margin: 20,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 4,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -1955,11 +1952,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   loadingText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   bottomCard: {
     borderTopLeftRadius: 24,
@@ -1970,7 +1967,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: Platform.OS === "android" ? 0 : 10,
+    elevation: 0,
   },
   handle: {
     width: 40,
@@ -1998,13 +1995,13 @@ const styles = StyleSheet.create({
   avatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
   },
   driverName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   driverSub: {
     fontSize: 13,
@@ -2013,7 +2010,7 @@ const styles = StyleSheet.create({
   callButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     backgroundColor: "#22C55E",
     justifyContent: "center",
     alignItems: "center",
@@ -2036,14 +2033,14 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   bookingCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   bookingCardHeader: {
     flexDirection: "row",
@@ -2053,13 +2050,13 @@ const styles = StyleSheet.create({
   bookingAvatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
   },
   bookingProviderName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 2,
   },
   bookingJobTitle: {
@@ -2068,7 +2065,7 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 4,
   },
   statusText: {
     color: "white",
@@ -2085,7 +2082,7 @@ const styles = StyleSheet.create({
   },
   trackText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginLeft: 6,
   },
   startTrackingButton: {
@@ -2098,9 +2095,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   startTrackingText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   deleteBookingButton: {
     flexDirection: "row",
@@ -2112,9 +2109,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   deleteBookingText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginLeft: 6,
   },
   startTrackingButtonLarge: {
@@ -2123,7 +2120,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
   },
   viewTrackingButton: {
@@ -2138,7 +2135,7 @@ const styles = StyleSheet.create({
   },
   viewTrackingText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   viewDetailsButton: {
     flexDirection: "row",
@@ -2175,10 +2172,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   bookingInfoCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(201,150,63,0.12)",
     width: "90%",
   },
   bookingInfoTitle: {
@@ -2199,10 +2196,10 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   errorCard: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     margin: 20,
   },

@@ -29,7 +29,7 @@ export function getApiBase(): string {
   }
 
   // 4) Production default
-  const prodBase = "https://api.cumprido.com";
+  const prodBase = "https://api.nasta.app";
   if (__DEV__ && !hasWarnedAboutApiBase) {
     hasWarnedAboutApiBase = true;
     console.log(

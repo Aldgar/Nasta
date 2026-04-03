@@ -281,7 +281,7 @@ export default function ManageAdminsScreen() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.backButton, { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }]}
+            style={[styles.backButton, { backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)" }]}
           >
             <Feather name="arrow-left" size={20} color={colors.text} />
           </TouchableOpacity>
@@ -291,7 +291,7 @@ export default function ManageAdminsScreen() {
 
         <View style={styles.headerActions}>
           <TouchableOpacity
-            style={[styles.addButton, { backgroundColor: isDark ? "#6366f1" : colors.tint }]}
+            style={[styles.addButton, { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" }]}
             onPress={() => {
               // Clear form and remove SUPER_ADMIN if user is not SUPER_ADMIN
               setFormData({
@@ -304,8 +304,8 @@ export default function ManageAdminsScreen() {
               setShowAddModal(true);
             }}
           >
-            <Feather name="plus" size={18} color="#fff" />
-            <Text style={[styles.addButtonText, { color: "#fff" }]}>Add Admin</Text>
+            <Feather name="plus" size={18} color="#FFFAF0" />
+            <Text style={[styles.addButtonText, { color: "#FFFAF0" }]}>Add Admin</Text>
           </TouchableOpacity>
         </View>
 
@@ -334,11 +334,11 @@ export default function ManageAdminsScreen() {
                     styles.adminCard,
                     {
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "rgba(255,255,255,0.9)",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "rgba(255,250,240,0.92)",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                 >
@@ -348,7 +348,7 @@ export default function ManageAdminsScreen() {
                         {admin.firstName} {admin.lastName}
                       </Text>
                       <Text
-                        style={[styles.adminEmail, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+                        style={[styles.adminEmail, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
                       >
                         {admin.email}
                       </Text>
@@ -376,7 +376,7 @@ export default function ManageAdminsScreen() {
 
                   <View style={styles.capabilitiesContainer}>
                     <Text
-                      style={[styles.capabilitiesLabel, { color: isDark ? "#cbd5e1" : "#64748b" }]}
+                      style={[styles.capabilitiesLabel, { color: isDark ? "#B8A88A" : "#8A7B68" }]}
                     >
                       Capabilities:
                     </Text>
@@ -386,7 +386,7 @@ export default function ManageAdminsScreen() {
                           key={cap}
                           style={[
                             styles.capabilityBadge,
-                            { backgroundColor: isDark ? "#6366f1" : colors.tint },
+                            { backgroundColor: isDark ? "#A78BFA" : "#7C3AED" },
                           ]}
                         >
                           <Text style={styles.capabilityText}>{cap}</Text>
@@ -404,15 +404,15 @@ export default function ManageAdminsScreen() {
                           {
                             backgroundColor: isDark
                               ? "rgba(100, 100, 100, 0.2)"
-                              : "rgba(0, 0, 0, 0.05)",
+                              : "rgba(184, 130, 42, 0.06)",
                             borderColor: isDark
-                              ? "rgba(255, 255, 255, 0.2)"
-                              : "rgba(0, 0, 0, 0.1)",
+                              ? "rgba(255, 250, 240, 0.15)"
+                              : "rgba(184, 130, 42, 0.2)",
                           },
                         ]}
                       >
-                        <Feather name="lock" size={18} color={isDark ? "#94a3b8" : "#6b7280"} />
-                        <Text style={[styles.deleteButtonText, { color: isDark ? "#94a3b8" : "#6b7280" }]}>
+                        <Feather name="lock" size={18} color={isDark ? "#9A8E7A" : "#8A7B68"} />
+                        <Text style={[styles.deleteButtonText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                           Cannot Delete SUPER_ADMIN
                         </Text>
                       </View>
@@ -476,7 +476,7 @@ export default function ManageAdminsScreen() {
               style={[
                 styles.modalContent,
                 {
-                  backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "#ffffff",
+                  backgroundColor: isDark ? "rgba(12, 22, 42, 0.90)" : "#FFFAF0",
                 },
               ]}
             >
@@ -513,13 +513,13 @@ export default function ManageAdminsScreen() {
                   style={[
                     styles.modalInput,
                     {
-                      backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                      backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                       color: colors.text,
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                     },
                   ]}
                   placeholder={t("admin.firstNamePlaceholder")}
-                  placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={formData.firstName}
                   onChangeText={(text) =>
                     setFormData((prev) => ({ ...prev, firstName: text }))
@@ -533,13 +533,13 @@ export default function ManageAdminsScreen() {
                   style={[
                     styles.modalInput,
                     {
-                      backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                      backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                       color: colors.text,
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                     },
                   ]}
                   placeholder={t("admin.lastNamePlaceholder")}
-                  placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={formData.lastName}
                   onChangeText={(text) =>
                     setFormData((prev) => ({ ...prev, lastName: text }))
@@ -553,13 +553,13 @@ export default function ManageAdminsScreen() {
                   style={[
                     styles.modalInput,
                     {
-                      backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                      backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                       color: colors.text,
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                     },
                   ]}
                   placeholder="admin@example.com"
-                  placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={formData.email}
                   onChangeText={(text) =>
                     setFormData((prev) => ({ ...prev, email: text }))
@@ -575,13 +575,13 @@ export default function ManageAdminsScreen() {
                   style={[
                     styles.modalInput,
                     {
-                      backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#f9fafb",
+                      backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#f9fafb",
                       color: colors.text,
-                      borderColor: isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb",
+                      borderColor: isDark ? "rgba(255,250,240,0.15)" : "#E8D8B8",
                     },
                   ]}
                   placeholder={t("admin.passwordMinLength")}
-                  placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                  placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                   value={formData.password}
                   onChangeText={(text) =>
                     setFormData((prev) => ({ ...prev, password: text }))
@@ -605,12 +605,12 @@ export default function ManageAdminsScreen() {
                       style={[
                         styles.capabilityOption,
                         formData.adminCapabilities.includes(cap) && {
-                          backgroundColor: isDark ? "#6366f1" : colors.tint,
+                          backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
                         },
                         !formData.adminCapabilities.includes(cap) && {
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.05)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.06)",
                         },
                       ]}
                       onPress={() => toggleCapability(cap)}
@@ -620,7 +620,7 @@ export default function ManageAdminsScreen() {
                           styles.capabilityOptionText,
                           {
                             color: formData.adminCapabilities.includes(cap)
-                              ? "#fff"
+                              ? "#FFFAF0"
                               : colors.text,
                           },
                         ]}
@@ -639,11 +639,11 @@ export default function ManageAdminsScreen() {
                     styles.modalButtonCancel,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#f3f4f6",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#F5ECD8",
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.3)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.25)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -666,17 +666,17 @@ export default function ManageAdminsScreen() {
                     styles.modalButton,
                     styles.modalButtonSave,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
-                      borderColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
+                      borderColor: isDark ? "#A78BFA" : "#7C3AED",
                     },
                   ]}
                   onPress={handleCreateAdmin}
                   disabled={isCreating}
                 >
                   {isCreating ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
-                    <Text style={[styles.modalButtonText, { color: "#fff" }]}>
+                    <Text style={[styles.modalButtonText, { color: "#FFFAF0" }]}>
                       Create Admin
                     </Text>
                   )}
@@ -721,12 +721,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 8,
   },
   addButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   center: {
     flex: 1,
@@ -740,7 +740,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   adminCard: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -769,14 +769,14 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   capabilitiesContainer: {
     marginTop: 8,
   },
   capabilitiesLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   capabilitiesList: {
@@ -790,9 +790,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   capabilityText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalOverlay: {
     flex: 1,
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   modalForm: {
     flex: 1,
@@ -824,12 +824,12 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     marginTop: 12,
   },
   modalInput: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1,
     fontSize: 16,
@@ -846,11 +846,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
   },
   capabilityOptionText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtons: {
     flexDirection: "row",
@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     borderWidth: 1,
   },
@@ -868,7 +868,7 @@ const styles = StyleSheet.create({
   modalButtonSave: {},
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   deleteButton: {
     flexDirection: "row",
@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });
 

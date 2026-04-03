@@ -305,12 +305,12 @@ export default function Schedule() {
     calendarBackground: "transparent",
     textSectionTitleColor: isDark ? "#b6c1cd" : "#2d4150",
     selectedDayBackgroundColor: colors.tint,
-    selectedDayTextColor: isDark ? "#e0e7ff" : "#ffffff",
+    selectedDayTextColor: isDark ? "#F0E8D5" : "#FFFAF0",
     todayTextColor: colors.tint,
     dayTextColor: isDark ? "#d9e1e8" : "#2d4150",
     textDisabledColor: isDark ? "#4d5b6b" : "#d9e1e8",
     dotColor: colors.tint,
-    selectedDotColor: "#ffffff",
+    selectedDotColor: "#FFFAF0",
     arrowColor: isDark ? "white" : "black",
     monthTextColor: isDark ? "white" : "black",
     indicatorColor: colors.tint,
@@ -322,7 +322,7 @@ export default function Schedule() {
     markedDates[dateStr] = {
       selected: true,
       selectedColor: colors.tint,
-      selectedTextColor: isDark ? "#1e1b4b" : "#ffffff",
+      selectedTextColor: isDark ? "#1e1b4b" : "#FFFAF0",
     };
   });
 
@@ -340,8 +340,8 @@ export default function Schedule() {
                 styles.backBtn,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.06)",
                 },
               ]}
             >
@@ -372,15 +372,15 @@ export default function Schedule() {
                 markedDates={markedDates}
                 theme={themeCalendar}
                 style={{
-                  borderRadius: 16,
+                  borderRadius: 4,
                   borderWidth: 1,
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                   height: 350,
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.5)"
-                    : "rgba(255, 255, 255, 0.7)",
+                    ? "rgba(12, 22, 42, 0.55)"
+                    : "rgba(240, 232, 213, 0.7)",
                 }}
               />
 
@@ -390,11 +390,11 @@ export default function Schedule() {
                   styles.infoCard,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.85)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.82)"
+                      : "#FFFAF0",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.15)"
-                      : "#e5e7eb",
+                      ? "rgba(255,250,240,0.12)"
+                      : "#E8D8B8",
                   },
                 ]}
               >
@@ -404,7 +404,7 @@ export default function Schedule() {
                 <Text
                   style={[
                     styles.infoText,
-                    { color: isDark ? "#cbd5e1" : "#6b7280" },
+                    { color: isDark ? "#B8A88A" : "#8A7B68" },
                   ]}
                 >
                   {t("schedule.availabilityDescription")}
@@ -412,7 +412,7 @@ export default function Schedule() {
                 <Text
                   style={[
                     styles.infoSubtext,
-                    { color: isDark ? "#94a3b8" : "#9ca3af" },
+                    { color: isDark ? "#9A8E7A" : "#9A8E7A" },
                   ]}
                 >
                   {t("schedule.datesSelected", { count: selectedDates.size })}
@@ -457,19 +457,19 @@ export default function Schedule() {
                         backgroundColor:
                           saving || selectedDates.size === 0
                             ? isDark
-                              ? "rgba(99, 102, 241, 0.4)"
-                              : "rgba(79, 70, 229, 0.3)"
+                              ? "rgba(201, 150, 63, 0.4)"
+                              : "rgba(201, 150, 63, 0.3)"
                             : isDark
-                            ? "#6366f1"
+                            ? "#C9963F"
                             : colors.tint,
                         opacity: saving || selectedDates.size === 0 ? 0.6 : 1,
                       },
                     ]}
                   >
                     {saving ? (
-                      <ActivityIndicator color={isDark ? "#e0e7ff" : "#ffffff"} />
+                      <ActivityIndicator color={isDark ? "#F0E8D5" : "#FFFAF0"} />
                     ) : (
-                      <Text style={[styles.saveButtonText, { color: isDark ? "#e0e7ff" : "#ffffff" }]}>{t("schedule.saveAvailability")}</Text>
+                      <Text style={[styles.saveButtonText, { color: isDark ? "#F0E8D5" : "#FFFAF0" }]}>{t("schedule.saveAvailability")}</Text>
                     )}
                   </View>
                 </TouchableWithoutFeedback>
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -518,13 +518,13 @@ const styles = StyleSheet.create({
   infoCard: {
     marginTop: 24,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   infoTitle: {
     fontSize: 18,
@@ -550,26 +550,26 @@ const styles = StyleSheet.create({
   clearButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   clearButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   saveButton: {
     flex: 2,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   saveButtonText: {
     fontSize: 16,

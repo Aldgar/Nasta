@@ -4,7 +4,7 @@
 
 ## Understanding Cookies and Tracking
 
-Cumprido uses cookies and similar tracking technologies to enhance your experience, analyze app usage, and provide personalized content.
+Nesta uses cookies and similar tracking technologies to enhance your experience, analyze app usage, and provide personalized content.
 
 ## Cookie Categories
 

@@ -3,7 +3,7 @@ import PublicTopbar from "@/components/public/PublicTopbar";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "Signing in… | Cumprido",
+  title: "Signing in… | Nasta",
 };
 
 export default function AuthCallbackPage() {

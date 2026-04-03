@@ -41,21 +41,26 @@ export default function ChatRoom() {
   const userId = params.userId as string;
   const userName = params.userName as string;
   const conversationId = params.conversationId as string | undefined;
-  
+
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(conversationId || null);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(conversationId || null);
   const [loading, setLoading] = useState(false); // Start as false to prevent infinite loading
   const [sending, setSending] = useState(false);
-  const [contactName, setContactName] = useState<string>(userName || t("chat.user"));
+  const [contactName, setContactName] = useState<string>(
+    userName || t("chat.user"),
+  );
   const [contactRole, setContactRole] = useState<string>("");
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [isLocked, setIsLocked] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
 
@@ -69,7 +74,7 @@ export default function ChatRoom() {
         setLoading(true); // Set loading when we have a conversation
         fetchMessages();
         fetchContactInfo(); // Fetch contact name and role - always fetch when we have a conversation
-        
+
         // Auto-focus input after a delay to show keyboard when conversation is ready
         setTimeout(() => {
           inputRef.current?.focus();
@@ -86,18 +91,18 @@ export default function ChatRoom() {
       if (activeConversationId) {
         fetchMessages();
         fetchContactInfo(); // Refresh contact info when screen is focused
-        
+
         // Auto-focus input to show keyboard when screen is focused
         setTimeout(() => {
           inputRef.current?.focus();
         }, 300); // Small delay to ensure screen is fully rendered
-        
+
         // Poll for new messages every 10 seconds when chat is open (less aggressive)
         const interval = setInterval(() => {
           // Silent fetch to avoid loading indicator and prevent infinite loops
           fetchMessages(true);
         }, 10000);
-        
+
         return () => clearInterval(interval);
       } else if (userId && currentUserId) {
         // If we have a user but no conversation yet, still focus input after a delay
@@ -105,11 +110,13 @@ export default function ChatRoom() {
           inputRef.current?.focus();
         }, 500);
       }
-    }, [activeConversationId, userId, currentUserId]) // Removed loading and sending from dependencies to prevent infinite loop
+    }, [activeConversationId, userId, currentUserId]), // Removed loading and sending from dependencies to prevent infinite loop
   );
 
   // Helper function to decode JWT payload (same as _layout.tsx)
-  const decodeJwtPayload = (token: string): { exp?: number; sub?: string; [key: string]: any } | null => {
+  const decodeJwtPayload = (
+    token: string,
+  ): { exp?: number; sub?: string; [key: string]: any } | null => {
     try {
       const parts = token.split(".");
       if (parts.length !== 3) return null;
@@ -118,7 +125,7 @@ export default function ChatRoom() {
         atob(base64)
           .split("")
           .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
+          .join(""),
       );
       return JSON.parse(json);
     } catch {
@@ -154,14 +161,14 @@ export default function ChatRoom() {
         const base = getApiBase();
         console.log("Verifying token with /profiles/me endpoint");
         const profileRes = await fetch(`${base}/profiles/me`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        
+
         console.log("Profile response status:", profileRes.status);
-        
+
         if (profileRes.ok) {
           const profileData = await profileRes.json();
           const profileUserId = profileData.user?.id || profileData.id;
@@ -171,7 +178,10 @@ export default function ChatRoom() {
           }
         } else if (profileRes.status === 401) {
           const errorText = await profileRes.text().catch(() => "");
-          console.error("❌ Token invalid when checking /profiles/me:", errorText);
+          console.error(
+            "❌ Token invalid when checking /profiles/me:",
+            errorText,
+          );
           console.error("Token payload:", decodeJwtPayload(token));
           // Token is invalid - clear it but don't redirect immediately
           // Let the conversation creation handle the redirect
@@ -195,9 +205,16 @@ export default function ChatRoom() {
       if (showLoading) setLoading(true);
       const token = await SecureStore.getItemAsync("auth_token");
       if (!token) {
-        Alert.alert(t("applications.authenticationRequired"), t("chat.pleaseLoginToContinue"), [
-          { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
-        ]);
+        Alert.alert(
+          t("applications.authenticationRequired"),
+          t("chat.pleaseLoginToContinue"),
+          [
+            {
+              text: t("common.ok"),
+              onPress: () => router.replace("/login" as never),
+            },
+          ],
+        );
         return;
       }
 
@@ -206,16 +223,20 @@ export default function ChatRoom() {
       try {
         console.log("Verifying token before chat operations...");
         const verifyRes = await fetch(`${base}/profiles/me`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        
+
         if (!verifyRes.ok) {
           const errorText = await verifyRes.text().catch(() => "");
-          console.error("❌ Token verification failed:", verifyRes.status, errorText);
-          
+          console.error(
+            "❌ Token verification failed:",
+            verifyRes.status,
+            errorText,
+          );
+
           if (verifyRes.status === 401) {
             // Token is invalid - decode to see what's wrong
             const payload = decodeJwtPayload(token);
@@ -223,7 +244,7 @@ export default function ChatRoom() {
               const expTime = payload.exp ? new Date(payload.exp * 1000) : null;
               const now = new Date();
               const userId = payload.sub || payload.id || payload.userId;
-              
+
               console.log("Token details:", {
                 userId,
                 exp: expTime,
@@ -231,32 +252,36 @@ export default function ChatRoom() {
                 isExpired: expTime ? expTime < now : "unknown",
                 role: payload.role,
               });
-              
+
               // If token is not expired, the issue is likely:
               // 1. User doesn't exist in database
               // 2. User is inactive (isActive: false)
               // 3. Token signature is invalid
               if (expTime && expTime > now) {
-                console.warn("⚠️ Token is NOT expired but backend rejected it!");
-                console.warn("This likely means: user doesn't exist, user is inactive, or token signature is invalid");
+                console.warn(
+                  "⚠️ Token is NOT expired but backend rejected it!",
+                );
+                console.warn(
+                  "This likely means: user doesn't exist, user is inactive, or token signature is invalid",
+                );
               }
             }
-            
+
             // Clear invalid token and redirect to login
             await SecureStore.deleteItemAsync("auth_token");
             if (showLoading) setLoading(false);
-            
+
             Alert.alert(
-              t("chat.authenticationError"), 
+              t("chat.authenticationError"),
               t("chat.sessionInvalidMessage"),
               [
-                { 
-                  text: t("common.ok"), 
+                {
+                  text: t("common.ok"),
                   onPress: () => {
                     router.replace("/login" as never);
-                  }
+                  },
                 },
-              ]
+              ],
             );
             return;
           }
@@ -267,7 +292,7 @@ export default function ChatRoom() {
         console.error("Error verifying token:", verifyError);
         // Continue anyway - might be network issue
       }
-      
+
       if (!userId) {
         Alert.alert(t("common.error"), t("chat.invalidUserSelected"));
         router.back();
@@ -277,7 +302,7 @@ export default function ChatRoom() {
       // First, try to find existing conversation
       try {
         const listRes = await fetch(`${base}/chat/conversations`, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
@@ -304,11 +329,21 @@ export default function ChatRoom() {
         } else if (listRes.status === 401) {
           // Backend says token is invalid - this is the only time we should show session expired
           const errorData = await listRes.text().catch(() => "");
-          console.log("Backend returned 401 when listing conversations:", errorData);
+          console.log(
+            "Backend returned 401 when listing conversations:",
+            errorData,
+          );
           await SecureStore.deleteItemAsync("auth_token");
-          Alert.alert(t("chat.sessionExpired"), t("chat.sessionExpiredMessage"), [
-            { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
-          ]);
+          Alert.alert(
+            t("chat.sessionExpired"),
+            t("chat.sessionExpiredMessage"),
+            [
+              {
+                text: t("common.ok"),
+                onPress: () => router.replace("/login" as never),
+              },
+            ],
+          );
           return;
         }
       } catch (listError) {
@@ -344,21 +379,38 @@ export default function ChatRoom() {
             errorMessage = errorText;
           }
         }
-        
+
         if (createRes.status === 401) {
           // Backend says token is invalid - this is the only time we should show session expired
           const errorData = await createRes.text().catch(() => "");
-          console.log("Backend returned 401 when creating conversation:", errorData);
+          console.log(
+            "Backend returned 401 when creating conversation:",
+            errorData,
+          );
           await SecureStore.deleteItemAsync("auth_token");
-          Alert.alert(t("chat.sessionExpired"), t("chat.sessionExpiredMessage"), [
-            { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
-          ]);
+          Alert.alert(
+            t("chat.sessionExpired"),
+            t("chat.sessionExpiredMessage"),
+            [
+              {
+                text: t("common.ok"),
+                onPress: () => router.replace("/login" as never),
+              },
+            ],
+          );
         } else {
-          console.error("Conversation creation error:", errorMessage, "Status:", createRes.status);
+          console.error(
+            "Conversation creation error:",
+            errorMessage,
+            "Status:",
+            createRes.status,
+          );
           // Show user-friendly error for non-401 errors
           if (createRes.status !== 401) {
             // Don't block the user - they can try sending a message which will retry
-            console.log("User can still try sending a message to create conversation");
+            console.log(
+              "User can still try sending a message to create conversation",
+            );
           }
         }
       }
@@ -375,7 +427,7 @@ export default function ChatRoom() {
       console.log("❌ fetchContactInfo: No activeConversationId");
       return;
     }
-    
+
     try {
       const token = await SecureStore.getItemAsync("auth_token");
       if (!token) {
@@ -384,49 +436,84 @@ export default function ChatRoom() {
       }
 
       const base = getApiBase();
-      console.log("🔍 fetchContactInfo: Fetching conversations for", activeConversationId);
-      
+      console.log(
+        "🔍 fetchContactInfo: Fetching conversations for",
+        activeConversationId,
+      );
+
       // Get conversation details to find participant info
       const listRes = await fetch(`${base}/chat/conversations?pageSize=100`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (listRes.ok) {
         const conversations = await listRes.json();
-        const conv = Array.isArray(conversations) 
+        const conv = Array.isArray(conversations)
           ? conversations.find((c: any) => c.id === activeConversationId)
-          : conversations.conversations?.find((c: any) => c.id === activeConversationId);
-        
-        console.log("📋 fetchContactInfo: Found conversation:", conv ? "✅ yes" : "❌ no", "others:", conv?.others?.length || 0);
-        
+          : conversations.conversations?.find(
+              (c: any) => c.id === activeConversationId,
+            );
+
+        console.log(
+          "📋 fetchContactInfo: Found conversation:",
+          conv ? "✅ yes" : "❌ no",
+          "others:",
+          conv?.others?.length || 0,
+        );
+
+        // Update locked status from conversation data
+        if (conv) {
+          setIsLocked(!!conv.locked);
+        }
+
         if (conv?.others?.[0]) {
           const other = conv.others[0];
           const otherUserId = other.userId;
           const otherRole = other.role;
-          
-          console.log("👤 fetchContactInfo: Other participant:", { otherUserId, otherRole, hasName: !!(other.firstName || other.lastName) });
-          
+
+          console.log("👤 fetchContactInfo: Other participant:", {
+            otherUserId,
+            otherRole,
+            hasName: !!(other.firstName || other.lastName),
+          });
+
           // Map role to display label
           // Handle both enum values and string values - normalize to string first
           const roleStr = String(otherRole).toUpperCase();
-              const roleLabel = roleStr === 'ADMIN' ? t("auth.admin")
-            : roleStr === 'EMPLOYER' ? t("auth.employer")
-            : t("auth.serviceProvider");
+          const roleLabel =
+            roleStr === "ADMIN"
+              ? t("auth.admin")
+              : roleStr === "EMPLOYER"
+                ? t("auth.employer")
+                : t("auth.serviceProvider");
           setContactRole(roleLabel);
-          console.log("✅ fetchContactInfo: Set role to:", roleLabel, "from role:", otherRole, "normalized:", roleStr);
-          
+          console.log(
+            "✅ fetchContactInfo: Set role to:",
+            roleLabel,
+            "from role:",
+            otherRole,
+            "normalized:",
+            roleStr,
+          );
+
           // Use participant details directly from conversation (backend now includes firstName, lastName, email)
           if (other.firstName || other.lastName || other.email) {
-            const name = `${other.firstName || ''} ${other.lastName || ''}`.trim() || other.email || t("chat.user");
-            console.log("✅ fetchContactInfo: Using participant name from conversation:", name);
+            const name =
+              `${other.firstName || ""} ${other.lastName || ""}`.trim() ||
+              other.email ||
+              t("chat.user");
+            console.log(
+              "✅ fetchContactInfo: Using participant name from conversation:",
+              name,
+            );
             setContactName(name);
             return;
           }
-          
+
           // Fallback: Try to get user details if not included in conversation
           try {
             let user = null;
-            
+
             // Try regular users endpoint first (works for most users, but may require admin access)
             try {
               const usersRes = await fetch(`${base}/admin/users`, {
@@ -434,64 +521,107 @@ export default function ChatRoom() {
               });
               if (usersRes.ok) {
                 const usersData = await usersRes.json();
-                const users = Array.isArray(usersData) ? usersData : (usersData.users || usersData.items || []);
+                const users = Array.isArray(usersData)
+                  ? usersData
+                  : usersData.users || usersData.items || [];
                 user = users.find((u: any) => u.id === otherUserId);
-                console.log("👥 fetchContactInfo: Found user in /admin/users:", user ? "✅ yes" : "❌ no", "total users:", users.length);
+                console.log(
+                  "👥 fetchContactInfo: Found user in /admin/users:",
+                  user ? "✅ yes" : "❌ no",
+                  "total users:",
+                  users.length,
+                );
               } else {
-                console.log("⚠️ fetchContactInfo: /admin/users returned", usersRes.status, "- may require admin access");
+                console.log(
+                  "⚠️ fetchContactInfo: /admin/users returned",
+                  usersRes.status,
+                  "- may require admin access",
+                );
               }
             } catch (e) {
-              console.log("❌ Could not fetch user details from /admin/users:", e);
+              console.log(
+                "❌ Could not fetch user details from /admin/users:",
+                e,
+              );
             }
-            
+
             // If not found and it's an admin, try admin list endpoint (may require SUPER_ADMIN)
-            if (!user && otherRole === 'ADMIN') {
+            if (!user && otherRole === "ADMIN") {
               try {
                 const adminRes = await fetch(`${base}/auth/admin/list`, {
                   headers: { Authorization: `Bearer ${token}` },
                 });
                 if (adminRes.ok) {
                   const adminsData = await adminRes.json();
-                  const admins = Array.isArray(adminsData) ? adminsData : (adminsData.admins || adminsData.items || []);
+                  const admins = Array.isArray(adminsData)
+                    ? adminsData
+                    : adminsData.admins || adminsData.items || [];
                   user = admins.find((a: any) => a.id === otherUserId);
-                  console.log("👑 fetchContactInfo: Found admin in /auth/admin/list:", user ? "✅ yes" : "❌ no", "total admins:", admins.length);
+                  console.log(
+                    "👑 fetchContactInfo: Found admin in /auth/admin/list:",
+                    user ? "✅ yes" : "❌ no",
+                    "total admins:",
+                    admins.length,
+                  );
                 } else {
-                  console.log("⚠️ fetchContactInfo: /auth/admin/list returned", adminRes.status, "- may require SUPER_ADMIN");
+                  console.log(
+                    "⚠️ fetchContactInfo: /auth/admin/list returned",
+                    adminRes.status,
+                    "- may require SUPER_ADMIN",
+                  );
                 }
               } catch (e) {
                 console.log("❌ Could not fetch admin details:", e);
               }
             }
-            
+
             if (user) {
-              const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User';
-              console.log("✅ fetchContactInfo: Setting contact name to:", name);
+              const name =
+                `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                user.email ||
+                "User";
+              console.log(
+                "✅ fetchContactInfo: Setting contact name to:",
+                name,
+              );
               setContactName(name);
               return;
             } else {
               // If we can't get user details, at least show the role
               // Use a generic name based on role
-              const roleBasedName = otherRole === 'ADMIN' ? t("auth.admin")
-                : otherRole === 'EMPLOYER' ? t("auth.employer")
-                : t("auth.serviceProvider");
-              console.log("⚠️ fetchContactInfo: Using role-based name:", roleBasedName);
+              const roleBasedName =
+                otherRole === "ADMIN"
+                  ? t("auth.admin")
+                  : otherRole === "EMPLOYER"
+                    ? t("auth.employer")
+                    : t("auth.serviceProvider");
+              console.log(
+                "⚠️ fetchContactInfo: Using role-based name:",
+                roleBasedName,
+              );
               setContactName(roleBasedName);
             }
           } catch (e) {
             console.log("❌ Error fetching user details:", e);
             // On error, at least show the role
-            const roleBasedName = otherRole === 'ADMIN' ? 'Admin' 
-              : otherRole === 'EMPLOYER' ? 'Employer' 
-              : 'Service Provider';
+            const roleBasedName =
+              otherRole === "ADMIN"
+                ? "Admin"
+                : otherRole === "EMPLOYER"
+                  ? "Employer"
+                  : "Service Provider";
             setContactName(roleBasedName);
           }
         } else {
           console.log("⚠️ fetchContactInfo: No others found in conversation");
         }
       } else {
-        console.log("❌ fetchContactInfo: Failed to fetch conversations:", listRes.status);
+        console.log(
+          "❌ fetchContactInfo: Failed to fetch conversations:",
+          listRes.status,
+        );
       }
-      
+
       // Fallback: use passed userName if available
       if (userName && userName !== t("chat.user")) {
         console.log("📝 fetchContactInfo: Using passed userName:", userName);
@@ -511,7 +641,7 @@ export default function ChatRoom() {
       if (!silent) setLoading(false);
       return;
     }
-    
+
     // Prevent multiple simultaneous fetches (unless silent)
     if (loading && !silent) return;
 
@@ -531,24 +661,29 @@ export default function ChatRoom() {
         `${base}/chat/conversations/${activeConversationId}/messages?pageSize=100`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
         const data = await res.json();
-        const messagesList = Array.isArray(data) ? data : (data.messages || []);
+        const messagesList = Array.isArray(data) ? data : data.messages || [];
         // Backend returns messages in ascending order (oldest first), so no need to reverse
         // Messages will display with oldest at top, newest at bottom
-        
+
         // Debug: Log messages with payloads to see structure
         messagesList.forEach((msg: any) => {
           if (msg.payload) {
-            console.log('Message payload:', msg.id, msg.payload, typeof msg.payload);
+            console.log(
+              "Message payload:",
+              msg.id,
+              msg.payload,
+              typeof msg.payload,
+            );
           }
         });
-        
+
         setMessages(messagesList);
-        
+
         // Scroll to bottom after messages load (only if not silent)
         if (!silent) {
           setTimeout(() => {
@@ -565,7 +700,10 @@ export default function ChatRoom() {
         // Token is invalid - clear it and redirect
         await SecureStore.deleteItemAsync("auth_token");
         Alert.alert(t("auth.sessionExpired"), t("auth.pleaseLoginAgain"), [
-          { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
+          {
+            text: t("common.ok"),
+            onPress: () => router.replace("/login" as never),
+          },
         ]);
       } else {
         console.error("Failed to fetch messages:", res.status);
@@ -582,10 +720,14 @@ export default function ChatRoom() {
     try {
       setShowAttachmentMenu(false);
       setUploadingFile(true);
-      
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(t("kyc.permissionRequired"), t("kyc.pleaseAllowPhotosAccess"));
+
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          t("kyc.permissionRequired"),
+          t("kyc.pleaseAllowPhotosAccess"),
+        );
         setUploadingFile(false);
         return;
       }
@@ -594,13 +736,20 @@ export default function ChatRoom() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 0.8,
+        ...(Platform.OS === "ios"
+          ? ({ preferredAssetRepresentationMode: "compatible" } as any)
+          : null),
       });
 
       if (!result.canceled && result.assets[0]) {
-        await uploadFile(result.assets[0].uri, 'image', result.assets[0].fileName || 'image.jpg');
+        await uploadFile(
+          result.assets[0].uri,
+          "image",
+          result.assets[0].fileName || "image.jpg",
+        );
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      console.error("Error picking image:", error);
       Alert.alert(t("common.error"), t("chat.failedToPickImage"));
     } finally {
       setUploadingFile(false);
@@ -611,9 +760,9 @@ export default function ChatRoom() {
     try {
       setShowAttachmentMenu(false);
       setUploadingFile(true);
-      
+
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
+      if (status !== "granted") {
         Alert.alert(t("kyc.permissionRequired"), t("kyc.pleaseAllowAccess"));
         setUploadingFile(false);
         return;
@@ -625,10 +774,10 @@ export default function ChatRoom() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        await uploadFile(result.assets[0].uri, 'image', 'photo.jpg');
+        await uploadFile(result.assets[0].uri, "image", "photo.jpg");
       }
     } catch (error) {
-      console.error('Error taking photo:', error);
+      console.error("Error taking photo:", error);
       Alert.alert(t("common.error"), t("chat.failedToTakePhoto"));
     } finally {
       setUploadingFile(false);
@@ -639,24 +788,32 @@ export default function ChatRoom() {
     try {
       setShowAttachmentMenu(false);
       setUploadingFile(true);
-      
+
       const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
+        type: "*/*",
         copyToCacheDirectory: true,
       });
 
       if (!result.canceled && result.assets[0]) {
-        await uploadFile(result.assets[0].uri, 'document', result.assets[0].name);
+        await uploadFile(
+          result.assets[0].uri,
+          "document",
+          result.assets[0].name,
+        );
       }
     } catch (error) {
-      console.error('Error picking document:', error);
+      console.error("Error picking document:", error);
       Alert.alert(t("common.error"), t("chat.failedToPickDocument"));
     } finally {
       setUploadingFile(false);
     }
   };
 
-  const uploadFile = async (fileUri: string, fileType: 'image' | 'document', fileName: string) => {
+  const uploadFile = async (
+    fileUri: string,
+    fileType: "image" | "document",
+    fileName: string,
+  ) => {
     if (!activeConversationId) {
       // Create conversation first
       await findOrCreateConversation(false);
@@ -674,47 +831,48 @@ export default function ChatRoom() {
       }
 
       const base = getApiBase();
-      
+
       // Create FormData for file upload
       const formData = new FormData();
-      const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
-      let mimeType = 'application/octet-stream';
-      
-      if (fileType === 'image') {
-        if (fileExtension === 'jpg' || fileExtension === 'jpeg') {
-          mimeType = 'image/jpeg';
-        } else if (fileExtension === 'png') {
-          mimeType = 'image/png';
-        } else if (fileExtension === 'gif') {
-          mimeType = 'image/gif';
-        } else if (fileExtension === 'webp') {
-          mimeType = 'image/webp';
+      const fileExtension = fileName.split(".").pop()?.toLowerCase() || "";
+      let mimeType = "application/octet-stream";
+
+      if (fileType === "image") {
+        if (fileExtension === "jpg" || fileExtension === "jpeg") {
+          mimeType = "image/jpeg";
+        } else if (fileExtension === "png") {
+          mimeType = "image/png";
+        } else if (fileExtension === "gif") {
+          mimeType = "image/gif";
+        } else if (fileExtension === "webp") {
+          mimeType = "image/webp";
         } else {
-          mimeType = 'image/jpeg';
+          mimeType = "image/jpeg";
         }
       } else {
         // Document types
-        if (fileExtension === 'pdf') {
-          mimeType = 'application/pdf';
-        } else if (fileExtension === 'doc') {
-          mimeType = 'application/msword';
-        } else if (fileExtension === 'docx') {
-          mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        } else if (fileExtension === 'txt') {
-          mimeType = 'text/plain';
+        if (fileExtension === "pdf") {
+          mimeType = "application/pdf";
+        } else if (fileExtension === "doc") {
+          mimeType = "application/msword";
+        } else if (fileExtension === "docx") {
+          mimeType =
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        } else if (fileExtension === "txt") {
+          mimeType = "text/plain";
         }
       }
-      
-      formData.append('file', {
+
+      formData.append("file", {
         uri: fileUri,
         name: fileName,
         type: mimeType,
       } as any);
-      formData.append('conversationId', activeConversationId);
-      formData.append('type', fileType);
+      formData.append("conversationId", activeConversationId);
+      formData.append("type", fileType);
 
       const res = await fetch(`${base}/chat/messages/upload`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -725,25 +883,31 @@ export default function ChatRoom() {
         const data = await res.json();
         // Refresh messages
         await fetchMessages();
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+        setTimeout(
+          () => flatListRef.current?.scrollToEnd({ animated: true }),
+          100,
+        );
       } else if (res.status === 401) {
         await SecureStore.deleteItemAsync("auth_token");
         Alert.alert(t("auth.sessionExpired"), t("auth.pleaseLoginAgain"), [
-          { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
+          {
+            text: t("common.ok"),
+            onPress: () => router.replace("/login" as never),
+          },
         ]);
       } else {
         const errorText = await res.text();
         Alert.alert(t("common.error"), t("chat.failedToUploadFile"));
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
       Alert.alert(t("common.error"), t("chat.failedToUploadFile"));
     }
   };
 
   const sendMessage = async (messageBody?: string, payload?: any) => {
     const messageText = messageBody || inputText.trim();
-    if (!messageText && !payload || sending) return;
+    if ((!messageText && !payload) || sending) return;
 
     try {
       setSending(true);
@@ -773,18 +937,28 @@ export default function ChatRoom() {
               participantIds: [userId],
             }),
           });
-          
+
           if (createRes.ok) {
             const data = await createRes.json();
             setActiveConversationId(data.id);
           } else if (createRes.status === 401) {
             // Backend says token is invalid - this is the only time we should show session expired
             const errorData = await createRes.text().catch(() => "");
-            console.log("Backend returned 401 when creating conversation from sendMessage:", errorData);
+            console.log(
+              "Backend returned 401 when creating conversation from sendMessage:",
+              errorData,
+            );
             await SecureStore.deleteItemAsync("auth_token");
-            Alert.alert(t("auth.sessionExpired"), t("auth.sessionExpiredMessage"), [
-              { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
-            ]);
+            Alert.alert(
+              t("auth.sessionExpired"),
+              t("auth.sessionExpiredMessage"),
+              [
+                {
+                  text: t("common.ok"),
+                  onPress: () => router.replace("/login" as never),
+                },
+              ],
+            );
             setSending(false);
             return;
           } else {
@@ -793,14 +967,20 @@ export default function ChatRoom() {
             // Try to find existing conversation first
             await findOrCreateConversation(false);
             if (!activeConversationId) {
-              Alert.alert(t("common.error"), t("chat.couldNotStartConversationCheckConnection"));
+              Alert.alert(
+                t("common.error"),
+                t("chat.couldNotStartConversationCheckConnection"),
+              );
               setSending(false);
               return;
             }
           }
         } catch (error) {
           console.error("Error creating conversation:", error);
-          Alert.alert(t("common.error"), t("chat.couldNotStartConversationCheckConnection"));
+          Alert.alert(
+            t("common.error"),
+            t("chat.couldNotStartConversationCheckConnection"),
+          );
           setSending(false);
           return;
         }
@@ -825,12 +1005,18 @@ export default function ChatRoom() {
         // Refresh messages
         await fetchMessages();
         // Scroll to bottom
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+        setTimeout(
+          () => flatListRef.current?.scrollToEnd({ animated: true }),
+          100,
+        );
       } else if (res.status === 401) {
         // Token is invalid - clear it and redirect
         await SecureStore.deleteItemAsync("auth_token");
         Alert.alert(t("auth.sessionExpired"), t("auth.pleaseLoginAgain"), [
-          { text: t("common.ok"), onPress: () => router.replace("/login" as never) },
+          {
+            text: t("common.ok"),
+            onPress: () => router.replace("/login" as never),
+          },
         ]);
       } else {
         const errorText = await res.text();
@@ -854,9 +1040,13 @@ export default function ChatRoom() {
   const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     const isMe = item.senderUserId === currentUserId;
     const prevMessage = index > 0 ? messages[index - 1] : null;
-    const showAvatar = !isMe && (!prevMessage || prevMessage.senderUserId !== item.senderUserId);
-    const showTime = !prevMessage || 
-      new Date(item.createdAt).getTime() - new Date(prevMessage.createdAt).getTime() > 300000; // 5 minutes
+    const showAvatar =
+      !isMe && (!prevMessage || prevMessage.senderUserId !== item.senderUserId);
+    const showTime =
+      !prevMessage ||
+      new Date(item.createdAt).getTime() -
+        new Date(prevMessage.createdAt).getTime() >
+        300000; // 5 minutes
 
     return (
       <View
@@ -867,7 +1057,12 @@ export default function ChatRoom() {
         ]}
       >
         {!isMe && showAvatar && (
-          <View style={[styles.avatar, { backgroundColor: isDark ? "#374151" : "#d1d5db" }]}>
+          <View
+            style={[
+              styles.avatar,
+              { backgroundColor: isDark ? "#5C5548" : "#D4C0A0" },
+            ]}
+          >
             <Text style={styles.avatarText}>
               {(userName || "U").charAt(0).toUpperCase()}
             </Text>
@@ -879,10 +1074,11 @@ export default function ChatRoom() {
             <Text
               style={[
                 styles.messageDate,
-                { color: isDark ? "#94a3b8" : "#6b7280" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
-              {new Date(item.createdAt).toLocaleDateString() === new Date().toLocaleDateString()
+              {new Date(item.createdAt).toLocaleDateString() ===
+              new Date().toLocaleDateString()
                 ? t("chat.today")
                 : new Date(item.createdAt).toLocaleDateString()}
             </Text>
@@ -894,7 +1090,7 @@ export default function ChatRoom() {
                 ? [
                     styles.myMessage,
                     {
-                      backgroundColor: isDark ? "#6366f1" : colors.tint,
+                      backgroundColor: isDark ? "#14B8A6" : "#0891B2",
                       borderBottomRightRadius: 4,
                     },
                   ]
@@ -903,11 +1099,11 @@ export default function ChatRoom() {
                     {
                       backgroundColor: isDark
                         ? "rgba(51, 65, 85, 0.6)"
-                        : "#ffffff",
+                        : "#FFFAF0",
                       borderBottomLeftRadius: 4,
                       borderWidth: 1,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.08)"
+                        ? "rgba(255,250,240,0.10)"
                         : "rgba(0,0,0,0.06)",
                     },
                   ],
@@ -915,65 +1111,97 @@ export default function ChatRoom() {
           >
             {(() => {
               // Parse payload - it might be a string or object
-              console.log('🔍 Checking payload for message:', item.id, 'Payload:', item.payload, 'Type:', typeof item.payload);
-              
+              console.log(
+                "🔍 Checking payload for message:",
+                item.id,
+                "Payload:",
+                item.payload,
+                "Type:",
+                typeof item.payload,
+              );
+
               if (!item.payload) {
-                console.log('❌ No payload for message:', item.id);
+                console.log("❌ No payload for message:", item.id);
                 return null;
               }
-              
+
               let payload: any;
               try {
-                payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : item.payload;
-                console.log('✅ Parsed payload:', payload);
+                payload =
+                  typeof item.payload === "string"
+                    ? JSON.parse(item.payload)
+                    : item.payload;
+                console.log("✅ Parsed payload:", payload);
               } catch (e) {
-                console.error('❌ Failed to parse payload:', e, 'Raw payload:', item.payload);
+                console.error(
+                  "❌ Failed to parse payload:",
+                  e,
+                  "Raw payload:",
+                  item.payload,
+                );
                 return null;
               }
-              
+
               // Check if it's an image
-              console.log('🔍 Checking payload type:', payload?.type, 'Has imageUrl:', !!payload?.imageUrl, 'Has fileUrl:', !!payload?.fileUrl);
-              
-              if (payload?.type !== 'image') {
-                console.log('❌ Not an image type, type is:', payload?.type);
+              console.log(
+                "🔍 Checking payload type:",
+                payload?.type,
+                "Has imageUrl:",
+                !!payload?.imageUrl,
+                "Has fileUrl:",
+                !!payload?.fileUrl,
+              );
+
+              if (payload?.type !== "image") {
+                console.log("❌ Not an image type, type is:", payload?.type);
                 return null;
               }
-              
+
               if (!payload.imageUrl && !payload.fileUrl) {
-                console.log('❌ No imageUrl or fileUrl in payload');
+                console.log("❌ No imageUrl or fileUrl in payload");
                 return null;
               }
-              
+
               // Construct image URL
               let imageUrl: string;
               const urlSource = payload.imageUrl || payload.fileUrl;
-              
+
               if (!urlSource) {
-                console.error('❌ No imageUrl or fileUrl in payload:', payload);
+                console.error("❌ No imageUrl or fileUrl in payload:", payload);
                 return null;
               }
-              
-              if (urlSource.startsWith('http://') || urlSource.startsWith('https://')) {
+
+              if (
+                urlSource.startsWith("http://") ||
+                urlSource.startsWith("https://")
+              ) {
                 imageUrl = urlSource;
-              } else if (urlSource.startsWith('/')) {
+              } else if (urlSource.startsWith("/")) {
                 // URL already has leading slash
                 imageUrl = `${getApiBase()}${urlSource}`;
               } else {
                 // URL doesn't have leading slash, add it
                 imageUrl = `${getApiBase()}/${urlSource}`;
               }
-              
-              console.log('🖼️ Rendering image - Original URL:', urlSource, 'Final URL:', imageUrl, 'API Base:', getApiBase());
-              
+
+              console.log(
+                "🖼️ Rendering image - Original URL:",
+                urlSource,
+                "Final URL:",
+                imageUrl,
+                "API Base:",
+                getApiBase(),
+              );
+
               return (
                 <View style={{ marginBottom: 8 }}>
                   <Pressable
                     onPress={() => {
-                      console.log('👆 Image pressed, URL:', imageUrl);
+                      console.log("👆 Image pressed, URL:", imageUrl);
                       setFullScreenImage(imageUrl);
                     }}
                     style={styles.imagePressable}
-                    android_ripple={{ color: 'rgba(0,0,0,0.2)' }}
+                    android_ripple={{ color: "rgba(184,130,42,0.3)" }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
                     <Image
@@ -981,10 +1209,15 @@ export default function ChatRoom() {
                       style={styles.messageImage}
                       resizeMode="cover"
                       onLoad={() => {
-                        console.log('✅ Image loaded successfully:', imageUrl);
+                        console.log("✅ Image loaded successfully:", imageUrl);
                       }}
                       onError={(error) => {
-                        console.error('❌ Image load error:', error, 'URL:', imageUrl);
+                        console.error(
+                          "❌ Image load error:",
+                          error,
+                          "URL:",
+                          imageUrl,
+                        );
                       }}
                     />
                   </Pressable>
@@ -994,23 +1227,30 @@ export default function ChatRoom() {
             {(() => {
               // Check if message has document payload
               if (!item.payload) return null;
-              
+
               let payload: any;
               try {
-                payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : item.payload;
+                payload =
+                  typeof item.payload === "string"
+                    ? JSON.parse(item.payload)
+                    : item.payload;
               } catch (e) {
                 return null;
               }
-              
-              if (payload?.type !== 'document') return null;
-              
+
+              if (payload?.type !== "document") return null;
+
               return (
                 <View style={styles.documentContainer}>
-                  <Feather name="file" size={24} color={isMe ? "#fff" : colors.text} />
+                  <Feather
+                    name="file"
+                    size={24}
+                    color={isMe ? "#FFFAF0" : colors.text}
+                  />
                   <Text
                     style={[
                       styles.documentName,
-                      { color: isMe ? "#fff" : colors.text },
+                      { color: isMe ? "#FFFAF0" : colors.text },
                     ]}
                     numberOfLines={1}
                   >
@@ -1023,7 +1263,7 @@ export default function ChatRoom() {
               <Text
                 style={[
                   styles.messageText,
-                  { color: isMe ? "#fff" : colors.text },
+                  { color: isMe ? "#FFFAF0" : colors.text },
                 ]}
                 allowFontScaling={true}
                 selectable={false}
@@ -1036,10 +1276,10 @@ export default function ChatRoom() {
                 styles.messageTime,
                 {
                   color: isMe
-                    ? "rgba(255,255,255,0.7)"
+                    ? "rgba(240,232,213,0.7)"
                     : isDark
-                    ? "#94a3b8"
-                    : "#6b7280",
+                      ? "#9A8E7A"
+                      : "#8A7B68",
                 },
               ]}
             >
@@ -1092,34 +1332,59 @@ export default function ChatRoom() {
             {
               backgroundColor: "transparent",
               borderBottomColor: isDark
-                ? "rgba(255,255,255,0.1)"
+                ? "rgba(201,150,63,0.12)"
                 : "rgba(0,0,0,0.08)",
             },
           ]}
         >
           <TouchableOpacity
             onPress={() => router.back()}
-              style={[
-                styles.backBtn,
-                {
-                  backgroundColor: isDark
-                    ? "rgba(0,0,0,0.3)"
-                    : "rgba(255,255,255,0.7)",
-                },
-              ]}
+            style={[
+              styles.backBtn,
+              {
+                backgroundColor: isDark
+                  ? "rgba(0,0,0,0.3)"
+                  : "rgba(240,232,213,0.7)",
+              },
+            ]}
           >
-            <Feather name="arrow-left" size={20} color={isDark ? "#ffffff" : "#1f2937"} />
+            <Feather
+              name="arrow-left"
+              size={20}
+              color={isDark ? "#FFFAF0" : "#1A1710"}
+            />
           </TouchableOpacity>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: isDark ? "#ffffff" : "#1f2937", textShadowColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }]}>
+            <Text
+              style={[
+                styles.headerTitle,
+                {
+                  color: isDark ? "#FFFAF0" : "#1A1710",
+                  textShadowColor: isDark
+                    ? "rgba(0,0,0,0.5)"
+                    : "rgba(240,232,213,0.8)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 2,
+                },
+              ]}
+            >
               {contactName}
             </Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
               {contactRole && (
                 <Text
                   style={[
                     styles.headerRole,
-                    { color: isDark ? "#e2e8f0" : "#4b5563", textShadowColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+                    {
+                      color: isDark ? "#F0E8D5" : "#6B6355",
+                      textShadowColor: isDark
+                        ? "rgba(0,0,0,0.5)"
+                        : "rgba(240,232,213,0.8)",
+                      textShadowOffset: { width: 0, height: 1 },
+                      textShadowRadius: 2,
+                    },
                   ]}
                 >
                   {contactRole}
@@ -1128,10 +1393,14 @@ export default function ChatRoom() {
               <Text
                 style={[
                   styles.headerSubtitle,
-                  { color: isDark ? "#94a3b8" : "#6b7280" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
-              {loading && !activeConversationId ? t("chat.starting") : activeConversationId ? "" : t("chat.ready")}
+                {loading && !activeConversationId
+                  ? t("chat.starting")
+                  : activeConversationId
+                    ? ""
+                    : t("chat.ready")}
               </Text>
             </View>
           </View>
@@ -1167,15 +1436,17 @@ export default function ChatRoom() {
                       styles.emptyIconContainer,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.05)"
-                          : "rgba(0,0,0,0.05)",
+                          ? "rgba(255,250,240,0.06)"
+                          : "rgba(184,130,42,0.06)",
                       },
                     ]}
                   >
                     <Feather
                       name="message-square"
                       size={48}
-                      color={isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"}
+                      color={
+                        isDark ? "rgba(201,150,63,0.25)" : "rgba(0,0,0,0.3)"
+                      }
                     />
                   </View>
                   <Text style={[styles.emptyText, { color: colors.text }]}>
@@ -1184,7 +1455,7 @@ export default function ChatRoom() {
                   <Text
                     style={[
                       styles.emptySubtext,
-                      { color: isDark ? "#94a3b8" : "#6b7280" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {t("chat.startConversation")}
@@ -1199,85 +1470,122 @@ export default function ChatRoom() {
               {
                 backgroundColor: "transparent",
                 borderTopColor: isDark
-                  ? "rgba(255,255,255,0.1)"
+                  ? "rgba(201,150,63,0.12)"
                   : "rgba(0,0,0,0.08)",
               },
             ]}
           >
-            <TouchableOpacity
-              onPress={() => setShowAttachmentMenu(true)}
-              style={styles.attachBtn}
-              disabled={sending || !userId || uploadingFile}
-            >
-              {uploadingFile ? (
-                <ActivityIndicator size="small" color={isDark ? "#ffffff" : "#1f2937"} />
-              ) : (
-                <Feather
-                  name="plus"
-                  size={24}
-                  color={isDark ? "#ffffff" : "#1f2937"}
-                />
-              )}
-            </TouchableOpacity>
-            <TextInput
-              ref={inputRef}
-              style={[
-                styles.input,
-                {
-                  backgroundColor: isDark
-                    ? "rgba(0,0,0,0.3)"
-                    : "rgba(255,255,255,0.9)",
-                  color: colors.text,
-                  borderColor: isDark
-                    ? "rgba(255,255,255,0.12)"
-                    : "rgba(0,0,0,0.08)",
-                },
-              ]}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder={activeConversationId ? t("chat.typeMessage") : t("chat.startingConversation")}
-              placeholderTextColor={isDark ? "#94a3b8" : "#9ca3af"}
-              multiline
-              editable={!sending && !!userId && !uploadingFile}
-              keyboardType="default"
-              textContentType="none"
-              autoCorrect={true}
-              autoCapitalize="sentences"
-              returnKeyType="default"
-            />
-            <TouchableOpacity
-              onPress={() => sendMessage()}
-              disabled={(!inputText.trim() && !uploadingFile) || sending || !userId}
-              style={[
-                styles.sendBtn,
-                {
-                  backgroundColor:
-                    (inputText.trim() || uploadingFile) && userId && !sending
-                      ? isDark
-                        ? "#6366f1"
-                        : colors.tint
-                      : isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
-                },
-              ]}
-            >
-              {sending ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : (
-                <Feather
-                  name="send"
-                  size={20}
-                  color={
-                    (inputText.trim() || uploadingFile) && userId
-                      ? "#fff"
-                      : isDark
-                      ? "#94a3b8"
-                      : "#9ca3af"
+            {isLocked ? (
+              <View
+                style={{
+                  flex: 1,
+                  paddingVertical: 14,
+                  paddingHorizontal: 16,
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: isDark ? "#9A8E7A" : "#8A7B68",
+                    fontSize: 13,
+                    textAlign: "center",
+                    fontWeight: "500",
+                  }}
+                >
+                  🔒{" "}
+                  {t("chat.conversationLocked") ||
+                    "This conversation is locked. The job has been completed."}
+                </Text>
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => setShowAttachmentMenu(true)}
+                  style={styles.attachBtn}
+                  disabled={sending || !userId || uploadingFile}
+                >
+                  {uploadingFile ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={isDark ? "#FFFAF0" : "#1A1710"}
+                    />
+                  ) : (
+                    <Feather
+                      name="plus"
+                      size={24}
+                      color={isDark ? "#FFFAF0" : "#1A1710"}
+                    />
+                  )}
+                </TouchableOpacity>
+                <TextInput
+                  ref={inputRef}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: isDark
+                        ? "rgba(0,0,0,0.3)"
+                        : "rgba(255,250,240,0.92)",
+                      color: colors.text,
+                      borderColor: isDark
+                        ? "rgba(255,250,240,0.12)"
+                        : "rgba(0,0,0,0.08)",
+                    },
+                  ]}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  placeholder={
+                    activeConversationId
+                      ? t("chat.typeMessage")
+                      : t("chat.startingConversation")
                   }
+                  placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
+                  multiline
+                  editable={!sending && !!userId && !uploadingFile}
+                  keyboardType="default"
+                  textContentType="none"
+                  autoCorrect={true}
+                  autoCapitalize="sentences"
+                  returnKeyType="default"
                 />
-              )}
-            </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => sendMessage()}
+                  disabled={
+                    (!inputText.trim() && !uploadingFile) || sending || !userId
+                  }
+                  style={[
+                    styles.sendBtn,
+                    {
+                      backgroundColor:
+                        (inputText.trim() || uploadingFile) &&
+                        userId &&
+                        !sending
+                          ? isDark
+                            ? "#14B8A6"
+                            : "#0891B2"
+                          : isDark
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
+                    },
+                  ]}
+                >
+                  {sending ? (
+                    <ActivityIndicator color="#FFFAF0" size="small" />
+                  ) : (
+                    <Feather
+                      name="send"
+                      size={20}
+                      color={
+                        (inputText.trim() || uploadingFile) && userId
+                          ? "#FFFAF0"
+                          : isDark
+                            ? "#9A8E7A"
+                            : "#9A8E7A"
+                      }
+                    />
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </KeyboardAvoidingView>
 
@@ -1297,14 +1605,18 @@ export default function ChatRoom() {
               style={[
                 styles.attachmentMenu,
                 {
-                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                  borderTopColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                  backgroundColor: isDark ? "#0A1628" : "#FFFAF0",
+                  borderTopColor: isDark
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               onStartShouldSetResponder={() => true}
             >
               <View style={styles.attachmentMenuHeader}>
-                <Text style={[styles.attachmentMenuTitle, { color: colors.text }]}>
+                <Text
+                  style={[styles.attachmentMenuTitle, { color: colors.text }]}
+                >
                   {t("chat.attach")}
                 </Text>
                 <TouchableOpacity onPress={() => setShowAttachmentMenu(false)}>
@@ -1316,47 +1628,104 @@ export default function ChatRoom() {
                   style={styles.attachmentOption}
                   onPress={pickDocument}
                 >
-                  <View style={[styles.attachmentIcon, { backgroundColor: isDark ? "#3b82f6" : "#dbeafe" }]}>
-                    <Feather name="file" size={24} color={isDark ? "#fff" : "#3b82f6"} />
+                  <View
+                    style={[
+                      styles.attachmentIcon,
+                      {
+                        backgroundColor: isDark
+                          ? "#14B8A6"
+                          : "rgba(255,250,240,0.92)",
+                      },
+                    ]}
+                  >
+                    <Feather
+                      name="file"
+                      size={24}
+                      color={isDark ? "#FFFAF0" : "#0891B2"}
+                    />
                   </View>
-                  <Text style={[styles.attachmentLabel, { color: colors.text }]}>{t("chat.file")}</Text>
+                  <Text
+                    style={[styles.attachmentLabel, { color: colors.text }]}
+                  >
+                    {t("chat.file")}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.attachmentOption}
                   onPress={pickImage}
                 >
-                  <View style={[styles.attachmentIcon, { backgroundColor: isDark ? "#10b981" : "#d1fae5" }]}>
-                    <Feather name="image" size={24} color={isDark ? "#fff" : "#10b981"} />
+                  <View
+                    style={[
+                      styles.attachmentIcon,
+                      { backgroundColor: isDark ? "#10b981" : "#d1fae5" },
+                    ]}
+                  >
+                    <Feather
+                      name="image"
+                      size={24}
+                      color={isDark ? "#FFFAF0" : "#10b981"}
+                    />
                   </View>
-                  <Text style={[styles.attachmentLabel, { color: colors.text }]}>{t("chat.photosAndVideos")}</Text>
+                  <Text
+                    style={[styles.attachmentLabel, { color: colors.text }]}
+                  >
+                    {t("chat.photosAndVideos")}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.attachmentOption}
                   onPress={takePhoto}
                 >
-                  <View style={[styles.attachmentIcon, { backgroundColor: isDark ? "#f59e0b" : "#fef3c7" }]}>
-                    <Feather name="camera" size={24} color={isDark ? "#fff" : "#f59e0b"} />
+                  <View
+                    style={[
+                      styles.attachmentIcon,
+                      { backgroundColor: isDark ? "#f59e0b" : "#fef3c7" },
+                    ]}
+                  >
+                    <Feather
+                      name="camera"
+                      size={24}
+                      color={isDark ? "#FFFAF0" : "#f59e0b"}
+                    />
                   </View>
-                  <Text style={[styles.attachmentLabel, { color: colors.text }]}>{t("chat.camera")}</Text>
+                  <Text
+                    style={[styles.attachmentLabel, { color: colors.text }]}
+                  >
+                    {t("chat.camera")}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.attachmentOption}
                   onPress={() => {
                     setShowAttachmentMenu(false);
-                    Alert.alert(t("chat.comingSoon"), t("chat.contactSharingComingSoon"));
+                    Alert.alert(
+                      t("chat.comingSoon"),
+                      t("chat.contactSharingComingSoon"),
+                    );
                   }}
                 >
-                  <View style={[styles.attachmentIcon, { backgroundColor: isDark ? "#ef4444" : "#fee2e2" }]}>
-                    <Feather name="user" size={24} color={isDark ? "#fff" : "#ef4444"} />
+                  <View
+                    style={[
+                      styles.attachmentIcon,
+                      { backgroundColor: isDark ? "#ef4444" : "#fee2e2" },
+                    ]}
+                  >
+                    <Feather
+                      name="user"
+                      size={24}
+                      color={isDark ? "#FFFAF0" : "#ef4444"}
+                    />
                   </View>
-                  <Text style={[styles.attachmentLabel, { color: colors.text }]}>{t("chat.contact")}</Text>
+                  <Text
+                    style={[styles.attachmentLabel, { color: colors.text }]}
+                  >
+                    {t("chat.contact")}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
         </Modal>
-
-
 
         {/* Full Screen Image Modal */}
         <Modal
@@ -1382,7 +1751,7 @@ export default function ChatRoom() {
                 style={styles.closeImageButton}
                 onPress={() => setFullScreenImage(null)}
               >
-                <Feather name="x" size={32} color="#fff" />
+                <Feather name="x" size={32} color="#FFFAF0" />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -1450,7 +1819,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
@@ -1458,8 +1827,8 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFAF0",
   },
   avatarSpacer: {
     width: 40,
@@ -1478,12 +1847,12 @@ const styles = StyleSheet.create({
   messageBubble: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 0,
   },
   myMessage: {
     alignSelf: "flex-end",
@@ -1496,7 +1865,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 4,
     includeFontPadding: false,
-    fontFamily: Platform.OS === 'android' ? 'sans-serif' : undefined,
+    fontFamily: Platform.OS === "android" ? "sans-serif" : undefined,
   },
   messageTime: {
     fontSize: 11,
@@ -1511,7 +1880,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    borderRadius: 24,
+    borderRadius: 4,
     paddingHorizontal: 18,
     paddingVertical: 12,
     maxHeight: 100,
@@ -1543,7 +1912,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
     marginBottom: 4,
   },
@@ -1648,12 +2017,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     includeFontPadding: false,
     textAlignVertical: "center",
-    fontFamily: Platform.OS === 'android' ? 'sans-serif' : undefined,
+    fontFamily: Platform.OS === "android" ? "sans-serif" : undefined,
   },
   imagePressable: {
     width: "100%",
     marginBottom: 8,
-    borderRadius: 12,
+    borderRadius: 4,
     overflow: "hidden",
     backgroundColor: "transparent",
   },
@@ -1661,15 +2030,15 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: 150,
     maxHeight: 300,
-    borderRadius: 12,
-    backgroundColor: "rgba(0,0,0,0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(184,130,42,0.2)",
   },
   documentContainer: {
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
     borderRadius: 8,
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(184,130,42,0.2)",
     marginBottom: 8,
   },
   documentName: {

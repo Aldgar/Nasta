@@ -4,11 +4,11 @@
 
 ## 1. Aceitação dos Termos
 
-Ao aceder e utilizar a aplicação móvel Cumprido ("App", "Plataforma", "Serviço"), concorda em ficar vinculado a estes Termos de Serviço ("Termos"). Se não concordar com estes Termos, não deve utilizar o Serviço.
+Ao aceder e utilizar a aplicação móvel Nesta ("App", "Plataforma", "Serviço"), concorda em ficar vinculado a estes Termos de Serviço ("Termos"). Se não concordar com estes Termos, não deve utilizar o Serviço.
 
 ## 2. Descrição do Serviço
 
-O Cumprido é uma plataforma de marketplace que conecta prestadores de serviços (candidatos a emprego, freelancers, contratantes) com empregadores que procuram serviços. A Plataforma facilita:
+O Nesta é uma plataforma de marketplace que conecta prestadores de serviços (candidatos a emprego, freelancers, contratantes) com empregadores que procuram serviços. A Plataforma facilita:
 
 - Publicação de trabalhos e gestão de candidaturas
 - Descoberta e correspondência de prestadores de serviços
@@ -63,7 +63,7 @@ Concorda em NÃO:
 
 ### 5.1 Processamento de Pagamentos
 - Todos os pagamentos são processados através do Stripe, um processador de pagamentos de terceiros
-- O Cumprido atua como intermediário e não detém fundos
+- O Nesta atua como intermediário e não detém fundos
 - O processamento de pagamentos está sujeito aos termos e condições do Stripe
 
 ### 5.2 Cronograma de Pagamentos
@@ -84,10 +84,10 @@ Concorda em NÃO:
 ## 6. Transações Fora da Plataforma e Compras de Equipamentos
 
 ### 6.1 Transações Fora da Plataforma Proibidas
-**IMPORTANTE**: Todas as transações, comunicações e acordos devem ocorrer dentro da Plataforma Cumprido. Qualquer tentativa de conduzir negócios fora da Plataforma é estritamente proibida e pode resultar no encerramento imediato da conta.
+**IMPORTANTE**: Todas as transações, comunicações e acordos devem ocorrer dentro da Plataforma Nesta. Qualquer tentativa de conduzir negócios fora da Plataforma é estritamente proibida e pode resultar no encerramento imediato da conta.
 
 ### 6.2 Compras de Equipamentos e Serviços
-**O Cumprido NÃO é responsável por:**
+**O Nesta NÃO é responsável por:**
 - Qualquer equipamento, ferramentas ou materiais comprados fora da Plataforma
 - Qualquer serviço arranjado ou pago fora da Plataforma
 - Qualquer acordo, contrato ou arranjo feito fora da Plataforma
@@ -100,13 +100,13 @@ Concorda em NÃO:
   - Perda de acesso às funcionalidades da Plataforma
   - Ação legal por violação de contrato
   - Denúncia às autoridades competentes
-- Os acordos fora da plataforma não são protegidos pelo processo de resolução de disputas do Cumprido
+- Os acordos fora da plataforma não são protegidos pelo processo de resolução de disputas do Nesta
 - Os utilizadores que se envolvem em transações fora da plataforma fazem-no por sua conta e risco e podem estar sujeitos a consequências legais sob a lei aplicável
 
 ### 6.4 Consequências Legais
 Quaisquer acordos feitos fora da Plataforma são:
 - Não regidos por estes Termos de Serviço
-- Não sujeitos à resolução de disputas do Cumprido
+- Não sujeitos à resolução de disputas do Nesta
 - Sujeitos às leis locais, estaduais e federais aplicáveis
 - Podem resultar em responsabilidade civil ou criminal
 - Os utilizadores são os únicos responsáveis por quaisquer consequências legais
@@ -120,7 +120,7 @@ Quaisquer acordos feitos fora da Plataforma são:
 - O estado de verificação é exibido nos perfis dos utilizadores
 
 ### 7.2 Precisão da Verificação
-- O Cumprido verifica informações da melhor forma possível, mas não garante precisão
+- O Nesta verifica informações da melhor forma possível, mas não garante precisão
 - Os utilizadores são responsáveis por fornecer informações precisas
 - Informações falsas ou fraudulentas podem resultar no encerramento da conta
 
@@ -156,12 +156,12 @@ Quaisquer acordos feitos fora da Plataforma são:
 
 ### 10.1 Resolução Interna
 - As disputas devem primeiro ser resolvidas através de comunicação direta
-- Se não resolvidas, as disputas podem ser escaladas para o suporte do Cumprido
+- Se não resolvidas, as disputas podem ser escaladas para o suporte do Nesta
 - Os tickets de suporte são revistos pela nossa equipa no prazo de 24-48 horas
 - As decisões são tomadas com base em evidências disponíveis e políticas da plataforma
 
 ### 10.2 Mediação
-- Para disputas complexas, o Cumprido pode oferecer serviços de mediação
+- Para disputas complexas, o Nesta pode oferecer serviços de mediação
 - A mediação é voluntária e ambas as partes devem concordar em participar
 - As decisões de mediação são vinculativas para ambas as partes
 
@@ -192,13 +192,13 @@ As violações destes Termos podem resultar em:
 ## 12. Propriedade Intelectual
 
 ### 12.1 Conteúdo da Plataforma
-- Todo o conteúdo na Plataforma é propriedade do Cumprido ou dos seus licenciadores
+- Todo o conteúdo na Plataforma é propriedade do Nesta ou dos seus licenciadores
 - Os utilizadores não podem copiar, modificar ou distribuir conteúdo da Plataforma sem permissão
-- O conteúdo gerado pelo utilizador permanece propriedade do utilizador, mas concede ao Cumprido uma licença para o utilizar
+- O conteúdo gerado pelo utilizador permanece propriedade do utilizador, mas concede ao Nesta uma licença para o utilizar
 
 ### 12.2 Conteúdo do Utilizador
 - Os utilizadores mantêm a propriedade do conteúdo que publicam
-- Ao publicar conteúdo, os utilizadores concedem ao Cumprido uma licença mundial, não exclusiva para usar, exibir e distribuir o conteúdo
+- Ao publicar conteúdo, os utilizadores concedem ao Nesta uma licença mundial, não exclusiva para usar, exibir e distribuir o conteúdo
 - Os utilizadores são responsáveis por garantir que têm direitos sobre qualquer conteúdo que publicam
 
 ## 13. Privacidade e Proteção de Dados
@@ -208,7 +208,7 @@ A sua utilização da Plataforma também é regida pela nossa Política de Priva
 ## 14. Limitação de Responsabilidade
 
 ### 14.1 Responsabilidade da Plataforma
-- O Cumprido fornece a Plataforma "como está" sem garantias
+- O Nesta fornece a Plataforma "como está" sem garantias
 - Não garantimos serviço ininterrupto ou livre de erros
 - Não somos responsáveis por quaisquer danos indiretos, incidentais ou consequenciais
 - A nossa responsabilidade total é limitada ao valor que pagou em taxas nos 12 meses anteriores à reclamação
@@ -216,7 +216,7 @@ A sua utilização da Plataforma também é regida pela nossa Política de Priva
 ### 14.2 Responsabilidade do Utilizador
 - Os utilizadores são responsáveis pelas suas próprias ações e conteúdo
 - Os utilizadores são responsáveis por quaisquer danos causados por violações destes Termos
-- Os utilizadores devem indemnizar o Cumprido contra reclamações decorrentes da sua utilização da Plataforma
+- Os utilizadores devem indemnizar o Nesta contra reclamações decorrentes da sua utilização da Plataforma
 
 ## 15. Rescisão
 
@@ -225,7 +225,7 @@ A sua utilização da Plataforma também é regida pela nossa Política de Priva
 - Os pedidos de eliminação de conta são processados no prazo de 30 dias
 - Os pagamentos pendentes devem ser resolvidos antes da eliminação da conta
 
-### 15.2 Pelo Cumprido
+### 15.2 Pelo Nesta
 - Podemos suspender ou encerrar contas por violações destes Termos
 - Podemos encerrar contas que estejam inativas por períodos prolongados
 - A rescisão não isenta os utilizadores de obrigações pendentes
@@ -258,7 +258,7 @@ A sua utilização da Plataforma também é regida pela nossa Política de Priva
 ## 19. Informações de Contacto
 
 Para questões sobre estes Termos, por favor contacte:
-- Email: support@cumprido.com
+- Email: support@nesta.app
 - Portal de Suporte: Disponível na App
 - Morada: [Morada da Sua Empresa]
 
@@ -268,9 +268,9 @@ Se qualquer disposição destes Termos for considerada inexequível, as disposi�
 
 ## 21. Acordo Completo
 
-Estes Termos, juntamente com a Política de Privacidade, constituem o acordo completo entre si e o Cumprido relativamente à utilização da Plataforma.
+Estes Termos, juntamente com a Política de Privacidade, constituem o acordo completo entre si e o Nesta relativamente à utilização da Plataforma.
 
 ---
 
-**Ao utilizar o Cumprido, reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos de Serviço.**
+**Ao utilizar o Nesta, reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos de Serviço.**
 

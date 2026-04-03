@@ -3,9 +3,11 @@ import {
   Controller,
   Get,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import type { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Public } from './auth/decorators/public.decorator';
 import { AppService } from './app.service';
@@ -37,19 +39,30 @@ export class AppController {
   @Public()
   verifyEmailRedirect(
     @Query('token') token: string | undefined,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
     if (!token) {
       throw new BadRequestException('Missing token');
     }
 
-    const deepLink = `cumprido://verify-email?token=${encodeURIComponent(token)}`;
+    const deepLink = `nasta://verify-email?token=${encodeURIComponent(token)}`;
+
+    // On mobile, avoid showing the intermediate HTML page.
+    // This makes the email button feel like a proper deep-link.
+    const ua = (req.headers['user-agent'] || '').toString();
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+    if (isMobile) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.redirect(302, deepLink);
+    }
+
     const html = `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Cumprido</title>
+    <title>Open Nasta</title>
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 32px; }
       a { word-break: break-all; }
@@ -63,7 +76,7 @@ export class AppController {
     </script>
   </head>
   <body>
-    <p>Opening the Cumprido app…</p>
+    <p>Opening the Nasta app…</p>
     <p>If it doesn’t open automatically, tap this link:</p>
     <p><a href="${deepLink}">${deepLink}</a></p>
     <noscript>
@@ -81,7 +94,7 @@ export class AppController {
   appleAppSiteAssociation(@Res() res: Response) {
     const teamId = this.config.get<string>('APPLE_TEAM_ID');
     const bundleId =
-      this.config.get<string>('IOS_BUNDLE_ID') || 'com.mohamedibrahim.cumprido';
+      this.config.get<string>('IOS_BUNDLE_ID') || 'com.mohamedibrahim.nasta';
 
     // Apple requires TEAMID.BUNDLEID
     const appId = teamId ? `${teamId}.${bundleId}` : null;
@@ -111,7 +124,7 @@ export class AppController {
   androidAssetLinks(@Res() res: Response) {
     const packageName =
       this.config.get<string>('ANDROID_PACKAGE_NAME') ||
-      'com.mohamedibrahim.cumprido';
+      'com.mohamedibrahim.nasta';
     const fingerprint = this.config.get<string>(
       'ANDROID_SHA256_CERT_FINGERPRINT',
     );

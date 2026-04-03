@@ -60,25 +60,25 @@ export default function ReceiptsScreen() {
 
   const themeStyles = {
     textPrimary: { color: colors.text },
-    textSecondary: { color: isDark ? "#94a3b8" : "#64748b" },
-    iconColor: isDark ? "#e5e7eb" : "#4b5563",
+    textSecondary: { color: isDark ? "#9A8E7A" : "#8A7B68" },
+    iconColor: isDark ? "#E8D8B8" : "#6B6355",
     background: { backgroundColor: colors.background },
     headerBackground: {
       backgroundColor: isDark
         ? "rgba(15, 23, 42, 0.95)"
-        : "rgba(255, 255, 255, 0.95)",
-      borderBottomColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+        : "rgba(255, 250, 240, 0.95)",
+      borderBottomColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)",
     },
     backButtonBg: {
-      backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.05)",
+      backgroundColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(184,130,42,0.06)",
     },
     cardBackground: {
       backgroundColor: isDark
-        ? "rgba(30, 41, 59, 0.85)"
-        : "rgba(255, 255, 255, 0.9)",
+        ? "rgba(12, 22, 42, 0.82)"
+        : "rgba(255, 250, 240, 0.92)",
     },
     border: {
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+      borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(0,0,0,0.08)",
     },
   };
 
@@ -216,9 +216,9 @@ export default function ReceiptsScreen() {
       case "COMPLETED":
         return { color: "#22c55e" };
       case "IN_PROGRESS":
-        return { color: "#3b82f6" };
+        return { color: "#C9963F" };
       case "CONFIRMED":
-        return { color: "#8b5cf6" };
+        return { color: "#E8B86D" };
       case "CANCELLED":
         return { color: "#ef4444" };
       default:
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   placeholder: {
     width: 40,
@@ -648,14 +648,14 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 4,
     marginBottom: 20,
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 2 : 0,
+    elevation: 0,
   },
   summaryLabel: {
     fontSize: 14,
@@ -671,14 +671,14 @@ const styles = StyleSheet.create({
   },
   receiptCard: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 16,
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: Platform.OS === "android" ? 1 : 0,
+    elevation: 0,
   },
   receiptHeader: {
     flexDirection: "row",
@@ -704,10 +704,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(34, 197, 94, 0.1)",
   },
   statusInProgress: {
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
   },
   statusConfirmed: {
-    backgroundColor: "rgba(139, 92, 246, 0.1)",
+    backgroundColor: "rgba(232, 184, 109, 0.1)",
   },
   statusCancelled: {
     backgroundColor: "rgba(239, 68, 68, 0.1)",
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 10,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
   },
   receiptSection: {
@@ -757,7 +757,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   emptyText: {
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
   },
   payoutStatusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
   },
 });

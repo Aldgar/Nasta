@@ -12,14 +12,14 @@ type BrandLogoProps = {
 
 /**
  * BrandLogo
- * Renders the Cumprido logo mark filled with the app's brand gradient
+ * Renders the Nasta logo mark filled with the app's brand gradient
  * using CSS masking. This ensures the logo always matches the current
  * theme colors without needing multiple asset variants.
  */
 export default function BrandLogo({
   size = 28,
   className = "",
-  title = "Cumprido",
+  title = "Nasta",
   animated = false,
   tile = false,
 }: BrandLogoProps) {
@@ -29,14 +29,14 @@ export default function BrandLogo({
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () =>
       setDark(
-        mq.matches || document.documentElement.classList.contains("dark")
+        mq.matches || document.documentElement.classList.contains("dark"),
       );
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  const src = dark ? "/Cumprido-Logo-Dark.jpg" : "/cumprido_logo_light.png";
+  const src = dark ? "/NastaLogoDark.png" : "/NastaLogoLight.png";
 
   if (!tile) {
     // Render the asset plainly for maximum fidelity

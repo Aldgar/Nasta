@@ -70,9 +70,9 @@ export class CreateJobDto {
     | 'FREELANCE'
     | 'GIG';
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsIn(['ON_SITE', 'REMOTE', 'HYBRID'])
-  workMode?: 'ON_SITE' | 'REMOTE' | 'HYBRID';
+  workMode!: 'ON_SITE' | 'REMOTE' | 'HYBRID';
 
   @IsOptional()
   @IsBoolean()
@@ -127,9 +127,9 @@ export class CreateJobDto {
   @Max(180)
   lng!: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  startDate?: string;
+  startDate!: string;
 
   @IsOptional()
   @IsDateString()
@@ -143,7 +143,35 @@ export class CreateJobDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL', 'MXN', 'ZAR', 'KRW', 'SGD', 'HKD', 'NZD', 'NOK', 'SEK', 'DKK', 'PLN', 'RUB', 'TRY', 'THB', 'MYR', 'PHP', 'IDR', 'VND'])
+  @IsIn([
+    'USD',
+    'EUR',
+    'GBP',
+    'JPY',
+    'CAD',
+    'AUD',
+    'CHF',
+    'CNY',
+    'INR',
+    'BRL',
+    'MXN',
+    'ZAR',
+    'KRW',
+    'SGD',
+    'HKD',
+    'NZD',
+    'NOK',
+    'SEK',
+    'DKK',
+    'PLN',
+    'RUB',
+    'TRY',
+    'THB',
+    'MYR',
+    'PHP',
+    'IDR',
+    'VND',
+  ])
   currency?: string;
 
   @IsOptional()

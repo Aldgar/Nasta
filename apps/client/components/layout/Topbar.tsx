@@ -19,21 +19,21 @@ export default function Topbar() {
         <Link
           href="/"
           className="flex items-center gap-2"
-          aria-label="Cumprido feed"
+          aria-label="Nasta feed"
         >
           {/* Logo mark: use your provided assets */}
           {/* Light mode uses the dark logo, dark mode uses the light logo */}
           <Image
-            src="/Cumprido-Logo-Dark.jpg"
-            alt="Cumprido logo"
+            src="/NastaLogoLight.png"
+            alt="Nasta logo"
             width={28}
             height={28}
             className="block dark:hidden"
             priority
           />
           <Image
-            src="/Cumprido-Logo-Light.png"
-            alt="Cumprido logo"
+            src="/NastaLogoDark.png"
+            alt="Nasta logo"
             width={28}
             height={28}
             className="hidden dark:block"

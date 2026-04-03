@@ -29,15 +29,15 @@ export class CreateCheckoutSessionDto {
   quantity?: number;
 
   @IsOptional()
-  @IsIn(['payment', 'subscription'])
-  mode?: 'payment' | 'subscription';
+  @IsIn(['payment', 'subscription', 'setup'])
+  mode?: 'payment' | 'subscription' | 'setup';
 
   @IsNotEmpty()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   successUrl!: string;
 
   @IsNotEmpty()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   cancelUrl!: string;
 
   @IsOptional()

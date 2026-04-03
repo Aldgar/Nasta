@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import BrandedSelect from "../ui/BrandedSelect";
 
 export type PayoutMethod = "bank" | "wallet";
 
@@ -23,7 +24,7 @@ export default function JobSeekerPayoutFields({ value, onChange }: Props) {
   return (
     <fieldset className="space-y-3 rounded-xl border border-neutral-200 p-4">
       <legend className="px-1 text-sm font-medium text-neutral-800">
-        Payout details (for job seekers)
+        Payout details (for service providers)
       </legend>
       <p className="text-xs text-neutral-600">
         Add where you want to receive payments when hired.
@@ -32,14 +33,16 @@ export default function JobSeekerPayoutFields({ value, onChange }: Props) {
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <div>
           <label className="block text-sm">Payout method</label>
-          <select
-            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60"
-            value={value.method}
-            onChange={(e) => set({ method: e.target.value as PayoutMethod })}
-          >
-            <option value="bank">Bank transfer</option>
-            <option value="wallet">Wallet</option>
-          </select>
+          <div className="mt-1">
+            <BrandedSelect
+              value={value.method}
+              onChange={(v) => set({ method: v as PayoutMethod })}
+              options={[
+                { value: "bank", label: "Bank transfer" },
+                { value: "wallet", label: "Wallet" },
+              ]}
+            />
+          </div>
         </div>
         <div>
           <label className="block text-sm">Account holder name</label>

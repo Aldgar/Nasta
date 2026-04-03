@@ -114,7 +114,7 @@ export default function ForgotPasswordScreen() {
               <Text
                 style={[
                   styles.subtitle,
-                  { color: isDark ? "rgba(255,255,255,0.7)" : "#64748b" },
+                  { color: isDark ? "rgba(240,232,213,0.7)" : "#8A7B68" },
                 ]}
               >
                 {t("auth.forgotPasswordDescription")}
@@ -124,7 +124,7 @@ export default function ForgotPasswordScreen() {
                 <Text
                   style={[
                     styles.label,
-                    { color: isDark ? "rgba(255,255,255,0.8)" : "#475569" },
+                    { color: isDark ? "rgba(240,232,213,0.8)" : "#6B6355" },
                   ]}
                 >
                   {t("auth.emailLabel")}
@@ -134,12 +134,12 @@ export default function ForgotPasswordScreen() {
                     styles.input,
                     {
                       backgroundColor: isDark
-                        ? "rgba(255,255,255,0.15)"
-                        : "#ffffff",
+                        ? "rgba(255,250,240,0.12)"
+                        : "#FFFAF0",
                       color: colors.text,
                       borderColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.1)",
+                        ? "rgba(201,150,63,0.12)"
+                        : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   value={email}
@@ -147,7 +147,7 @@ export default function ForgotPasswordScreen() {
                   autoCapitalize="none"
                   keyboardType="email-address"
                   placeholder={t("auth.emailPlaceholder")}
-                  placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+                  placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
                   underlineColorAndroid="transparent"
                   editable={!loading}
                 />
@@ -156,7 +156,7 @@ export default function ForgotPasswordScreen() {
                   style={[
                     styles.submitButton,
                     {
-                      backgroundColor: isDark ? "#4f46e5" : colors.tint,
+                      backgroundColor: isDark ? "#C9963F" : colors.tint,
                       opacity: loading ? 0.6 : 1,
                     },
                   ]}
@@ -164,7 +164,7 @@ export default function ForgotPasswordScreen() {
                   disabled={loading}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#FFFAF0" />
                   ) : (
                     <Text style={styles.submitButtonText}>
                       {t("auth.sendTemporaryPassword")}
@@ -179,7 +179,7 @@ export default function ForgotPasswordScreen() {
                   <Text
                     style={[
                       styles.backToLoginText,
-                      { color: isDark ? "rgba(255,255,255,0.8)" : "#64748b" },
+                      { color: isDark ? "rgba(240,232,213,0.8)" : "#8A7B68" },
                     ]}
                   >
                     {t("auth.backToLogin")}
@@ -234,29 +234,29 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     fontSize: 16,
     marginBottom: 24,
     borderWidth: 1,
   },
   submitButton: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   submitButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   backToLogin: {
     alignItems: "center",

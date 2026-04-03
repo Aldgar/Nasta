@@ -4,7 +4,7 @@ export const PRIVACY_POLICY_PT = `# Política de Privacidade
 
 ## 1. Introdução
 
-O Cumprido ("nós", "nosso" ou "nos") está comprometido em proteger a sua privacidade. Esta Política de Privacidade explica como recolhemos, usamos, divulgamos e protegemos as suas informações quando utiliza a nossa aplicação móvel ("App" ou "Plataforma").
+O Nasta ("nós", "nosso" ou "nos") está comprometido em proteger a sua privacidade. Esta Política de Privacidade explica como recolhemos, usamos, divulgamos e protegemos as suas informações quando utiliza a nossa aplicação móvel ("App" ou "Plataforma").
 
 ## 2. Informações que Recolhemos
 
@@ -304,8 +304,8 @@ Processamos os seus dados pessoais com base nas seguintes bases legais:
 
 Conforme exigido pelo Artigo 37 do GDPR, nomeámos um Encarregado de Proteção de Dados (DPO) para utilizadores da UE:
 
-- **Email:** dpo@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** dpo@nasta.app
+- **Website:** https://nasta.app/privacy
 
 
 Pode contactar o nosso DPO para:
@@ -359,17 +359,17 @@ Pode apresentar uma reclamação se acreditar que não tratámos os seus dados p
 ## 14. Contacte-nos
 
 Para questões ou pedidos relacionados com privacidade:
-- **Email:** privacy@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** privacy@nasta.app
+- **Website:** https://nasta.app/privacy
 - **Portal de Suporte:** Disponível na App
 
 
 ## 15. Encarregado de Proteção de Dados
 
 Para utilizadores da UE, pode contactar o nosso Encarregado de Proteção de Dados em:
-- **Email:** dpo@cumprido.com
-- **Website:** https://cumprido.com/privacy
+- **Email:** dpo@nasta.app
+- **Website:** https://nasta.app/privacy
 
 ---
 
-**Ao utilizar o Cumprido, reconhece que leu e compreendeu esta Política de Privacidade.**`;
+**Ao utilizar o Nasta, reconhece que leu e compreendeu esta Política de Privacidade.**`;

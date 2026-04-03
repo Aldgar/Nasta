@@ -244,8 +244,8 @@ export default function SearchJobs() {
       style={[
         styles.jobCard,
         {
-          backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "#ffffff",
-          borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+          backgroundColor: isDark ? "rgba(12, 22, 42, 0.75)" : "#FFFAF0",
+          borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
         },
       ]}
       onPress={() => {
@@ -267,7 +267,7 @@ export default function SearchJobs() {
             <Text
               style={[
                 styles.companyName,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
               {item.company.name}
@@ -278,7 +278,7 @@ export default function SearchJobs() {
           <View
             style={[
               styles.instantBadge,
-              { backgroundColor: isDark ? "#6366f1" : "#4f46e5" },
+              { backgroundColor: isDark ? "#22D3EE" : "#06B6D4" },
             ]}
           >
             <Text style={styles.instantText}>{t("jobs.instant")}</Text>
@@ -290,7 +290,7 @@ export default function SearchJobs() {
         <Text
           style={[
             styles.jobDescription,
-            { color: isDark ? "#cbd5e1" : "#475569" },
+            { color: isDark ? "#B8A88A" : "#6B6355" },
           ]}
           numberOfLines={2}
         >
@@ -305,12 +305,12 @@ export default function SearchJobs() {
               <Feather
                 name="map-pin"
                 size={12}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.metaText,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {item.city}
@@ -322,7 +322,7 @@ export default function SearchJobs() {
             <Text
               style={[
                 styles.metaText,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
               {t("searchJobs.kmAway", { distance: item.distanceKm.toFixed(1) })}
@@ -337,8 +337,8 @@ export default function SearchJobs() {
                 styles.tag,
                 {
                   backgroundColor: isDark
-                    ? "rgba(59, 130, 246, 0.2)"
-                    : "rgba(59, 130, 246, 0.1)",
+                    ? "rgba(201, 150, 63, 0.2)"
+                    : "rgba(201, 150, 63, 0.1)",
                 },
               ]}
             >
@@ -412,7 +412,7 @@ export default function SearchJobs() {
 
           <View style={styles.searchSection}>
             <Text
-              style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}
+              style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}
             >
               {t("searchJobs.jobCategory")}
             </Text>
@@ -422,11 +422,11 @@ export default function SearchJobs() {
                 styles.categoryInput,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.5)"
-                    : "rgba(255,255,255,0.9)",
+                    ? "rgba(12, 22, 42, 0.55)"
+                    : "rgba(255,250,240,0.92)",
                   borderColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                    ? "rgba(201,150,63,0.12)"
+                    : "rgba(184,130,42,0.2)",
                 },
               ]}
               onPress={() => setShowCategoryModal(true)}
@@ -438,8 +438,8 @@ export default function SearchJobs() {
                     color: category
                       ? colors.text
                       : isDark
-                        ? "#64748b"
-                        : "#94a3b8",
+                        ? "#8A7B68"
+                        : "#9A8E7A",
                   },
                 ]}
               >
@@ -448,12 +448,12 @@ export default function SearchJobs() {
               <Feather
                 name="chevron-down"
                 size={20}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
             </TouchableOpacity>
 
             <Text
-              style={[styles.label, { color: isDark ? "#cbd5e1" : "#475569" }]}
+              style={[styles.label, { color: isDark ? "#B8A88A" : "#6B6355" }]}
             >
               {t("searchJobs.location")}
             </Text>
@@ -461,7 +461,7 @@ export default function SearchJobs() {
               <Feather
                 name="map-pin"
                 size={18}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -470,16 +470,16 @@ export default function SearchJobs() {
                   styles.inputWithIcon,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.5)"
-                      : "rgba(255,255,255,0.9)",
+                      ? "rgba(12, 22, 42, 0.55)"
+                      : "rgba(255,250,240,0.92)",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
                     color: colors.text,
                   },
                 ]}
                 placeholder={t("searchJobs.enterCityOrZipCode")}
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                 value={location}
                 onChangeText={setLocation}
               />
@@ -488,13 +488,13 @@ export default function SearchJobs() {
             <TouchableOpacity
               style={[
                 styles.button,
-                { backgroundColor: isDark ? "#6366f1" : colors.tint },
+                { backgroundColor: isDark ? "#C9963F" : colors.tint },
               ]}
               onPress={searchJobs}
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#FFFAF0" />
               ) : (
                 <Text style={styles.buttonText}>{t("common.search")}</Text>
               )}
@@ -511,7 +511,7 @@ export default function SearchJobs() {
                     backgroundColor:
                       viewMode === "list"
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : "transparent",
                   },
@@ -521,12 +521,12 @@ export default function SearchJobs() {
                 <Feather
                   name="list"
                   size={18}
-                  color={viewMode === "list" ? "#fff" : colors.text}
+                  color={viewMode === "list" ? "#FFFAF0" : colors.text}
                 />
                 <Text
                   style={[
                     styles.toggleText,
-                    { color: viewMode === "list" ? "#fff" : colors.text },
+                    { color: viewMode === "list" ? "#FFFAF0" : colors.text },
                   ]}
                 >
                   {t("searchJobs.list")}
@@ -540,7 +540,7 @@ export default function SearchJobs() {
                     backgroundColor:
                       viewMode === "map"
                         ? isDark
-                          ? "#6366f1"
+                          ? "#C9963F"
                           : colors.tint
                         : "transparent",
                   },
@@ -550,12 +550,12 @@ export default function SearchJobs() {
                 <Feather
                   name="map"
                   size={18}
-                  color={viewMode === "map" ? "#fff" : colors.text}
+                  color={viewMode === "map" ? "#FFFAF0" : colors.text}
                 />
                 <Text
                   style={[
                     styles.toggleText,
-                    { color: viewMode === "map" ? "#fff" : colors.text },
+                    { color: viewMode === "map" ? "#FFFAF0" : colors.text },
                   ]}
                 >
                   {t("searchJobs.map")}
@@ -618,12 +618,12 @@ export default function SearchJobs() {
                     <Feather
                       name="briefcase"
                       size={48}
-                      color={isDark ? "#475569" : "#cbd5e1"}
+                      color={isDark ? "#6B6355" : "#B8A88A"}
                     />
                     <Text
                       style={[
                         styles.emptyText,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("searchJobs.noJobsFound")}
@@ -647,8 +647,8 @@ export default function SearchJobs() {
                 styles.modalContent,
                 {
                   backgroundColor: isDark
-                    ? "rgba(30, 41, 59, 0.95)"
-                    : "#ffffff",
+                    ? "rgba(12, 22, 42, 0.90)"
+                    : "#FFFAF0",
                 },
               ]}
             >
@@ -669,18 +669,18 @@ export default function SearchJobs() {
                       backgroundColor:
                         category === ""
                           ? isDark
-                            ? "#6366f1"
-                            : "#4f46e5"
+                            ? "#C9963F"
+                            : "#C9963F"
                           : isDark
-                            ? "rgba(255,255,255,0.05)"
-                            : "rgba(0,0,0,0.05)",
+                            ? "rgba(255,250,240,0.06)"
+                            : "rgba(184,130,42,0.06)",
                       borderWidth: category === "" ? 0 : 1,
                       borderColor:
                         category === ""
                           ? "transparent"
                           : isDark
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(201,150,63,0.12)"
+                            : "rgba(184,130,42,0.2)",
                     },
                   ]}
                   onPress={() => {
@@ -692,7 +692,7 @@ export default function SearchJobs() {
                     style={[
                       styles.categoryOptionText,
                       {
-                        color: category === "" ? "#fff" : colors.text,
+                        color: category === "" ? "#FFFAF0" : colors.text,
                         fontWeight: category === "" ? "600" : "500",
                       },
                     ]}
@@ -718,18 +718,18 @@ export default function SearchJobs() {
                           backgroundColor:
                             category === cat.name
                               ? isDark
-                                ? "#6366f1"
-                                : "#4f46e5"
+                                ? "#C9963F"
+                                : "#C9963F"
                               : isDark
-                                ? "rgba(255,255,255,0.05)"
-                                : "rgba(0,0,0,0.05)",
+                                ? "rgba(255,250,240,0.06)"
+                                : "rgba(184,130,42,0.06)",
                           borderWidth: category === cat.name ? 0 : 1,
                           borderColor:
                             category === cat.name
                               ? "transparent"
                               : isDark
-                                ? "rgba(255,255,255,0.1)"
-                                : "rgba(0,0,0,0.1)",
+                                ? "rgba(201,150,63,0.12)"
+                                : "rgba(184,130,42,0.2)",
                         },
                       ]}
                       onPress={() => {
@@ -741,7 +741,7 @@ export default function SearchJobs() {
                         style={[
                           styles.categoryOptionText,
                           {
-                            color: category === cat.name ? "#fff" : colors.text,
+                            color: category === cat.name ? "#FFFAF0" : colors.text,
                             fontWeight: category === cat.name ? "600" : "500",
                           },
                         ]}
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,250,240,0.15)",
     borderRadius: 2,
     alignSelf: "center",
     marginBottom: 24,
@@ -777,13 +777,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 24,
   },
-  title: { fontSize: 28, fontWeight: "800" },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: 2 },
   closeBtn: { padding: 4 },
   searchSection: { marginBottom: 20 },
-  label: { fontWeight: "600", marginBottom: 8, marginLeft: 4, fontSize: 14 },
+  label: { fontWeight: "700", marginBottom: 8, marginLeft: 4, fontSize: 14 },
   input: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 20,
     fontSize: 16,
@@ -799,11 +799,11 @@ const styles = StyleSheet.create({
   inputIcon: { position: "absolute", left: 14, top: 18, zIndex: 1 },
   button: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     marginTop: 12,
   },
-  buttonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  buttonText: { color: "#FFFAF0", fontWeight: "700", fontSize: 16 },
   viewToggle: {
     flexDirection: "row",
     gap: 8,
@@ -818,22 +818,22 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,250,240,0.15)",
   },
   toggleButtonActive: {
     borderColor: "transparent",
   },
-  toggleText: { fontWeight: "600", fontSize: 14 },
+  toggleText: { fontWeight: "700", fontSize: 14 },
   mapContainer: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 4,
     overflow: "hidden",
     marginBottom: 16,
   },
   map: { flex: 1 },
   listContent: { paddingBottom: 20 },
   jobCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  instantText: { color: "#fff", fontSize: 10, fontWeight: "700" },
+  instantText: { color: "#FFFAF0", fontSize: 10, fontWeight: "700" },
   jobDescription: {
     fontSize: 14,
     marginBottom: 12,
@@ -877,7 +877,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  tagText: { fontSize: 12, fontWeight: "600" },
+  tagText: { fontSize: 12, fontWeight: "700" },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",

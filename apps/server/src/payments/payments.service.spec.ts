@@ -2,6 +2,10 @@ import { Test } from '@nestjs/testing';
 import { PaymentsService } from './payments.service';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { EmailTranslationsService } from '../notifications/email-translations.service';
+import { RatingsService } from '../ratings/ratings.service';
+import { ChatService } from '../chat/chat.service';
 
 describe('PaymentsService computeFinalAmount', () => {
   let service: PaymentsService;
@@ -12,6 +16,10 @@ describe('PaymentsService computeFinalAmount', () => {
         PaymentsService,
         { provide: ConfigService, useValue: { get: jest.fn(() => undefined) } },
         { provide: PrismaService, useValue: {} },
+        { provide: NotificationsService, useValue: {} },
+        { provide: EmailTranslationsService, useValue: {} },
+        { provide: RatingsService, useValue: {} },
+        { provide: ChatService, useValue: {} },
       ],
     }).compile();
     service = moduleRef.get(PaymentsService);

@@ -171,7 +171,7 @@ export default function SurveyDetailScreen() {
             style={[
               styles.backButton,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)",
               },
             ]}
           >
@@ -191,8 +191,8 @@ export default function SurveyDetailScreen() {
             style={[
               styles.infoCard,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "rgba(255, 255, 255, 0.9)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.80)" : "rgba(255, 250, 240, 0.92)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -201,14 +201,14 @@ export default function SurveyDetailScreen() {
                 style={[
                   styles.iconContainer,
                   {
-                    backgroundColor: isDark ? "rgba(99, 102, 241, 0.2)" : "rgba(99, 102, 241, 0.1)",
+                    backgroundColor: isDark ? "rgba(201, 150, 63, 0.2)" : "rgba(201, 150, 63, 0.1)",
                   },
                 ]}
               >
-                <Feather name="tag" size={20} color={isDark ? "#818cf8" : "#6366f1"} />
+                <Feather name="tag" size={20} color={isDark ? "#A78BFA" : "#7C3AED"} />
               </View>
               <View style={styles.infoContent}>
-                <Text style={[styles.infoLabel, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+                <Text style={[styles.infoLabel, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                   {t("admin.surveyType")}
                 </Text>
                 <Text style={[styles.infoValue, { color: colors.text }]}>
@@ -224,14 +224,14 @@ export default function SurveyDetailScreen() {
                 style={[
                   styles.iconContainer,
                   {
-                    backgroundColor: isDark ? "rgba(99, 102, 241, 0.2)" : "rgba(99, 102, 241, 0.1)",
+                    backgroundColor: isDark ? "rgba(201, 150, 63, 0.2)" : "rgba(201, 150, 63, 0.1)",
                   },
                 ]}
               >
-                <Feather name="calendar" size={20} color={isDark ? "#818cf8" : "#6366f1"} />
+                <Feather name="calendar" size={20} color={isDark ? "#A78BFA" : "#7C3AED"} />
               </View>
               <View style={styles.infoContent}>
-                <Text style={[styles.infoLabel, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+                <Text style={[styles.infoLabel, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                   Submitted
                 </Text>
                 <Text style={[styles.infoValue, { color: colors.text }]}>
@@ -246,23 +246,23 @@ export default function SurveyDetailScreen() {
             style={[
               styles.section,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "rgba(255, 255, 255, 0.9)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.80)" : "rgba(255, 250, 240, 0.92)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
               },
             ]}
           >
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact Information</Text>
             <View style={styles.contactRow}>
-              <Feather name="user" size={16} color={isDark ? "#94a3b8" : "#64748b"} />
+              <Feather name="user" size={16} color={isDark ? "#9A8E7A" : "#8A7B68"} />
               <Text style={[styles.contactText, { color: colors.text }]}>{userName}</Text>
             </View>
             <View style={styles.contactRow}>
-              <Feather name="mail" size={16} color={isDark ? "#94a3b8" : "#64748b"} />
+              <Feather name="mail" size={16} color={isDark ? "#9A8E7A" : "#8A7B68"} />
               <Text style={[styles.contactText, { color: colors.text }]}>{userEmail}</Text>
             </View>
             {userPhone && (
               <View style={styles.contactRow}>
-                <Feather name="phone" size={16} color={isDark ? "#94a3b8" : "#64748b"} />
+                <Feather name="phone" size={16} color={isDark ? "#9A8E7A" : "#8A7B68"} />
                 <Text style={[styles.contactText, { color: colors.text }]}>{userPhone}</Text>
               </View>
             )}
@@ -273,8 +273,8 @@ export default function SurveyDetailScreen() {
             style={[
               styles.section,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "rgba(255, 255, 255, 0.9)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.80)" : "rgba(255, 250, 240, 0.92)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
               },
             ]}
           >
@@ -282,7 +282,7 @@ export default function SurveyDetailScreen() {
             {questions.map((item, index) => (
               <View key={index} style={styles.questionItem}>
                 <Text style={[styles.questionText, { color: colors.text }]}>{item.question}</Text>
-                <Text style={[styles.answerText, { color: isDark ? "#cbd5e1" : "#475569" }]}>
+                <Text style={[styles.answerText, { color: isDark ? "#B8A88A" : "#6B6355" }]}>
                   {item.answer}
                 </Text>
               </View>
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   infoCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
@@ -389,21 +389,21 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   divider: {
     height: 1,
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: "rgba(184,130,42,0.06)",
     marginVertical: 12,
   },
   section: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 18, letterSpacing: 1.2, textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 16,
   },
@@ -421,11 +421,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    borderBottomColor: "rgba(184,130,42,0.06)",
   },
   questionText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 8,
   },
   answerText: {

@@ -51,6 +51,17 @@ export class JobsController {
     return this.jobsService.getMyJobs(req.user.id);
   }
 
+  @Get('employer/stats')
+  @UseGuards(JwtAuthGuard)
+  async getEmployerStats(
+    @Request() req: { user: { id: string; role?: string } },
+  ) {
+    if (req.user.role !== 'EMPLOYER' && req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only employers can access their stats');
+    }
+    return this.jobsService.getEmployerJobStats(req.user.id);
+  }
+
   @Get()
   @Public()
   async list(
@@ -78,10 +89,14 @@ export class JobsController {
     // Manually extract and validate token if present (optional auth for public endpoint)
     let userId: string | undefined;
     let userRole: string | undefined;
-    
+
     try {
       const authHeader = req.headers.authorization;
-      if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      if (
+        authHeader &&
+        typeof authHeader === 'string' &&
+        authHeader.startsWith('Bearer ')
+      ) {
         const token = authHeader.substring(7);
         try {
           const user = await this.authService.validateToken(token);
@@ -97,7 +112,7 @@ export class JobsController {
     } catch (e) {
       // Ignore auth errors for public endpoint
     }
-    
+
     return this.jobsService.getJob(id, userId, userRole);
   }
 
@@ -165,7 +180,8 @@ export class JobsController {
   async updateStatus(
     @Param('id') id: string,
     @Request() req: { user: { id: string } },
-    @Body('status') status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'CLOSED' | 'EXPIRED',
+    @Body('status')
+    status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'CLOSED' | 'EXPIRED',
   ) {
     return this.jobsService.updateJobStatus(id, req.user.id, status);
   }

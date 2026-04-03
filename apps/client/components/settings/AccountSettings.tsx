@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function AccountSettings() {
-  // Determine current role to scope phone separately for Employers vs Job Seekers
+  // Determine current role to scope phone separately for Employers vs Service Providers
   const role = useMemo(
     () =>
       typeof window !== "undefined"

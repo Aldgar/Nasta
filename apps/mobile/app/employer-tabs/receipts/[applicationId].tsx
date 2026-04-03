@@ -45,15 +45,15 @@ export default function EmployerReceiptDetailsScreen() {
   const themeStyles = useMemo(
     () => ({
       textPrimary: { color: colors.text },
-      textSecondary: { color: isDark ? "#94a3b8" : "#64748b" },
+      textSecondary: { color: isDark ? "#9A8E7A" : "#8A7B68" },
       background: { backgroundColor: colors.background },
       cardBackground: {
         backgroundColor: isDark
-          ? "rgba(30, 41, 59, 0.85)"
-          : "rgba(255, 255, 255, 0.9)",
+          ? "rgba(12, 22, 42, 0.82)"
+          : "rgba(255, 250, 240, 0.92)",
       },
       border: {
-        borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+        borderColor: isDark ? "rgba(255,250,240,0.12)" : "rgba(0,0,0,0.08)",
       },
     }),
     [colors.background, colors.text, isDark]
@@ -128,7 +128,7 @@ export default function EmployerReceiptDetailsScreen() {
           title: t("navigation.receipts"),
           headerTitleAlign: "center",
           headerStyle: {
-            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+            backgroundColor: isDark ? "#0f172a" : "#FFFAF0",
           },
           headerTintColor: colors.text,
           headerLeft: () => (
@@ -138,8 +138,8 @@ export default function EmployerReceiptDetailsScreen() {
                 styles.headerIconButton,
                 {
                   backgroundColor: isDark
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "rgba(0, 0, 0, 0.05)",
+                    ? "rgba(201, 150, 63, 0.12)"
+                    : "rgba(184, 130, 42, 0.06)",
                 },
               ]}
               accessibilityRole="button"
@@ -198,7 +198,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="user"
                     size={16}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                 </View>
                 <View style={styles.infoTextContainer}>
@@ -216,7 +216,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="calendar"
                     size={16}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                 </View>
                 <View style={styles.infoTextContainer}>
@@ -235,7 +235,7 @@ export default function EmployerReceiptDetailsScreen() {
                     <Feather
                       name="tag"
                       size={16}
-                      color={isDark ? "#64748b" : "#94a3b8"}
+                      color={isDark ? "#8A7B68" : "#9A8E7A"}
                     />
                   </View>
                   <View style={styles.infoTextContainer}>
@@ -311,7 +311,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="mail"
                     size={16}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                 </View>
                 <View style={styles.statusTextContainer}>
@@ -360,7 +360,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="briefcase"
                     size={14}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                   <Text
                     style={[
@@ -375,7 +375,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="lock"
                     size={14}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                   <Text
                     style={[
@@ -390,7 +390,7 @@ export default function EmployerReceiptDetailsScreen() {
                   <Feather
                     name="dollar-sign"
                     size={14}
-                    color={isDark ? "#64748b" : "#94a3b8"}
+                    color={isDark ? "#8A7B68" : "#9A8E7A"}
                   />
                   <Text
                     style={[
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 4,
     padding: 20,
     shadowColor: "#000",
     shadowOffset: {
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
   },
   headerSection: {
     flexDirection: "row",
@@ -450,8 +450,8 @@ const styles = StyleSheet.create({
   receiptIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
+    borderRadius: 4,
+    backgroundColor: "rgba(201, 150, 63, 0.1)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -496,18 +496,18 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentSection: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 16, letterSpacing: 1.2, textTransform: "uppercase" as const,
     fontWeight: "700",
     marginBottom: 12,
   },
   paymentBreakdown: {
-    borderRadius: 12,
+    borderRadius: 4,
     backgroundColor: "rgba(0,0,0,0.02)",
     padding: 16,
   },
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
   },
   paymentValue: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   paymentTotalLabel: {
     fontSize: 16,
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 6,
   },
   statusSent: {
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   statusDate: {
     fontSize: 12,
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   additionalInfoContent: {
-    borderRadius: 12,
+    borderRadius: 4,
     backgroundColor: "rgba(0,0,0,0.02)",
     padding: 16,
     gap: 12,

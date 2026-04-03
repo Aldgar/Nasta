@@ -173,7 +173,7 @@ export const PLATFORM_RULES_EN = `# Platform Rules
 
 ### 10.1 Types of Administrative Actions
 
-Cumprido administrators may take the following actions to maintain platform safety and enforce rules:
+Nasta administrators may take the following actions to maintain platform safety and enforce rules:
 
 **Legal Actions:**
 - Administrators may record legal actions against accounts for serious violations
@@ -269,13 +269,13 @@ Cumprido administrators may take the following actions to maintain platform safe
 ## 12. Equipment and Off-Platform Purchases
 
 ### 12.1 Equipment Responsibility
-- **Cumprido is NOT responsible for equipment purchased outside the Platform**
+- **Nasta is NOT responsible for equipment purchased outside the Platform**
 - Users purchase equipment at their own risk
-- Disputes about equipment are not handled by Cumprido
+- Disputes about equipment are not handled by Nasta
 - Equipment warranties are between user and seller
 
 ### 12.2 Off-Platform Service Agreements
-- **Cumprido is NOT responsible for services arranged outside the Platform**
+- **Nasta is NOT responsible for services arranged outside the Platform**
 - Off-platform agreements are not protected by Platform policies
 - Users engage in off-platform transactions at their own risk
 - Legal consequences of off-platform agreements are the user's responsibility
@@ -291,9 +291,9 @@ Cumprido administrators may take the following actions to maintain platform safe
 
 Report violations through:
 - In-App: "Report Abuse" or "Report Security Concerns"
-- Email: support@cumprido.com
+- Email: support@nasta.app
 - Support Portal: Available in the App
 
 ---
 
-**By using Cumprido, you agree to follow these Platform Rules. Violations may result in penalties up to and including account termination.**`;
+**By using Nasta, you agree to follow these Platform Rules. Violations may result in penalties up to and including account termination.**`;

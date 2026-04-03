@@ -1,10 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { fileUploadConfig } from './config/file-upload.config';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
 export class FileUploadService {
+  private readonly logger = new Logger(FileUploadService.name);
+
   constructor() {
     // Create upload directory if it doesn't exist
     this.ensureUploadDirectoryExists();
@@ -69,7 +71,7 @@ export class FileUploadService {
         await fs.promises.unlink(fullPath);
       }
     } catch (error) {
-      console.error('Failed to delete file:', error);
+      this.logger.error('Failed to delete file:', error);
     }
   }
 

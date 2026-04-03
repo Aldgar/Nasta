@@ -109,8 +109,8 @@ export default function ManageUsersScreen() {
         style={[
           styles.userCard,
           {
-            backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "rgba(255, 255, 255, 0.9)",
-            borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+            backgroundColor: isDark ? "rgba(12, 22, 42, 0.80)" : "rgba(255, 250, 240, 0.92)",
+            borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
           },
         ]}
         onPress={() => router.push(`/admin/user-detail?id=${user.id}` as never)}
@@ -121,19 +121,19 @@ export default function ManageUsersScreen() {
               style={[
                 styles.avatarContainer,
                 {
-                  backgroundColor: isDark ? "rgba(99, 102, 241, 0.2)" : "rgba(99, 102, 241, 0.1)",
+                  backgroundColor: isDark ? "rgba(201, 150, 63, 0.2)" : "rgba(201, 150, 63, 0.1)",
                 },
               ]}
             >
               {user.avatar ? (
-                <Text style={[styles.avatarText, { color: isDark ? "#818cf8" : "#6366f1" }]}>
+                <Text style={[styles.avatarText, { color: isDark ? "#A78BFA" : "#7C3AED" }]}>
                   {user.firstName[0]}{user.lastName[0]}
                 </Text>
               ) : (
                 <Feather
                   name="user"
                   size={24}
-                  color={isDark ? "#818cf8" : "#6366f1"}
+                  color={isDark ? "#A78BFA" : "#7C3AED"}
                 />
               )}
             </View>
@@ -141,32 +141,32 @@ export default function ManageUsersScreen() {
               <Text style={[styles.userName, { color: colors.text }]}>
                 {userName}
               </Text>
-              <Text style={[styles.userEmail, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+              <Text style={[styles.userEmail, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
                 {user.email}
               </Text>
             </View>
           </View>
-          <Feather name="chevron-right" size={20} color={isDark ? "#94a3b8" : "#64748b"} />
+          <Feather name="chevron-right" size={20} color={isDark ? "#9A8E7A" : "#8A7B68"} />
         </View>
 
         <View style={styles.userInfo}>
           {user.phone && (
             <View style={styles.userInfoRow}>
-              <Feather name="phone" size={14} color={isDark ? "#94a3b8" : "#64748b"} />
-              <Text style={[styles.userInfoText, { color: isDark ? "#cbd5e1" : "#475569" }]}>
+              <Feather name="phone" size={14} color={isDark ? "#9A8E7A" : "#8A7B68"} />
+              <Text style={[styles.userInfoText, { color: isDark ? "#B8A88A" : "#6B6355" }]}>
                 {user.phone}
               </Text>
             </View>
           )}
           <View style={styles.userInfoRow}>
-            <Feather name="map-pin" size={14} color={isDark ? "#94a3b8" : "#64748b"} />
-            <Text style={[styles.userInfoText, { color: isDark ? "#cbd5e1" : "#475569" }]}>
+            <Feather name="map-pin" size={14} color={isDark ? "#9A8E7A" : "#8A7B68"} />
+            <Text style={[styles.userInfoText, { color: isDark ? "#B8A88A" : "#6B6355" }]}>
               {userLocation}
             </Text>
           </View>
           <View style={styles.userInfoRow}>
-            <Feather name="calendar" size={14} color={isDark ? "#94a3b8" : "#64748b"} />
-            <Text style={[styles.userInfoText, { color: isDark ? "#cbd5e1" : "#475569" }]}>
+            <Feather name="calendar" size={14} color={isDark ? "#9A8E7A" : "#8A7B68"} />
+            <Text style={[styles.userInfoText, { color: isDark ? "#B8A88A" : "#6B6355" }]}>
               Joined {formatDate(user.createdAt)}
             </Text>
           </View>
@@ -194,7 +194,7 @@ export default function ManageUsersScreen() {
               {
                 padding: 8,
                 borderRadius: 8,
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.06)",
               },
             ]}
           >
@@ -210,22 +210,22 @@ export default function ManageUsersScreen() {
             style={[
               styles.searchBox,
               {
-                backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "rgba(255, 255, 255, 0.9)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                backgroundColor: isDark ? "rgba(12, 22, 42, 0.80)" : "rgba(255, 250, 240, 0.92)",
+                borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
               },
             ]}
           >
-            <Feather name="search" size={20} color={isDark ? "#94a3b8" : "#64748b"} />
+            <Feather name="search" size={20} color={isDark ? "#9A8E7A" : "#8A7B68"} />
             <TextInput
               style={[styles.searchInput, { color: colors.text }]}
               placeholder={t("admin.searchByNameOrEmail")}
-              placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+              placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Feather name="x" size={18} color={isDark ? "#94a3b8" : "#64748b"} />
+                <Feather name="x" size={18} color={isDark ? "#9A8E7A" : "#8A7B68"} />
               </TouchableOpacity>
             )}
           </View>
@@ -236,7 +236,7 @@ export default function ManageUsersScreen() {
           style={[
             styles.tabContainer,
             {
-              backgroundColor: isDark ? "rgba(30, 41, 59, 0.5)" : "rgba(255, 255, 255, 0.5)",
+              backgroundColor: isDark ? "rgba(12, 22, 42, 0.55)" : "rgba(255, 250, 240, 0.5)",
             },
           ]}
         >
@@ -244,7 +244,7 @@ export default function ManageUsersScreen() {
             style={[
               styles.tab,
               activeTab === "providers" && {
-                backgroundColor: isDark ? "#6366f1" : colors.tint,
+                backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
               },
             ]}
             onPress={() => setActiveTab("providers")}
@@ -255,10 +255,10 @@ export default function ManageUsersScreen() {
                 {
                   color:
                     activeTab === "providers"
-                      ? "#fff"
+                      ? "#FFFAF0"
                       : isDark
-                      ? "#94a3b8"
-                      : "#64748b",
+                      ? "#9A8E7A"
+                      : "#8A7B68",
                 },
               ]}
             >
@@ -269,7 +269,7 @@ export default function ManageUsersScreen() {
             style={[
               styles.tab,
               activeTab === "employers" && {
-                backgroundColor: isDark ? "#6366f1" : colors.tint,
+                backgroundColor: isDark ? "#A78BFA" : "#7C3AED",
               },
             ]}
             onPress={() => setActiveTab("employers")}
@@ -280,10 +280,10 @@ export default function ManageUsersScreen() {
                 {
                   color:
                     activeTab === "employers"
-                      ? "#fff"
+                      ? "#FFFAF0"
                       : isDark
-                      ? "#94a3b8"
-                      : "#64748b",
+                      ? "#9A8E7A"
+                      : "#8A7B68",
                 },
               ]}
             >
@@ -299,8 +299,8 @@ export default function ManageUsersScreen() {
           </View>
         ) : currentUsers.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Feather name="users" size={48} color={isDark ? "#475569" : "#94a3b8"} />
-            <Text style={[styles.emptyText, { color: isDark ? "#94a3b8" : "#64748b" }]}>
+            <Feather name="users" size={48} color={isDark ? "#6B6355" : "#9A8E7A"} />
+            <Text style={[styles.emptyText, { color: isDark ? "#9A8E7A" : "#8A7B68" }]}>
               No {activeTab === "providers" ? "service providers" : "employers"} found
             </Text>
           </View>
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1,
     gap: 12,
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 20,
     marginBottom: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 4,
   },
   tab: {
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   centerContainer: {
     flex: 1,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   userCard: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 0,
   },
   cardHeader: {
     flexDirection: "row",

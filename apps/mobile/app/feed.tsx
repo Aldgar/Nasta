@@ -74,7 +74,7 @@ const CountdownTimer = ({
 
       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
 
@@ -108,15 +108,15 @@ const CountdownTimer = ({
               ? "rgba(239, 68, 68, 0.15)"
               : "rgba(239, 68, 68, 0.1)"
             : isDark
-              ? "rgba(99, 102, 241, 0.15)"
-              : "rgba(99, 102, 241, 0.1)",
+              ? "rgba(201, 150, 63, 0.15)"
+              : "rgba(201, 150, 63, 0.1)",
           borderColor: isUrgent
             ? isDark
               ? "rgba(239, 68, 68, 0.3)"
               : "rgba(239, 68, 68, 0.2)"
             : isDark
-              ? "rgba(99, 102, 241, 0.3)"
-              : "rgba(99, 102, 241, 0.2)",
+              ? "rgba(201, 150, 63, 0.3)"
+              : "rgba(201, 150, 63, 0.2)",
         },
       ]}
     >
@@ -145,7 +145,7 @@ const CountdownTimer = ({
 // Helper function to translate category names
 const translateCategoryName = (
   categoryName: string | undefined,
-  t: (key: string) => string
+  t: (key: string) => string,
 ): string => {
   if (!categoryName) return "";
   const categoryMap: Record<string, string> = {
@@ -196,8 +196,10 @@ const AcceptedJobCard = ({
       style={[
         styles.acceptedJobCard,
         {
-          backgroundColor: isDark ? "rgba(30, 41, 59, 0.9)" : "#ffffff",
-          borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+          backgroundColor: isDark ? "rgba(12, 22, 42, 0.85)" : "#FFFAF0",
+          borderColor: isDark
+            ? "rgba(255,250,240,0.12)"
+            : "rgba(184,130,42,0.2)",
         },
       ]}
       onPress={onPress}
@@ -214,7 +216,7 @@ const AcceptedJobCard = ({
             <Text
               style={[
                 styles.acceptedJobCompany,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
               {job.company.name}
@@ -242,7 +244,7 @@ const AcceptedJobCard = ({
         <Text
           style={[
             styles.acceptedJobDescription,
-            { color: isDark ? "#cbd5e1" : "#475569" },
+            { color: isDark ? "#B8A88A" : "#6B6355" },
           ]}
           numberOfLines={3}
         >
@@ -257,12 +259,12 @@ const AcceptedJobCard = ({
               <Feather
                 name="map-pin"
                 size={12}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.acceptedJobMetaText,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {job.city}
@@ -279,8 +281,8 @@ const AcceptedJobCard = ({
                 styles.acceptedJobTag,
                 {
                   backgroundColor: isDark
-                    ? "rgba(59, 130, 246, 0.2)"
-                    : "rgba(59, 130, 246, 0.1)",
+                    ? "rgba(201, 150, 63, 0.2)"
+                    : "rgba(201, 150, 63, 0.1)",
                 },
               ]}
             >
@@ -346,12 +348,12 @@ const AcceptedJobCard = ({
             <Feather
               name="calendar"
               size={14}
-              color={isDark ? "#94a3b8" : "#64748b"}
+              color={isDark ? "#9A8E7A" : "#8A7B68"}
             />
             <Text
               style={[
                 styles.acceptedJobDateText,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
               {t("jobs.start")}: {startDate}
@@ -362,12 +364,12 @@ const AcceptedJobCard = ({
               <Feather
                 name="calendar"
                 size={14}
-                color={isDark ? "#94a3b8" : "#64748b"}
+                color={isDark ? "#9A8E7A" : "#8A7B68"}
               />
               <Text
                 style={[
                   styles.acceptedJobDateText,
-                  { color: isDark ? "#94a3b8" : "#64748b" },
+                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
                 ]}
               >
                 {t("jobs.end")}: {endDate}
@@ -403,6 +405,7 @@ export default function Feed() {
   const [phoneVerified, setPhoneVerified] = useState<boolean>(false);
   const [idVerified, setIdVerified] = useState<boolean>(false);
   const [backgroundVerified, setBackgroundVerified] = useState<boolean>(false);
+  const [hasProfilePhoto, setHasProfilePhoto] = useState<boolean>(false);
   const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
   const [jobToApplicationMap, setJobToApplicationMap] = useState<
     Map<string, string>
@@ -442,7 +445,7 @@ export default function Feed() {
         const appliedJobIds = new Set(
           applications
             .map((app: any) => app.job?.id || app.jobId)
-            .filter(Boolean) as string[]
+            .filter(Boolean) as string[],
         );
         setAppliedJobs(appliedJobIds);
 
@@ -472,7 +475,7 @@ export default function Feed() {
         `${base}/applications/me?status=ACCEPTED&limit=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
@@ -480,10 +483,7 @@ export default function Feed() {
         const applications = Array.isArray(data)
           ? data
           : data.applications || [];
-        // Filter to only include applications with jobs that have startDate
-        const accepted = applications.filter(
-          (app: any) => app.job && app.job.startDate
-        );
+        const accepted = applications.filter((app: any) => app.job);
         setAcceptedJobs(accepted);
       }
     } catch (err) {
@@ -504,7 +504,8 @@ export default function Feed() {
       !emailVerified ||
       !phoneVerified ||
       !idVerified ||
-      !backgroundVerified
+      !backgroundVerified ||
+      !hasProfilePhoto
     ) {
       const missingVerifications = [];
       if (!emailVerified) missingVerifications.push(t("settings.email"));
@@ -512,6 +513,8 @@ export default function Feed() {
       if (!idVerified) missingVerifications.push(t("kyc.idType"));
       if (!backgroundVerified)
         missingVerifications.push(t("kyc.criminalRecordCertificate"));
+      if (!hasProfilePhoto)
+        missingVerifications.push(t("settings.profilePhoto"));
 
       Alert.alert(
         t("home.verificationRequired"),
@@ -524,7 +527,7 @@ export default function Feed() {
             text: t("applications.goToSettings"),
             onPress: () => router.push("/(tabs)/settings" as any),
           },
-        ]
+        ],
       );
       return;
     }
@@ -541,7 +544,8 @@ export default function Feed() {
       !emailVerified ||
       !phoneVerified ||
       !idVerified ||
-      !backgroundVerified
+      !backgroundVerified ||
+      !hasProfilePhoto
     ) {
       const missingVerifications = [];
       if (!emailVerified) missingVerifications.push(t("settings.email"));
@@ -549,6 +553,8 @@ export default function Feed() {
       if (!idVerified) missingVerifications.push(t("kyc.idType"));
       if (!backgroundVerified)
         missingVerifications.push(t("kyc.criminalRecordCertificate"));
+      if (!hasProfilePhoto)
+        missingVerifications.push(t("settings.profilePhoto"));
 
       Alert.alert(
         t("home.verificationRequired"),
@@ -561,7 +567,7 @@ export default function Feed() {
             text: t("applications.goToSettings"),
             onPress: () => router.push("/(tabs)/settings" as any),
           },
-        ]
+        ],
       );
       return;
     }
@@ -605,12 +611,12 @@ export default function Feed() {
           setSelectedJobId(null);
           Alert.alert(
             t("jobs.alreadyApplied"),
-            t("jobs.alreadyAppliedMessage")
+            t("jobs.alreadyAppliedMessage"),
           );
         } else {
           Alert.alert(
             t("common.error"),
-            error.message || t("jobs.failedToSubmit")
+            error.message || t("jobs.failedToSubmit"),
           );
         }
       }
@@ -638,11 +644,15 @@ export default function Feed() {
         setEmailVerified(!!u?.emailVerifiedAt);
         setPhoneVerified(!!u?.phoneVerifiedAt);
         setIdVerified(
-          !!(u?.isIdVerified || u?.idVerificationStatus === "VERIFIED")
+          !!(u?.isIdVerified || u?.idVerificationStatus === "VERIFIED"),
         );
         setBackgroundVerified(
-          !!(u?.isBackgroundVerified || u?.backgroundCheckStatus === "APPROVED")
+          !!(
+            u?.isBackgroundVerified || u?.backgroundCheckStatus === "APPROVED"
+          ),
         );
+        const p = data.profile;
+        setHasProfilePhoto(!!(p?.avatarUrl || u?.avatar));
         // Check for temporary password flag
         setHasTemporaryPassword(!!data.hasTemporaryPassword);
       }
@@ -657,7 +667,7 @@ export default function Feed() {
       fetchBalance();
       fetchAcceptedJobs();
       fetchProfile(); // Refresh profile to update temporary password banner
-    }, [])
+    }, []),
   );
 
   const fetchBalance = async () => {
@@ -762,19 +772,19 @@ export default function Feed() {
 
   const themeStyles = {
     textPrimary: { color: colors.text },
-    textSecondary: { color: isDark ? "#94a3b8" : "#64748b" }, // Slate-400 vs Slate-500
-    iconColor: isDark ? "#e5e7eb" : "#4b5563",
+    textSecondary: { color: isDark ? "rgba(240,232,213,0.5)" : "#6B6355" },
+    iconColor: isDark ? "#E8B86D" : "#B8822A",
     cardBg: {
       backgroundColor: isDark
-        ? "rgba(30, 41, 59, 0.85)"
-        : "rgba(255, 255, 255, 0.9)",
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+        ? "rgba(12, 22, 42, 0.85)"
+        : "rgba(255, 250, 240, 0.92)",
+      borderColor: isDark ? "rgba(201,150,63,0.2)" : "rgba(184,130,42,0.15)",
     },
     actionBtn: {
       backgroundColor: isDark
-        ? "rgba(30, 41, 59, 0.8)"
-        : "rgba(241, 245, 249, 0.9)",
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+        ? "rgba(12, 22, 42, 0.85)"
+        : "rgba(255, 250, 240, 0.92)",
+      borderColor: isDark ? "rgba(201,150,63,0.3)" : "#D4A24E",
     },
   };
 
@@ -788,8 +798,10 @@ export default function Feed() {
         style={[
           styles.jobCard,
           {
-            backgroundColor: isDark ? "rgba(30, 41, 59, 0.7)" : "#ffffff",
-            borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+            backgroundColor: isDark ? "rgba(12, 22, 42, 0.75)" : "#FFFAF0",
+            borderColor: isDark
+              ? "rgba(201,150,63,0.12)"
+              : "rgba(184,130,42,0.2)",
           },
         ]}
       >
@@ -818,7 +830,7 @@ export default function Feed() {
                 <Text
                   style={[
                     styles.companyName,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {item.company.name}
@@ -829,7 +841,7 @@ export default function Feed() {
               <View
                 style={[
                   styles.instantBadge,
-                  { backgroundColor: isDark ? "#6366f1" : "#4f46e5" },
+                  { backgroundColor: isDark ? "#22D3EE" : "#06B6D4" },
                 ]}
               >
                 <Text style={styles.instantText}>{t("jobs.instant")}</Text>
@@ -841,7 +853,7 @@ export default function Feed() {
             <Text
               style={[
                 styles.jobDescription,
-                { color: isDark ? "#cbd5e1" : "#475569" },
+                { color: isDark ? "#B8A88A" : "#6B6355" },
               ]}
               numberOfLines={3}
             >
@@ -856,12 +868,12 @@ export default function Feed() {
                   <Feather
                     name="map-pin"
                     size={12}
-                    color={isDark ? "#94a3b8" : "#64748b"}
+                    color={isDark ? "#9A8E7A" : "#8A7B68"}
                   />
                   <Text
                     style={[
                       styles.metaText,
-                      { color: isDark ? "#94a3b8" : "#64748b" },
+                      { color: isDark ? "#9A8E7A" : "#8A7B68" },
                     ]}
                   >
                     {item.city}
@@ -873,7 +885,7 @@ export default function Feed() {
                 <Text
                   style={[
                     styles.metaText,
-                    { color: isDark ? "#94a3b8" : "#64748b" },
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
                   ]}
                 >
                   {t("jobs.kmAway", { distance: item.distanceKm.toFixed(1) })}
@@ -888,8 +900,8 @@ export default function Feed() {
                     styles.tag,
                     {
                       backgroundColor: isDark
-                        ? "rgba(59, 130, 246, 0.2)"
-                        : "rgba(59, 130, 246, 0.1)",
+                        ? "rgba(201, 150, 63, 0.2)"
+                        : "rgba(201, 150, 63, 0.1)",
                     },
                   ]}
                 >
@@ -964,7 +976,7 @@ export default function Feed() {
             style={[
               styles.applyButton,
               {
-                backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                backgroundColor: isDark ? "#22D3EE" : "#06B6D4",
                 opacity: isApplying ? 0.6 : 1,
               },
             ]}
@@ -972,10 +984,10 @@ export default function Feed() {
             disabled={isApplying}
           >
             {isApplying ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color="#FFFAF0" size="small" />
             ) : (
               <>
-                <Feather name="send" size={14} color="#fff" />
+                <Feather name="send" size={14} color="#FFFAF0" />
                 <Text style={styles.applyButtonText}>{t("jobs.apply")}</Text>
               </>
             )}
@@ -1019,6 +1031,18 @@ export default function Feed() {
           <ActionBanner />
 
           <View style={styles.headerSummary}>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                letterSpacing: 3,
+                color: isDark ? "rgba(201,150,63,0.6)" : "rgba(184,130,42,0.5)",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              MISSION CONTROL
+            </Text>
             <Text style={[styles.greeting, themeStyles.textPrimary]}>
               {t("home.greeting", { name: userName || "" })}
             </Text>
@@ -1262,8 +1286,8 @@ export default function Feed() {
                   styles.modalContent,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.95)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.90)"
+                      : "#FFFAF0",
                     maxHeight: "85%",
                   },
                 ]}
@@ -1273,8 +1297,8 @@ export default function Feed() {
                     styles.modalHeader,
                     {
                       borderBottomColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                     },
                   ]}
                 >
@@ -1285,7 +1309,7 @@ export default function Feed() {
                     <Text
                       style={[
                         styles.modalSubtitle,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {t("jobs.completeApplicationBelow")}
@@ -1302,7 +1326,7 @@ export default function Feed() {
                     <Feather
                       name="x"
                       size={22}
-                      color={isDark ? "#94a3b8" : "#64748b"}
+                      color={isDark ? "#9A8E7A" : "#8A7B68"}
                     />
                   </TouchableButton>
                 </View>
@@ -1338,7 +1362,7 @@ export default function Feed() {
                         <Text
                           style={[
                             styles.optionalBadgeText,
-                            { color: isDark ? "#94a3b8" : "#64748b" },
+                            { color: isDark ? "#9A8E7A" : "#8A7B68" },
                           ]}
                         >
                           {t("jobs.optional")}
@@ -1350,16 +1374,16 @@ export default function Feed() {
                         styles.modalTextArea,
                         {
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.08)"
+                            ? "rgba(255,250,240,0.10)"
                             : "#f9fafb",
                           color: colors.text,
                           borderColor: isDark
-                            ? "rgba(255,255,255,0.12)"
-                            : "#e5e7eb",
+                            ? "rgba(255,250,240,0.12)"
+                            : "#E8D8B8",
                         },
                       ]}
                       placeholder={t("jobs.moreAboutYouPlaceholder")}
-                      placeholderTextColor={isDark ? "#64748b" : "#9ca3af"}
+                      placeholderTextColor={isDark ? "#8A7B68" : "#9A8E7A"}
                       multiline
                       numberOfLines={6}
                       value={coverLetter}
@@ -1369,7 +1393,7 @@ export default function Feed() {
                     <Text
                       style={[
                         styles.modalHint,
-                        { color: isDark ? "#64748b" : "#94a3b8" },
+                        { color: isDark ? "#8A7B68" : "#9A8E7A" },
                       ]}
                     >
                       {t("jobs.shareMoreAboutYourself")}
@@ -1382,11 +1406,11 @@ export default function Feed() {
                     styles.modalButtons,
                     {
                       borderTopColor: isDark
-                        ? "rgba(255,255,255,0.1)"
-                        : "#e5e7eb",
+                        ? "rgba(201,150,63,0.12)"
+                        : "#E8D8B8",
                       backgroundColor: isDark
-                        ? "rgba(30, 41, 59, 0.95)"
-                        : "#ffffff",
+                        ? "rgba(12, 22, 42, 0.90)"
+                        : "#FFFAF0",
                     },
                   ]}
                 >
@@ -1396,11 +1420,11 @@ export default function Feed() {
                       styles.modalButtonCancel,
                       {
                         backgroundColor: isDark
-                          ? "rgba(255,255,255,0.08)"
-                          : "#e2e8f0",
+                          ? "rgba(255,250,240,0.10)"
+                          : "#F0E8D5",
                         borderColor: isDark
-                          ? "rgba(255,255,255,0.15)"
-                          : "#cbd5e1",
+                          ? "rgba(255,250,240,0.12)"
+                          : "#B8A88A",
                         borderWidth: 1,
                       },
                     ]}
@@ -1421,13 +1445,13 @@ export default function Feed() {
                       styles.modalButton,
                       styles.modalButtonSubmit,
                       {
-                        backgroundColor: isDark ? "#4f46e5" : "#6366f1",
-                        borderColor: isDark ? "#6366f1" : "#4f46e5",
-                        shadowColor: isDark ? "#4f46e5" : "#6366f1",
+                        backgroundColor: isDark ? "#22D3EE" : "#06B6D4",
+                        borderColor: isDark ? "#22D3EE" : "#06B6D4",
+                        shadowColor: isDark ? "#22D3EE" : "#06B6D4",
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
-                        elevation: 4,
+                        elevation: 0,
                         borderWidth: 1,
                         minWidth: 180,
                         paddingHorizontal: 24,
@@ -1438,10 +1462,10 @@ export default function Feed() {
                     disabled={applying !== null}
                   >
                     {applying ? (
-                      <ActivityIndicator color="#fff" size="small" />
+                      <ActivityIndicator color="#FFFAF0" size="small" />
                     ) : (
                       <View style={styles.submitButtonContent}>
-                        <Feather name="send" size={18} color="#fff" />
+                        <Feather name="send" size={18} color="#FFFAF0" />
                         <Text style={styles.modalButtonTextSubmit}>
                           {t("jobs.submitApplication")}
                         </Text>
@@ -1470,7 +1494,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "transparent",
   },
-  screenTitle: { fontSize: 16, fontWeight: "600" },
+  screenTitle: { fontSize: 16, fontWeight: "700" },
   cardTitle: {},
   loading: { padding: 16 },
   greeting: { fontSize: 24, fontWeight: "800", marginBottom: 4 },
@@ -1490,7 +1514,7 @@ const styles = StyleSheet.create({
   qaBtn: {
     flex: 1,
     flexDirection: "row",
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     paddingVertical: 14,
     paddingHorizontal: 10,
@@ -1500,14 +1524,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
     overflow: "hidden",
     minHeight: 48,
   },
   qaIcon: { marginRight: 6 },
   euroIcon: { fontSize: 18, fontWeight: "700", marginRight: 6 },
   qaText: {
-    fontWeight: "600",
+    fontWeight: "700",
     fontSize: 12,
     flexShrink: 1,
     textAlign: "center",
@@ -1515,33 +1539,35 @@ const styles = StyleSheet.create({
   },
   section: { paddingHorizontal: 20, paddingVertical: 12 },
   sectionTitle: {
-    fontWeight: "600",
+    fontWeight: "800",
     marginBottom: 12,
-    fontSize: 15,
+    fontSize: 10,
+    letterSpacing: 2.5,
+    textTransform: "uppercase",
   },
-  iconRow: { flexDirection: "row", gap: 12, marginBottom: 12 },
+  iconRow: { flexDirection: "row", gap: 10, marginBottom: 12 },
   iconBox: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     paddingVertical: 12,
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#fbbf24",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
     overflow: "hidden",
     minHeight: 100,
   },
   iconText: {
     fontWeight: "500",
-    fontSize: 11,
+    fontSize: 10,
     textAlign: "center",
     flexWrap: "wrap",
-    lineHeight: 15,
+    lineHeight: 14,
     paddingHorizontal: 2,
     flexShrink: 1,
     width: "100%",
@@ -1549,7 +1575,7 @@ const styles = StyleSheet.create({
   availabilityRow: { marginTop: 0 },
   availabilityBox: {
     width: "100%",
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -1560,12 +1586,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
     overflow: "hidden",
     minHeight: 52,
   },
   availabilityText: {
-    fontWeight: "600",
+    fontWeight: "700",
     fontSize: 13,
     flexShrink: 1,
     flexWrap: "wrap",
@@ -1573,7 +1599,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   cardLarge: {
-    borderRadius: 20,
+    borderRadius: 4,
     borderWidth: 1,
     padding: 20,
     flexDirection: "row",
@@ -1583,28 +1609,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
   },
   cardSub: { marginTop: 4, fontSize: 13 },
   buttonPrimary: {
-    borderRadius: 12,
-    backgroundColor: "#3b82f6",
+    borderRadius: 4,
+    backgroundColor: "#06B6D4",
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: "center",
   },
-  buttonLabel: { fontWeight: "600", fontSize: 13 },
+  buttonLabel: { fontWeight: "700", fontSize: 13 },
   empty: { fontSize: 14 },
   jobCard: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     shadowColor: "#fbbf24",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
     overflow: "hidden",
   },
   jobHeader: {
@@ -1621,7 +1647,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  instantText: { color: "#fff", fontSize: 10, fontWeight: "700" },
+  instantText: { color: "#FFFAF0", fontSize: 10, fontWeight: "700" },
   jobDescription: {
     fontSize: 14,
     marginBottom: 12,
@@ -1647,8 +1673,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  tagText: { fontSize: 12, fontWeight: "600" },
-  cta: { color: "#60a5fa", marginTop: 10, fontWeight: "600", fontSize: 13 },
+  tagText: { fontSize: 12, fontWeight: "700" },
+  cta: { color: "#22D3EE", marginTop: 10, fontWeight: "700", fontSize: 13 },
   applyButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -1660,9 +1686,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   applyButtonText: {
-    color: "#fff",
+    color: "#FFFAF0",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   appliedBadge: {
     flexDirection: "row",
@@ -1678,7 +1704,7 @@ const styles = StyleSheet.create({
   appliedBadgeText: {
     color: "#22c55e",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalOverlay: {
     flex: 1,
@@ -1694,7 +1720,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 16,
+    elevation: 0,
     flexDirection: "column",
   },
   modalHeader: {
@@ -1721,7 +1747,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: "rgba(184,130,42,0.06)",
   },
   modalScrollView: {
     flexGrow: 1,
@@ -1737,7 +1763,7 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
   },
   optionalBadge: {
@@ -1748,12 +1774,12 @@ const styles = StyleSheet.create({
   },
   optionalBadgeText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   modalTextArea: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     borderWidth: 1.5,
     fontSize: 15,
@@ -1770,7 +1796,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 1.5,
     marginBottom: 8,
   },
@@ -1788,7 +1814,7 @@ const styles = StyleSheet.create({
   },
   cvFileName: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 2,
   },
   cvFileSize: {
@@ -1809,7 +1835,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 20,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 2,
     marginBottom: 8,
   },
@@ -1822,7 +1848,7 @@ const styles = StyleSheet.create({
   },
   uploadCvButtonText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 2,
   },
   uploadCvSubtext: {
@@ -1839,7 +1865,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -1850,12 +1876,12 @@ const styles = StyleSheet.create({
   modalButtonSubmit: {},
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   modalButtonTextSubmit: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    fontWeight: "700",
+    color: "#FFFAF0",
     marginLeft: 8,
   },
   submitButtonContent: {
@@ -1866,14 +1892,14 @@ const styles = StyleSheet.create({
   },
   acceptedJobCard: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     shadowColor: "#fbbf24",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 3,
+    elevation: 0,
     overflow: "hidden",
   },
   acceptedJobHeader: {
@@ -1890,12 +1916,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 4,
     gap: 6,
   },
   acceptedBadgeText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   acceptedJobDescription: {
     fontSize: 14,
@@ -1923,7 +1949,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
-  acceptedJobTagText: { fontSize: 12, fontWeight: "600" },
+  acceptedJobTagText: { fontSize: 12, fontWeight: "700" },
   acceptedJobDates: {
     marginBottom: 12,
     gap: 6,
@@ -1948,6 +1974,6 @@ const styles = StyleSheet.create({
   },
   countdownText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -84,6 +85,8 @@ type AddressPatch = {
 
 @Injectable()
 export class ProfilesService {
+  private readonly logger = new Logger(ProfilesService.name);
+
   constructor(private prisma: PrismaService) {}
 
   // Temporary typed delegates to avoid IDE type lag; safe at runtime
@@ -169,17 +172,27 @@ export class ProfilesService {
           },
         },
       },
-    }) as unknown as Promise<(UserLite & { skills?: Array<{ skill: { id: string; name: string }; yearsExp: number | null; proficiency: string }> }) | null>;
+    }) as unknown as Promise<
+      | (UserLite & {
+          skills?: Array<{
+            skill: { id: string; name: string };
+            yearsExp: number | null;
+            proficiency: string;
+          }>;
+        })
+      | null
+    >;
     const profilePromise = this.userProfiles.findUnique({ where: { userId } });
     const [user, profile] = await Promise.all([userPromise, profilePromise]);
     if (!user) throw new UnauthorizedException('User not found');
-    
+
     // Check if user has temporary password
-    const hasTemporaryPassword = profile?.links && 
-      typeof profile.links === 'object' && 
+    const hasTemporaryPassword =
+      profile?.links &&
+      typeof profile.links === 'object' &&
       'hasTemporaryPassword' in profile.links &&
       (profile.links as any).hasTemporaryPassword === true;
-    
+
     return { user, profile, hasTemporaryPassword };
   }
 
@@ -198,7 +211,7 @@ export class ProfilesService {
     if (data.dateOfBirth) {
       updateData.dateOfBirth = new Date(data.dateOfBirth);
     }
-    
+
     // upsert profile
     const profile = await this.userProfiles.upsert({
       where: { userId },
@@ -266,13 +279,9 @@ export class ProfilesService {
         firstName: true,
         lastName: true,
         phone: true,
+        avatar: true,
         emailVerifiedAt: true,
         phoneVerifiedAt: true,
-        // ID and Background verification not required for employers
-        // isIdVerified: true,
-        // idVerificationStatus: true,
-        // isBackgroundVerified: true,
-        // backgroundCheckStatus: true,
         isBusinessVerified: true,
         businessVerificationStatus: true,
       },
@@ -288,6 +297,7 @@ export class ProfilesService {
     const userProfile = await this.prisma.userProfile.findUnique({
       where: { userId: userId },
       select: {
+        avatarUrl: true,
         addressLine1: true,
         addressLine2: true,
         city: true,
@@ -299,13 +309,14 @@ export class ProfilesService {
         links: true,
       },
     });
-    
+
     // Check if user has temporary password
-    const hasTemporaryPassword = userProfile?.links && 
-      typeof userProfile.links === 'object' && 
+    const hasTemporaryPassword =
+      userProfile?.links &&
+      typeof userProfile.links === 'object' &&
       'hasTemporaryPassword' in userProfile.links &&
       (userProfile.links as any).hasTemporaryPassword === true;
-    
+
     return { user, profile, userProfile, hasTemporaryPassword };
   }
 
@@ -477,41 +488,57 @@ export class ProfilesService {
     // Handle skills - map to existing categories or create new ones
     // Map common skills to existing categories
     const skillToCategoryMap: Record<string, string> = {
-      'Plumbing': 'Plumbing',
-      'Electrical': 'Electrical',
-      'Cleaning': 'Cleaning',
-      'Carpentry': 'Carpentry',
-      'Painting': 'Painting',
-      'Gardening': 'Gardening',
-      'Moving': 'Moving',
-      'Assembly': 'Assembly',
-      'Delivery': 'Delivery',
+      Plumbing: 'Plumbing',
+      Electrical: 'Electrical',
+      Cleaning: 'Cleaning',
+      Carpentry: 'Carpentry',
+      Painting: 'Painting',
+      Gardening: 'Gardening',
+      Moving: 'Moving',
+      Assembly: 'Assembly',
+      Delivery: 'Delivery',
     };
 
     // Normalize skills to array of objects
     let normalizedSkills: Array<{ name: string; yearsExperience: number }> = [];
     if (Array.isArray(data.skills) && data.skills.length > 0) {
       if (typeof data.skills[0] === 'string') {
-        normalizedSkills = (data.skills as string[]).map((s: string) => ({ 
-          name: s, 
-          yearsExperience: data.yearsExperience 
+        normalizedSkills = (data.skills as string[]).map((s: string) => ({
+          name: s,
+          yearsExperience: data.yearsExperience,
         }));
       } else {
         normalizedSkills = (data.skills as any[]).map((s: any) => {
           // Handle case where skill might be an object
           if (typeof s === 'object' && s !== null) {
             // If it's already in the correct format
-            if (typeof s.name === 'string' && typeof s.yearsExperience !== 'undefined') {
-              return { name: String(s.name), yearsExperience: Number(s.yearsExperience) || 0 };
+            if (
+              typeof s.name === 'string' &&
+              typeof s.yearsExperience !== 'undefined'
+            ) {
+              return {
+                name: String(s.name),
+                yearsExperience: Number(s.yearsExperience) || 0,
+              };
             }
             // If the entire object is being passed as name (edge case)
             if (s.name && typeof s.name === 'object') {
-              return { name: String(s.name.name || s.name), yearsExperience: Number(s.yearsExperience || s.name.yearsExperience) || 0 };
+              return {
+                name: String(s.name.name || s.name),
+                yearsExperience:
+                  Number(s.yearsExperience || s.name.yearsExperience) || 0,
+              };
             }
             // Fallback: try to extract name from object
-            return { name: String(s.name || s), yearsExperience: Number(s.yearsExperience) || 0 };
+            return {
+              name: String(s.name || s),
+              yearsExperience: Number(s.yearsExperience) || 0,
+            };
           }
-          return { name: String(s), yearsExperience: data.yearsExperience || 0 };
+          return {
+            name: String(s),
+            yearsExperience: data.yearsExperience || 0,
+          };
         });
       }
     }
@@ -521,28 +548,36 @@ export class ProfilesService {
       let skillName: string;
       if (typeof skillData.name === 'string') {
         skillName = skillData.name;
-      } else if (typeof skillData.name === 'object' && skillData.name !== null) {
+      } else if (
+        typeof skillData.name === 'object' &&
+        skillData.name !== null
+      ) {
         // If name is an object, try to extract the actual name
-        skillName = String((skillData.name as any).name || skillData.name || '');
+        skillName = String(
+          (skillData.name as any).name || skillData.name || '',
+        );
       } else {
         skillName = String(skillData.name || '');
       }
-      
+
       skillName = skillName.trim();
       if (!skillName) {
-        console.warn(`[ProfilesService] Skipping invalid skill: ${JSON.stringify(skillData)}`);
+        this.logger.warn(
+          `[ProfilesService] Skipping invalid skill: ${JSON.stringify(skillData)}`,
+        );
         return null;
       }
-      
+
       // Ensure categoryName is always a string
       const mappedCategory = skillToCategoryMap[skillName];
-      const categoryName: string = typeof mappedCategory === 'string' ? mappedCategory : skillName;
-      
+      const categoryName: string =
+        typeof mappedCategory === 'string' ? mappedCategory : skillName;
+
       // Try exact match first
       let category = await this.prisma.jobCategory.findFirst({
         where: { name: categoryName },
       });
-      
+
       // If not found, try the skill name
       if (!category) {
         category = await this.prisma.jobCategory.findFirst({
@@ -596,15 +631,19 @@ export class ProfilesService {
     });
 
     // Filter out null results from invalid skills
-    const validSkillPromises = skillPromises.filter(p => p !== null);
+    const validSkillPromises = skillPromises.filter((p) => p !== null);
     await Promise.all(validSkillPromises);
 
     // Normalize languages to array of objects
-    const normalizedLanguages = Array.isArray(data.languages) && data.languages.length > 0
-      ? (typeof data.languages[0] === 'string'
-          ? (data.languages as string[]).map(l => ({ language: l, level: 'INTERMEDIATE' }))
-          : data.languages as Array<{ language: string; level: string }>)
-      : [];
+    const normalizedLanguages =
+      Array.isArray(data.languages) && data.languages.length > 0
+        ? typeof data.languages[0] === 'string'
+          ? (data.languages as string[]).map((l) => ({
+              language: l,
+              level: 'INTERMEDIATE',
+            }))
+          : (data.languages as Array<{ language: string; level: string }>)
+        : [];
 
     // Update user profile with all data including languages, rates, work experience, etc.
     const linksData: any = {
@@ -613,7 +652,7 @@ export class ProfilesService {
       languages: normalizedLanguages,
       cvUrl: data.cvUrl,
     };
-    
+
     // Add rates array if provided
     if (data.rates && data.rates.length > 0) {
       linksData.rates = data.rates;
@@ -643,18 +682,18 @@ export class ProfilesService {
     if (normalizedSkills.length > 0) {
       linksData.skills = normalizedSkills;
     }
-    
+
     await this.userProfiles.upsert({
       where: { userId },
       create: {
         userId,
         bio: data.aboutMe,
-        skillsSummary: normalizedSkills.map(s => s.name),
+        skillsSummary: normalizedSkills.map((s) => s.name),
         links: linksData as unknown,
       },
       update: {
         bio: data.aboutMe,
-        skillsSummary: normalizedSkills.map(s => s.name),
+        skillsSummary: normalizedSkills.map((s) => s.name),
         links: linksData as unknown,
       },
     });

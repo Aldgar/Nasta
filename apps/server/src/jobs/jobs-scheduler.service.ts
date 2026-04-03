@@ -13,7 +13,7 @@ export class JobsSchedulerService {
   ) {}
 
   /**
-   * Auto-complete jobs that are 4 days past their start date
+   * Auto-complete jobs that are 48 hours past their start date
    * Runs daily at 2 AM
    */
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
@@ -21,18 +21,18 @@ export class JobsSchedulerService {
     this.logger.log('Starting auto-completion check for jobs...');
 
     try {
-      const fourDaysAgo = new Date();
-      fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+      const fortyEightHoursAgo = new Date();
+      fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
 
       // Find jobs that:
       // 1. Have status ASSIGNED (accepted application but not completed)
-      // 2. Have a startDate that is 4 or more days ago
+      // 2. Have a startDate that is 48+ hours ago
       // 3. Have an accepted application that is not already completed
       const jobsToComplete = await this.prisma.job.findMany({
         where: {
           status: 'ASSIGNED',
           startDate: {
-            lte: fourDaysAgo, // Start date is 4 or more days ago
+            lte: fortyEightHoursAgo, // Start date is 48+ hours ago
             not: null, // Must have a start date
           },
         },
@@ -93,7 +93,7 @@ export class JobsSchedulerService {
                   application.id,
                   application.payment.id,
                   paidAmount,
-                  'Auto-completion after 4 days with unpaid amounts - non-refundable per policy',
+                  'Auto-completion after 48 hours with unpaid amounts - non-refundable per policy',
                 );
 
                 // Mark application as completed but don't transfer to service provider

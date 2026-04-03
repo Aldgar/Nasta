@@ -1,0 +1,20 @@
+# Keep EAS uploads small and deterministic
+
+# Dependencies
+node_modules/
+
+# Expo local state
+.expo/
+.expo-shared/
+
+# Build outputs
+android/build/
+ios/build/
+dist/
+
+# Editor/OS noise
+.vscode/
+.DS_Store
+
+# Logs
+*.log

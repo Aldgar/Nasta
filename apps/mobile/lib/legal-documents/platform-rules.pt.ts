@@ -173,7 +173,7 @@ export const PLATFORM_RULES_PT = `# Regras da Plataforma
 
 ### 10.1 Tipos de Ações Administrativas
 
-Os administradores do Cumprido podem tomar as seguintes ações para manter a segurança da plataforma e aplicar regras:
+Os administradores do Nasta podem tomar as seguintes ações para manter a segurança da plataforma e aplicar regras:
 
 **Ações Legais:**
 - Os administradores podem registar ações legais contra contas por violações graves
@@ -269,13 +269,13 @@ Os administradores do Cumprido podem tomar as seguintes ações para manter a se
 ## 12. Equipamentos e Compras Fora da Plataforma
 
 ### 12.1 Responsabilidade de Equipamentos
-- **O Cumprido NÃO é responsável por equipamentos comprados fora da Plataforma**
+- **O Nasta NÃO é responsável por equipamentos comprados fora da Plataforma**
 - Os utilizadores compram equipamentos por sua conta e risco
-- Disputas sobre equipamentos não são tratadas pelo Cumprido
+- Disputas sobre equipamentos não são tratadas pelo Nasta
 - As garantias de equipamentos são entre o utilizador e o vendedor
 
 ### 12.2 Acordos de Serviços Fora da Plataforma
-- **O Cumprido NÃO é responsável por serviços arranjados fora da Plataforma**
+- **O Nasta NÃO é responsável por serviços arranjados fora da Plataforma**
 - Os acordos fora da plataforma não são protegidos pelas políticas da Plataforma
 - Os utilizadores envolvem-se em transações fora da plataforma por sua conta e risco
 - As consequências legais de acordos fora da plataforma são responsabilidade do utilizador
@@ -291,9 +291,9 @@ Os administradores do Cumprido podem tomar as seguintes ações para manter a se
 
 Reporte violações através de:
 - Na App: "Reportar Abuso" ou "Reportar Preocupações de Segurança"
-- Email: support@cumprido.com
+- Email: support@nasta.app
 - Portal de Suporte: Disponível na App
 
 ---
 
-**Ao utilizar o Cumprido, concorda em seguir estas Regras da Plataforma. As violações podem resultar em penalidades até e incluindo o encerramento da conta.**`;
+**Ao utilizar o Nasta, concorda em seguir estas Regras da Plataforma. As violações podem resultar em penalidades até e incluindo o encerramento da conta.**`;

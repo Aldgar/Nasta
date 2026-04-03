@@ -48,72 +48,7 @@ export class AdminUsersController {
     });
   }
 
-  @Patch(':id')
-  async adminUpdateUser(
-    @Param('id') id: string,
-    @Body() dto: AdminUpdateUserDto,
-  ) {
-    return this.usersService.updateUserAdmin(id, dto);
-  }
-
-  @Get(':id')
-  async getUserDetails(@Param('id') id: string) {
-    return this.usersService.getUserDetailsForAdmin(id);
-  }
-
-  @Post(':id/legal-action')
-  async recordLegalAction(
-    @Param('id') id: string,
-    @Body() dto: { actionType: string; reason: string },
-  ) {
-    return this.usersService.recordLegalAction(id, dto);
-  }
-
-  @Post(':id/warnings')
-  async issueWarning(
-    @Param('id') id: string,
-    @Body() dto: { warningType: string; message: string },
-  ) {
-    return this.usersService.issueWarning(id, dto);
-  }
-
-  @Post(':id/action-form')
-  async submitActionForm(
-    @Param('id') id: string,
-    @Body() dto: { actionType: string; details: string },
-  ) {
-    return this.usersService.submitActionForm(id, dto);
-  }
-
-  @Post(':id/request-info')
-  async requestInfo(
-    @Param('id') id: string,
-    @Body() dto: { request: string },
-  ) {
-    return this.usersService.requestInfo(id, dto);
-  }
-
-  @Get(':id/actions')
-  async getUserActions(@Param('id') id: string) {
-    return this.usersService.getUserActions(id);
-  }
-
-  @Delete(':id/actions/:actionId')
-  async revokeAction(
-    @Param('id') id: string,
-    @Param('actionId') actionId: string,
-  ) {
-    return this.usersService.revokeAction(id, actionId);
-  }
-
-  @Delete(':id')
-  @UseGuards(AdminCapabilityGuard)
-  @RequireCapability('SUPER_ADMIN')
-  async adminDeleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUserAdmin(id);
-  }
-
-  // Deletion request review endpoints
+  // Static routes MUST come before parameterized :id routes
   @Get('deletion-requests')
   @UseGuards(AdminCapabilityGuard)
   @RequireCapability('DELETION_REQUEST_REVIEWER')
@@ -185,6 +120,69 @@ export class AdminUsersController {
       isSuperAdmin,
     );
   }
+
+  // Parameterized :id routes come after all static routes
+  @Patch(':id')
+  async adminUpdateUser(
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateUserDto,
+  ) {
+    return this.usersService.updateUserAdmin(id, dto);
+  }
+
+  @Get(':id')
+  async getUserDetails(@Param('id') id: string) {
+    return this.usersService.getUserDetailsForAdmin(id);
+  }
+
+  @Post(':id/legal-action')
+  async recordLegalAction(
+    @Param('id') id: string,
+    @Body() dto: { actionType: string; reason: string },
+  ) {
+    return this.usersService.recordLegalAction(id, dto);
+  }
+
+  @Post(':id/warnings')
+  async issueWarning(
+    @Param('id') id: string,
+    @Body() dto: { warningType: string; message: string },
+  ) {
+    return this.usersService.issueWarning(id, dto);
+  }
+
+  @Post(':id/action-form')
+  async submitActionForm(
+    @Param('id') id: string,
+    @Body() dto: { actionType: string; details: string },
+  ) {
+    return this.usersService.submitActionForm(id, dto);
+  }
+
+  @Post(':id/request-info')
+  async requestInfo(@Param('id') id: string, @Body() dto: { request: string }) {
+    return this.usersService.requestInfo(id, dto);
+  }
+
+  @Get(':id/actions')
+  async getUserActions(@Param('id') id: string) {
+    return this.usersService.getUserActions(id);
+  }
+
+  @Delete(':id/actions/:actionId')
+  async revokeAction(
+    @Param('id') id: string,
+    @Param('actionId') actionId: string,
+  ) {
+    return this.usersService.revokeAction(id, actionId);
+  }
+
+  @Delete(':id')
+  @UseGuards(AdminCapabilityGuard)
+  @RequireCapability('SUPER_ADMIN')
+  async adminDeleteUser(@Param('id') id: string) {
+    return this.usersService.deleteUserAdmin(id);
+  }
 }
 
 @Controller('users')
@@ -203,14 +201,20 @@ export class UsersController {
 
   @Patch('me')
   async updateMe(@Req() req: Request, @Body() dto: UpdateMeDto) {
-    const user = req.user as { id: string };
-    return this.usersService.updateMe(user.id, dto);
+    const user = req.user as { id: string; role?: string };
+    return this.usersService.updateMe(user.id, dto, user.role);
   }
 
   @Post('me/deletion-request')
   async requestDeletion(@Req() req: Request, @Body() dto: DeletionRequestDto) {
     const user = req.user as { id: string };
     return this.usersService.requestDeletion(user.id, dto);
+  }
+
+  @Post('me/deletion-request/cancel')
+  async cancelDeletionRequest(@Req() req: Request) {
+    const user = req.user as { id: string };
+    return this.usersService.cancelDeletionRequest(user.id);
   }
 
   @Patch('me/address')

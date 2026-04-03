@@ -112,17 +112,17 @@ export default function ReportScreen() {
             style={[
               styles.input,
               {
-                backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#ffffff",
+                backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
                 color: colors.text,
                 borderColor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                  ? "rgba(201,150,63,0.12)"
+                  : "rgba(184,130,42,0.2)",
               },
             ]}
             multiline
             numberOfLines={6}
             placeholder={t("report.describeIssue")}
-            placeholderTextColor={isDark ? "#9ca3af" : "#94a3b8"}
+            placeholderTextColor={isDark ? "#9A8E7A" : "#9A8E7A"}
             textAlignVertical="top"
             value={detail}
             onChangeText={setDetail}
@@ -136,12 +136,12 @@ export default function ReportScreen() {
             disabled={submitting}
           >
             {submitting ? (
-              <ActivityIndicator color={isDark ? "#e0e7ff" : "#ffffff"} />
+              <ActivityIndicator color={isDark ? "#F0E8D5" : "#FFFAF0"} />
             ) : (
               <Text
                 style={[
                   styles.btnText,
-                  { color: isDark ? "#e0e7ff" : "#ffffff" },
+                  { color: isDark ? "#F0E8D5" : "#FFFAF0" },
                 ]}
               >
                 {t("report.submitReport")}
@@ -162,11 +162,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
   },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
+  headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
   content: { padding: 20 },
-  label: { marginBottom: 12, fontSize: 16, fontWeight: "600" },
+  label: { marginBottom: 12, fontSize: 16, fontWeight: "700" },
   input: {
-    borderRadius: 12,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 24,
     minHeight: 120,
@@ -175,16 +175,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: Platform.OS === "android" ? 0 : 1,
+    elevation: 0,
   },
   btn: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 4,
     alignItems: "center",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
   },
   btnText: { fontWeight: "700", fontSize: 16 },
 });

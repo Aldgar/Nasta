@@ -1,5 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, FlatList, Platform, Image, ScrollView, Alert, RefreshControl } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Platform,
+  Image,
+  ScrollView,
+  Alert,
+  RefreshControl,
+} from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -88,27 +98,46 @@ export default function EmployerFeed() {
         // Check address verification (must have addressLine1 or city and country)
         // Check both EmployerProfile and UserProfile (fallback)
         // Handle both null/undefined and empty strings
-        const hasAddressLine1 = profile?.addressLine1 && profile.addressLine1.trim().length > 0;
+        const hasAddressLine1 =
+          profile?.addressLine1 && profile.addressLine1.trim().length > 0;
         const hasCity = profile?.city && profile.city.trim().length > 0;
-        const hasCountry = profile?.country && profile.country.trim().length > 0;
+        const hasCountry =
+          profile?.country && profile.country.trim().length > 0;
         let addressVerified = hasAddressLine1 || (hasCity && hasCountry);
-        
+
         // If employer profile doesn't have address, check user profile as fallback
         if (!addressVerified && data.userProfile) {
           const userProfile = data.userProfile;
-          const userHasAddressLine1 = userProfile?.addressLine1 && userProfile.addressLine1.trim().length > 0;
-          const userHasCity = userProfile?.city && userProfile.city.trim().length > 0;
-          const userHasCountry = userProfile?.country && userProfile.country.trim().length > 0;
-          addressVerified = userHasAddressLine1 || (userHasCity && userHasCountry);
+          const userHasAddressLine1 =
+            userProfile?.addressLine1 &&
+            userProfile.addressLine1.trim().length > 0;
+          const userHasCity =
+            userProfile?.city && userProfile.city.trim().length > 0;
+          const userHasCountry =
+            userProfile?.country && userProfile.country.trim().length > 0;
+          addressVerified =
+            userHasAddressLine1 || (userHasCity && userHasCountry);
         }
-        
-        console.log('[EmployerFeed] Address verification check:', {
-          employerProfile: profile ? { addressLine1: profile.addressLine1, city: profile.city, country: profile.country } : null,
-          userProfile: data.userProfile ? { addressLine1: data.userProfile.addressLine1, city: data.userProfile.city, country: data.userProfile.country } : null,
+
+        console.log("[EmployerFeed] Address verification check:", {
+          employerProfile: profile
+            ? {
+                addressLine1: profile.addressLine1,
+                city: profile.city,
+                country: profile.country,
+              }
+            : null,
+          userProfile: data.userProfile
+            ? {
+                addressLine1: data.userProfile.addressLine1,
+                city: data.userProfile.city,
+                country: data.userProfile.country,
+              }
+            : null,
           hasAddressLine1,
           hasCity,
           hasCountry,
-          addressVerified
+          addressVerified,
         });
         setHasAddress(addressVerified);
         // Check for temporary password flag
@@ -124,7 +153,7 @@ export default function EmployerFeed() {
       fetchActiveBooking();
       fetchCandidates(); // Also refetch candidates when screen comes into focus
       fetchProfile(); // Refresh profile to update temporary password banner
-    }, [])
+    }, []),
   );
 
   const fetchActiveBooking = async () => {
@@ -140,7 +169,7 @@ export default function EmployerFeed() {
         `${base}/bookings/employer/me?status=IN_PROGRESS`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
@@ -151,7 +180,9 @@ export default function EmployerFeed() {
         }
       } else if (res.status === 401) {
         // Token is invalid or expired
-        console.warn("[EmployerFeed] Authentication failed in fetchActiveBooking - clearing token");
+        console.warn(
+          "[EmployerFeed] Authentication failed in fetchActiveBooking - clearing token",
+        );
         await SecureStore.deleteItemAsync("auth_token");
         router.replace("/(auth)/login" as any);
         return;
@@ -162,7 +193,7 @@ export default function EmployerFeed() {
         `${base}/bookings/employer/me?status=CONFIRMED`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res2.ok) {
@@ -173,7 +204,9 @@ export default function EmployerFeed() {
         }
       } else if (res2.status === 401) {
         // Token is invalid or expired
-        console.warn("[EmployerFeed] Authentication failed in fetchActiveBooking - clearing token");
+        console.warn(
+          "[EmployerFeed] Authentication failed in fetchActiveBooking - clearing token",
+        );
         await SecureStore.deleteItemAsync("auth_token");
         router.replace("/(auth)/login" as any);
         return;
@@ -182,7 +215,7 @@ export default function EmployerFeed() {
       setActiveBooking(null);
     } catch (e: any) {
       // Only log non-network errors to avoid noise when backend is unavailable
-      if (e?.message && !e.message.includes('Network request failed')) {
+      if (e?.message && !e.message.includes("Network request failed")) {
         console.error("Error fetching active booking:", e);
       }
     }
@@ -212,42 +245,50 @@ export default function EmployerFeed() {
       } catch {
         // Health check failed - this is okay, continue with main request
       }
-      
+
       // Add timeout to prevent hanging
       const controller = new AbortController();
       const timeoutDuration = 15000; // 15 seconds
       const timeoutId = setTimeout(() => {
         controller.abort();
       }, timeoutDuration);
-      
+
       const fetchStartTime = Date.now();
-      
+
       let res;
       try {
         res = await fetch(url, {
           method: "GET",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           signal: controller.signal,
         });
         clearTimeout(timeoutId);
-        console.log(`[EmployerFeed] Fetch completed with status: ${res.status}`);
+        console.log(
+          `[EmployerFeed] Fetch completed with status: ${res.status}`,
+        );
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
-        
+
         // Handle network/timeout errors - server might be unavailable
-        if (fetchError.name === 'AbortError') {
-          console.warn(`[EmployerFeed] Request timeout - server took too long to respond`);
+        if (fetchError.name === "AbortError") {
+          console.warn(
+            `[EmployerFeed] Request timeout - server took too long to respond`,
+          );
           setCandidates([]);
           setLoading(false);
           return;
         }
-        
-        if (fetchError.message === 'Network request failed' || 
-            fetchError.message?.includes('Network request failed')) {
-          console.warn(`[EmployerFeed] Cannot connect to server at ${base}. Please ensure:`);
+
+        if (
+          fetchError.message === "Network request failed" ||
+          fetchError.message?.includes("Network request failed")
+        ) {
+          console.warn(
+            `[EmployerFeed] Cannot connect to server at ${base}. Please ensure:`,
+          );
           console.warn(`  1. Server is running (check terminal)`);
           console.warn(`  2. Server is accessible at ${base}`);
           console.warn(`  3. Device and computer are on the same network`);
@@ -255,19 +296,24 @@ export default function EmployerFeed() {
           setLoading(false);
           return;
         }
-        
+
         // Log other errors for debugging
-        console.error(`[EmployerFeed] Fetch error: ${fetchError.message || 'Unknown error'}`);
+        console.error(
+          `[EmployerFeed] Fetch error: ${fetchError.message || "Unknown error"}`,
+        );
         setCandidates([]);
         setLoading(false);
         return;
       }
-      
+
       // If we get here, fetch succeeded (even if status is not 200)
       if (res && res.ok) {
         const data = await res.json();
-        console.log(`[EmployerFeed] Raw response data:`, JSON.stringify(data).substring(0, 200));
-        
+        console.log(
+          `[EmployerFeed] Raw response data:`,
+          JSON.stringify(data).substring(0, 200),
+        );
+
         // Handle different response formats
         let candidatesList: any[] = [];
         if (Array.isArray(data)) {
@@ -280,44 +326,66 @@ export default function EmployerFeed() {
           // Response has data property
           candidatesList = data.data;
         }
-        
-        console.log(`[EmployerFeed] Successfully fetched ${candidatesList.length} candidates`);
-        console.log(`[EmployerFeed] Candidate IDs:`, candidatesList.map((c: any) => ({
-          id: c.id,
-          name: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
-        })));
-        
+
+        console.log(
+          `[EmployerFeed] Successfully fetched ${candidatesList.length} candidates`,
+        );
+        console.log(
+          `[EmployerFeed] Candidate IDs:`,
+          candidatesList.map((c: any) => ({
+            id: c.id,
+            name: `${c.firstName || ""} ${c.lastName || ""}`.trim(),
+          })),
+        );
+
         if (candidatesList.length === 0) {
-          console.warn(`[EmployerFeed] No candidates returned from server. This could mean:`);
-          console.warn(`  - No fully verified candidates exist in the database`);
-          console.warn(`  - All candidates must have: email verified, phone verified, ID verified, and background check approved`);
+          console.warn(
+            `[EmployerFeed] No candidates returned from server. This could mean:`,
+          );
+          console.warn(
+            `  - No fully verified candidates exist in the database`,
+          );
+          console.warn(
+            `  - All candidates must have: email verified, phone verified, ID verified, and background check approved`,
+          );
         }
-        
+
         // Construct full avatar URLs for all candidates
-        const candidatesWithFullAvatars = candidatesList.map((candidate: CandidateItem) => {
-          if (candidate.avatar && !candidate.avatar.startsWith('http')) {
-            candidate.avatar = `${base}/${candidate.avatar.startsWith('/') ? candidate.avatar.slice(1) : candidate.avatar}`;
-          }
-          return candidate;
-        });
-        
-        console.log(`[EmployerFeed] Setting ${candidatesWithFullAvatars.length} candidates to state`);
+        const candidatesWithFullAvatars = candidatesList.map(
+          (candidate: CandidateItem) => {
+            if (candidate.avatar && !candidate.avatar.startsWith("http")) {
+              candidate.avatar = `${base}/${candidate.avatar.startsWith("/") ? candidate.avatar.slice(1) : candidate.avatar}`;
+            }
+            return candidate;
+          },
+        );
+
+        console.log(
+          `[EmployerFeed] Setting ${candidatesWithFullAvatars.length} candidates to state`,
+        );
         setCandidates(candidatesWithFullAvatars);
       } else if (res) {
         // Handle 401 Unauthorized - token is invalid or expired
         if (res.status === 401) {
-          console.warn("[EmployerFeed] Authentication failed - clearing token and redirecting to login");
+          console.warn(
+            "[EmployerFeed] Authentication failed - clearing token and redirecting to login",
+          );
           await SecureStore.deleteItemAsync("auth_token");
           router.replace("/(auth)/login" as any);
           return;
         }
-        
+
         // Non-200 response (but not 401) - log status for debugging
         try {
           const errorData = await res.json();
-          console.error(`[EmployerFeed] Server returned ${res.status}:`, errorData.message || errorData.error || 'Unknown error');
+          console.error(
+            `[EmployerFeed] Server returned ${res.status}:`,
+            errorData.message || errorData.error || "Unknown error",
+          );
         } catch {
-          console.error(`[EmployerFeed] Server returned ${res.status}: Unable to parse error response`);
+          console.error(
+            `[EmployerFeed] Server returned ${res.status}: Unable to parse error response`,
+          );
         }
         setCandidates([]);
       } else {
@@ -327,10 +395,12 @@ export default function EmployerFeed() {
       }
     } catch (err: any) {
       // Silently handle network/timeout errors - they're expected when server is unavailable
-      if (err?.message && 
-          !err.message.includes('Network request failed') && 
-          !err.message.includes('timeout') &&
-          !err.message.includes('Cannot connect')) {
+      if (
+        err?.message &&
+        !err.message.includes("Network request failed") &&
+        !err.message.includes("timeout") &&
+        !err.message.includes("Cannot connect")
+      ) {
         console.error("[EmployerFeed] Unexpected error:", err.message);
       }
       setCandidates([]);
@@ -341,32 +411,38 @@ export default function EmployerFeed() {
 
   const themeStyles = {
     textPrimary: { color: colors.text },
-    textSecondary: { color: isDark ? "#94a3b8" : "#64748b" },
-    iconColor: isDark ? "#e5e7eb" : "#4b5563",
-    cardBg: { 
+    textSecondary: { color: isDark ? "rgba(240,232,213,0.5)" : "#6B6355" },
+    iconColor: isDark ? "#E8B86D" : "#B8822A",
+    cardBg: {
       backgroundColor: isDark
-        ? "rgba(30, 41, 59, 0.85)"
-        : "rgba(255, 255, 255, 0.9)",
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
+        ? "rgba(12, 22, 42, 0.85)"
+        : "rgba(255, 250, 240, 0.92)",
+      borderColor: isDark ? "rgba(201,150,63,0.2)" : "rgba(184,130,42,0.15)",
     },
     actionBtn: {
-      backgroundColor: isDark ? "rgba(30, 41, 59, 0.8)" : "#fff",
-      borderColor: isDark ? "rgba(255,255,255,0.15)" : "#e2e8f0",
+      backgroundColor: isDark
+        ? "rgba(12, 22, 42, 0.85)"
+        : "rgba(255,250,240,0.92)",
+      borderColor: isDark ? "rgba(201,150,63,0.3)" : "#D4A24E",
     },
   };
 
   const renderItem = ({ item }: { item: CandidateItem }) => {
     const fullName = `${item.firstName} ${item.lastName}`;
-    const location = [item.city, item.country].filter(Boolean).join(", ") || item.location || t("jobs.locationNotSpecified");
-    
+    const location =
+      [item.city, item.country].filter(Boolean).join(", ") ||
+      item.location ||
+      t("jobs.locationNotSpecified");
+
     // Get skills with years of experience - prioritize skills array over skillsSummary
-    const allSkills = item.skills && item.skills.length > 0 
-      ? item.skills.map(s => ({ name: s.name, yearsExp: s.yearsExp || 0 }))
-      : (item.skillsSummary || []).map(name => ({ name, yearsExp: 0 }));
-    
+    const allSkills =
+      item.skills && item.skills.length > 0
+        ? item.skills.map((s) => ({ name: s.name, yearsExp: s.yearsExp || 0 }))
+        : (item.skillsSummary || []).map((name) => ({ name, yearsExp: 0 }));
+
     const displaySkills = allSkills.slice(0, 3);
     const totalSkillsCount = allSkills.length;
-    
+
     return (
       <TouchableButton
         style={[styles.card, themeStyles.cardBg]}
@@ -384,15 +460,36 @@ export default function EmployerFeed() {
                   style={styles.avatar}
                   resizeMode="cover"
                   onError={(error) => {
-                    console.error(`[EmployerFeed] Failed to load avatar for ${item.firstName} ${item.lastName}:`, error.nativeEvent.error);
+                    console.error(
+                      `[EmployerFeed] Failed to load avatar for ${item.firstName} ${item.lastName}:`,
+                      error.nativeEvent.error,
+                    );
                   }}
                   onLoad={() => {
-                    console.log(`[EmployerFeed] Successfully loaded avatar for ${item.firstName} ${item.lastName}:`, item.avatar);
+                    console.log(
+                      `[EmployerFeed] Successfully loaded avatar for ${item.firstName} ${item.lastName}:`,
+                      item.avatar,
+                    );
                   }}
                 />
               ) : (
-                <View style={[styles.avatar, { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0", justifyContent: "center", alignItems: "center" }]}>
-                  <Feather name="user" size={24} color={isDark ? "rgba(255,255,255,0.5)" : "#94a3b8"} />
+                <View
+                  style={[
+                    styles.avatar,
+                    {
+                      backgroundColor: isDark
+                        ? "rgba(201,150,63,0.12)"
+                        : "#F0E8D5",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <Feather
+                    name="user"
+                    size={24}
+                    color={isDark ? "rgba(255,250,240,0.5)" : "#9A8E7A"}
+                  />
                 </View>
               )}
             </View>
@@ -401,58 +498,108 @@ export default function EmployerFeed() {
                 {fullName}
               </Text>
               {/* Rates below name - Show all rates */}
-              {(item.rates && item.rates.length > 0) ? (
-                <View style={{ marginTop: 4, marginBottom: 4, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+              {item.rates && item.rates.length > 0 ? (
+                <View
+                  style={{
+                    marginTop: 4,
+                    marginBottom: 4,
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    gap: 6,
+                  }}
+                >
                   {item.rates.map((rate, idx) => {
-                    const paymentTypeLabel = rate.paymentType === "OTHER" && rate.otherSpecification
-                      ? rate.otherSpecification
-                      : rate.paymentType.charAt(0) + rate.paymentType.slice(1).toLowerCase();
+                    const paymentTypeLabel =
+                      rate.paymentType === "OTHER" && rate.otherSpecification
+                        ? rate.otherSpecification
+                        : rate.paymentType.charAt(0) +
+                          rate.paymentType.slice(1).toLowerCase();
                     return (
-                      <Text key={idx} style={[styles.payout, { fontSize: 13, fontWeight: "700", marginTop: 2 }]}>
+                      <Text
+                        key={idx}
+                        style={[
+                          styles.payout,
+                          { fontSize: 13, fontWeight: "700", marginTop: 2 },
+                        ]}
+                      >
                         €{rate.rate}/{paymentTypeLabel}
                       </Text>
                     );
                   })}
                 </View>
               ) : item.hourlyRate ? (
-                <Text style={[styles.payout, { fontSize: 14, fontWeight: "700", marginTop: 4, marginBottom: 4 }]}>
+                <Text
+                  style={[
+                    styles.payout,
+                    {
+                      fontSize: 14,
+                      fontWeight: "700",
+                      marginTop: 4,
+                      marginBottom: 4,
+                    },
+                  ]}
+                >
                   €{item.hourlyRate}/hr
                 </Text>
               ) : null}
               {item.headline && (
-                <Text style={[styles.headline, themeStyles.textSecondary]} numberOfLines={1}>
+                <Text
+                  style={[styles.headline, themeStyles.textSecondary]}
+                  numberOfLines={1}
+                >
                   {item.headline}
                 </Text>
               )}
               {/* Rating - More Prominent */}
               <View style={styles.ratingRow}>
                 <Feather name="star" size={16} color="#eab308" />
-                <Text style={[styles.rating, { 
-                  color: item.rating > 0 ? (isDark ? "#fbbf24" : "#ca8a04") : (isDark ? "rgba(255,255,255,0.5)" : "#94a3b8"),
-                  fontWeight: "600",
-                  fontSize: 13,
-                }]}>
-                  {item.rating > 0 ? item.rating.toFixed(1) : t("candidate.noRating")}
+                <Text
+                  style={[
+                    styles.rating,
+                    {
+                      color:
+                        item.rating > 0
+                          ? isDark
+                            ? "#fbbf24"
+                            : "#ca8a04"
+                          : isDark
+                            ? "rgba(255,250,240,0.5)"
+                            : "#9A8E7A",
+                      fontWeight: "700",
+                      fontSize: 13,
+                    },
+                  ]}
+                >
+                  {item.rating > 0
+                    ? item.rating.toFixed(1)
+                    : t("candidate.noRating")}
                   {item.ratingCount > 0 && ` (${item.ratingCount})`}
                 </Text>
               </View>
             </View>
           </View>
         </View>
-        
+
         {item.bio && (
-          <Text style={[styles.bio, themeStyles.textSecondary]} numberOfLines={2}>
+          <Text
+            style={[styles.bio, themeStyles.textSecondary]}
+            numberOfLines={2}
+          >
             {item.bio}
           </Text>
         )}
-        
+
         <View style={styles.locationRow}>
-          <Feather name="map-pin" size={12} color={isDark ? "#94a3b8" : "#64748b"} />
+          <Feather
+            name="map-pin"
+            size={12}
+            color={isDark ? "#9A8E7A" : "#8A7B68"}
+          />
           <Text style={[styles.location, themeStyles.textSecondary]}>
             {location}
           </Text>
         </View>
-        
+
         {/* Skills with Years of Experience */}
         {displaySkills.length > 0 && (
           <View style={styles.skillsContainer}>
@@ -462,19 +609,24 @@ export default function EmployerFeed() {
                 style={[
                   styles.skillTag,
                   {
-                    backgroundColor: isDark ? "rgba(79, 70, 229, 0.2)" : "rgba(99, 102, 241, 0.1)",
-                    borderColor: isDark ? "rgba(79, 70, 229, 0.3)" : "rgba(99, 102, 241, 0.2)",
+                    backgroundColor: isDark
+                      ? "rgba(201, 150, 63, 0.2)"
+                      : "rgba(201, 150, 63, 0.1)",
+                    borderColor: isDark
+                      ? "rgba(201, 150, 63, 0.3)"
+                      : "rgba(201, 150, 63, 0.2)",
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.skillText,
-                    { color: isDark ? "#a78bfa" : "#6366f1" },
+                    { color: isDark ? "#E8B86D" : "#B8822A" },
                   ]}
                 >
                   {skill.name}
-                  {skill.yearsExp > 0 && ` (${skill.yearsExp}${skill.yearsExp > 1 ? t("common.years") : t("common.year")})`}
+                  {skill.yearsExp > 0 &&
+                    ` (${skill.yearsExp}${skill.yearsExp > 1 ? t("common.years") : t("common.year")})`}
                 </Text>
               </View>
             ))}
@@ -485,20 +637,37 @@ export default function EmployerFeed() {
             )}
           </View>
         )}
-        
-        <View style={[
-          styles.cardFooter,
-          { borderTopColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" }
-        ]}>
+
+        <View
+          style={[
+            styles.cardFooter,
+            {
+              borderTopColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.06)",
+            },
+          ]}
+        >
           {item.cvUrl && (
             <View style={styles.cvBadge}>
-              <Feather name="file-text" size={12} color={isDark ? "#22c55e" : "#16a34a"} />
-              <Text style={[styles.cvText, { color: isDark ? "#22c55e" : "#16a34a" }]}>
+              <Feather
+                name="file-text"
+                size={12}
+                color={isDark ? "#22c55e" : "#16a34a"}
+              />
+              <Text
+                style={[
+                  styles.cvText,
+                  { color: isDark ? "#22c55e" : "#16a34a" },
+                ]}
+              >
                 {t("candidate.cvAvailable")}
               </Text>
             </View>
           )}
-          <Text style={[styles.cta, { color: colors.tint }]}>{t("jobs.viewFullProfile")}</Text>
+          <Text style={[styles.cta, { color: colors.tint }]}>
+            {t("jobs.viewFullProfile")}
+          </Text>
         </View>
       </TouchableButton>
     );
@@ -541,226 +710,338 @@ export default function EmployerFeed() {
             />
           }
         >
-          {hasTemporaryPassword && (
-            <TemporaryPasswordBanner />
-          )}
+          {hasTemporaryPassword && <TemporaryPasswordBanner />}
           <ActionBanner />
-          
+
           <View style={styles.headerSummary}>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                letterSpacing: 3,
+                color: isDark ? "rgba(201,150,63,0.6)" : "rgba(184,130,42,0.5)",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              EMPLOYER HQ
+            </Text>
             <Text style={[styles.greeting, themeStyles.textPrimary]}>
-              {t("employerHome.findTalent", { name: userName ? `, ${userName}` : "" })}
+              {t("employerHome.findTalent", {
+                name: userName ? `, ${userName}` : "",
+              })}
             </Text>
             <Text style={[styles.balanceLabel, themeStyles.textSecondary]}>
               {t("employerHome.postJobsOrSearch")}
             </Text>
           </View>
 
-        <View style={styles.quickActions}>
-          <TouchableButton
-            style={[styles.qaBtn, themeStyles.actionBtn]}
-            onPress={() => router.push("/search-modal" as any)}
-          >
-            <Feather
-              name="search"
-              size={20}
-              color={themeStyles.iconColor}
-              style={styles.qaIcon}
-            />
-            <Text style={[styles.qaText, themeStyles.textPrimary]}>
-              {t("employerHome.searchTalent")}
-            </Text>
-          </TouchableButton>
-
-          <TouchableButton
-            style={[
-              styles.qaBtn, 
-              themeStyles.actionBtn,
-              (!emailVerified || !phoneVerified || !hasAddress) && { opacity: 0.5 }
-            ]}
-            onPress={() => {
-              if (!emailVerified || !phoneVerified || !hasAddress) {
-                const missing = [];
-                if (!emailVerified) missing.push(t("settings.email"));
-                if (!phoneVerified) missing.push(t("settings.phone"));
-                if (!hasAddress) missing.push(t("profile.address"));
-                Alert.alert(
-                  t("home.verificationRequired"),
-                  t("employerHome.completeVerificationBeforePosting", { missing: missing.join(", ") }),
-                  [
-                    { text: t("common.ok") },
-                    { 
-                      text: t("employerHome.goToSettings"), 
-                      onPress: () => router.push("/settings" as any) 
-                    }
-                  ]
-                );
-                return;
-              }
-              router.push("/post-job" as any);
-            }}
-          >
-            <Feather
-              name="plus-circle"
-              size={20}
-              color={themeStyles.iconColor}
-              style={styles.qaIcon}
-            />
-            <Text style={[styles.qaText, themeStyles.textPrimary]}>
-              {t("jobs.postJob")}
-            </Text>
-          </TouchableButton>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, themeStyles.textPrimary]}>
-            {t("home.yourActivities")}
-          </Text>
-          <View style={styles.iconRow}>
+          <View style={styles.quickActions}>
             <TouchableButton
-              style={[styles.iconBox, themeStyles.actionBtn]}
-              onPress={() => router.push("/manage-applications" as any)}
+              style={[styles.qaBtn, themeStyles.actionBtn]}
+              onPress={() => router.push("/search-modal" as any)}
             >
               <Feather
-                name="users"
-                size={24}
+                name="search"
+                size={20}
                 color={themeStyles.iconColor}
-                style={{ marginBottom: 6 }}
+                style={styles.qaIcon}
               />
-              <Text style={[styles.iconText, themeStyles.textPrimary]}>
-                {t("manageApplications.applications")}
+              <Text style={[styles.qaText, themeStyles.textPrimary]}>
+                {t("employerHome.searchTalent")}
               </Text>
             </TouchableButton>
+
             <TouchableButton
-              style={[styles.iconBox, themeStyles.actionBtn]}
+              style={[
+                styles.qaBtn,
+                themeStyles.actionBtn,
+                (!emailVerified || !phoneVerified || !hasAddress) && {
+                  opacity: 0.5,
+                },
+              ]}
               onPress={() => {
-                // Always navigate to the list view first, so users can view/start tracking
-                router.push("/tracking?role=EMPLOYER" as any);
+                if (!emailVerified || !phoneVerified || !hasAddress) {
+                  const missing = [];
+                  if (!emailVerified) missing.push(t("settings.email"));
+                  if (!phoneVerified) missing.push(t("settings.phone"));
+                  if (!hasAddress) missing.push(t("profile.address"));
+                  Alert.alert(
+                    t("home.verificationRequired"),
+                    t("employerHome.completeVerificationBeforePosting", {
+                      missing: missing.join(", "),
+                    }),
+                    [
+                      { text: t("common.ok") },
+                      {
+                        text: t("employerHome.goToSettings"),
+                        onPress: () => router.push("/settings" as any),
+                      },
+                    ],
+                  );
+                  return;
+                }
+                router.push("/post-job" as any);
               }}
             >
               <Feather
-                name="navigation"
-                size={24}
+                name="plus-circle"
+                size={20}
                 color={themeStyles.iconColor}
-                style={{ marginBottom: 6 }}
+                style={styles.qaIcon}
               />
-              <Text style={[styles.iconText, themeStyles.textPrimary]}>
-                {t("tracking.activeBookings")}
-              </Text>
-            </TouchableButton>
-            <TouchableButton
-              style={[styles.iconBox, themeStyles.actionBtn]}
-              onPress={() => router.push("/chat/inbox" as any)}
-            >
-              <Feather
-                name="message-square"
-                size={24}
-                color={themeStyles.iconColor}
-                style={{ marginBottom: 6 }}
-              />
-              <Text style={[styles.iconText, themeStyles.textPrimary]}>
-                {t("chat.messages")}
+              <Text style={[styles.qaText, themeStyles.textPrimary]}>
+                {t("jobs.postJob")}
               </Text>
             </TouchableButton>
           </View>
-        </View>
 
-        {/* Track Providers Card */}
-        <View style={[styles.section, { paddingBottom: 0 }]}>
-          <View
-            style={[
-              styles.trackCard,
-              { 
-                backgroundColor: "#4F46E5", 
-                borderColor: "#4F46E5",
-              },
-            ]}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-              <View
-                style={[
-                  {
-                    width: 48,
-                    height: 48,
-                    borderRadius: 14,
-                    backgroundColor: "rgba(255,255,255,0.2)",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  },
-                ]}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, themeStyles.textPrimary]}>
+              {t("home.yourActivities")}
+            </Text>
+            <View style={styles.iconRow}>
+              <TouchableButton
+                style={[styles.iconBox, themeStyles.actionBtn]}
+                onPress={() => router.push("/manage-applications" as any)}
               >
-                <Feather name="map" size={24} color="white" />
-              </View>
-              {activeBooking && activeBooking.status === 'IN_PROGRESS' && (
-                <View style={{ 
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 8,
-                  backgroundColor: "#10B981"
-                }}>
-                  <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>{t("payouts.active")}</Text>
-                </View>
-              )}
+                <Feather
+                  name="users"
+                  size={24}
+                  color={themeStyles.iconColor}
+                  style={{ marginBottom: 6 }}
+                />
+                <Text style={[styles.iconText, themeStyles.textPrimary]}>
+                  {t("manageApplications.applications")}
+                </Text>
+              </TouchableButton>
+              <TouchableButton
+                style={[styles.iconBox, themeStyles.actionBtn]}
+                onPress={() => {
+                  // Always navigate to the list view first, so users can view/start tracking
+                  router.push("/tracking?role=EMPLOYER" as any);
+                }}
+              >
+                <Feather
+                  name="navigation"
+                  size={24}
+                  color={themeStyles.iconColor}
+                  style={{ marginBottom: 6 }}
+                />
+                <Text style={[styles.iconText, themeStyles.textPrimary]}>
+                  {t("tracking.activeBookings")}
+                </Text>
+              </TouchableButton>
+              <TouchableButton
+                style={[styles.iconBox, themeStyles.actionBtn]}
+                onPress={() => router.push("/chat/inbox" as any)}
+              >
+                <Feather
+                  name="message-square"
+                  size={24}
+                  color={themeStyles.iconColor}
+                  style={{ marginBottom: 6 }}
+                />
+                <Text style={[styles.iconText, themeStyles.textPrimary]}>
+                  {t("chat.messages")}
+                </Text>
+              </TouchableButton>
             </View>
-            <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 8, color: "white" }}>
-              {t("employerHome.trackProviders")}
-            </Text>
-            <Text
-              style={{ 
-                fontSize: 14, 
-                lineHeight: 20, 
-                marginBottom: 20,
-                color: "rgba(255,255,255,0.9)"
-              }}
-            >
-              {activeBooking 
-                ? t("employerHome.viewBookingsStatus", { status: activeBooking.status === 'IN_PROGRESS' ? t("payouts.active") : t("applications.accepted") })
-                : t("employerHome.viewAcceptedProviders")}
-            </Text>
-            <TouchableButton
-              style={{ 
-                backgroundColor: "white",
-                paddingVertical: 14,
-                borderRadius: 12,
-                alignItems: "center",
-              }}
-              onPress={() => router.push("/tracking?role=EMPLOYER" as any)}
-            >
-              <Text style={{ fontWeight: "700", fontSize: 15, color: "#4F46E5" }}>
-                {t("employerHome.viewBookings")}
-              </Text>
-            </TouchableButton>
           </View>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, themeStyles.textPrimary]}>
-            {t("employerHome.recommendedCandidates")}
-          </Text>
-          {loading ? (
-            <Text style={[styles.loading, themeStyles.textSecondary]}>
-              {t("common.loading")}
-            </Text>
-          ) : candidates.length === 0 ? (
-            <View style={{ padding: 16 }}>
-              <Text style={[styles.empty, themeStyles.textSecondary, { marginBottom: 8 }]}>
-                {t("employerHome.noVerifiedCandidates")}
-            </Text>
-              <Text style={[styles.empty, themeStyles.textSecondary, { fontSize: 12, opacity: 0.7 }]}>
-                {t("employerHome.candidatesMustBeVerified")}
-              </Text>
-            </View>
-          ) : (
-            <View>
-              {candidates.map((item) => (
-                <View key={item.id}>
-                  {renderItem({ item })}
+          {/* Track Providers Card */}
+          <View style={[styles.section, { paddingBottom: 0 }]}>
+            <View
+              style={[
+                styles.trackCard,
+                {
+                  backgroundColor: isDark
+                    ? "rgba(12,22,42,0.92)"
+                    : "rgba(255,250,240,0.95)",
+                  borderColor: isDark ? "rgba(201,150,63,0.4)" : "#D4A24E",
+                },
+              ]}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: 8,
+                }}
+              >
+                <View
+                  style={[
+                    {
+                      width: 48,
+                      height: 48,
+                      borderRadius: 4,
+                      backgroundColor: isDark
+                        ? "rgba(201,150,63,0.15)"
+                        : "rgba(184,130,42,0.08)",
+                      borderWidth: 1,
+                      borderColor: isDark
+                        ? "rgba(201,150,63,0.3)"
+                        : "rgba(184,130,42,0.2)",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    },
+                  ]}
+                >
+                  <Feather
+                    name="map"
+                    size={24}
+                    color={isDark ? "#E8B86D" : "#B8822A"}
+                  />
                 </View>
-              ))}
+                {activeBooking && activeBooking.status === "IN_PROGRESS" && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                      backgroundColor: isDark
+                        ? "rgba(16,185,129,0.2)"
+                        : "rgba(16,185,129,0.1)",
+                      borderWidth: 1,
+                      borderColor: isDark
+                        ? "rgba(16,185,129,0.4)"
+                        : "rgba(16,185,129,0.3)",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: isDark ? "#10B981" : "#059669",
+                        fontSize: 10,
+                        fontWeight: "700",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {t("payouts.active")}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "800",
+                  letterSpacing: 2,
+                  color: isDark
+                    ? "rgba(201,150,63,0.7)"
+                    : "rgba(184,130,42,0.6)",
+                  marginBottom: 8,
+                  textTransform: "uppercase",
+                }}
+              >
+                TRACKING
+              </Text>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "700",
+                  marginBottom: 8,
+                  color: isDark ? "#F0E8D5" : "#1A1710",
+                  letterSpacing: -0.3,
+                }}
+              >
+                {t("employerHome.trackProviders")}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  lineHeight: 20,
+                  marginBottom: 20,
+                  color: isDark ? "rgba(240,232,213,0.5)" : "#6B6355",
+                  letterSpacing: 0.2,
+                }}
+              >
+                {activeBooking
+                  ? t("employerHome.viewBookingsStatus", {
+                      status:
+                        activeBooking.status === "IN_PROGRESS"
+                          ? t("payouts.active")
+                          : t("applications.accepted"),
+                    })
+                  : t("employerHome.viewAcceptedProviders")}
+              </Text>
+              <TouchableButton
+                style={{
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
+                  paddingVertical: 14,
+                  borderRadius: 4,
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  gap: 8,
+                  shadowColor: "#C9963F",
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: 0.35,
+                  shadowRadius: 8,
+                  elevation: 0,
+                }}
+                onPress={() => router.push("/tracking?role=EMPLOYER" as any)}
+              >
+                <Feather
+                  name="navigation"
+                  size={14}
+                  color={isDark ? "#0A1628" : "#FFFFFF"}
+                />
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    fontSize: 13,
+                    color: isDark ? "#0A1628" : "#FFFFFF",
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {t("employerHome.viewBookings")}
+                </Text>
+              </TouchableButton>
             </View>
-          )}
-        </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, themeStyles.textPrimary]}>
+              {t("employerHome.recommendedCandidates")}
+            </Text>
+            {loading ? (
+              <Text style={[styles.loading, themeStyles.textSecondary]}>
+                {t("common.loading")}
+              </Text>
+            ) : candidates.length === 0 ? (
+              <View style={{ padding: 16 }}>
+                <Text
+                  style={[
+                    styles.empty,
+                    themeStyles.textSecondary,
+                    { marginBottom: 8 },
+                  ]}
+                >
+                  {t("employerHome.noVerifiedCandidates")}
+                </Text>
+                <Text
+                  style={[
+                    styles.empty,
+                    themeStyles.textSecondary,
+                    { fontSize: 12, opacity: 0.7 },
+                  ]}
+                >
+                  {t("employerHome.candidatesMustBeVerified")}
+                </Text>
+              </View>
+            ) : (
+              <View>
+                {candidates.map((item) => (
+                  <View key={item.id}>{renderItem({ item })}</View>
+                ))}
+              </View>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
@@ -779,11 +1060,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "transparent",
   },
-  screenTitle: { fontSize: 16, fontWeight: "600" },
+  screenTitle: { fontSize: 16, fontWeight: "700" },
   loading: { padding: 16 },
   greeting: { fontSize: 24, fontWeight: "800", marginBottom: 4 },
   balanceLabel: { fontSize: 13, marginTop: 4 },
-  
+
   headerSummary: { paddingHorizontal: 20, paddingVertical: 20 },
   quickActions: {
     flexDirection: "row",
@@ -794,7 +1075,7 @@ const styles = StyleSheet.create({
   qaBtn: {
     flex: 1,
     flexDirection: "row",
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     paddingVertical: 14,
     paddingHorizontal: 12,
@@ -804,20 +1085,22 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: Platform.OS === 'android' ? 0 : 2,
+    elevation: 0,
   },
   qaIcon: { marginRight: 8 },
-  qaText: { fontWeight: "600", fontSize: 13 },
+  qaText: { fontWeight: "700", fontSize: 13 },
   section: { paddingHorizontal: 20, paddingVertical: 12 },
   sectionTitle: {
-    fontWeight: "600",
+    fontWeight: "800",
     marginBottom: 12,
-    fontSize: 15,
+    fontSize: 10,
+    letterSpacing: 2.5,
+    textTransform: "uppercase",
   },
   iconRow: { flexDirection: "row", gap: 12 },
   iconBox: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
     paddingVertical: 20,
     alignItems: "center",
@@ -825,24 +1108,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: Platform.OS === 'android' ? 0 : 2,
+    elevation: 0,
   },
   iconText: { fontWeight: "500", fontSize: 12 },
-  
+
   empty: { fontSize: 14 },
   card: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     shadowColor: "#fbbf24",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: Platform.OS === 'android' ? 0 : 3,
+    elevation: 0,
   },
   trackCard: {
-    borderRadius: 20,
+    borderRadius: 4,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
@@ -850,13 +1133,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
-    elevation: Platform.OS === 'android' ? 0 : 5,
+    elevation: 0,
   },
   cardTitle: { fontSize: 16, fontWeight: "700" },
   sub: { marginTop: 4, fontSize: 13 },
-  rating: { fontSize: 12, fontWeight: "600" },
+  rating: { fontSize: 12, fontWeight: "700" },
   payout: { color: "#4ade80", fontWeight: "700", fontSize: 14 },
-  cta: { color: "#60a5fa", fontWeight: "600", fontSize: 13 },
+  cta: { color: "#E8B86D", fontWeight: "700", fontSize: 13 },
   candidateHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -871,9 +1154,9 @@ const styles = StyleSheet.create({
   avatarContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 4,
     overflow: "hidden",
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(184,130,42,0.2)",
   },
   avatar: {
     width: "100%",
@@ -932,7 +1215,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.05)",
+    borderTopColor: "rgba(184,130,42,0.06)",
   },
   cvBadge: {
     flexDirection: "row",
@@ -941,6 +1224,6 @@ const styles = StyleSheet.create({
   },
   cvText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

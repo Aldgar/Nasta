@@ -216,15 +216,15 @@ export default function EmployerJobs() {
       case "ACTIVE":
         return "#22c55e";
       case "ASSIGNED":
-        return "#3b82f6";
+        return "#C9963F";
       case "COMPLETED":
         return "#10b981";
       case "CLOSED":
-        return "#6b7280";
+        return "#8A7B68";
       case "DRAFT":
         return "#f59e0b";
       default:
-        return "#6b7280";
+        return "#8A7B68";
     }
   };
 
@@ -294,15 +294,15 @@ export default function EmployerJobs() {
             style={[
               styles.addButton,
               {
-                backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                backgroundColor: isDark ? "#C9963F" : "#B8822A",
                 borderWidth: 1,
-                borderColor: isDark ? "#6366f1" : "#4f46e5",
+                borderColor: isDark ? "#E8B86D" : "#C9963F",
                 opacity:
                   !emailVerified || !phoneVerified || !hasAddress ? 0.5 : 1,
               },
             ]}
           >
-            <Feather name="plus" size={20} color="#fff" />
+            <Feather name="plus" size={20} color="#FFFAF0" />
             <Text style={styles.addButtonText}>{t("jobs.postJob")}</Text>
           </TouchableButton>
         </View>
@@ -317,19 +317,19 @@ export default function EmployerJobs() {
                 backgroundColor:
                   activeTab === "ACTIVE"
                     ? isDark
-                      ? "#4f46e5"
-                      : "#6366f1"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(30, 41, 59, 0.5)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(12, 22, 42, 0.55)"
+                      : "rgba(184,130,42,0.06)",
                 borderColor:
                   activeTab === "ACTIVE"
                     ? isDark
-                      ? "#6366f1"
-                      : "#4f46e5"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => setActiveTab("ACTIVE")}
@@ -340,10 +340,10 @@ export default function EmployerJobs() {
                 {
                   color:
                     activeTab === "ACTIVE"
-                      ? "#fff"
+                      ? "#FFFAF0"
                       : isDark
-                        ? "#94a3b8"
-                        : "#64748b",
+                        ? "#9A8E7A"
+                        : "#8A7B68",
                   fontWeight: activeTab === "ACTIVE" ? "600" : "500",
                 },
               ]}
@@ -359,19 +359,19 @@ export default function EmployerJobs() {
                 backgroundColor:
                   activeTab === "IN_PROGRESS"
                     ? isDark
-                      ? "#4f46e5"
-                      : "#6366f1"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(30, 41, 59, 0.5)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(12, 22, 42, 0.55)"
+                      : "rgba(184,130,42,0.06)",
                 borderColor:
                   activeTab === "IN_PROGRESS"
                     ? isDark
-                      ? "#6366f1"
-                      : "#4f46e5"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => setActiveTab("IN_PROGRESS")}
@@ -382,10 +382,10 @@ export default function EmployerJobs() {
                 {
                   color:
                     activeTab === "IN_PROGRESS"
-                      ? "#fff"
+                      ? "#FFFAF0"
                       : isDark
-                        ? "#94a3b8"
-                        : "#64748b",
+                        ? "#9A8E7A"
+                        : "#8A7B68",
                   fontWeight: activeTab === "IN_PROGRESS" ? "600" : "500",
                 },
               ]}
@@ -401,19 +401,19 @@ export default function EmployerJobs() {
                 backgroundColor:
                   activeTab === "COMPLETED"
                     ? isDark
-                      ? "#4f46e5"
-                      : "#6366f1"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(30, 41, 59, 0.5)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(12, 22, 42, 0.55)"
+                      : "rgba(184,130,42,0.06)",
                 borderColor:
                   activeTab === "COMPLETED"
                     ? isDark
-                      ? "#6366f1"
-                      : "#4f46e5"
+                      ? "#C9963F"
+                      : "#C9963F"
                     : isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(201,150,63,0.12)"
+                      : "rgba(184,130,42,0.2)",
               },
             ]}
             onPress={() => setActiveTab("COMPLETED")}
@@ -424,10 +424,10 @@ export default function EmployerJobs() {
                 {
                   color:
                     activeTab === "COMPLETED"
-                      ? "#fff"
+                      ? "#FFFAF0"
                       : isDark
-                        ? "#94a3b8"
-                        : "#64748b",
+                        ? "#9A8E7A"
+                        : "#8A7B68",
                   fontWeight: activeTab === "COMPLETED" ? "600" : "500",
                 },
               ]}
@@ -442,7 +442,7 @@ export default function EmployerJobs() {
             <Feather
               name="briefcase"
               size={64}
-              color={isDark ? "#475569" : "#cbd5e1"}
+              color={isDark ? "#6B6355" : "#B8A88A"}
             />
             <Text style={[styles.emptyTitle, { color: colors.text }]}>
               {activeTab === "ACTIVE" && t("jobs.empty.activeTitle")}
@@ -452,7 +452,7 @@ export default function EmployerJobs() {
             <Text
               style={[
                 styles.emptySub,
-                { color: isDark ? "#94a3b8" : "#64748b" },
+                { color: isDark ? "#9A8E7A" : "#8A7B68" },
               ]}
             >
               {activeTab === "ACTIVE" && t("jobs.empty.activeMessage")}
@@ -486,9 +486,9 @@ export default function EmployerJobs() {
               style={[
                 styles.postJobButton,
                 {
-                  backgroundColor: isDark ? "#4f46e5" : "#6366f1",
+                  backgroundColor: isDark ? "#C9963F" : "#B8822A",
                   borderWidth: 1,
-                  borderColor: isDark ? "#6366f1" : "#4f46e5",
+                  borderColor: isDark ? "#E8B86D" : "#C9963F",
                   opacity:
                     !emailVerified || !phoneVerified || !hasAddress ? 0.5 : 1,
                 },
@@ -513,10 +513,10 @@ export default function EmployerJobs() {
                   styles.card,
                   {
                     backgroundColor: isDark
-                      ? "rgba(30, 41, 59, 0.7)"
-                      : "#ffffff",
+                      ? "rgba(12, 22, 42, 0.75)"
+                      : "#FFFAF0",
                     borderColor: isDark
-                      ? "rgba(255,255,255,0.08)"
+                      ? "rgba(255,250,240,0.10)"
                       : "rgba(0,0,0,0.06)",
                   },
                 ]}
@@ -533,12 +533,12 @@ export default function EmployerJobs() {
                       <Feather
                         name="map-pin"
                         size={12}
-                        color={isDark ? "#94a3b8" : "#64748b"}
+                        color={isDark ? "#9A8E7A" : "#8A7B68"}
                       />
                       <Text
                         style={[
                           styles.location,
-                          { color: isDark ? "#94a3b8" : "#64748b" },
+                          { color: isDark ? "#9A8E7A" : "#8A7B68" },
                         ]}
                       >
                         {[item.location, item.city, item.country]
@@ -568,7 +568,7 @@ export default function EmployerJobs() {
                 <Text
                   style={[
                     styles.description,
-                    { color: isDark ? "#cbd5e1" : "#475569" },
+                    { color: isDark ? "#B8A88A" : "#6B6355" },
                   ]}
                   numberOfLines={2}
                 >
@@ -579,12 +579,12 @@ export default function EmployerJobs() {
                     <Feather
                       name="briefcase"
                       size={12}
-                      color={isDark ? "#94a3b8" : "#64748b"}
+                      color={isDark ? "#9A8E7A" : "#8A7B68"}
                     />
                     <Text
                       style={[
                         styles.typeText,
-                        { color: isDark ? "#94a3b8" : "#64748b" },
+                        { color: isDark ? "#9A8E7A" : "#8A7B68" },
                       ]}
                     >
                       {item.type?.replace("_", " ")} •{" "}
@@ -594,7 +594,7 @@ export default function EmployerJobs() {
                   <Text
                     style={[
                       styles.dateText,
-                      { color: isDark ? "#64748b" : "#94a3b8" },
+                      { color: isDark ? "#8A7B68" : "#9A8E7A" },
                     ]}
                   >
                     {formatDate(item.createdAt)}
@@ -631,8 +631,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   addButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
     fontSize: 14,
   },
   list: {
@@ -640,14 +640,14 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 4,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: Platform.OS === "android" ? 0 : 2,
+    elevation: 0,
     overflow: "hidden",
     ...(Platform.OS === "android" && {
       elevation: 0,
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   description: {
     fontSize: 14,
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.05)",
+    borderTopColor: "rgba(184,130,42,0.06)",
   },
   typeRow: {
     flexDirection: "row",
@@ -735,11 +735,11 @@ const styles = StyleSheet.create({
   postJobButton: {
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 4,
   },
   postJobButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#FFFAF0",
+    fontWeight: "700",
     fontSize: 16,
   },
   tabsContainer: {
