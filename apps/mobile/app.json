@@ -36,7 +36,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
       ],
       "intentFilters": [
         {
@@ -79,7 +80,18 @@
         {
           "ios": {
             "deploymentTarget": "16.0"
+          },
+          "android": {
+            "compileSdkVersion": 34,
+            "windowSoftInputMode": "adjustResize"
           }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Nasta to access your photos for profile and document verification.",
+          "cameraPermission": "Allow Nasta to use your camera for document capture and profile photos."
         }
       ],
       [

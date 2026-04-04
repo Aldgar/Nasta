@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -6,6 +6,8 @@ import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { useState } from "react";
+
+const isAndroid = Platform.OS === "android";
 
 interface EmailVerificationBannerProps {
   emailVerified: boolean;
@@ -69,6 +71,7 @@ export default function EmailVerificationBanner({
     <View
       style={[
         styles.banner,
+        isAndroid && styles.bannerAndroid,
         {
           backgroundColor: isDark
             ? "rgba(251, 191, 36, 0.15)"
@@ -79,7 +82,7 @@ export default function EmailVerificationBanner({
         },
       ]}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, isAndroid && styles.contentAndroid]}>
         <Feather
           name="mail"
           size={20}
@@ -91,6 +94,7 @@ export default function EmailVerificationBanner({
             style={[
               styles.title,
               { color: isDark ? "#fbbf24" : "#d97706" },
+              isAndroid && { includeFontPadding: false },
             ]}
           >
             {t("emailVerification.verifyYourEmail")}
@@ -99,6 +103,7 @@ export default function EmailVerificationBanner({
             style={[
               styles.message,
               { color: isDark ? "#fde68a" : "#92400e" },
+              isAndroid && { includeFontPadding: false },
             ]}
           >
             {t("emailVerification.verifyEmailToAccess")}
@@ -106,19 +111,20 @@ export default function EmailVerificationBanner({
         </View>
       </View>
       <TouchableOpacity
+        activeOpacity={0.7}
         style={[
           styles.button,
+          isAndroid && styles.buttonAndroid,
           {
             backgroundColor: isDark ? "#C9963F" : colors.tint,
           },
         ]}
         onPress={() => {
-          // Navigate to settings where user can enter verification code
           router.push("/settings" as never);
         }}
         disabled={requesting}
       >
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, isAndroid && { includeFontPadding: false }]}>
           {t("emailVerification.verifyNow")}
         </Text>
       </TouchableOpacity>
@@ -138,11 +144,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  bannerAndroid: {
+    flexDirection: "column",
+    alignItems: "stretch",
+  },
   content: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     marginRight: 12,
+  },
+  contentAndroid: {
+    marginRight: 0,
+    marginBottom: 12,
   },
   icon: {
     marginRight: 12,
@@ -163,6 +177,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
+  },
+  buttonAndroid: {
+    alignSelf: "flex-end",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   buttonText: {
     color: "#FFFAF0",

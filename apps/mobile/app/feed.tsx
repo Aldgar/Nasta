@@ -1022,6 +1022,11 @@ export default function Feed() {
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={true}
+          {...(Platform.OS === "android" ? {
+            removeClippedSubviews: true,
+            overScrollMode: "never" as const,
+            nestedScrollEnabled: true,
+          } : {})}
         >
           <EmailVerificationBanner
             emailVerified={emailVerified}

@@ -263,8 +263,12 @@ export default function RegisterScreen() {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="interactive"
-            bounces={true}
+            keyboardDismissMode={Platform.OS === "android" ? "on-drag" : "interactive"}
+            bounces={Platform.OS !== "android"}
+            {...(Platform.OS === "android" ? {
+              overScrollMode: "never" as const,
+              nestedScrollEnabled: true,
+            } : {})}
           >
             <Pressable
               onPress={handleBack}
@@ -302,14 +306,16 @@ export default function RegisterScreen() {
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.emblemMeroitic,
-                    { color: isDark ? "#C9963F" : "#1A1207" },
-                  ]}
-                >
-                  {"\u200A𐦠𐦴𐦯𐦡\u200A"}
-                </Text>
+                {Platform.OS !== "android" && (
+                  <Text
+                    style={[
+                      styles.emblemMeroitic,
+                      { color: isDark ? "#C9963F" : "#1A1207" },
+                    ]}
+                  >
+                    {"\u200A𐦠𐦴𐦯𐦡\u200A"}
+                  </Text>
+                )}
                 <View
                   style={[
                     styles.emblemDivider,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import { useLocalSearchParams, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -83,6 +83,7 @@ export default function KycDetails() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <View style={styles.container}>
         <Text style={styles.title}>{t("kyc.documentDetailsTitle")}</Text>
         <Text style={styles.subtitle}>{t("kyc.documentDetailsSubtitle")}</Text>
@@ -125,6 +126,7 @@ export default function KycDetails() {
           </Text>
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

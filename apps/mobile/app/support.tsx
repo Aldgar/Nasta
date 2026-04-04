@@ -7,6 +7,7 @@ import {
   Alert,
   type AlertButton,
   Platform,
+  KeyboardAvoidingView,
   ScrollView,
   Modal,
   TouchableOpacity,
@@ -708,6 +709,10 @@ export default function SupportScreen() {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.header}>
           <TouchableButton onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color={colors.text} />
@@ -722,6 +727,7 @@ export default function SupportScreen() {
           style={styles.scrollView}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
         >
           <Text style={[styles.label, { color: colors.text }]}>
             {t("support.howCanWeHelpYou")}
@@ -1032,6 +1038,7 @@ export default function SupportScreen() {
             )}
           </TouchableButton>
         </ScrollView>
+        </KeyboardAvoidingView>
 
         {/* Issue Type Picker Modal */}
         <Modal
@@ -1060,7 +1067,7 @@ export default function SupportScreen() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={styles.modalList}>
+              <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
                 {getIssueTypes(t).map((type) => (
                   <TouchableOpacity
                     key={type.value}

@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -394,6 +396,7 @@ export default function SearchJobs() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.container}>
           <View style={styles.handle} />
@@ -660,7 +663,7 @@ export default function SearchJobs() {
                   <Feather name="x" size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>
-              <ScrollView>
+              <ScrollView keyboardShouldPersistTaps="handled">
                 <TouchableOpacity
                   style={[
                     styles.categoryOption,
@@ -756,6 +759,7 @@ export default function SearchJobs() {
           </View>
         </Modal>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

@@ -328,6 +328,13 @@ export default function LoginScreen() {
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            {...(Platform.OS === "android" ? {
+              overScrollMode: "never" as const,
+              nestedScrollEnabled: true,
+              bounces: false,
+              keyboardDismissMode: "on-drag" as const,
+            } : {})}
           >
             <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
               <View
@@ -340,14 +347,16 @@ export default function LoginScreen() {
                   },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.emblemMeroitic,
-                    { color: isDark ? "#C9963F" : "#1A1207" },
-                  ]}
-                >
-                  {"\u200A𐦠𐦴𐦯𐦡\u200A"}
-                </Text>
+                {Platform.OS !== "android" && (
+                  <Text
+                    style={[
+                      styles.emblemMeroitic,
+                      { color: isDark ? "#C9963F" : "#1A1207" },
+                    ]}
+                  >
+                    {"\u200A𐦠𐦴𐦯𐦡\u200A"}
+                  </Text>
+                )}
                 <View
                   style={[
                     styles.emblemDivider,

@@ -7,6 +7,8 @@ import {
   TextInput,
   View,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -153,6 +155,10 @@ export default function DeleteAccountScreen() {
       <SafeAreaView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.topBar}>
           <TouchableButton onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color={colors.text} />
@@ -163,7 +169,7 @@ export default function DeleteAccountScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View
             style={[
               styles.card,
@@ -336,6 +342,7 @@ export default function DeleteAccountScreen() {
             </TouchableButton>
           </View>
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </>
   );

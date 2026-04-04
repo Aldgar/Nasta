@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
@@ -119,6 +121,10 @@ export default function Contact() {
       <GradientBackground>
         <Stack.Screen options={{ headerShown: false }} />
         <SafeAreaView style={styles.container}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
+          >
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
               <Feather name="arrow-left" size={24} color={colors.text} />
@@ -193,6 +199,7 @@ export default function Contact() {
               <Text style={[styles.buttonLabel, { color: "#FFFAF0" }]}>{t("chat.send")}</Text>
             </TouchableOpacity>
           </View>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </GradientBackground>
     );
@@ -203,6 +210,10 @@ export default function Contact() {
     <GradientBackground>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container} edges={["top"]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -280,6 +291,7 @@ export default function Contact() {
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
+            keyboardShouldPersistTaps="handled"
           >
             {users.length === 0 ? (
               <View style={styles.center}>
@@ -386,6 +398,7 @@ export default function Contact() {
             )}
           </ScrollView>
         )}
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </GradientBackground>
   );

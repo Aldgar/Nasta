@@ -6,6 +6,7 @@ import {
   TextInput,
   Alert,
   Platform,
+  KeyboardAvoidingView,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -95,6 +96,10 @@ export default function ReportScreen() {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.header}>
           <TouchableButton onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color={colors.text} />
@@ -149,6 +154,7 @@ export default function ReportScreen() {
             )}
           </TouchableButton>
         </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </GradientBackground>
   );

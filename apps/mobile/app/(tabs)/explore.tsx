@@ -21,6 +21,9 @@ import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import { androidScrollProps } from "../../utils/androidStyles";
+
+const isAndroid = Platform.OS === "android";
 
 // Conditionally import react-native-maps (not available in Expo Go)
 // Don't import at module level - only load when component mounts
@@ -527,37 +530,55 @@ export default function ExploreMap() {
         </View>
 
         {!mapsAvailable ? (
-          // Fallback UI when maps aren't available (Expo Go)
           <ScrollView
             style={styles.fallbackContainer}
             contentContainerStyle={styles.fallbackContent}
+            {...androidScrollProps}
           >
-            <View
-              style={[
-                styles.fallbackHeader,
-                {
-                  backgroundColor: isDark
-                    ? "rgba(12, 22, 42, 0.75)"
-                    : "rgba(255, 250, 240, 0.92)",
-                },
-              ]}
-            >
-              <Feather name="map" size={24} color={colors.tint} />
-              <Text style={[styles.fallbackTitle, { color: colors.text }]}>
-                {t("explore.mapsNotAvailable")}
-              </Text>
-              <Text
+            {isAndroid ? (
+              <View
                 style={[
-                  styles.fallbackSubtitle,
-                  { color: isDark ? "#9A8E7A" : "#8A7B68" },
+                  styles.fallbackHeader,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(12, 22, 42, 0.85)"
+                      : "rgba(255, 250, 240, 0.95)",
+                  },
                 ]}
               >
-                {t("explore.mapsNotAvailableMessage")}
-              </Text>
-            </View>
+                <Feather name="list" size={24} color={colors.tint} />
+                <Text style={[styles.fallbackTitle, { color: colors.text }]}>
+                  {t("explore.jobsByLocation")}
+                </Text>
+              </View>
+            ) : (
+              <View
+                style={[
+                  styles.fallbackHeader,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(12, 22, 42, 0.75)"
+                      : "rgba(255, 250, 240, 0.92)",
+                  },
+                ]}
+              >
+                <Feather name="map" size={24} color={colors.tint} />
+                <Text style={[styles.fallbackTitle, { color: colors.text }]}>
+                  {t("explore.mapsNotAvailable")}
+                </Text>
+                <Text
+                  style={[
+                    styles.fallbackSubtitle,
+                    { color: isDark ? "#9A8E7A" : "#8A7B68" },
+                  ]}
+                >
+                  {t("explore.mapsNotAvailableMessage")}
+                </Text>
+              </View>
+            )}
 
             {loading ? (
-              <View style={styles.loadingContainer}>
+              <View style={styles.loadingContainerFallback}>
                 <ActivityIndicator size="large" color={colors.tint} />
                 <Text style={[styles.loadingText, { color: colors.text }]}>
                   {t("explore.loadingJobs")}
@@ -571,6 +592,7 @@ export default function ExploreMap() {
                 {jobs.map((job) => (
                   <TouchableOpacity
                     key={job.id}
+                    activeOpacity={0.7}
                     style={[
                       styles.jobCard,
                       {
@@ -685,7 +707,7 @@ export default function ExploreMap() {
                 ))}
               </View>
             ) : (
-              <View style={styles.emptyContainer}>
+              <View style={styles.emptyContainerFallback}>
                 <Feather
                   name="map-pin"
                   size={48}
@@ -893,6 +915,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(12, 22, 42, 0.35)",
   },
+  loadingContainerFallback: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+  },
   loadingText: {
     marginTop: 12,
     fontSize: 14,
@@ -939,16 +966,36 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   emptyContainer: {
-    position: "absolute",
-    bottom: 100,
-    left: 16,
-    right: 16,
+    ...Platform.select({
+      android: {
+        alignItems: "center" as const,
+        padding: 20,
+        borderRadius: 4,
+        backgroundColor: "rgba(12, 22, 42, 0.80)",
+        borderWidth: 1,
+        borderColor: "rgba(201,150,63,0.12)",
+        marginHorizontal: 16,
+        marginTop: 20,
+      },
+      default: {
+        position: "absolute" as const,
+        bottom: 100,
+        left: 16,
+        right: 16,
+        alignItems: "center" as const,
+        padding: 20,
+        borderRadius: 4,
+        backgroundColor: "rgba(12, 22, 42, 0.80)",
+        borderWidth: 1,
+        borderColor: "rgba(201,150,63,0.12)",
+      },
+    }),
+  },
+  emptyContainerFallback: {
     alignItems: "center",
-    padding: 20,
+    padding: 24,
     borderRadius: 4,
-    backgroundColor: "rgba(12, 22, 42, 0.80)",
-    borderWidth: 1,
-    borderColor: "rgba(201,150,63,0.12)",
+    marginTop: 20,
   },
   emptyText: {
     fontSize: 16,

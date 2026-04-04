@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator, Platform, TextInput, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator, Platform, TextInput, ScrollView, Modal, KeyboardAvoidingView } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -377,6 +377,7 @@ const formatIban = (iban: string): string => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -387,6 +388,7 @@ const formatIban = (iban: string): string => {
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={true}
+        keyboardShouldPersistTaps="handled"
       >
         {loading ? (
             <ActivityIndicator size="large" color={Colors.light.tint} />
@@ -558,7 +560,7 @@ const formatIban = (iban: string): string => {
                                 </TouchableOpacity>
                             </View>
 
-                            <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+                            <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                                 <Text style={[styles.formLabel, { color: colors.text }]}>{t("payments.accountHolderName")}</Text>
                                 <TextInput
                                     style={[styles.formInput, { 
@@ -689,7 +691,7 @@ const formatIban = (iban: string): string => {
                                                     <Ionicons name="close" size={24} color={colors.text} />
                                                 </TouchableOpacity>
                                             </View>
-                                            <ScrollView style={styles.pickerList}>
+                                            <ScrollView style={styles.pickerList} keyboardShouldPersistTaps="handled">
                                                 {EUROPEAN_COUNTRIES.map((countryOption) => (
                                                     <TouchableOpacity
                                                         key={countryOption.code}
@@ -763,6 +765,7 @@ const formatIban = (iban: string): string => {
             </>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

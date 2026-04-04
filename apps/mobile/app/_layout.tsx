@@ -1,5 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { Platform } from "react-native";
+import { Platform, Text as RNText, TextInput as RNTextInput } from "react-native";
+
+if ((RNText as any).defaultProps == null) (RNText as any).defaultProps = {};
+(RNText as any).defaultProps.maxFontSizeMultiplier = 1.3;
+
+if ((RNTextInput as any).defaultProps == null)
+  (RNTextInput as any).defaultProps = {};
+(RNTextInput as any).defaultProps.maxFontSizeMultiplier = 1.3;
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { Stack, useRootNavigationState, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -381,16 +388,19 @@ function RootLayoutNav() {
         <Stack.Screen name="kyc-capture" options={{ headerShown: false }} />
         <Stack.Screen name="kyc-details" options={{ headerShown: false }} />
         {/* Hide header for the tabs group to avoid breadcrumb chips */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
         <Stack.Screen
           name="user-home"
-          options={{
-            headerShown: false,
-            gestureEnabled: true,
-          }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen name="employer-tabs" options={{ headerShown: false }} />
-        <Stack.Screen name="employer-home" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="employer-home"
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
         <Stack.Screen name="post-job" options={{ headerShown: false }} />
         <Stack.Screen
           name="manage-applications"
@@ -404,7 +414,10 @@ function RootLayoutNav() {
           name="rate-job-completion"
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="admin-home" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="admin-home"
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
         <Stack.Screen
           name="admin/kyc-reviews"
           options={{ headerShown: false }}

@@ -362,6 +362,7 @@
     "currentStatus": "Estado atual: {{status}}",
     "status": {
       "pending": "Pendente",
+      "notVerified": "Não Verificado",
       "verified": "Verificado",
       "rejected": "Rejeitado",
       "manualReview": "Revisão Manual",
@@ -770,6 +771,9 @@
     "invalidImageUri": "URI de imagem inválida",
     "noDocumentUploaded": "Nenhum documento carregado",
     "useCamera": "Usar Câmara",
+    "cameraUnavailable": "Câmara Indisponível",
+    "cameraUnavailableMessage": "Não foi possível aceder à câmara. Verifique as permissões da câmara nas definições do dispositivo ou escolha uma foto da galeria.",
+    "useGallery": "Usar Galeria",
     "pickFile": "Selecionar Ficheiro",
     "uploading": "A carregar…",
     "uploadAnotherDocument": "Carregar Outro Documento",

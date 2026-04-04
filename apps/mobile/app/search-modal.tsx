@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, Modal } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, Modal, Platform, KeyboardAvoidingView } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useState, useEffect, useCallback } from "react";
@@ -271,6 +271,7 @@ export default function SearchModal() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.container}>
           <View style={styles.handle} />
@@ -485,7 +486,7 @@ export default function SearchModal() {
                   <Feather name="x" size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>
-              <ScrollView>
+              <ScrollView keyboardShouldPersistTaps="handled">
                 {loadingSkills ? (
                   <View style={styles.loadingContainer}>
                     <ActivityIndicator size="small" color={colors.tint} />
@@ -536,6 +537,7 @@ export default function SearchModal() {
           </View>
         </Modal>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

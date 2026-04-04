@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, Alert, StyleSheet, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
@@ -73,9 +74,17 @@ export default function VerifyEmailScreen() {
             [
               {
                 text: t("common.ok"),
-                onPress: () => {
-                  // Check if user is logged in, redirect accordingly
-                  router.replace("/login" as never);
+                onPress: async () => {
+                  const token = await SecureStore.getItemAsync("auth_token");
+                  if (token) {
+                    if (router.canGoBack()) {
+                      router.back();
+                    } else {
+                      router.replace("/user-home" as never);
+                    }
+                  } else {
+                    router.replace("/login" as never);
+                  }
                 },
               },
             ],

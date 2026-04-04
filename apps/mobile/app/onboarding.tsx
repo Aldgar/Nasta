@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  KeyboardAvoidingView,
   ActivityIndicator, // Added ActivityIndicator
   Modal,
   TouchableOpacity,
@@ -904,6 +905,10 @@ export default function OnboardingScreen() {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.header}>
           <TouchableButton onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color={colors.text} />
@@ -932,7 +937,7 @@ export default function OnboardingScreen() {
             </Text>
           </View>
         ) : (
-          <ScrollView contentContainerStyle={styles.content}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <Text style={[styles.introText, { color: colors.text }]}>
               {t("onboarding.completeProfileDescription")}
             </Text>
@@ -2682,6 +2687,7 @@ export default function OnboardingScreen() {
             </TouchableButton>
           </ScrollView>
         )}
+        </KeyboardAvoidingView>
       </SafeAreaView>
 
       {/* Language Selection Modal */}
@@ -2720,6 +2726,7 @@ export default function OnboardingScreen() {
               style={{ maxHeight: 500 }}
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{ paddingBottom: 20 }}
+              keyboardShouldPersistTaps="handled"
             >
               {availableLanguages
                 .filter(
@@ -3103,6 +3110,7 @@ export default function OnboardingScreen() {
               style={{ maxHeight: 500 }}
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{ paddingBottom: 20 }}
+              keyboardShouldPersistTaps="handled"
             >
               {availableSkills
                 .filter(

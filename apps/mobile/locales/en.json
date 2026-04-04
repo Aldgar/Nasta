@@ -362,6 +362,7 @@
     "currentStatus": "Current status: {{status}}",
     "status": {
       "pending": "Pending",
+      "notVerified": "Not Verified",
       "verified": "Verified",
       "rejected": "Rejected",
       "manualReview": "Manual Review",
@@ -794,6 +795,9 @@
     "invalidImageUri": "Invalid image URI",
     "noDocumentUploaded": "No document uploaded",
     "useCamera": "Use Camera",
+    "cameraUnavailable": "Camera Unavailable",
+    "cameraUnavailableMessage": "Unable to access the camera. Please check your camera permissions in device settings, or choose a photo from your gallery instead.",
+    "useGallery": "Use Gallery",
     "pickFile": "Pick File",
     "uploading": "Uploading…",
     "uploadAnotherDocument": "Upload Another Document",

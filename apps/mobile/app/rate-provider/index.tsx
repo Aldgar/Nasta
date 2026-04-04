@@ -9,6 +9,7 @@ import {
   Image,
   ScrollView,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -87,6 +88,7 @@ export default function RateProviderScreen() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -96,7 +98,7 @@ export default function RateProviderScreen() {
             <View style={{ width: 24 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <View style={styles.profileSection}>
                 <View style={[styles.avatarPlaceholder, { backgroundColor: isDark ? "#5C5548" : "#E8D8B8" }]}>
                     <Text style={{ fontSize: 32, fontWeight: "800", color: "#9A8E7A" }}>
@@ -151,6 +153,7 @@ export default function RateProviderScreen() {
             </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

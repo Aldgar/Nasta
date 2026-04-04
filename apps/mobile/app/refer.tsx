@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Platform, KeyboardAvoidingView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -85,6 +85,10 @@ export default function Refer() {
     <GradientBackground>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Feather name="arrow-left" size={24} color={isDark ? "#FFFAF0" : colors.text} />
@@ -92,7 +96,7 @@ export default function Refer() {
           <Text style={[styles.title, { color: isDark ? "#FFFAF0" : colors.text }]}>{t("refer.title")}</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={[styles.heroIcon, { backgroundColor: isDark ? "rgba(201, 150, 63, 0.1)" : "rgba(201, 150, 63, 0.1)" }]}>
             <Feather name="gift" size={48} color={colors.tint} />
           </View>
@@ -157,6 +161,7 @@ export default function Refer() {
             </TouchableOpacity>
           </View>
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </GradientBackground>
   );

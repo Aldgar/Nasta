@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Platform,
   Alert,
+  BackHandler,
 } from "react-native";
 import { useState, useCallback } from "react";
 import GradientBackground from "../components/GradientBackground";
@@ -22,6 +23,17 @@ import EmailVerificationBanner from "../components/EmailVerificationBanner";
 export default function EmployerHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => true,
+      );
+      return () => sub.remove();
+    }, []),
+  );
+
   const [refreshing, setRefreshing] = useState(false);
 
   const [profile, setProfile] = useState<{

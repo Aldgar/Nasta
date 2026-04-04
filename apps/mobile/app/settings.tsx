@@ -13,6 +13,7 @@ import {
   Modal,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -121,6 +122,7 @@ export default function Settings() {
   const translateStatus = (status: string): string => {
     const statusMap: { [key: string]: string } = {
       pending: t("profile.status.pending"),
+      not_verified: t("profile.status.notVerified"),
       verified: t("profile.status.verified"),
       rejected: t("profile.status.rejected"),
       manual_review: t("profile.status.manualReview"),
@@ -166,7 +168,8 @@ export default function Settings() {
       | "rejected"
       | "manual_review"
       | "in_progress",
-    backgroundStatus: "pending" as
+    backgroundStatus: "not_verified" as
+      | "not_verified"
       | "pending"
       | "verified"
       | "rejected"
@@ -301,9 +304,11 @@ export default function Settings() {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        // Regular user endpoint
         res = await fetch(`${base}/profiles/me`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache",
+          },
         });
       }
 
@@ -465,14 +470,15 @@ export default function Settings() {
             // Silently fail - use default status
           }
 
-          // Verification Mapping
+          const rawBgStatus = (
+            u.backgroundCheckStatus || "pending"
+          ).toLowerCase();
           setVerification({
             emailVerified: !!u.emailVerifiedAt,
             phoneVerified: !!u.phoneVerifiedAt,
             idStatus,
-            backgroundStatus: (
-              u.backgroundCheckStatus || "pending"
-            ).toLowerCase(),
+            backgroundStatus:
+              rawBgStatus === "pending" ? "not_verified" : rawBgStatus,
           });
         }
       }
@@ -1333,10 +1339,15 @@ export default function Settings() {
       Alert.alert(t("profile.verified"), t("profile.backgroundCheckClean"));
       return;
     }
-    // Could link to a background check upload page if exists, for now just info
+    if (verification.backgroundStatus === "not_verified") {
+      router.push("/kyc-start" as never);
+      return;
+    }
     Alert.alert(
       t("profile.backgroundCheck"),
-      t("profile.currentStatus", { status: verification.backgroundStatus }),
+      t("profile.currentStatus", {
+        status: translateStatus(verification.backgroundStatus),
+      }),
     );
   };
 
@@ -1464,7 +1475,18 @@ export default function Settings() {
             </View>
             <View style={{ width: 40 }} />
           </View>
-          <ScrollView contentContainerStyle={styles.content}>
+          <ScrollView
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={
+              Platform.OS === "android" ? "on-drag" : "interactive"
+            }
+            {...(Platform.OS === "android" ? {
+              removeClippedSubviews: true,
+              overScrollMode: "never" as const,
+              nestedScrollEnabled: true,
+            } : {})}
+          >
             <SectionCard>
               <View style={styles.avatarRow}>
                 <TouchableButton
@@ -1839,6 +1861,10 @@ export default function Settings() {
             animationType="slide"
             onRequestClose={() => setEditModal(null)}
           >
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : undefined}
+              style={{ flex: 1 }}
+            >
             <View style={styles.modalOverlay} pointerEvents="box-none">
               <View
                 style={[
@@ -2744,6 +2770,7 @@ export default function Settings() {
                 )}
               </View>
             </View>
+            </KeyboardAvoidingView>
           </Modal>
 
           {/* Verification Modal */}
@@ -2756,6 +2783,10 @@ export default function Settings() {
               setVerificationCode("");
             }}
           >
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : undefined}
+              style={{ flex: 1 }}
+            >
             <View style={styles.modalOverlay}>
               <View
                 style={[
@@ -2964,6 +2995,7 @@ export default function Settings() {
                 </View>
               </View>
             </View>
+            </KeyboardAvoidingView>
           </Modal>
 
           {/* Language Selection Modal */}

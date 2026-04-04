@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
@@ -19,6 +20,17 @@ import { getApiBase } from "../lib/api";
 export default function AdminHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => true,
+      );
+      return () => sub.remove();
+    }, []),
+  );
+
   const [kycPending, setKycPending] = useState<number | null>(null);
   const [kycMyReviews, setKycMyReviews] = useState<number | null>(null);
   const [ticketsOpen, setTicketsOpen] = useState<number | null>(null);

@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Platform,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import * as ImagePicker from "expo-image-picker";
@@ -390,80 +391,31 @@ export default function KycCapture() {
       } else {
         result = await ImagePicker.launchImageLibraryAsync({
           quality: 0.8,
-          allowsEditing: true, // Allow editing to help with format conversion
+          allowsEditing: false,
           exif: false,
           base64: false,
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           selectionLimit: 1,
-          aspect: [4, 3], // Standard aspect ratio
           ...(Platform.OS === "ios"
             ? ({ preferredAssetRepresentationMode: "compatible" } as any)
             : null),
         });
       }
     } catch (error: any) {
-      // If camera fails and we were trying to use camera, automatically fall back to file picker
       if (useCamera) {
-        console.log(
-          "Camera unavailable, automatically falling back to image library",
+        console.log("Camera unavailable:", error?.message);
+        Alert.alert(
+          t("kyc.cameraUnavailable"),
+          t("kyc.cameraUnavailableMessage"),
+          [
+            {
+              text: t("kyc.useGallery"),
+              onPress: () => pickImage(setter, false),
+            },
+            { text: t("common.cancel"), style: "cancel" },
+          ],
         );
-        try {
-          // Request media library permission if we don't have it
-          const libPerm =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (libPerm.status !== "granted") {
-            Alert.alert(
-              t("kyc.permissionRequired"),
-              t("kyc.pleaseAllowPhotosAccess"),
-            );
-            return;
-          }
-
-          // Use image library instead
-          result = await ImagePicker.launchImageLibraryAsync({
-            quality: 0.8,
-            allowsEditing: true, // Allow editing to help with format conversion
-            exif: false,
-            base64: false,
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            selectionLimit: 1,
-            aspect: [4, 3], // Standard aspect ratio
-            ...(Platform.OS === "ios"
-              ? ({ preferredAssetRepresentationMode: "compatible" } as any)
-              : null),
-          });
-        } catch (fallbackError: any) {
-          console.error(
-            "Fallback to image library also failed:",
-            fallbackError,
-          );
-          const errorMessage =
-            fallbackError?.message || t("kyc.unableToAccessCameraOrPhotos");
-
-          // If it's a PNG loading error, suggest trying a different format
-          if (
-            errorMessage.includes("png") ||
-            errorMessage.includes("representation")
-          ) {
-            Alert.alert(
-              t("kyc.imageFormatError"),
-              t("kyc.imageFormatErrorMessage"),
-              [
-                { text: t("common.cancel"), style: "cancel" },
-                {
-                  text: t("common.retry"),
-                  onPress: () => pickImage(setter, false), // Retry with image library
-                },
-              ],
-            );
-          } else {
-            Alert.alert(
-              t("common.error"),
-              t("kyc.unableToAccessCameraOrPhotos"),
-            );
-          }
-          return;
-        }
+        return;
       } else {
         console.error("Image library access failed:", error);
         const errorMessage =
@@ -1343,6 +1295,7 @@ export default function KycCapture() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -2299,6 +2252,7 @@ export default function KycCapture() {
                   contentContainerStyle={styles.previewModalImageContainer}
                   maximumZoomScale={3}
                   minimumZoomScale={1}
+                  keyboardShouldPersistTaps="handled"
                 >
                   <Image
                     source={{ uri: previewModal.uri }}
@@ -2396,6 +2350,7 @@ export default function KycCapture() {
             <ScrollView
               showsVerticalScrollIndicator={false}
               pointerEvents="auto"
+              keyboardShouldPersistTaps="handled"
             >
               {idTypeOptions.map((option) => (
                 <TouchableOpacity
@@ -2423,6 +2378,7 @@ export default function KycCapture() {
           </View>
         </View>
       </Modal>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

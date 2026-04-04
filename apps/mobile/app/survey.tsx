@@ -8,6 +8,8 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -233,6 +235,7 @@ export default function SurveyScreen() {
     <ScrollView
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={styles.introSection}>
         <Text style={[styles.introTitle, { color: colors.text }]}>
@@ -726,6 +729,7 @@ export default function SurveyScreen() {
     <ScrollView
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={styles.introSection}>
         <Text style={[styles.introTitle, { color: colors.text }]}>
@@ -1233,6 +1237,7 @@ export default function SurveyScreen() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableButton onPress={() => router.back()}>
@@ -1255,6 +1260,7 @@ export default function SurveyScreen() {
           </View>
         )}
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }

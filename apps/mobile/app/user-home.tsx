@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet, Platform, BackHandler } from "react-native";
 import GradientBackground from "../components/GradientBackground";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Constants from "expo-constants";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
@@ -15,6 +15,17 @@ import { Fonts } from "../constants/theme";
 export default function UserHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => true,
+      );
+      return () => sub.remove();
+    }, []),
+  );
+
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [kycStatus, setKycStatus] = useState<
     | "PENDING"

@@ -9,6 +9,7 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -105,6 +106,7 @@ export default function ServiceProviderRatingScreen() {
 
   return (
     <GradientBackground>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -119,7 +121,7 @@ export default function ServiceProviderRatingScreen() {
           <View style={{ width: 24 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {/* Platform Rating */}
           <View style={styles.ratingSection}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -211,6 +213,7 @@ export default function ServiceProviderRatingScreen() {
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }
