@@ -82,7 +82,8 @@
             "deploymentTarget": "16.0"
           },
           "android": {
-            "compileSdkVersion": 34,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
             "windowSoftInputMode": "adjustResize"
           }
         }
