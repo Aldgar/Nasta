@@ -100,7 +100,19 @@
     "about": "About",
     "howItWorks": "How It Works",
     "forEmployers": "For Employers",
-    "forServiceProviders": "For Service Providers"
+    "forServiceProviders": "For Service Providers",
+    "employerPostJob": "How to Post a Job",
+    "employerInstantJobs": "Request Instant Jobs",
+    "employerNegotiation": "Negotiation Requests",
+    "employerRefund": "Refund Policy",
+    "employerNoShow": "No-Show Policy",
+    "spKyc": "KYC Verification",
+    "spApplyJobs": "Apply for Jobs",
+    "spSkills": "Professional Skills",
+    "spAvailability": "Availability",
+    "spAccepting": "Accepting Job Requests",
+    "spNegotiation": "Negotiation Requests",
+    "spNoShow": "No-Show Policy"
   },
   "landing": {
     "heroLabel": "TRUSTED BY BOTH SIDES",

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -5,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  LayoutAnimation,
+  UIManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -14,9 +17,18 @@ import { getGuideDocument } from "../lib/guide-text";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 export default function LegalMenuScreen() {
   const { colors, isDark } = useTheme();
   const { t, language } = useLanguage();
+  const [employerExpanded, setEmployerExpanded] = useState(false);
+  const [providerExpanded, setProviderExpanded] = useState(false);
 
   const legalItems = [
     {
@@ -55,7 +67,7 @@ export default function LegalMenuScreen() {
     },
   ];
 
-  const usageItems = [
+  const usageTopItems = [
     {
       title: t("guide.about"),
       route: "/content-page",
@@ -74,28 +86,133 @@ export default function LegalMenuScreen() {
         content: getGuideDocument("HOW_IT_WORKS", language),
       },
     },
+  ];
+
+  const employerSubItems = [
     {
-      title: t("guide.forEmployers"),
+      title: t("guide.employerPostJob"),
       route: "/content-page",
       params: {
-        pageKey: "for_employers",
-        title: t("guide.forEmployers"),
-        content: getGuideDocument("FOR_EMPLOYERS", language),
+        pageKey: "employer_post_job",
+        title: t("guide.employerPostJob"),
+        content: getGuideDocument("EMPLOYER_POST_JOB", language),
       },
     },
     {
-      title: t("guide.forServiceProviders"),
+      title: t("guide.employerInstantJobs"),
       route: "/content-page",
       params: {
-        pageKey: "for_providers",
-        title: t("guide.forServiceProviders"),
-        content: getGuideDocument("FOR_PROVIDERS", language),
+        pageKey: "employer_instant_jobs",
+        title: t("guide.employerInstantJobs"),
+        content: getGuideDocument("EMPLOYER_INSTANT_JOBS", language),
+      },
+    },
+    {
+      title: t("guide.employerNegotiation"),
+      route: "/content-page",
+      params: {
+        pageKey: "employer_negotiation",
+        title: t("guide.employerNegotiation"),
+        content: getGuideDocument("EMPLOYER_NEGOTIATION", language),
+      },
+    },
+    {
+      title: t("guide.employerRefund"),
+      route: "/content-page",
+      params: {
+        pageKey: "employer_refund",
+        title: t("guide.employerRefund"),
+        content: getGuideDocument("EMPLOYER_REFUND", language),
+      },
+    },
+    {
+      title: t("guide.employerNoShow"),
+      route: "/content-page",
+      params: {
+        pageKey: "employer_no_show",
+        title: t("guide.employerNoShow"),
+        content: getGuideDocument("EMPLOYER_NO_SHOW", language),
+      },
+    },
+  ];
+
+  const providerSubItems = [
+    {
+      title: t("guide.spKyc"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_kyc",
+        title: t("guide.spKyc"),
+        content: getGuideDocument("SP_KYC", language),
+      },
+    },
+    {
+      title: t("guide.spApplyJobs"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_apply_jobs",
+        title: t("guide.spApplyJobs"),
+        content: getGuideDocument("SP_APPLY_JOBS", language),
+      },
+    },
+    {
+      title: t("guide.spSkills"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_skills",
+        title: t("guide.spSkills"),
+        content: getGuideDocument("SP_SKILLS", language),
+      },
+    },
+    {
+      title: t("guide.spAvailability"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_availability",
+        title: t("guide.spAvailability"),
+        content: getGuideDocument("SP_AVAILABILITY", language),
+      },
+    },
+    {
+      title: t("guide.spAccepting"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_accepting",
+        title: t("guide.spAccepting"),
+        content: getGuideDocument("SP_ACCEPTING", language),
+      },
+    },
+    {
+      title: t("guide.spNegotiation"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_negotiation",
+        title: t("guide.spNegotiation"),
+        content: getGuideDocument("SP_NEGOTIATION", language),
+      },
+    },
+    {
+      title: t("guide.spNoShow"),
+      route: "/content-page",
+      params: {
+        pageKey: "sp_no_show",
+        title: t("guide.spNoShow"),
+        content: getGuideDocument("SP_NO_SHOW", language),
       },
     },
   ];
 
   const handlePress = (item: any) => {
     router.push({ pathname: item.route, params: item.params } as any);
+  };
+
+  const toggleSection = (section: "employer" | "provider") => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (section === "employer") {
+      setEmployerExpanded((prev) => !prev);
+    } else {
+      setProviderExpanded((prev) => !prev);
+    }
   };
 
   const renderSection = (title: string, items: any[]) => (
@@ -122,6 +239,105 @@ export default function LegalMenuScreen() {
             />
           </TouchableOpacity>
         ))}
+      </View>
+    </View>
+  );
+
+  const renderCollapsibleItem = (
+    title: string,
+    expanded: boolean,
+    onToggle: () => void,
+    subItems: any[],
+    isLast: boolean,
+  ) => (
+    <View>
+      <TouchableOpacity
+        style={[
+          styles.menuItem,
+          themeStyles.itemBorder,
+          !expanded && isLast && styles.lastMenuItem,
+        ]}
+        onPress={onToggle}
+      >
+        <Text style={[styles.menuText, themeStyles.text]}>{title}</Text>
+        <Feather
+          name={expanded ? "chevron-down" : "chevron-right"}
+          size={20}
+          color={isDark ? "rgba(201,150,63,0.5)" : "rgba(0,0,0,0.4)"}
+        />
+      </TouchableOpacity>
+      {expanded &&
+        subItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.subMenuItem,
+              themeStyles.itemBorder,
+              index === subItems.length - 1 && isLast && styles.lastMenuItem,
+            ]}
+            onPress={() => handlePress(item)}
+          >
+            <View style={styles.subMenuRow}>
+              <View
+                style={[
+                  styles.subMenuDot,
+                  {
+                    backgroundColor: isDark
+                      ? "rgba(201,150,63,0.4)"
+                      : "rgba(184,130,42,0.35)",
+                  },
+                ]}
+              />
+              <Text style={[styles.subMenuText, themeStyles.text]}>
+                {item.title}
+              </Text>
+            </View>
+            <Feather
+              name="chevron-right"
+              size={16}
+              color={isDark ? "rgba(201,150,63,0.25)" : "rgba(0,0,0,0.25)"}
+            />
+          </TouchableOpacity>
+        ))}
+    </View>
+  );
+
+  const renderUsageSection = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={[styles.sectionTitle, themeStyles.text]}>
+        {t("guide.usage")}
+      </Text>
+      <View style={[styles.menuList, themeStyles.listBg]}>
+        {usageTopItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.menuItem, themeStyles.itemBorder]}
+            onPress={() => handlePress(item)}
+          >
+            <Text style={[styles.menuText, themeStyles.text]}>
+              {item.title}
+            </Text>
+            <Feather
+              name="chevron-right"
+              size={20}
+              color={isDark ? "rgba(201,150,63,0.3)" : "rgba(0,0,0,0.3)"}
+            />
+          </TouchableOpacity>
+        ))}
+        {renderCollapsibleItem(
+          t("guide.forEmployers"),
+          employerExpanded,
+          () => toggleSection("employer"),
+          employerSubItems,
+          false,
+        )}
+        {renderCollapsibleItem(
+          t("guide.forServiceProviders"),
+          providerExpanded,
+          () => toggleSection("provider"),
+          providerSubItems,
+          true,
+        )}
       </View>
     </View>
   );
@@ -164,7 +380,7 @@ export default function LegalMenuScreen() {
         showsVerticalScrollIndicator={false}
       >
         {renderSection(t("legal.legal"), legalItems)}
-        {renderSection(t("guide.usage"), usageItems)}
+        {renderUsageSection()}
       </ScrollView>
     </SafeAreaView>
   );
@@ -219,5 +435,29 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     fontWeight: "500",
+  },
+  subMenuItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 13,
+    paddingLeft: 36,
+    paddingRight: 20,
+    borderBottomWidth: 1,
+  },
+  subMenuRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  subMenuDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    marginRight: 12,
+  },
+  subMenuText: {
+    fontSize: 15,
+    fontWeight: "400",
   },
 });

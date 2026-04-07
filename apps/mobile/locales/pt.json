@@ -100,7 +100,19 @@
     "about": "Sobre",
     "howItWorks": "Como Funciona",
     "forEmployers": "Para Empregadores",
-    "forServiceProviders": "Para Prestadores de Serviços"
+    "forServiceProviders": "Para Prestadores de Serviços",
+    "employerPostJob": "Como Publicar um Emprego",
+    "employerInstantJobs": "Solicitar Trabalhos Instantâneos",
+    "employerNegotiation": "Pedidos de Negociação",
+    "employerRefund": "Política de Reembolso",
+    "employerNoShow": "Política de Não Comparência",
+    "spKyc": "Verificação KYC",
+    "spApplyJobs": "Candidatar-se a Empregos",
+    "spSkills": "Competências Profissionais",
+    "spAvailability": "Disponibilidade",
+    "spAccepting": "Aceitar Pedidos de Trabalho",
+    "spNegotiation": "Pedidos de Negociação",
+    "spNoShow": "Política de Não Comparência"
   },
   "landing": {
     "heroLabel": "CONFIANÇA DE AMBOS OS LADOS",
