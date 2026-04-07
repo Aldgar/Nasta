@@ -2186,7 +2186,7 @@ export default function ApplicantDetailScreen() {
               ]}
               onPress={() => {
                 if (instantJob) {
-                  router.replace("/(tabs)/applications" as any);
+                  router.replace("/employer-tabs/jobs" as any);
                 } else {
                   router.back();
                 }
