@@ -95,6 +95,13 @@
     "legal": "Legal",
     "support": "Suporte"
   },
+  "guide": {
+    "usage": "Utilização",
+    "about": "Sobre",
+    "howItWorks": "Como Funciona",
+    "forEmployers": "Para Empregadores",
+    "forServiceProviders": "Para Prestadores de Serviços"
+  },
   "landing": {
     "heroLabel": "CONFIANÇA DE AMBOS OS LADOS",
     "heroTitle": "Talento Verificado.\nTrabalhos Seguros.",

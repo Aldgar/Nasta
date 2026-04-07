@@ -95,6 +95,13 @@
     "legal": "Legal",
     "support": "Support"
   },
+  "guide": {
+    "usage": "Usage",
+    "about": "About",
+    "howItWorks": "How It Works",
+    "forEmployers": "For Employers",
+    "forServiceProviders": "For Service Providers"
+  },
   "landing": {
     "heroLabel": "TRUSTED BY BOTH SIDES",
     "heroTitle": "Verified Talent.\nSeamless Jobs.",

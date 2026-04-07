@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { getLegalDocument } from "../lib/legal-text";
+import { getGuideDocument } from "../lib/guide-text";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -54,19 +55,43 @@ export default function LegalMenuScreen() {
     },
   ];
 
-  const supportItems = [
-    { title: t("legal.contactSupport"), route: "/support" },
+  const usageItems = [
     {
-      title: t("legal.reportAbuse"),
-      route: "/report",
-      params: { title: t("legal.reportAbuse") },
+      title: t("guide.about"),
+      route: "/content-page",
+      params: {
+        pageKey: "about",
+        title: t("guide.about"),
+        content: getGuideDocument("ABOUT", language),
+      },
     },
     {
-      title: t("legal.reportSecurity"),
-      route: "/report",
-      params: { title: t("legal.reportSecurity") },
+      title: t("guide.howItWorks"),
+      route: "/content-page",
+      params: {
+        pageKey: "how_it_works",
+        title: t("guide.howItWorks"),
+        content: getGuideDocument("HOW_IT_WORKS", language),
+      },
     },
-    { title: t("legal.survey"), route: "/survey" },
+    {
+      title: t("guide.forEmployers"),
+      route: "/content-page",
+      params: {
+        pageKey: "for_employers",
+        title: t("guide.forEmployers"),
+        content: getGuideDocument("FOR_EMPLOYERS", language),
+      },
+    },
+    {
+      title: t("guide.forServiceProviders"),
+      route: "/content-page",
+      params: {
+        pageKey: "for_providers",
+        title: t("guide.forServiceProviders"),
+        content: getGuideDocument("FOR_PROVIDERS", language),
+      },
+    },
   ];
 
   const handlePress = (item: any) => {
@@ -139,7 +164,7 @@ export default function LegalMenuScreen() {
         showsVerticalScrollIndicator={false}
       >
         {renderSection(t("legal.legal"), legalItems)}
-        {renderSection(t("legal.support"), supportItems)}
+        {renderSection(t("guide.usage"), usageItems)}
       </ScrollView>
     </SafeAreaView>
   );
