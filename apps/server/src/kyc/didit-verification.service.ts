@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as path from 'path';
 import FormData = require('form-data');
 
 const DIDIT_BASE_URL = 'https://verification.didit.me/v3';
@@ -61,6 +59,12 @@ export interface DiditVerificationResult {
   errors: string[];
 }
 
+export interface KycFileData {
+  buffer: Buffer;
+  originalName: string;
+  mimeType: string;
+}
+
 @Injectable()
 export class DiditVerificationService {
   private readonly logger = new Logger(DiditVerificationService.name);
@@ -78,10 +82,10 @@ export class DiditVerificationService {
    * Called after user uploads all required documents.
    */
   async verifyIdentity(
-    documentFrontPath: string,
-    selfieImagePath: string,
+    documentFront: KycFileData,
+    selfieImage: KycFileData,
     userId: string,
-    documentBackPath?: string,
+    documentBack?: KycFileData,
   ): Promise<DiditVerificationResult> {
     const errors: string[] = [];
     let idVerification: IdVerificationResult | undefined;
@@ -91,9 +95,9 @@ export class DiditVerificationService {
     // Step 1: ID Verification (document OCR + authenticity)
     try {
       idVerification = await this.verifyIdDocument(
-        documentFrontPath,
+        documentFront,
         userId,
-        documentBackPath,
+        documentBack,
       );
       this.logger.log(
         `ID verification: status=${idVerification.id_verification.status}`,
@@ -105,7 +109,7 @@ export class DiditVerificationService {
 
     // Step 2: Passive Liveness (anti-spoofing)
     try {
-      liveness = await this.checkLiveness(selfieImagePath, userId);
+      liveness = await this.checkLiveness(selfieImage, userId);
       this.logger.log(
         `Liveness check: status=${liveness.liveness.status} score=${liveness.liveness.score}`,
       );
@@ -114,16 +118,9 @@ export class DiditVerificationService {
       errors.push(`Liveness check failed: ${(error as Error).message}`);
     }
 
-    // Step 3: Face Match (selfie vs document portrait)
+    // Step 3: Face Match (selfie vs document front)
     try {
-      const refImagePath = idVerification?.id_verification.portrait_image
-        ? undefined // portrait extracted from doc — use it as base64
-        : documentFrontPath; // fallback to document front
-      faceMatch = await this.matchFace(
-        selfieImagePath,
-        refImagePath || documentFrontPath,
-        userId,
-      );
+      faceMatch = await this.matchFace(selfieImage, documentFront, userId);
       this.logger.log(
         `Face match: status=${faceMatch.face_match.status} score=${faceMatch.face_match.score}`,
       );
@@ -147,18 +144,18 @@ export class DiditVerificationService {
    * Run driver's license verification (document only, no liveness/face match).
    */
   async verifyDriversLicense(
-    documentFrontPath: string,
+    documentFront: KycFileData,
     userId: string,
-    documentBackPath?: string,
+    documentBack?: KycFileData,
   ): Promise<DiditVerificationResult> {
     const errors: string[] = [];
     let idVerification: IdVerificationResult | undefined;
 
     try {
       idVerification = await this.verifyIdDocument(
-        documentFrontPath,
+        documentFront,
         userId,
-        documentBackPath,
+        documentBack,
       );
       this.logger.log(
         `DL verification: status=${idVerification.id_verification.status}`,
@@ -178,23 +175,21 @@ export class DiditVerificationService {
   // ─── Standalone API calls ─────────────────────────────────────────────
 
   private async verifyIdDocument(
-    frontPath: string,
+    front: KycFileData,
     vendorData: string,
-    backPath?: string,
+    back?: KycFileData,
   ): Promise<IdVerificationResult> {
     const form = new FormData();
 
-    const frontAbsPath = this.resolveFilePath(frontPath);
-    form.append('front_image', fs.readFileSync(frontAbsPath), {
-      filename: path.basename(frontAbsPath),
-      contentType: this.getMimeType(frontAbsPath),
+    form.append('front_image', front.buffer, {
+      filename: front.originalName,
+      contentType: front.mimeType,
     });
 
-    if (backPath) {
-      const backAbsPath = this.resolveFilePath(backPath);
-      form.append('back_image', fs.readFileSync(backAbsPath), {
-        filename: path.basename(backAbsPath),
-        contentType: this.getMimeType(backAbsPath),
+    if (back) {
+      form.append('back_image', back.buffer, {
+        filename: back.originalName,
+        contentType: back.mimeType,
       });
     }
 
@@ -206,15 +201,14 @@ export class DiditVerificationService {
   }
 
   private async checkLiveness(
-    selfiePath: string,
+    selfie: KycFileData,
     vendorData: string,
   ): Promise<LivenessResult> {
     const form = new FormData();
 
-    const absPath = this.resolveFilePath(selfiePath);
-    form.append('user_image', fs.readFileSync(absPath), {
-      filename: path.basename(absPath),
-      contentType: this.getMimeType(absPath),
+    form.append('user_image', selfie.buffer, {
+      filename: selfie.originalName,
+      contentType: selfie.mimeType,
     });
     form.append('save_api_request', 'true');
     form.append('vendor_data', vendorData);
@@ -223,22 +217,19 @@ export class DiditVerificationService {
   }
 
   private async matchFace(
-    selfiePath: string,
-    refImagePath: string,
+    selfie: KycFileData,
+    refImage: KycFileData,
     vendorData: string,
   ): Promise<FaceMatchResult> {
     const form = new FormData();
 
-    const selfieAbsPath = this.resolveFilePath(selfiePath);
-    const refAbsPath = this.resolveFilePath(refImagePath);
-
-    form.append('user_image', fs.readFileSync(selfieAbsPath), {
-      filename: path.basename(selfieAbsPath),
-      contentType: this.getMimeType(selfieAbsPath),
+    form.append('user_image', selfie.buffer, {
+      filename: selfie.originalName,
+      contentType: selfie.mimeType,
     });
-    form.append('ref_image', fs.readFileSync(refAbsPath), {
-      filename: path.basename(refAbsPath),
-      contentType: this.getMimeType(refAbsPath),
+    form.append('ref_image', refImage.buffer, {
+      filename: refImage.originalName,
+      contentType: refImage.mimeType,
     });
     form.append('face_match_score_decline_threshold', '40');
     form.append('save_api_request', 'true');
@@ -273,25 +264,6 @@ export class DiditVerificationService {
     }
 
     return response.json() as Promise<T>;
-  }
-
-  private resolveFilePath(relativePath: string): string {
-    // Files are stored relative to the server root (e.g. "uploads/kyc/front-abc123.jpg")
-    return path.resolve(process.cwd(), relativePath);
-  }
-
-  private getMimeType(filePath: string): string {
-    const ext = path.extname(filePath).toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.webp': 'image/webp',
-      '.tiff': 'image/tiff',
-      '.tif': 'image/tiff',
-      '.pdf': 'application/pdf',
-    };
-    return mimeTypes[ext] || 'application/octet-stream';
   }
 
   private determineOverallStatus(

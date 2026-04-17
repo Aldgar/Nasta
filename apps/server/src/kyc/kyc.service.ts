@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { KycFileUploadService } from './file-upload.service';
-import { DiditVerificationService } from './didit-verification.service';
+import {
+  DiditVerificationService,
+  KycFileData,
+} from './didit-verification.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailTranslationsService } from '../notifications/email-translations.service';
 
@@ -150,14 +153,36 @@ export class KycService {
     const backUrl = (updates.documentBackUrl as string) || kyc.documentBackUrl;
     const isDriversLicense = kyc.verificationType === 'DRIVERS_LICENSE';
 
+    // Build in-memory file data for Didit API (avoids reading back from disk)
+    const fileBuffers: Record<string, KycFileData> = {};
+    if (files.documentFront) {
+      fileBuffers.front = {
+        buffer: files.documentFront.buffer,
+        originalName: files.documentFront.originalname,
+        mimeType: files.documentFront.mimetype,
+      };
+    }
+    if (files.documentBack) {
+      fileBuffers.back = {
+        buffer: files.documentBack.buffer,
+        originalName: files.documentBack.originalname,
+        mimeType: files.documentBack.mimetype,
+      };
+    }
+    if (files.selfie) {
+      fileBuffers.selfie = {
+        buffer: files.selfie.buffer,
+        originalName: files.selfie.originalname,
+        mimeType: files.selfie.mimetype,
+      };
+    }
+
     if (frontUrl && (isDriversLicense || selfieUrl)) {
       this.triggerDiditVerification(
         verificationId,
         userId,
-        frontUrl,
-        selfieUrl || undefined,
-        backUrl || undefined,
         isDriversLicense,
+        fileBuffers,
       );
     }
 
@@ -174,10 +199,8 @@ export class KycService {
   private triggerDiditVerification(
     verificationId: string,
     userId: string,
-    documentFrontUrl: string,
-    selfieUrl?: string,
-    documentBackUrl?: string,
-    isDriversLicense = false,
+    isDriversLicense: boolean,
+    fileBuffers: Record<string, KycFileData>,
   ): void {
     // Run async — don't block the upload response
     (async () => {
@@ -195,16 +218,16 @@ export class KycService {
         let result;
         if (isDriversLicense) {
           result = await this.diditVerification.verifyDriversLicense(
-            documentFrontUrl,
+            fileBuffers.front,
             userId,
-            documentBackUrl,
+            fileBuffers.back,
           );
         } else {
           result = await this.diditVerification.verifyIdentity(
-            documentFrontUrl,
-            selfieUrl!,
+            fileBuffers.front,
+            fileBuffers.selfie,
             userId,
-            documentBackUrl,
+            fileBuffers.back,
           );
         }
 
