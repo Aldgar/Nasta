@@ -224,6 +224,12 @@ export default function RegisterScreen() {
         throw new Error("No authentication token received");
       }
 
+      // Store refresh token for silent token renewal
+      const refreshToken = data?.refreshToken || data?.refresh_token || "";
+      if (refreshToken) {
+        SecureStore.setItemAsync("refresh_token", refreshToken).catch(() => {});
+      }
+
       // Store token, but do not block navigation on storage.
       // Some SecureStore implementations/dev modes can be slow and make the UI look stuck.
       void Promise.race([

@@ -806,31 +806,8 @@ function EmployerNegotiationCard({
 /*  Page                                                               */
 /* ------------------------------------------------------------------ */
 
-const STATUS_ACTIONS: {
-  status: string;
-  label: string;
-  color: string;
-  next: string;
-}[] = [
-  {
-    status: "PENDING",
-    label: "Start Review",
-    color: "bg-[var(--fulfillment-gold)] text-[var(--background)]",
-    next: "REVIEWING",
-  },
-  {
-    status: "REVIEWING",
-    label: "Shortlist",
-    color: "bg-[var(--primary)] text-white",
-    next: "SHORTLISTED",
-  },
-  {
-    status: "SHORTLISTED",
-    label: "Accept & Hire",
-    color: "bg-emerald-600 text-white",
-    next: "ACCEPTED",
-  },
-];
+/* Mobile-mirrored flow: no multi-step status progression.
+   Employer can Accept (requires payment) or Reject directly. */
 
 export default function EmployerApplicationDetailPage() {
   const { t } = useLanguage();
@@ -1043,15 +1020,18 @@ export default function EmployerApplicationDetailPage() {
     totalAmount: number,
     message: string,
   ) => {
-    const res = await api(`/applications/${appId}/negotiation/counter-offer`, {
-      method: "POST",
-      body: {
-        requestId,
-        rates,
-        totalAmount,
-        message: message.trim() || undefined,
+    const res = await api(
+      `/applications/${appId}/negotiation/counter-offer-employer`,
+      {
+        method: "POST",
+        body: {
+          requestId,
+          rates,
+          totalAmount,
+          message: message.trim() || undefined,
+        },
       },
-    });
+    );
     if (res.error) {
       setToast({
         msg:
@@ -1124,6 +1104,10 @@ export default function EmployerApplicationDetailPage() {
         (s, i) => s + (candidateData.rates![i]?.rate || 0),
         0,
       );
+    } else if (app?.selectedRates && app.selectedRates.length > 0) {
+      total = app.selectedRates.reduce((s, r) => s + (r.rate || 0), 0);
+    } else if (app?.job?.rateAmount && app.job.rateAmount > 0) {
+      total = app.job.rateAmount / 100;
     }
     if (app?.additionalRateRequests) {
       total += app.additionalRateRequests
@@ -1275,9 +1259,29 @@ export default function EmployerApplicationDetailPage() {
       setPaymentProcessing(false);
       return;
     }
-    const selectedRatesData = candidateData?.rates
-      ? Array.from(selectedRateIndices).map((i) => candidateData.rates![i])
-      : [];
+    let selectedRatesData: Array<{
+      rate: number;
+      paymentType: string;
+      otherSpecification?: string;
+    }> = [];
+    if (candidateData?.rates && selectedRateIndices.size > 0) {
+      selectedRatesData = Array.from(selectedRateIndices).map(
+        (i) => candidateData.rates![i],
+      );
+    } else if (app.selectedRates && app.selectedRates.length > 0) {
+      selectedRatesData = app.selectedRates.map((r) => ({
+        rate: r.rate,
+        paymentType: r.paymentType,
+        otherSpecification: r.otherSpecification,
+      }));
+    } else if (app.job?.rateAmount && app.job.rateAmount > 0) {
+      selectedRatesData = [
+        {
+          rate: app.job.rateAmount / 100,
+          paymentType: app.job.paymentType || "HOURLY",
+        },
+      ];
+    }
     // Add approved additional rates
     if (app.additionalRateRequests) {
       app.additionalRateRequests
@@ -1417,13 +1421,36 @@ export default function EmployerApplicationDetailPage() {
     .filter(Boolean)
     .join(", ");
   const steps = buildEmployerTimeline(app);
-  const nextAction = STATUS_ACTIONS.find((a) => a.status === status);
+
+  // Payment required check — mirrors mobile isPaymentRequired()
+  const totalAmount = getSelectedTotal();
+  const paidAmount = app.paymentStatus?.paidAmount ?? 0;
+  const unpaidAmount = app.paymentStatus?.unpaidAmount ?? 0;
+  const additionalNeeded =
+    unpaidAmount > 0.01 ? unpaidAmount : Math.max(0, totalAmount - paidAmount);
+  const hasAnyServicesSelected =
+    selectedRateIndices.size > 0 ||
+    (app.selectedRates && app.selectedRates.length > 0);
+  const paymentCompleted = app.paymentStatus?.completed === true;
+  const isPaymentRequired = (): boolean => {
+    if (unpaidAmount > 0.01) return true;
+    if (!hasAnyServicesSelected) return true;
+    if (!paymentCompleted && totalAmount > 0) return true;
+    if (paymentCompleted && additionalNeeded > 0.01) return true;
+    return false;
+  };
+  const canAccept =
+    !isAccepted &&
+    !isTerminal &&
+    status !== "REQUESTED" &&
+    !completed &&
+    !isPaymentRequired();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Back nav */}
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push("/dashboard/employer/applications")}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--muted-text)] transition-colors hover:text-[var(--primary)]"
       >
         <svg
@@ -1547,6 +1574,35 @@ export default function EmployerApplicationDetailPage() {
         </div>
       </div>
 
+      {/* Waiting for Provider Response banner — shown for REQUESTED instant jobs */}
+      {status === "REQUESTED" && (
+        <div className="flex items-start gap-3 rounded-2xl border border-blue-500/30 bg-blue-500/10 p-5">
+          <svg
+            className="mt-0.5 h-5 w-5 shrink-0 text-blue-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <div>
+            <p className="text-sm font-bold text-blue-400">
+              Waiting for Provider Response
+            </p>
+            <p className="mt-1 text-sm text-[var(--foreground)]/70">
+              Your request has been sent to the service provider. They will
+              review the job details and respond. You will be notified when they
+              accept or decline.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         {/* Left column */}
@@ -1662,7 +1718,8 @@ export default function EmployerApplicationDetailPage() {
           {/* ── Select Services ───────────────────────────── */}
           {candidateData?.rates &&
             candidateData.rates.length > 0 &&
-            !isTerminal && (
+            !isTerminal &&
+            status !== "REQUESTED" && (
               <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
                 <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
                   Select Services
@@ -1754,15 +1811,15 @@ export default function EmployerApplicationDetailPage() {
                       )}
                       {additionalNeeded > 0 && (
                         <div className="mt-1 flex items-center justify-between">
-                          <span className="text-xs font-bold text-[var(--alert-red)]">
+                          <span className="text-xs font-bold text-[#C9963F]">
                             Payment Required:
                           </span>
-                          <span className="text-base font-bold text-[var(--alert-red)]">
+                          <span className="text-base font-bold text-[#C9963F]">
                             EUR {additionalNeeded.toFixed(2)}
                           </span>
                         </div>
                       )}
-                      {additionalNeeded > 0 && (
+                      {additionalNeeded > 0 && status !== "REQUESTED" && (
                         <button
                           onClick={handleProceedToPayment}
                           disabled={paymentProcessing}
@@ -1799,7 +1856,7 @@ export default function EmployerApplicationDetailPage() {
             )}
 
           {/* ── Suggest Negotiation (employer-initiated) ───── */}
-          {!isTerminal && !completed && (
+          {!isTerminal && !completed && status !== "REQUESTED" && (
             <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-semibold text-[var(--foreground)]">
@@ -2259,21 +2316,28 @@ export default function EmployerApplicationDetailPage() {
 
         {/* Right sidebar */}
         <div className="space-y-5">
-          {/* Status management */}
-          {!isTerminal && !completed && (
+          {/* Status management — simplified to match mobile: Accept or Reject */}
+          {!isTerminal && !completed && status !== "REQUESTED" && (
             <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
                 Manage Application
               </h3>
 
-              {nextAction && (
-                <button
-                  onClick={() => handleStatusUpdate(nextAction.next)}
-                  disabled={updatingStatus}
-                  className={`mt-3 w-full rounded-xl py-2.5 text-sm font-semibold transition-colors hover:opacity-90 disabled:opacity-50 ${nextAction.color}`}
-                >
-                  {updatingStatus ? "Updating..." : nextAction.label}
-                </button>
+              {!isAccepted && (
+                <>
+                  <button
+                    onClick={() => handleStatusUpdate("ACCEPTED")}
+                    disabled={updatingStatus || isPaymentRequired()}
+                    className="mt-3 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {updatingStatus ? "Updating..." : "Accept & Hire"}
+                  </button>
+                  {isPaymentRequired() && (
+                    <p className="mt-1.5 text-center text-[10px] text-[#C9963F]">
+                      Payment required before accepting
+                    </p>
+                  )}
+                </>
               )}
 
               {!isAccepted && !showReject && (
@@ -2315,6 +2379,108 @@ export default function EmployerApplicationDetailPage() {
               )}
             </div>
           )}
+
+          {/* Selected Services / Payment Info */}
+          {(() => {
+            const rates: Array<{
+              rate: number;
+              paymentType: string;
+              otherSpecification?: string;
+            }> = [];
+            // Use selectedRates from application
+            if (app.selectedRates && app.selectedRates.length > 0) {
+              app.selectedRates.forEach((sr) => rates.push(sr));
+            }
+            // Fallback: use job rateAmount if no selectedRates
+            if (
+              rates.length === 0 &&
+              app.job?.rateAmount &&
+              app.job.rateAmount > 0
+            ) {
+              rates.push({
+                rate: app.job.rateAmount / 100,
+                paymentType: app.job.paymentType || "HOURLY",
+              });
+            }
+            const currency = app.job?.currency || app.currency || "EUR";
+            const total = rates.reduce((s, r) => s + (r.rate || 0), 0);
+            if (total <= 0) return null;
+            return (
+              <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
+                <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                  Selected Services
+                </h3>
+                <div className="space-y-2">
+                  {rates.map((r, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-xl bg-[var(--surface-alt)] px-3 py-2"
+                    >
+                      <span className="text-xs text-[var(--muted-text)]">
+                        {`€${r.rate.toFixed(2)}/${formatLabel(r.paymentType)}`}
+                      </span>
+                      {r.otherSpecification && (
+                        <span className="text-[10px] text-[var(--muted-text)]">
+                          {r.otherSpecification}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 border-t border-[var(--border-color)] pt-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[var(--foreground)]">
+                      Total Amount:
+                    </span>
+                    <span className="text-sm font-bold text-[var(--foreground)]">
+                      {currency} {total.toFixed(2)}
+                    </span>
+                  </div>
+                  {total > 0 && !app?.paymentStatus?.completed && (
+                    <div className="mt-2 rounded-xl border border-[#C9963F]/20 bg-[#C9963F]/5 p-3 text-center">
+                      <p className="text-[10px] font-medium text-[#C9963F]">
+                        Payment Required:
+                      </p>
+                      <p className="mt-0.5 text-base font-bold text-[#C9963F]">
+                        {currency} {total.toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {app?.paymentStatus?.completed && (
+                    <p className="mt-2 text-center text-xs font-semibold text-emerald-400">
+                      Payment Complete
+                    </p>
+                  )}
+                  {total > 0 &&
+                    !app?.paymentStatus?.completed &&
+                    status !== "REQUESTED" && (
+                      <button
+                        onClick={handleProceedToPayment}
+                        disabled={paymentProcessing}
+                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#C9963F] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#B8822A] disabled:opacity-50"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
+                          />
+                        </svg>
+                        {paymentProcessing
+                          ? "Processing..."
+                          : "Proceed to Payment"}
+                      </button>
+                    )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Verification code */}
           {isAccepted &&
@@ -2478,7 +2644,10 @@ export default function EmployerApplicationDetailPage() {
 
           {/* Candidate rating & skills */}
           {candidateData &&
-            (candidateData.rating || candidateData.skills?.length) && (
+            !!(
+              candidateData.rating ||
+              (candidateData.skills && candidateData.skills.length > 0)
+            ) && (
               <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
                 <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
                   Provider Info

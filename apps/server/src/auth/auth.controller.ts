@@ -7,6 +7,7 @@ import {
   UseGuards,
   Request,
   Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -168,6 +169,19 @@ export class AuthController {
       req.user.id,
       req.user.adminCapabilities || [],
     );
+  }
+
+  // Public: Refresh access token using a valid refresh token
+  @Public()
+  @Throttle({ auth: { ttl: 60, limit: 10 } })
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token using a refresh token' })
+  @ApiOkResponse({ description: 'New access and refresh tokens returned.' })
+  async refreshToken(@Body() body: { refreshToken: string }) {
+    if (!body.refreshToken) {
+      throw new BadRequestException('refreshToken is required');
+    }
+    return await this.authService.refreshAccessToken(body.refreshToken);
   }
 
   // Protected: Get current user profile

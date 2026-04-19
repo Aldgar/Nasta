@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -24,6 +25,7 @@ import { VehicleFileUploadService } from './vehicle-file-upload.service';
 @Controller('vehicles')
 @UseGuards(JwtAuthGuard)
 export class VehiclesController {
+  private readonly logger = new Logger(VehiclesController.name);
   constructor(
     private readonly vehiclesService: VehiclesService,
     private readonly fileUpload: VehicleFileUploadService,
@@ -93,8 +95,20 @@ export class VehiclesController {
     },
   ) {
     if (!files || Object.keys(files).length === 0) {
+      this.logger.warn(`Vehicle upload: No files received for vehicle ${id}`);
       throw new BadRequestException('No files uploaded');
     }
+
+    this.logger.log(
+      `Vehicle upload: ${Object.keys(files).length} field(s) received for vehicle ${id}: ${Object.entries(
+        files,
+      )
+        .map(
+          ([k, v]) =>
+            `${k}(${(v as any[])?.length || 0} files, ${(((v as any[])?.[0]?.size || 0) / 1024) | 0}KB)`,
+        )
+        .join(', ')}`,
+    );
 
     // Verify ownership
     await this.vehiclesService.getOwnedVehicle(req.user.id, id);

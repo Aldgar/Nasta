@@ -316,30 +316,22 @@ export class DiditWebhookService {
       data: updates as any,
     });
 
-    // Update user status
-    const userStatus =
-      mappedStatus === 'VERIFIED'
-        ? 'VERIFIED'
-        : mappedStatus === 'FAILED'
-          ? 'FAILED'
-          : mappedStatus;
-
+    // Update user status — never auto-verify; admin must confirm
     await this.prisma.user.update({
       where: { id: verification.userId },
       data: {
-        idVerificationStatus: userStatus,
-        ...(mappedStatus === 'VERIFIED' ? { isIdVerified: true } : {}),
+        idVerificationStatus: mappedStatus,
       },
     });
 
     // Send notification
     try {
-      if (mappedStatus === 'VERIFIED') {
+      if (mappedStatus === 'MANUAL_REVIEW') {
         await this.notifications.createNotification({
           userId: verification.userId,
           type: 'SYSTEM',
-          title: 'ID Verification Approved',
-          body: 'Your identity has been verified successfully. You can now start working!',
+          title: 'ID Verification Under Review',
+          body: 'Your documents have been received and are being reviewed by our team.',
         });
       } else if (mappedStatus === 'FAILED') {
         await this.notifications.createNotification({
@@ -395,9 +387,10 @@ export class DiditWebhookService {
   ): 'PENDING' | 'IN_PROGRESS' | 'VERIFIED' | 'FAILED' | 'MANUAL_REVIEW' {
     switch (diditStatus) {
       case 'Approved':
-        return 'VERIFIED';
+        // Route to MANUAL_REVIEW so admin must confirm before user is verified
+        return 'MANUAL_REVIEW';
       case 'Declined':
-        return 'FAILED';
+        return 'MANUAL_REVIEW';
       case 'In Review':
         return 'MANUAL_REVIEW';
       case 'In Progress':

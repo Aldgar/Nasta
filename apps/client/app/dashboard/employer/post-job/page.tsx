@@ -751,10 +751,16 @@ export default function PostJobPage() {
           <div className="space-y-5">
             {/* Restricted sector */}
             <div>
-              <p className="mb-2 text-sm text-[var(--secondary-text)]">
+              <p className="mb-1 text-sm text-[var(--secondary-text)]">
                 {t(
                   "employerDashboard.postJob.restrictedSectorQuestion",
-                  "Is this job related to Healthcare, Government, Finance, or Military?",
+                  "Is this job related to Healthcare, Government, Finance, Military, Government Papers, or Babysitting?",
+                )}
+              </p>
+              <p className="mb-3 text-xs text-[var(--muted-text)]">
+                {t(
+                  "employerDashboard.postJob.restrictedSectorDisclaimer",
+                  "Please declare: Nasta is not responsible for incidents related to these job types as they are outside of Nasta's scope.",
                 )}
               </p>
               <label className="relative inline-flex cursor-pointer items-center gap-3">
@@ -801,7 +807,7 @@ export default function PostJobPage() {
                 <p className="text-sm text-[var(--alert-red)]">
                   {t(
                     "employerDashboard.postJob.restrictedSectorWarning",
-                    "Jobs in Healthcare, Government, Finance, and Military sectors are not currently supported on Nasta. Please use a specialized platform for these sectors.",
+                    "Jobs in Healthcare, Government, Finance, Military, Government Papers, and Babysitting sectors are not currently supported on Nasta. These job types are outside of Nasta's scope and Nasta is not responsible for any related incidents.",
                   )}
                 </p>
               </div>

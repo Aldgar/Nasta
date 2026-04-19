@@ -56,10 +56,13 @@ RUN pnpm -C apps/server db:generate
 COPY --from=build /repo/apps/server/dist ./apps/server/dist
 
 # Ensure uploads directory exists (served at /uploads/)
-RUN mkdir -p /repo/apps/server/uploads
+# Railway Volume is mounted at /app/uploads — set UPLOADS_DIR=/app/uploads in env
+RUN mkdir -p /app/uploads/kyc /app/uploads/background-checks /app/uploads/vehicles \
+    /app/uploads/chat /app/uploads/profiles /app/uploads/support \
+    /repo/apps/server/uploads
 
 WORKDIR /repo/apps/server
 EXPOSE 3001
 
-# Nest build outputs dist/src/main.js in this repo
-CMD ["node", "dist/src/main.js"]
+# On startup: migrate any leftover ephemeral files to the volume, then start
+CMD sh -c 'cp -rn /repo/apps/server/uploads/* /app/uploads/ 2>/dev/null || true; node dist/src/main.js'

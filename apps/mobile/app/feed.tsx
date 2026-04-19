@@ -452,15 +452,18 @@ export default function Feed() {
   const [hasTemporaryPassword, setHasTemporaryPassword] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
-  useEffect(() => {
-    fetchJobs();
-    fetchActiveBooking();
-    fetchBalance();
-    fetchProfile();
-    fetchAppliedJobs();
-    fetchAcceptedJobs();
-    fetchUnreadMessages();
-  }, []);
+  // Fetch all data when screen gains focus (includes initial mount)
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs();
+      fetchActiveBooking();
+      fetchBalance();
+      fetchProfile();
+      fetchAppliedJobs();
+      fetchAcceptedJobs();
+      fetchUnreadMessages();
+    }, []),
+  );
 
   const fetchAppliedJobs = async () => {
     try {
@@ -776,16 +779,6 @@ export default function Feed() {
       console.log("Error fetching profile", err);
     }
   };
-
-  // Refresh balance and accepted jobs when screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      fetchBalance();
-      fetchAcceptedJobs();
-      fetchProfile(); // Refresh profile to update temporary password banner
-      fetchUnreadMessages();
-    }, []),
-  );
 
   const fetchBalance = async () => {
     try {

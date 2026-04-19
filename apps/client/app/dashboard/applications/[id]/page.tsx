@@ -42,11 +42,27 @@ interface PaymentInfo {
   status?: string;
 }
 
+interface SelectedRate {
+  rate: number;
+  paymentType: string;
+  description?: string;
+  otherSpecification?: string;
+  isCustom?: boolean;
+}
+
 interface PaymentStatus {
   required?: boolean;
   completed?: boolean;
   paidAmount?: number;
   unpaidAmount?: number;
+  paidServices?: SelectedRate[];
+  unpaidServices?: SelectedRate[];
+  paidNegotiations?: Array<{ id?: string; rate: number; paymentType: string }>;
+  unpaidNegotiations?: Array<{
+    id?: string;
+    rate: number;
+    paymentType: string;
+  }>;
 }
 
 interface NegotiationRate {
@@ -91,6 +107,16 @@ interface AdditionalTimeRequest {
   employerResponseMessage?: string;
 }
 
+interface AdditionalRateRequest {
+  id: string;
+  rates?: SelectedRate[];
+  totalAmount?: number;
+  status?: string;
+  message?: string;
+  requestedAt?: string;
+  respondedAt?: string;
+}
+
 interface ApplicationDetail {
   id: string;
   status: string;
@@ -104,15 +130,16 @@ interface ApplicationDetail {
   verificationCodeLastVerifiedAt?: string | null;
   verificationCodeVersion?: number;
   verificationCodeVerifiedVersion?: number | null;
+  pendingVerificationCodeVersion?: number | null;
   serviceProviderMarkedDoneAt?: string | null;
   job?: AppJob;
   applicant?: Applicant;
   payment?: PaymentInfo | null;
   paymentStatus?: PaymentStatus | null;
   paymentAmount?: number | null;
-  selectedRates?: unknown[] | null;
+  selectedRates?: SelectedRate[] | null;
   negotiationRequests?: NegotiationRequest[] | null;
-  additionalRateRequests?: unknown[] | null;
+  additionalRateRequests?: AdditionalRateRequest[] | null;
   additionalTimeRequests?: AdditionalTimeRequest[] | null;
 }
 
@@ -159,9 +186,11 @@ function buildTimeline(
   t: (key: string, fallback: string) => string,
 ): TimelineStep[] {
   const status = app.status.toUpperCase();
+  const isRequested = status === "REQUESTED";
   const isRejected = status === "REJECTED";
   const isWithdrawn = status === "WITHDRAWN";
   const isAccepted = status === "ACCEPTED";
+  const isPending = status === "PENDING";
 
   const negoList = Array.isArray(app.negotiationRequests)
     ? app.negotiationRequests
@@ -188,13 +217,42 @@ function buildTimeline(
   steps.push({
     key: "applied",
     label: t("applications.applied", "Applied"),
-    description: t(
-      "applications.applicationSubmitted",
-      "Your application has been submitted",
-    ),
+    description: isRequested
+      ? t(
+          "applications.instantJobRequestReceived",
+          "Instant job request received from employer",
+        )
+      : t(
+          "applications.applicationSubmitted",
+          "Your application has been submitted",
+        ),
     timestamp: app.appliedAt,
     state: "complete",
   });
+
+  // 1b. Instant Job Response (only for REQUESTED flow)
+  if (isRequested || isPending || isAccepted || isRejected) {
+    const responded = !isRequested;
+    steps.push({
+      key: "response",
+      label: t("applications.yourResponse", "Your Response"),
+      description: isRequested
+        ? t(
+            "applications.waitingForYourResponse",
+            "Waiting for you to accept or reject this request",
+          )
+        : isRejected
+          ? t("applications.youRejectedRequest", "You rejected this request")
+          : t("applications.youAcceptedRequest", "You accepted this request"),
+      state: isRequested
+        ? "current"
+        : responded
+          ? isRejected
+            ? "failed"
+            : "complete"
+          : "pending",
+    });
+  }
 
   // 2. Under Review
   const reviewPassed =
@@ -505,6 +563,26 @@ export default function ApplicationDetailPage() {
     useState("");
   const [respondingTime, setRespondingTime] = useState(false);
 
+  // Accept/Reject instant job
+  const [respondingToRequest, setRespondingToRequest] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+
+  // Respond to employer negotiation
+  const [respondingNegoId, setRespondingNegoId] = useState<string | null>(null);
+  const [negoResponseMsg, setNegoResponseMsg] = useState("");
+  const [submittingNegoResponse, setSubmittingNegoResponse] = useState(false);
+
+  // Counter-offer to employer negotiation
+  const [counterOfferNegoId, setCounterOfferNegoId] = useState<string | null>(
+    null,
+  );
+  const [counterOfferRates, setCounterOfferRates] = useState<
+    { rate: string; paymentType: string }[]
+  >([{ rate: "", paymentType: "HOURLY" }]);
+  const [counterOfferMsg, setCounterOfferMsg] = useState("");
+  const [submittingCounterOffer, setSubmittingCounterOffer] = useState(false);
+
   const fetchApp = useCallback(async () => {
     if (!appId) return;
     setLoading(true);
@@ -700,6 +778,106 @@ export default function ApplicationDetailPage() {
     }
   };
 
+  const handleRespondToInstantJob = async (accept: boolean) => {
+    setRespondingToRequest(true);
+    const body: Record<string, unknown> = { accept };
+    if (!accept && rejectReason.trim()) {
+      body.rejectionReason = rejectReason.trim();
+    }
+    const res = await api(`/applications/${appId}/respond-to-request`, {
+      method: "POST",
+      body,
+    });
+    if (res.error) {
+      setToast({
+        msg:
+          typeof res.error === "string"
+            ? res.error
+            : "Failed to respond to request",
+        ok: false,
+      });
+    } else {
+      setToast({
+        msg: accept ? "Job request accepted!" : "Job request rejected",
+        ok: true,
+      });
+      setShowRejectModal(false);
+      setRejectReason("");
+      fetchApp();
+    }
+    setRespondingToRequest(false);
+  };
+
+  const handleRespondToEmployerNegotiation = async (
+    requestId: string,
+    status: "ACCEPTED" | "REJECTED",
+  ) => {
+    setSubmittingNegoResponse(true);
+    const res = await api(`/applications/${appId}/negotiation/respond`, {
+      method: "POST",
+      body: { requestId, status, message: negoResponseMsg.trim() || undefined },
+    });
+    if (res.error) {
+      setToast({
+        msg: typeof res.error === "string" ? res.error : "Failed to respond",
+        ok: false,
+      });
+    } else {
+      setToast({
+        msg:
+          status === "ACCEPTED"
+            ? "Negotiation accepted!"
+            : "Negotiation rejected",
+        ok: true,
+      });
+      setRespondingNegoId(null);
+      setNegoResponseMsg("");
+      fetchApp();
+    }
+    setSubmittingNegoResponse(false);
+  };
+
+  const handleSubmitCounterOffer = async (requestId: string) => {
+    const validRates = counterOfferRates.filter(
+      (r) => r.rate && parseFloat(r.rate) > 0,
+    );
+    if (validRates.length === 0) {
+      setToast({ msg: "Please enter at least one rate", ok: false });
+      return;
+    }
+    setSubmittingCounterOffer(true);
+    const rates = validRates.map((r) => ({
+      rate: parseFloat(r.rate),
+      paymentType: r.paymentType,
+    }));
+    const totalAmount = rates.reduce((sum, r) => sum + r.rate, 0);
+    const res = await api(`/applications/${appId}/negotiation/counter-offer`, {
+      method: "POST",
+      body: {
+        requestId,
+        rates,
+        totalAmount,
+        message: counterOfferMsg.trim() || undefined,
+      },
+    });
+    if (res.error) {
+      setToast({
+        msg:
+          typeof res.error === "string"
+            ? res.error
+            : "Failed to submit counter offer",
+        ok: false,
+      });
+    } else {
+      setToast({ msg: "Counter offer submitted!", ok: true });
+      setCounterOfferNegoId(null);
+      setCounterOfferRates([{ rate: "", paymentType: "HOURLY" }]);
+      setCounterOfferMsg("");
+      fetchApp();
+    }
+    setSubmittingCounterOffer(false);
+  };
+
   /* Loading state */
   if (loading) {
     return (
@@ -745,6 +923,7 @@ export default function ApplicationDetailPage() {
 
   const job = app.job;
   const status = app.status.toUpperCase();
+  const isRequested = status === "REQUESTED";
   const isAccepted = status === "ACCEPTED";
   const serviceStarted = !!app.verificationCodeVerifiedAt;
   const markedDone = !!app.serviceProviderMarkedDoneAt;
@@ -753,6 +932,55 @@ export default function ApplicationDetailPage() {
     [job?.location, job?.city, job?.country].filter(Boolean).join(", ") ||
     "Remote";
   const steps = buildTimeline(app, t);
+
+  // Version-based verification for additional services
+  const currentCodeVersion = app.verificationCodeVersion ?? 1;
+  const verifiedCodeVersion = app.verificationCodeVerifiedVersion ?? 0;
+  const hasPendingCodeVersion = !!app.pendingVerificationCodeVersion;
+  const hasNewVersionToVerify =
+    !hasPendingCodeVersion && currentCodeVersion > verifiedCodeVersion;
+  const additionalServicesVerified =
+    currentCodeVersion > 1 &&
+    verifiedCodeVersion >= currentCodeVersion &&
+    app.verificationCodeLastVerifiedAt !== app.verificationCodeVerifiedAt;
+
+  // Payment info helpers
+  const selectedRates = Array.isArray(app.selectedRates)
+    ? app.selectedRates
+    : [];
+  const approvedAdditionalRates = Array.isArray(app.additionalRateRequests)
+    ? app.additionalRateRequests.filter((r) => r.status === "APPROVED")
+    : [];
+  const acceptedNegotiations = Array.isArray(app.negotiationRequests)
+    ? app.negotiationRequests.filter((r) => r.status === "ACCEPTED")
+    : [];
+  const paidServices = app.paymentStatus?.paidServices || [];
+  const unpaidServices = app.paymentStatus?.unpaidServices || [];
+  const paidNegotiations = app.paymentStatus?.paidNegotiations || [];
+  const unpaidNegotiations = app.paymentStatus?.unpaidNegotiations || [];
+  const paidAmount = app.paymentStatus?.paidAmount || 0;
+  const unpaidAmount = app.paymentStatus?.unpaidAmount || 0;
+  const hasPaymentInfo =
+    selectedRates.length > 0 ||
+    approvedAdditionalRates.length > 0 ||
+    acceptedNegotiations.length > 0;
+  const hasUnpaid =
+    unpaidAmount > 0.01 ||
+    unpaidServices.length > 0 ||
+    unpaidNegotiations.length > 0;
+
+  const rateMatch = (
+    s1: { rate: number; paymentType: string; otherSpecification?: string },
+    s2: { rate: number; paymentType: string; otherSpecification?: string },
+  ) =>
+    Math.abs(s1.rate - s2.rate) < 0.01 &&
+    s1.paymentType === s2.paymentType &&
+    (s1.otherSpecification || "") === (s2.otherSpecification || "");
+
+  // Employer negotiation requests (that the SP can respond to)
+  const employerNegotiations = Array.isArray(app.negotiationRequests)
+    ? app.negotiationRequests.filter((r) => r.suggestedByRole === "EMPLOYER")
+    : [];
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -832,6 +1060,151 @@ export default function ApplicationDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Accept/Reject Instant Job Request */}
+      {isRequested && (
+        <div className="rounded-2xl border-2 border-blue-500/40 bg-blue-500/5 p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/15">
+              <svg
+                className="h-5 w-5 text-blue-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[var(--foreground)]">
+                {t("applications.newJobRequest", "New Job Request")}
+              </h2>
+              <p className="text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.instantJobRequestDesc",
+                  "An employer has sent you an instant job request. Review the details and accept or reject.",
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* What happens after accepting */}
+          <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">
+              {t(
+                "applications.acceptInfo",
+                "After accepting, the employer will select services and make payment. You'll receive a verification code to start the job.",
+              )}
+            </p>
+          </div>
+
+          {/* Proposed rates */}
+          {selectedRates.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--muted-text)]">
+                {t("applications.proposedPayment", "Proposed Payment")}
+              </p>
+              <div className="space-y-2">
+                {selectedRates.map((rate, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between rounded-xl border border-[var(--border-color)] bg-[var(--surface)] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                        €{rate.rate.toFixed(2)} /{" "}
+                        {formatLabel(rate.paymentType).toLowerCase()}
+                      </p>
+                      {rate.description && (
+                        <p className="text-xs text-[var(--muted-text)]">
+                          {rate.description}
+                        </p>
+                      )}
+                    </div>
+                    {rate.isCustom && (
+                      <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-bold text-blue-500">
+                        {t("applications.custom", "Custom")}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowRejectModal(true)}
+              disabled={respondingToRequest}
+              className="flex-1 rounded-xl border border-red-500/30 bg-red-500/10 py-3 text-sm font-semibold text-red-500 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+            >
+              {t("applications.reject", "Reject")}
+            </button>
+            <button
+              onClick={() => handleRespondToInstantJob(true)}
+              disabled={respondingToRequest}
+              className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            >
+              {respondingToRequest
+                ? t("common.submitting", "Submitting...")
+                : t("common.accept", "Accept")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-[var(--foreground)]">
+              {t("applications.rejectRequest", "Reject Request")}
+            </h3>
+            <p className="mt-1 text-sm text-[var(--muted-text)]">
+              {t(
+                "applications.rejectReasonPrompt",
+                "Please provide a reason for rejecting this job request.",
+              )}
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder={t(
+                "applications.enterRejectReason",
+                "Enter your reason...",
+              )}
+              rows={3}
+              className="mt-3 w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
+            />
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectReason("");
+                }}
+                className="flex-1 rounded-xl border border-[var(--border-color)] py-2.5 text-sm font-medium text-[var(--muted-text)]"
+              >
+                {t("common.cancel", "Cancel")}
+              </button>
+              <button
+                onClick={() => handleRespondToInstantJob(false)}
+                disabled={respondingToRequest || !rejectReason.trim()}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-500 disabled:opacity-50"
+              >
+                {respondingToRequest
+                  ? t("common.submitting", "Submitting...")
+                  : t("applications.confirmReject", "Confirm Reject")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -1111,46 +1484,577 @@ export default function ApplicationDetailPage() {
             </section>
           )}
 
-          {/* Payment info */}
-          {app.paymentStatus &&
-            (app.paymentStatus.paidAmount ||
-              app.paymentStatus.unpaidAmount) && (
-              <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
-                <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">
-                  {t("applications.paymentSummary", "Payment Summary")}
-                </h2>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {typeof app.paymentStatus.paidAmount === "number" && (
-                    <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 text-center">
-                      <p className="text-xs text-emerald-400/80">
-                        {t("applications.paid", "Paid")}
-                      </p>
-                      <p className="mt-1 text-xl font-bold text-emerald-400">
-                        €{app.paymentStatus.paidAmount.toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-                  {typeof app.paymentStatus.unpaidAmount === "number" &&
-                    app.paymentStatus.unpaidAmount > 0 && (
-                      <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-4 text-center">
-                        <p className="text-xs text-amber-400/80">
-                          {t("applications.unpaid", "Unpaid")}
-                        </p>
-                        <p className="mt-1 text-xl font-bold text-amber-400">
-                          €{app.paymentStatus.unpaidAmount.toFixed(2)}
-                        </p>
-                      </div>
+          {/* Payment info — detailed per-service coloring */}
+          {hasPaymentInfo && status !== "REQUESTED" && (
+            <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+              <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
+                {t("applications.paymentInformation", "Payment Information")}
+              </h2>
+              <p className="mb-4 text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.servicesSelectedByEmployer",
+                  "Services selected by employer",
+                )}
+              </p>
+
+              {/* Unpaid warning banner */}
+              {hasUnpaid && (
+                <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
+                  <svg
+                    className="mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                    />
+                  </svg>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t(
+                      "applications.unpaidServicesWarning",
+                      "Some services have not been paid for yet. The employer needs to complete payment for all selected services.",
                     )}
+                  </p>
                 </div>
-              </section>
-            )}
+              )}
+
+              {/* Selected services */}
+              {selectedRates.length > 0 && (
+                <div className="mb-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-text)]">
+                    {t("applications.selectedServices", "Selected Services")}
+                  </p>
+                  <div className="space-y-1.5">
+                    {selectedRates.map((rate, idx) => {
+                      const isPaid = paidServices.some((s: any) =>
+                        rateMatch(s, rate),
+                      );
+                      const isUnpaid = unpaidServices.some((s: any) =>
+                        rateMatch(s, rate),
+                      );
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center justify-between rounded-lg px-3 py-2 ${isPaid ? "bg-emerald-500/5 border border-emerald-500/20" : isUnpaid ? "bg-amber-500/5 border border-amber-500/20" : "bg-[var(--surface-alt)] border border-[var(--border-color)]"}`}
+                        >
+                          <div>
+                            <p
+                              className={`text-sm font-medium ${isPaid ? "text-emerald-500" : isUnpaid ? "text-amber-500" : "text-[var(--foreground)]"}`}
+                            >
+                              €{rate.rate.toFixed(2)} /{" "}
+                              {formatLabel(rate.paymentType).toLowerCase()}
+                            </p>
+                            {(rate.description || rate.otherSpecification) && (
+                              <p className="text-[10px] text-[var(--muted-text)]">
+                                {rate.description || rate.otherSpecification}
+                              </p>
+                            )}
+                          </div>
+                          {isPaid && (
+                            <span className="text-[10px] font-bold text-emerald-500">
+                              ✓ {t("applications.paid", "Paid")}
+                            </span>
+                          )}
+                          {isUnpaid && (
+                            <span className="text-[10px] font-bold text-amber-500">
+                              ({t("applications.unpaid", "Unpaid")})
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Approved additional rates */}
+              {approvedAdditionalRates.length > 0 && (
+                <div className="mb-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-text)]">
+                    {t(
+                      "applications.approvedAdditionalRates",
+                      "Approved Additional Rates",
+                    )}
+                  </p>
+                  <div className="space-y-1.5">
+                    {approvedAdditionalRates.flatMap((ar) =>
+                      (ar.rates || []).map((rate, idx) => {
+                        const isPaid = paidServices.some((s: any) =>
+                          rateMatch(s, rate),
+                        );
+                        const isUnpaid = unpaidServices.some((s: any) =>
+                          rateMatch(s, rate),
+                        );
+                        return (
+                          <div
+                            key={`ar-${ar.id}-${idx}`}
+                            className={`flex items-center justify-between rounded-lg px-3 py-2 ${isPaid ? "bg-emerald-500/5 border border-emerald-500/20" : isUnpaid ? "bg-amber-500/5 border border-amber-500/20" : "bg-[var(--surface-alt)] border border-[var(--border-color)]"}`}
+                          >
+                            <p
+                              className={`text-sm font-medium ${isPaid ? "text-emerald-500" : isUnpaid ? "text-amber-500" : "text-[var(--foreground)]"}`}
+                            >
+                              €{rate.rate.toFixed(2)} /{" "}
+                              {formatLabel(rate.paymentType).toLowerCase()}{" "}
+                              <span className="text-[10px]">
+                                ({t("applications.approved", "Approved")})
+                              </span>
+                            </p>
+                            {isPaid && (
+                              <span className="text-[10px] font-bold text-emerald-500">
+                                ✓ {t("applications.paid", "Paid")}
+                              </span>
+                            )}
+                            {isUnpaid && (
+                              <span className="text-[10px] font-bold text-amber-500">
+                                ({t("applications.unpaid", "Unpaid")})
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }),
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Accepted negotiation rates */}
+              {acceptedNegotiations.length > 0 && (
+                <div className="mb-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-text)]">
+                    {t(
+                      "applications.acceptedNegotiations",
+                      "Accepted Negotiations",
+                    )}
+                  </p>
+                  <div className="space-y-1.5">
+                    {acceptedNegotiations.flatMap((nego) =>
+                      (nego.rates || []).map((rate, idx) => {
+                        const isPaid = paidNegotiations.some(
+                          (s: any) => s.id === nego.id || rateMatch(s, rate),
+                        );
+                        const isUnpaid = unpaidNegotiations.some(
+                          (s: any) => s.id === nego.id || rateMatch(s, rate),
+                        );
+                        return (
+                          <div
+                            key={`nego-${nego.id}-${idx}`}
+                            className={`flex items-center justify-between rounded-lg px-3 py-2 ${isPaid ? "bg-emerald-500/5 border border-emerald-500/20" : isUnpaid ? "bg-amber-500/5 border border-amber-500/20" : "bg-[var(--surface-alt)] border border-[var(--border-color)]"}`}
+                          >
+                            <p
+                              className={`text-sm font-medium ${isPaid ? "text-emerald-500" : isUnpaid ? "text-amber-500" : "text-[var(--foreground)]"}`}
+                            >
+                              €{rate.rate.toFixed(2)} /{" "}
+                              {formatLabel(rate.paymentType).toLowerCase()}{" "}
+                              <span className="text-[10px]">
+                                (
+                                {t(
+                                  "applications.negotiationAccepted",
+                                  "Negotiation Accepted",
+                                )}
+                                )
+                              </span>
+                            </p>
+                            {isPaid && (
+                              <span className="text-[10px] font-bold text-emerald-500">
+                                ✓ {t("applications.paid", "Paid")}
+                              </span>
+                            )}
+                            {isUnpaid && (
+                              <span className="text-[10px] font-bold text-amber-500">
+                                ({t("applications.unpaid", "Unpaid")})
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }),
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Total amounts */}
+              <div className="mt-4 space-y-2 border-t border-[var(--border-color)] pt-3">
+                {paidAmount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-emerald-500">
+                      {t("applications.paidAmount", "Paid Amount")}
+                    </span>
+                    <span className="text-sm font-bold text-emerald-500">
+                      €{paidAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {unpaidAmount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-amber-500">
+                      {t("applications.unpaidAmount", "Unpaid Amount")}
+                    </span>
+                    <span className="text-sm font-bold text-amber-500">
+                      €{unpaidAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[var(--foreground)]">
+                    {t("applications.total", "Total")}
+                  </span>
+                  <span className="text-sm font-bold text-emerald-500">
+                    €{(paidAmount + unpaidAmount).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Employer Negotiation Suggestions — SP can respond */}
+          {employerNegotiations.length > 0 && (
+            <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+              <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
+                {t(
+                  "applications.employerNegotiations",
+                  "Employer Negotiation Suggestions",
+                )}
+              </h2>
+              <p className="mb-4 text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.employerNegotiationsDesc",
+                  "The employer has proposed rate changes for your review",
+                )}
+              </p>
+              <div className="space-y-3">
+                {employerNegotiations.map((nr, i) => {
+                  const nrAccepted = nr.status === "ACCEPTED";
+                  const nrRejected = nr.status === "REJECTED";
+                  const nrPending = nr.status === "PENDING";
+                  const hasCounterOffer =
+                    nr.status === "COUNTER_OFFERED" && nr.counterOffer;
+
+                  return (
+                    <div
+                      key={`emp-nego-${i}`}
+                      className={`rounded-xl border p-4 ${nrAccepted ? "border-emerald-500/30 bg-emerald-500/5" : nrRejected ? "border-red-500/30 bg-red-500/5" : hasCounterOffer ? "border-[#C9963F]/30 bg-[#C9963F]/5" : "border-blue-500/30 bg-blue-500/5"}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-[var(--foreground)]">
+                          {t(
+                            "applications.employerSuggestion",
+                            "Employer suggestion",
+                          )}
+                        </span>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${nrAccepted ? "bg-emerald-500/15 text-emerald-400" : nrRejected ? "bg-red-500/15 text-red-400" : hasCounterOffer ? "bg-[#C9963F]/15 text-[#C9963F]" : "bg-blue-500/15 text-blue-400"}`}
+                        >
+                          {nrAccepted
+                            ? t("applications.accepted", "Accepted")
+                            : nrRejected
+                              ? t("applications.rejected", "Rejected")
+                              : hasCounterOffer
+                                ? t(
+                                    "applications.counterOffer",
+                                    "Counter Offer",
+                                  )
+                                : t("applications.pending", "Pending")}
+                        </span>
+                      </div>
+
+                      {nr.rates && nr.rates.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {nr.rates.map((r, j) => (
+                            <span
+                              key={j}
+                              className="rounded-lg bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
+                            >
+                              €{r.rate} /{" "}
+                              {formatLabel(r.paymentType).toLowerCase()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {typeof nr.totalAmount === "number" && (
+                        <p className="text-xs font-semibold text-[var(--foreground)]">
+                          Total: €{nr.totalAmount.toFixed(2)}
+                        </p>
+                      )}
+                      {nr.message && (
+                        <div className="mt-2 rounded-lg bg-[var(--surface)]/60 px-3 py-2">
+                          <p className="text-[10px] font-medium text-[var(--muted-text)]">
+                            {t(
+                              "applications.employerMessage",
+                              "Employer message",
+                            )}
+                          </p>
+                          <p className="mt-0.5 text-xs text-[var(--foreground)]/80">
+                            {nr.message}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Pending — Accept/Reject/Counter buttons */}
+                      {nrPending && (
+                        <div className="mt-3">
+                          {respondingNegoId === nr.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={negoResponseMsg}
+                                onChange={(e) =>
+                                  setNegoResponseMsg(e.target.value)
+                                }
+                                placeholder={t(
+                                  "applications.optionalResponseMessage",
+                                  "Optional response message...",
+                                )}
+                                rows={2}
+                                className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() =>
+                                    handleRespondToEmployerNegotiation(
+                                      nr.id!,
+                                      "ACCEPTED",
+                                    )
+                                  }
+                                  disabled={submittingNegoResponse}
+                                  className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                                >
+                                  {t("common.accept", "Accept")}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleRespondToEmployerNegotiation(
+                                      nr.id!,
+                                      "REJECTED",
+                                    )
+                                  }
+                                  disabled={submittingNegoResponse}
+                                  className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white hover:bg-red-500 disabled:opacity-50"
+                                >
+                                  {t("applications.reject", "Reject")}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setRespondingNegoId(null);
+                                    setNegoResponseMsg("");
+                                  }}
+                                  className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs text-[var(--muted-text)]"
+                                >
+                                  {t("common.cancel", "Cancel")}
+                                </button>
+                              </div>
+                            </div>
+                          ) : counterOfferNegoId === nr.id ? (
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold text-[#C9963F]">
+                                {t(
+                                  "applications.yourCounterOffer",
+                                  "Your Counter Offer",
+                                )}
+                              </p>
+                              {counterOfferRates.map((r, ri) => (
+                                <div
+                                  key={ri}
+                                  className="flex items-center gap-2"
+                                >
+                                  <div className="relative flex-1">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--muted-text)]">
+                                      €
+                                    </span>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      value={r.rate}
+                                      onChange={(e) =>
+                                        setCounterOfferRates((prev) =>
+                                          prev.map((x, j) =>
+                                            j === ri
+                                              ? { ...x, rate: e.target.value }
+                                              : x,
+                                          ),
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] py-2 pl-8 pr-3 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+                                    />
+                                  </div>
+                                  <BrandedSelect
+                                    value={r.paymentType}
+                                    onChange={(v) =>
+                                      setCounterOfferRates((prev) =>
+                                        prev.map((x, j) =>
+                                          j === ri
+                                            ? { ...x, paymentType: v }
+                                            : x,
+                                        ),
+                                      )
+                                    }
+                                    options={[
+                                      { value: "HOURLY", label: "Hourly" },
+                                      { value: "DAILY", label: "Daily" },
+                                      { value: "WEEKLY", label: "Weekly" },
+                                      { value: "MONTHLY", label: "Monthly" },
+                                      { value: "FIXED", label: "Fixed" },
+                                    ]}
+                                    size="sm"
+                                  />
+                                  {counterOfferRates.length > 1 && (
+                                    <button
+                                      onClick={() =>
+                                        setCounterOfferRates((prev) =>
+                                          prev.filter((_, j) => j !== ri),
+                                        )
+                                      }
+                                      className="text-[var(--muted-text)] hover:text-red-400"
+                                    >
+                                      <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="M6 18L18 6M6 6l12 12"
+                                        />
+                                      </svg>
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                              <button
+                                onClick={() =>
+                                  setCounterOfferRates((prev) => [
+                                    ...prev,
+                                    { rate: "", paymentType: "HOURLY" },
+                                  ])
+                                }
+                                className="text-xs font-medium text-[var(--primary)]"
+                              >
+                                + {t("applications.addRate", "Add rate")}
+                              </button>
+                              <textarea
+                                value={counterOfferMsg}
+                                onChange={(e) =>
+                                  setCounterOfferMsg(e.target.value)
+                                }
+                                placeholder={t(
+                                  "applications.explainCounterOffer",
+                                  "Explain your counter offer...",
+                                )}
+                                rows={2}
+                                className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() =>
+                                    handleSubmitCounterOffer(nr.id!)
+                                  }
+                                  disabled={submittingCounterOffer}
+                                  className="flex-1 rounded-lg bg-[#C9963F] py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                                >
+                                  {submittingCounterOffer
+                                    ? t("common.submitting", "Submitting...")
+                                    : t(
+                                        "applications.submitCounterOffer",
+                                        "Submit Counter Offer",
+                                      )}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setCounterOfferNegoId(null);
+                                    setCounterOfferRates([
+                                      { rate: "", paymentType: "HOURLY" },
+                                    ]);
+                                    setCounterOfferMsg("");
+                                  }}
+                                  className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs text-[var(--muted-text)]"
+                                >
+                                  {t("common.cancel", "Cancel")}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setRespondingNegoId(nr.id!)}
+                                className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+                              >
+                                {t(
+                                  "applications.respondAcceptReject",
+                                  "Accept / Reject",
+                                )}
+                              </button>
+                              <button
+                                onClick={() => setCounterOfferNegoId(nr.id!)}
+                                className="flex-1 rounded-lg bg-[#C9963F] py-2 text-xs font-semibold text-white hover:opacity-90"
+                              >
+                                {t(
+                                  "applications.proposeCounterOffer",
+                                  "Counter Offer",
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {(nr.suggestedAt || nr.createdAt) && (
+                        <p className="mt-2 text-[10px] text-[var(--muted-text)]">
+                          {fmtDateTime(nr.suggestedAt || nr.createdAt || "")}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Right sidebar */}
         <div className="space-y-5">
-          {/* Quick actions */}
+          {/* Pending status info — SP accepted instant request, waiting for employer */}
+          {status === "PENDING" && (
+            <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <svg
+                  className="h-5 w-5 text-blue-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm font-semibold text-blue-500">
+                  {t(
+                    "applications.awaitingEmployerDecision",
+                    "Awaiting Employer Decision",
+                  )}
+                </p>
+              </div>
+              <p className="text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.pendingStatusDescription",
+                  "Your application is under review. You can request a rate negotiation while waiting for the employer to select services and make payment.",
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Quick actions — Start Service (initial verification) */}
           {isAccepted && !serviceStarted && (
-            <div className="rounded-2xl border border-[var(--primary)]/30 bg-[var(--primary)]/5 p-5">
+            <div className="rounded-2xl border border-[#C9963F]/30 bg-[#C9963F]/5 p-5">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
                 {t("applications.startService", "Start Service")}
               </h3>
@@ -1172,11 +2076,145 @@ export default function ApplicationDetailPage() {
                 <button
                   onClick={handleVerifyCode}
                   disabled={verifying || !verifyCode.trim()}
-                  className="rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--soft-blue)] disabled:opacity-50"
+                  className="rounded-lg bg-[#C9963F] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50"
                 >
                   {verifying ? "..." : t("common.verify", "Verify")}
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Service Started confirmation */}
+          {isAccepted &&
+            serviceStarted &&
+            !hasPendingCodeVersion &&
+            !hasNewVersionToVerify &&
+            !additionalServicesVerified && (
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="h-5 w-5 text-emerald-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p className="text-sm font-semibold text-emerald-400">
+                    {t("applications.serviceStarted", "Service Started")}
+                  </p>
+                </div>
+                <p className="mt-1 text-xs text-[var(--muted-text)]">
+                  {t("applications.serviceStartedOn", "Service started on")}{" "}
+                  {fmtDateTime(app.verificationCodeVerifiedAt)}
+                </p>
+              </div>
+            )}
+
+          {/* Additional Services — Pending (employer has pending verification) */}
+          {isAccepted && serviceStarted && hasPendingCodeVersion && (
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="h-5 w-5 text-amber-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm font-semibold text-amber-500">
+                  {t(
+                    "applications.additionalServicesPending",
+                    "Additional Services Pending",
+                  )}
+                </p>
+              </div>
+              <p className="mt-1 text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.additionalServicesPendingDesc",
+                  "The employer has pending verification for additional services. Please wait for them to confirm.",
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Additional Services — New code to verify */}
+          {isAccepted && serviceStarted && hasNewVersionToVerify && (
+            <div className="rounded-2xl border border-[#C9963F]/30 bg-[#C9963F]/5 p-5">
+              <h3 className="text-sm font-semibold text-[#C9963F]">
+                {t(
+                  "applications.startAdditionalServices",
+                  "Start Additional Services",
+                )}
+              </h3>
+              <p className="mt-1 text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.enterNewVerificationCode",
+                  "The employer has added new services. Enter the new verification code to start additional work.",
+                )}
+              </p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  value={verifyCode}
+                  onChange={(e) => setVerifyCode(e.target.value)}
+                  placeholder={t("applications.enterCode", "Enter code")}
+                  maxLength={6}
+                  className="flex-1 rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2.5 text-center text-lg font-bold tracking-[0.3em] text-[var(--foreground)] placeholder:text-[var(--muted-text)]/40 focus:border-[var(--primary)] focus:outline-none"
+                />
+                <button
+                  onClick={handleVerifyCode}
+                  disabled={verifying || !verifyCode.trim()}
+                  className="rounded-lg bg-[#C9963F] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50"
+                >
+                  {verifying ? "..." : t("common.verify", "Verify")}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Additional Services — Verified */}
+          {isAccepted && serviceStarted && additionalServicesVerified && (
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="h-5 w-5 text-emerald-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm font-semibold text-emerald-400">
+                  {t(
+                    "applications.additionalServicesStarted",
+                    "Additional Services Started",
+                  )}
+                </p>
+              </div>
+              <p className="mt-1 text-xs text-[var(--muted-text)]">
+                {t(
+                  "applications.additionalServicesConfirmed",
+                  "Additional services verified on",
+                )}{" "}
+                {fmtDateTime(app.verificationCodeLastVerifiedAt)}
+              </p>
             </div>
           )}
 
@@ -1457,170 +2495,171 @@ export default function ApplicationDetailPage() {
             })()}
 
           {/* Request Negotiation */}
-          {isAccepted && !completed && (
-            <div className="rounded-2xl border border-[var(--fulfillment-gold)]/30 bg-[var(--fulfillment-gold)]/5 p-5">
-              {showNego ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                    {t(
-                      "applications.requestNegotiation",
-                      "Request Negotiation",
-                    )}
-                  </h3>
-                  <p className="mt-1 text-xs text-[var(--muted-text)]">
-                    {t(
-                      "applications.proposeDifferentRate",
-                      "Propose a different rate and explain why",
-                    )}
-                  </p>
-                  {negoRates.map((r, i) => (
-                    <div key={i} className="mt-3 flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--muted-text)]">
-                          €
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={r.rate}
-                          onChange={(e) =>
+          {(isAccepted || status === "PENDING" || isRequested) &&
+            !completed && (
+              <div className="rounded-2xl border border-[var(--fulfillment-gold)]/30 bg-[var(--fulfillment-gold)]/5 p-5">
+                {showNego ? (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                      {t(
+                        "applications.requestNegotiation",
+                        "Request Negotiation",
+                      )}
+                    </h3>
+                    <p className="mt-1 text-xs text-[var(--muted-text)]">
+                      {t(
+                        "applications.proposeDifferentRate",
+                        "Propose a different rate and explain why",
+                      )}
+                    </p>
+                    {negoRates.map((r, i) => (
+                      <div key={i} className="mt-3 flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--muted-text)]">
+                            €
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={r.rate}
+                            onChange={(e) =>
+                              setNegoRates((prev) =>
+                                prev.map((x, j) =>
+                                  j === i ? { ...x, rate: e.target.value } : x,
+                                ),
+                              )
+                            }
+                            placeholder="0.00"
+                            className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] py-2 pl-8 pr-3 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+                          />
+                        </div>
+                        <BrandedSelect
+                          value={r.paymentType}
+                          onChange={(v) =>
                             setNegoRates((prev) =>
                               prev.map((x, j) =>
-                                j === i ? { ...x, rate: e.target.value } : x,
+                                j === i ? { ...x, paymentType: v } : x,
                               ),
                             )
                           }
-                          placeholder="0.00"
-                          className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] py-2 pl-8 pr-3 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+                          options={[
+                            {
+                              value: "HOURLY",
+                              label: t("applications.hourly", "Hourly"),
+                            },
+                            {
+                              value: "DAILY",
+                              label: t("applications.daily", "Daily"),
+                            },
+                            {
+                              value: "WEEKLY",
+                              label: t("applications.weekly", "Weekly"),
+                            },
+                            {
+                              value: "MONTHLY",
+                              label: t("applications.monthly", "Monthly"),
+                            },
+                            {
+                              value: "FIXED",
+                              label: t("applications.fixed", "Fixed"),
+                            },
+                          ]}
+                          size="sm"
                         />
-                      </div>
-                      <BrandedSelect
-                        value={r.paymentType}
-                        onChange={(v) =>
-                          setNegoRates((prev) =>
-                            prev.map((x, j) =>
-                              j === i ? { ...x, paymentType: v } : x,
-                            ),
-                          )
-                        }
-                        options={[
-                          {
-                            value: "HOURLY",
-                            label: t("applications.hourly", "Hourly"),
-                          },
-                          {
-                            value: "DAILY",
-                            label: t("applications.daily", "Daily"),
-                          },
-                          {
-                            value: "WEEKLY",
-                            label: t("applications.weekly", "Weekly"),
-                          },
-                          {
-                            value: "MONTHLY",
-                            label: t("applications.monthly", "Monthly"),
-                          },
-                          {
-                            value: "FIXED",
-                            label: t("applications.fixed", "Fixed"),
-                          },
-                        ]}
-                        size="sm"
-                      />
-                      {negoRates.length > 1 && (
-                        <button
-                          onClick={() =>
-                            setNegoRates((prev) =>
-                              prev.filter((_, j) => j !== i),
-                            )
-                          }
-                          className="text-[var(--muted-text)] hover:text-red-400"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
+                        {negoRates.length > 1 && (
+                          <button
+                            onClick={() =>
+                              setNegoRates((prev) =>
+                                prev.filter((_, j) => j !== i),
+                              )
+                            }
+                            className="text-[var(--muted-text)] hover:text-red-400"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      onClick={() =>
+                        setNegoRates((prev) => [
+                          ...prev,
+                          { rate: "", paymentType: "HOURLY" },
+                        ])
+                      }
+                      className="mt-2 text-xs font-medium text-[var(--primary)] hover:text-[var(--soft-blue)]"
+                    >
+                      {t("applications.addRate", "+ Add rate")}
+                    </button>
+                    <textarea
+                      value={negoMsg}
+                      onChange={(e) => setNegoMsg(e.target.value)}
+                      placeholder={t(
+                        "applications.explainProposedRate",
+                        "Explain your proposed rate...",
                       )}
+                      rows={3}
+                      className="mt-3 w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
+                    />
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={handleNegotiation}
+                        disabled={submittingNego}
+                        className="flex-1 rounded-xl bg-[var(--fulfillment-gold)] py-2.5 text-sm font-semibold text-[var(--background)] transition-colors hover:opacity-90 disabled:opacity-50"
+                      >
+                        {submittingNego
+                          ? t("common.submitting", "Submitting...")
+                          : t("applications.submitRequest", "Submit Request")}
+                      </button>
+                      <button
+                        onClick={() => setShowNego(false)}
+                        className="rounded-xl border border-[var(--border-color)] px-4 py-2.5 text-sm font-medium text-[var(--muted-text)] hover:bg-[var(--surface-alt)]"
+                      >
+                        {t("common.cancel", "Cancel")}
+                      </button>
                     </div>
-                  ))}
+                  </div>
+                ) : (
                   <button
-                    onClick={() =>
-                      setNegoRates((prev) => [
-                        ...prev,
-                        { rate: "", paymentType: "HOURLY" },
-                      ])
-                    }
-                    className="mt-2 text-xs font-medium text-[var(--primary)] hover:text-[var(--soft-blue)]"
+                    onClick={() => setShowNego(true)}
+                    className="flex w-full items-center gap-3 text-left"
                   >
-                    {t("applications.addRate", "+ Add rate")}
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--fulfillment-gold)]/20">
+                      <span className="text-base font-bold text-[var(--fulfillment-gold)]">
+                        €
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--fulfillment-gold)]">
+                        {t(
+                          "applications.requestNegotiation",
+                          "Request negotiation",
+                        )}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[var(--muted-text)]">
+                        {t(
+                          "applications.proposeDifferentRateShort",
+                          "Propose a different rate",
+                        )}
+                      </p>
+                    </div>
                   </button>
-                  <textarea
-                    value={negoMsg}
-                    onChange={(e) => setNegoMsg(e.target.value)}
-                    placeholder={t(
-                      "applications.explainProposedRate",
-                      "Explain your proposed rate...",
-                    )}
-                    rows={3}
-                    className="mt-3 w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
-                  />
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      onClick={handleNegotiation}
-                      disabled={submittingNego}
-                      className="flex-1 rounded-xl bg-[var(--fulfillment-gold)] py-2.5 text-sm font-semibold text-[var(--background)] transition-colors hover:opacity-90 disabled:opacity-50"
-                    >
-                      {submittingNego
-                        ? t("common.submitting", "Submitting...")
-                        : t("applications.submitRequest", "Submit Request")}
-                    </button>
-                    <button
-                      onClick={() => setShowNego(false)}
-                      className="rounded-xl border border-[var(--border-color)] px-4 py-2.5 text-sm font-medium text-[var(--muted-text)] hover:bg-[var(--surface-alt)]"
-                    >
-                      {t("common.cancel", "Cancel")}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowNego(true)}
-                  className="flex w-full items-center gap-3 text-left"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--fulfillment-gold)]/20">
-                    <span className="text-base font-bold text-[var(--fulfillment-gold)]">
-                      €
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--fulfillment-gold)]">
-                      {t(
-                        "applications.requestNegotiation",
-                        "Request negotiation",
-                      )}
-                    </p>
-                    <p className="mt-0.5 text-xs text-[var(--muted-text)]">
-                      {t(
-                        "applications.proposeDifferentRateShort",
-                        "Propose a different rate",
-                      )}
-                    </p>
-                  </div>
-                </button>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
 
           {/* View job link */}
           {job?.id && (

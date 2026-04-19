@@ -55,7 +55,9 @@ export default function VehicleScreen() {
   const [capacity, setCapacity] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const [photoUris, setPhotoUris] = useState<Record<string, string | null>>({
+  const [photoUris, setPhotoUris] = useState<
+    Record<string, { uri: string; mimeType: string; fileName: string } | null>
+  >({
     photoFront: null,
     photoBack: null,
     photoLeft: null,
@@ -78,7 +80,15 @@ export default function VehicleScreen() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
       });
       if (!result.canceled && result.assets[0]) {
-        setPhotoUris((prev) => ({ ...prev, [fieldKey]: result.assets[0].uri }));
+        const a = result.assets[0];
+        setPhotoUris((prev) => ({
+          ...prev,
+          [fieldKey]: {
+            uri: a.uri,
+            mimeType: a.mimeType || "image/jpeg",
+            fileName: a.fileName || `${fieldKey}.jpg`,
+          },
+        }));
       }
     } catch {
       // launchCameraAsync fails on simulators — fall back to gallery picker
@@ -92,18 +102,34 @@ export default function VehicleScreen() {
       quality: 0.85,
     });
     if (!result.canceled && result.assets[0]) {
-      setPhotoUris((prev) => ({ ...prev, [fieldKey]: result.assets[0].uri }));
+      const a = result.assets[0];
+      setPhotoUris((prev) => ({
+        ...prev,
+        [fieldKey]: {
+          uri: a.uri,
+          mimeType: a.mimeType || "image/jpeg",
+          fileName: a.fileName || `${fieldKey}.jpg`,
+        },
+      }));
     }
   };
 
   const pickFile = async (fieldKey: string) => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/*"],
+        type: ["*/*"],
         copyToCacheDirectory: true,
       });
       if (!result.canceled && result.assets?.[0]) {
-        setPhotoUris((prev) => ({ ...prev, [fieldKey]: result.assets[0].uri }));
+        const a = result.assets[0];
+        setPhotoUris((prev) => ({
+          ...prev,
+          [fieldKey]: {
+            uri: a.uri,
+            mimeType: a.mimeType || "application/octet-stream",
+            fileName: a.name || fieldKey,
+          },
+        }));
       }
     } catch {
       // cancelled
@@ -189,23 +215,53 @@ export default function VehicleScreen() {
       const formData = new FormData();
       let hasPhotos = false;
       for (const field of PHOTO_FIELDS) {
-        const uri = photoUris[field.key];
-        if (uri) {
+        const fileData = photoUris[field.key];
+        if (fileData) {
           hasPhotos = true;
           formData.append(field.key, {
-            uri,
-            name: `${field.key}.jpg`,
-            type: "image/jpeg",
+            uri: fileData.uri,
+            name: fileData.fileName || `${field.key}.jpg`,
+            type: fileData.mimeType || "image/jpeg",
           } as any);
         }
       }
 
       if (hasPhotos) {
-        await fetch(`${base}/vehicles/${vehicle.id}/upload`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
+        try {
+          const uploadRes = await fetch(
+            `${base}/vehicles/${vehicle.id}/upload`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+              body: formData,
+            },
+          );
+          if (!uploadRes.ok) {
+            const errText = await uploadRes.text().catch(() => "");
+            console.warn(
+              "Vehicle photo upload failed:",
+              uploadRes.status,
+              errText,
+            );
+            let errMsg: string | undefined;
+            try {
+              errMsg = JSON.parse(errText)?.message;
+            } catch {
+              /* not JSON */
+            }
+            Alert.alert(
+              t("common.error") || "Error",
+              errMsg ||
+                "Vehicle created but photo upload failed. You can re-upload later from your profile.",
+            );
+          }
+        } catch (uploadErr) {
+          console.warn("Vehicle photo upload network error:", uploadErr);
+          Alert.alert(
+            t("common.error") || "Error",
+            "Vehicle created but photo upload failed due to a network error. You can re-upload later.",
+          );
+        }
       }
 
       router.push("/kyc/documents" as any);
@@ -431,12 +487,12 @@ export default function VehicleScreen() {
                 <Feather name={pf.icon as any} size={14} color={colors.gold} />{" "}
                 {t(`vehicles.${pf.key}`) || pf.label}
               </Text>
-              {photoUris[pf.key] ? (
+              {photoUris[pf.key]?.uri ? (
                 <View
                   style={[styles.photoCard, { borderColor: colors.emerald }]}
                 >
                   <Image
-                    source={{ uri: photoUris[pf.key]! }}
+                    source={{ uri: photoUris[pf.key]!.uri }}
                     style={styles.photoPreview}
                     resizeMode="cover"
                   />

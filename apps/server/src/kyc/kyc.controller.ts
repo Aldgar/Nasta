@@ -16,6 +16,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { KycService } from './kyc.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminJwtGuard } from '../auth/guards/admin-jwt.guard';
@@ -107,11 +108,14 @@ export class KycController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Upload KYC documents (front/back/selfie)' })
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'documentFront', maxCount: 1 },
-      { name: 'documentBack', maxCount: 1 },
-      { name: 'selfie', maxCount: 1 },
-    ]),
+    FileFieldsInterceptor(
+      [
+        { name: 'documentFront', maxCount: 1 },
+        { name: 'documentBack', maxCount: 1 },
+        { name: 'selfie', maxCount: 1 },
+      ],
+      { storage: memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } },
+    ),
   )
   async upload(
     @Param('verificationId') verificationId: string,
@@ -140,7 +144,12 @@ export class KycController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Upload certification document' })
-  @UseInterceptors(FileInterceptor('certification'))
+  @UseInterceptors(
+    FileInterceptor('certification', {
+      storage: memoryStorage(),
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
   async uploadCertification(
     @Param('verificationId') verificationId: string,
     @Request() req: { user: { id: string } },
@@ -158,7 +167,12 @@ export class KycController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Upload CV document' })
-  @UseInterceptors(FileInterceptor('cv'))
+  @UseInterceptors(
+    FileInterceptor('cv', {
+      storage: memoryStorage(),
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
   async uploadCv(
     @Param('verificationId') verificationId: string,
     @Request() req: { user: { id: string } },

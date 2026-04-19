@@ -1,7 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { vehicleUploadConfig } from './config/file-upload.config';
 import * as fs from 'fs';
 import * as path from 'path';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const heicConvert = require('heic-convert');
+
+const HEIC_MIMES = ['image/heic', 'image/heif'];
+const HEIC_EXTS = ['.heic', '.heif'];
 
 export type VehicleFileKind =
   | 'front'
@@ -12,6 +17,8 @@ export type VehicleFileKind =
 
 @Injectable()
 export class VehicleFileUploadService {
+  private readonly logger = new Logger(VehicleFileUploadService.name);
+
   constructor() {
     this.ensureUploadDirectoryExists();
   }
@@ -42,15 +49,39 @@ export class VehicleFileUploadService {
     }
   }
 
+  private isHeic(file: Express.Multer.File): boolean {
+    const ext = path.extname(file.originalname).toLowerCase();
+    return HEIC_MIMES.includes(file.mimetype) || HEIC_EXTS.includes(ext);
+  }
+
+  private async convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
+    return Buffer.from(
+      await heicConvert({ buffer, format: 'JPEG', quality: 0.9 }),
+    );
+  }
+
   async saveFile(file: Express.Multer.File, kind: VehicleFileKind) {
     this.validateFile(file, kind);
+
+    let buffer = file.buffer;
+    let originalName = file.originalname;
+
+    // Convert HEIC/HEIF to JPEG for browser compatibility
+    if (this.isHeic(file)) {
+      this.logger.log(`Converting HEIC file to JPEG: ${file.originalname}`);
+      buffer = await this.convertHeicToJpeg(buffer);
+      originalName = originalName
+        .replace(/\.heic$/i, '.jpg')
+        .replace(/\.heif$/i, '.jpg');
+    }
+
     const secureFileName = vehicleUploadConfig.generateFileName(
       kind,
-      file.originalname,
+      originalName,
     );
     const filePath = path.join(vehicleUploadConfig.uploadPath, secureFileName);
     try {
-      await fs.promises.writeFile(filePath, file.buffer);
+      await fs.promises.writeFile(filePath, buffer);
       return `uploads/vehicles/${secureFileName}`;
     } catch {
       throw new BadRequestException('Failed to save file');

@@ -172,6 +172,7 @@ export default function Settings() {
       | "rejected"
       | "manual_review"
       | "in_progress",
+    adminConfirmed: false,
     backgroundStatus: "not_verified" as
       | "not_verified"
       | "pending"
@@ -352,6 +353,7 @@ export default function Settings() {
             emailVerified: false,
             phoneVerified: false,
             idStatus: "pending",
+            adminConfirmed: false,
             backgroundStatus: "pending",
             vehicleStatus: "not_registered",
           });
@@ -411,6 +413,7 @@ export default function Settings() {
 
           // Fetch KYC status to get individual document statuses
           let idStatus = (u.idVerificationStatus || "pending").toLowerCase();
+          let adminConfirmed = !!u.isIdVerified;
           try {
             const kycRes = await fetch(`${base}/kyc/my-status`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -418,6 +421,10 @@ export default function Settings() {
             if (kycRes.ok) {
               const kycData = await kycRes.json();
               const currentVerification = kycData?.current;
+              // Track admin confirmation from the server user record
+              if (kycData?.user?.isIdVerified) {
+                adminConfirmed = true;
+              }
               if (currentVerification?.documentStatuses) {
                 // Check individual document statuses
                 const statuses = currentVerification.documentStatuses as Record<
@@ -509,6 +516,7 @@ export default function Settings() {
             emailVerified: !!u.emailVerifiedAt,
             phoneVerified: !!u.phoneVerifiedAt,
             idStatus,
+            adminConfirmed,
             backgroundStatus:
               rawBgStatus === "pending" ? "not_verified" : rawBgStatus,
             vehicleStatus: vehicleStatus as any,
@@ -1403,7 +1411,17 @@ export default function Settings() {
 
   const handleIdPress = () => {
     if (verification.idStatus === "verified") {
-      Alert.alert(t("profile.verified"), t("profile.idVerified"));
+      if (verification.adminConfirmed) {
+        Alert.alert(t("profile.verified"), t("profile.idVerified"));
+      } else {
+        Alert.alert(
+          t("profile.idVerifiedByDidit", "ID Verified"),
+          t(
+            "profile.awaitingAdminApproval",
+            "Your identity has been verified successfully. Waiting for final approval from the admins for your ID and background checks.",
+          ),
+        );
+      }
       return;
     }
     router.push("/kyc-start" as never);
@@ -1770,6 +1788,29 @@ export default function Settings() {
                         text={translateStatus(verification.idStatus)}
                       />
                     </Row>
+                    {verification.idStatus === "verified" &&
+                      !verification.adminConfirmed && (
+                        <View
+                          style={{
+                            paddingHorizontal: 20,
+                            paddingBottom: 8,
+                            marginTop: -4,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: colors.gold,
+                              fontStyle: "italic",
+                            }}
+                          >
+                            {t(
+                              "profile.awaitingAdminNote",
+                              "Waiting for final approval from the admins for your ID and background checks.",
+                            )}
+                          </Text>
+                        </View>
+                      )}
                     <Row onPress={handleBgPress}>
                       <Label text={t("profile.background")} />
                       <Status
@@ -1977,6 +2018,7 @@ export default function Settings() {
                 onPress={async () => {
                   await unregisterPushToken();
                   await SecureStore.deleteItemAsync("auth_token");
+                  await SecureStore.deleteItemAsync("refresh_token");
                   // Use dismissAll to exit tabs navigator, then navigate to landing
                   router.dismissAll();
                   router.replace("/");

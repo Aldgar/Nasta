@@ -1,6 +1,7 @@
 import * as path from 'path';
 
-const baseUploads = process.env.UPLOADS_DIR || 'uploads';
+const baseUploads =
+  process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
 
 export const chatUploadConfig = {
   uploadPath: path.join(baseUploads, 'chat'),

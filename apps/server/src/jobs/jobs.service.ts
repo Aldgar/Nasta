@@ -1380,6 +1380,24 @@ export class JobsService {
     }));
   }
 
+  // Categories that are restricted per Nasta policy and must not appear in listings
+  private static readonly RESTRICTED_CATEGORY_NAMES = [
+    'baby sitting',
+    'babysitting',
+    'baby-sitting',
+    'healthcare',
+    'government',
+    'finance',
+    'military',
+    'government papers',
+  ];
+
+  private isRestrictedCategory(name: string): boolean {
+    return JobsService.RESTRICTED_CATEGORY_NAMES.some(
+      (r) => r === name.toLowerCase().trim(),
+    );
+  }
+
   async getAllCategories() {
     // Get all categories that have active jobs
     const categoriesWithJobs = await this.prisma.jobCategory.findMany({
@@ -1419,12 +1437,14 @@ export class JobsService {
 
     // First add categories with jobs (prioritize them)
     categoriesWithJobs.forEach((cat) => {
-      categoryMap.set(cat.name, cat);
+      if (!this.isRestrictedCategory(cat.name)) {
+        categoryMap.set(cat.name, cat);
+      }
     });
 
     // Then add other active categories
     allActiveCategories.forEach((cat) => {
-      if (!categoryMap.has(cat.name)) {
+      if (!categoryMap.has(cat.name) && !this.isRestrictedCategory(cat.name)) {
         categoryMap.set(cat.name, cat);
       }
     });
@@ -1438,6 +1458,12 @@ export class JobsService {
     const trimmed = name.trim();
     if (!trimmed) {
       throw new BadRequestException('Category name is required');
+    }
+
+    if (this.isRestrictedCategory(trimmed)) {
+      throw new BadRequestException(
+        'This category is not allowed on Nasta as it falls under a restricted sector.',
+      );
     }
 
     // Check if category already exists (case-insensitive)

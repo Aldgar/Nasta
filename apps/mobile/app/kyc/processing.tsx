@@ -10,6 +10,17 @@ import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 import GradientBackground from "../../components/GradientBackground";
 
+/** Guess mime type from a file URI */
+function mimeFromUri(uri: string): string {
+  const ext = uri.split(".").pop()?.toLowerCase();
+  if (ext === "pdf") return "application/pdf";
+  if (ext === "png") return "image/png";
+  if (ext === "heic") return "image/heic";
+  if (ext === "heif") return "image/heif";
+  if (ext === "webp") return "image/webp";
+  return "image/jpeg";
+}
+
 type SubmitStatus = "uploading" | "verifying" | "done" | "error";
 
 const STAGES: { key: SubmitStatus; labelKey: string; fallback: string }[] = [
@@ -89,22 +100,22 @@ export default function ProcessingScreen() {
         if (state.idFront?.uri) {
           idForm.append("documentFront", {
             uri: state.idFront.uri,
-            type: "image/jpeg",
-            name: "id-front.jpg",
+            type: mimeFromUri(state.idFront.uri),
+            name: "id-front." + (state.idFront.uri.split(".").pop() || "jpg"),
           } as any);
         }
         if (state.idBack?.uri) {
           idForm.append("documentBack", {
             uri: state.idBack.uri,
-            type: "image/jpeg",
-            name: "id-back.jpg",
+            type: mimeFromUri(state.idBack.uri),
+            name: "id-back." + (state.idBack.uri.split(".").pop() || "jpg"),
           } as any);
         }
         if (state.selfie?.uri) {
           idForm.append("selfie", {
             uri: state.selfie.uri,
-            type: "image/jpeg",
-            name: "selfie.jpg",
+            type: mimeFromUri(state.selfie.uri),
+            name: "selfie." + (state.selfie.uri.split(".").pop() || "jpg"),
           } as any);
         }
 
@@ -156,32 +167,56 @@ export default function ProcessingScreen() {
               headers: { ...headers, "Content-Type": "application/json" },
               body: JSON.stringify({
                 verificationType: "DRIVERS_LICENSE",
-                consent: { accepted: true },
+                consent: { accepted: true, version: "v1" },
               }),
             });
             if (dlInitRes.ok) {
               const dlInit = await dlInitRes.json();
               const dlVerificationId = dlInit?.id || dlInit?.verificationId;
               if (dlVerificationId) {
-                const dlForm = new FormData();
-                dlForm.append("documentFront", {
+                // Upload front first
+                const dlFrontForm = new FormData();
+                dlFrontForm.append("documentFront", {
                   uri: state.dlFront.uri,
-                  type: "image/jpeg",
-                  name: "dl-front.jpg",
+                  type: mimeFromUri(state.dlFront.uri),
+                  name:
+                    "dl-front." + (state.dlFront.uri.split(".").pop() || "jpg"),
                 } as any);
-                if (state.dlBack?.uri) {
-                  dlForm.append("documentBack", {
-                    uri: state.dlBack.uri,
-                    type: "image/jpeg",
-                    name: "dl-back.jpg",
-                  } as any);
+                const dlFrontRes = await fetch(
+                  `${base}/kyc/${dlVerificationId}/upload`,
+                  { method: "POST", headers, body: dlFrontForm },
+                );
+                if (!dlFrontRes.ok) {
+                  console.warn(
+                    "DL front upload failed:",
+                    await dlFrontRes.text(),
+                  );
                 }
-                await fetch(`${base}/kyc/${dlVerificationId}/upload`, {
-                  method: "POST",
-                  headers,
-                  body: dlForm,
-                });
+
+                // Upload back separately
+                if (state.dlBack?.uri) {
+                  const dlBackForm = new FormData();
+                  dlBackForm.append("documentBack", {
+                    uri: state.dlBack.uri,
+                    type: mimeFromUri(state.dlBack.uri),
+                    name:
+                      "dl-back." + (state.dlBack.uri.split(".").pop() || "jpg"),
+                  } as any);
+                  const dlBackRes = await fetch(
+                    `${base}/kyc/${dlVerificationId}/upload`,
+                    { method: "POST", headers, body: dlBackForm },
+                  );
+                  if (!dlBackRes.ok) {
+                    console.warn(
+                      "DL back upload failed:",
+                      await dlBackRes.text(),
+                    );
+                  }
+                }
               }
+            } else {
+              const errText = await dlInitRes.text();
+              console.warn("Driver's license initiation failed:", errText);
             }
           } catch (dlErr) {
             console.warn("Driver's license upload failed:", dlErr);

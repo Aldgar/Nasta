@@ -158,6 +158,11 @@ export default function LoginScreen() {
         data?.accessToken || data?.access_token || data?.token || "";
       if (!token) throw new Error("No token returned");
       await SecureStore.setItemAsync("auth_token", token);
+      // Store refresh token for silent token renewal
+      const refreshToken = data?.refreshToken || data?.refresh_token || "";
+      if (refreshToken) {
+        await SecureStore.setItemAsync("refresh_token", refreshToken);
+      }
       // Register push token for this user (removes from any previous user)
       registerPushToken().catch(() => {});
       // Store password temporarily for password change form (will be cleared after password change)

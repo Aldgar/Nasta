@@ -191,6 +191,38 @@ export class AuthService {
     return user;
   }
 
+  // Refresh: validate a refresh token and issue a new access token + refresh token pair
+  async refreshAccessToken(refreshToken: string) {
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verify<JwtPayload>(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    // Ensure the underlying user/admin still exists and is active
+    if (payload.role === 'ADMIN') {
+      const admin = await this.admins.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, isActive: true },
+      });
+      if (!admin || !admin.isActive) {
+        throw new UnauthorizedException('Account not found or deactivated');
+      }
+    } else {
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, isActive: true },
+      });
+      if (!user || !user.isActive) {
+        throw new UnauthorizedException('Account not found or deactivated');
+      }
+    }
+
+    // Issue a fresh token pair
+    return this.generateTokens(payload.sub, payload.email, payload.role);
+  }
+
   // Public helper for OAuth flows: issue only access token (no refresh)
   issueAccessToken(userId: string, email: string, role: string) {
     const payload: { sub: string; email: string; role: string } = {

@@ -11,6 +11,7 @@ interface KYCVerification {
     email: string;
     firstName: string;
     lastName: string;
+    isIdVerified?: boolean;
   };
   verificationType: string;
   status: string;
@@ -253,6 +254,11 @@ export default function AdminKYCPage() {
                       >
                         {v.status.replace("_", " ")}
                       </span>
+                      {v.user?.isIdVerified && (
+                        <span className="rounded-full bg-purple-200 text-purple-900 border border-purple-400 px-2.5 py-0.5 text-[10px] font-bold uppercase">
+                          Re-verification
+                        </span>
+                      )}
                     </div>
                     <p className="mt-1 text-xs text-[var(--muted-text)]">
                       {v.user?.email || "N/A"}

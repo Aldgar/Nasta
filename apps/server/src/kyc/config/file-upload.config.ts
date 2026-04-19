@@ -1,16 +1,32 @@
 import * as path from 'path';
 
-const baseUploads = process.env.UPLOADS_DIR || 'uploads';
+const baseUploads =
+  process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
 
 export const kycUploadConfig = {
   // File size limit (10MB per file)
   maxFileSize: 10 * 1024 * 1024,
 
   // Allowed file types: images and PDFs (front/back can be image or PDF; selfie is image)
-  allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+  allowedMimeTypes: [
+    'image/jpeg',
+    'image/png',
+    'image/heic',
+    'image/heif',
+    'image/webp',
+    'application/pdf',
+  ],
 
   // File extensions
-  allowedExtensions: ['.jpg', '.jpeg', '.png', '.pdf'],
+  allowedExtensions: [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.heic',
+    '.heif',
+    '.webp',
+    '.pdf',
+  ],
 
   // Upload directory
   uploadPath: path.join(baseUploads, 'kyc'),

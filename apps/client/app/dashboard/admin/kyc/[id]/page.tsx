@@ -36,6 +36,7 @@ interface Vehicle {
 }
 
 interface ExtractedData {
+  // Admin-entered fields
   legalFirstName?: string;
   legalLastName?: string;
   dateOfBirth?: string;
@@ -57,6 +58,14 @@ interface ExtractedData {
   adminNotes?: string;
   isEuCitizen?: boolean;
   citizenshipCountry?: string;
+  // Didit-extracted fields
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  expirationDate?: string;
+  issuingState?: string;
+  issuingStateName?: string;
+  warnings?: string[];
 }
 
 interface VerificationDetail {
@@ -84,13 +93,15 @@ interface VerificationDetail {
   documentNumber?: string;
   documentCountry?: string;
   documentExpiry?: string;
-  documentStatuses?: Record<string, unknown>;
+  documentStatuses?: Record<string, string>;
   confidence?: number;
   faceMatch?: number;
   livenessCheck?: boolean;
   extractedData?: ExtractedData;
   extractedBy?: string;
   extractedAt?: string;
+  fraudChecks?: { warnings?: string[]; errors?: string[] };
+  providerReference?: string;
   createdAt: string;
   updatedAt: string;
   allVerifications?: {
@@ -100,7 +111,7 @@ interface VerificationDetail {
     documentFrontUrl?: string;
     documentBackUrl?: string;
     selfieUrl?: string;
-    documentStatuses?: Record<string, unknown>;
+    documentStatuses?: Record<string, string>;
     createdAt: string;
   }[];
   backgroundCheck?: {
@@ -237,6 +248,47 @@ function formatDate(d: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+/**
+ * Resolve extracted data fields — handles both Didit-extracted field names
+ * and admin-entered field names with fallback logic.
+ */
+function resolveExtracted(ed: ExtractedData) {
+  return {
+    firstName: ed.legalFirstName || ed.firstName || "",
+    lastName: ed.legalLastName || ed.lastName || "",
+    fullName: ed.fullName || "",
+    dateOfBirth: ed.dateOfBirth || "",
+    gender: ed.gender || "",
+    nationality: ed.nationality || "",
+    placeOfBirth: ed.placeOfBirth || "",
+    documentNumber: ed.documentNumber || "",
+    documentType: ed.documentType || "",
+    issueDate: ed.issueDate || "",
+    expiryDate: ed.expiryDate || ed.expirationDate || "",
+    issuingCountry:
+      ed.issuingCountry || ed.issuingStateName || ed.issuingState || "",
+    issuingAuthority: ed.issuingAuthority || "",
+    bsnNumber: ed.bsnNumber || "",
+    address: ed.address || "",
+    mrzLine1: ed.mrzLine1 || "",
+    mrzLine2: ed.mrzLine2 || "",
+    photoMatchConfirmed: ed.photoMatchConfirmed || false,
+    workAuthorization: ed.workAuthorization || "",
+    adminNotes: ed.adminNotes || "",
+    isEuCitizen: ed.isEuCitizen,
+    citizenshipCountry: ed.citizenshipCountry || "",
+    warnings: ed.warnings || [],
+    // Track whether admin has specifically entered data
+    hasAdminData: !!(ed.legalFirstName || ed.legalLastName),
+    source:
+      ed.legalFirstName || ed.legalLastName
+        ? ("admin" as const)
+        : ed.firstName || ed.lastName
+          ? ("didit" as const)
+          : ("none" as const),
+  };
 }
 
 /* ─── Image component with error handling ─── */
@@ -606,9 +658,10 @@ function ServiceProviderInfoTab({
   onSaved: () => void;
 }) {
   const existing = (data.extractedData || {}) as ExtractedData;
+  const resolved = resolveExtracted(existing);
   const [form, setForm] = useState<ExtractedData>({
-    legalFirstName: existing.legalFirstName || "",
-    legalLastName: existing.legalLastName || "",
+    legalFirstName: existing.legalFirstName || existing.firstName || "",
+    legalLastName: existing.legalLastName || existing.lastName || "",
     dateOfBirth: existing.dateOfBirth || "",
     gender: existing.gender || "",
     nationality: existing.nationality || "",
@@ -616,8 +669,12 @@ function ServiceProviderInfoTab({
     documentNumber: existing.documentNumber || "",
     documentType: existing.documentType || "",
     issueDate: existing.issueDate || "",
-    expiryDate: existing.expiryDate || "",
-    issuingCountry: existing.issuingCountry || "",
+    expiryDate: existing.expiryDate || existing.expirationDate || "",
+    issuingCountry:
+      existing.issuingCountry ||
+      existing.issuingStateName ||
+      existing.issuingState ||
+      "",
     issuingAuthority: existing.issuingAuthority || "",
     bsnNumber: existing.bsnNumber || "",
     address: existing.address || "",
@@ -771,6 +828,35 @@ function ServiceProviderInfoTab({
   return (
     <div className="space-y-5">
       {/* Instructions */}
+      {resolved.source === "didit" && !resolved.hasAdminData && (
+        <div className="rounded-xl border border-purple-400/50 bg-purple-500/10 p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-purple-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+              />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-purple-300">
+                Didit Auto-Filled Data
+              </p>
+              <p className="mt-1 text-xs text-purple-300/80">
+                The fields below have been pre-populated from Didit&apos;s
+                automated verification. Review the data, make corrections if
+                needed, and click &quot;Save Extracted Data&quot; to confirm.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="rounded-xl border border-blue-300 bg-blue-50 p-4">
         <div className="flex items-start gap-3">
           <svg
@@ -1229,6 +1315,8 @@ export default function KYCDetailPage() {
   >(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [bgCheckLoading, setBgCheckLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "identity" | "documents" | "vehicles" | "background" | "provider-info"
   >("identity");
@@ -1256,13 +1344,40 @@ export default function KYCDetailPage() {
   const handleReview = async () => {
     if (!data || !reviewAction) return;
     setActionLoading(true);
+    const serverDecision = reviewAction === "APPROVED" ? "VERIFIED" : "FAILED";
     await api(`/kyc/admin/${data.id}/review`, {
       method: "POST",
-      body: { decision: reviewAction, notes: reviewNotes || undefined },
+      body: { decision: serverDecision, notes: reviewNotes || undefined },
     });
     setActionLoading(false);
     setReviewAction(null);
     setReviewNotes("");
+    setShowApprovalModal(false);
+    fetchDetail();
+  };
+
+  const handleBgCheckReview = async (result: "CLEAN" | "DISQUALIFYING") => {
+    if (!data?.backgroundCheck) return;
+    setBgCheckLoading(true);
+    const res = await api(
+      `/background-checks/admin/${data.backgroundCheck.id}/review`,
+      {
+        method: "POST",
+        body: {
+          result,
+          hasCriminalRecord: result !== "CLEAN",
+        },
+      },
+    );
+    setBgCheckLoading(false);
+    if (res.error) {
+      alert(
+        typeof res.error === "string"
+          ? res.error
+          : "Failed to review background check",
+      );
+      return;
+    }
     fetchDetail();
   };
 
@@ -1473,195 +1588,376 @@ export default function KYCDetailPage() {
           </Section>
 
           {/* ID Document Images */}
-          <Section title="ID Documents">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {data.documentFrontUrl ? (
-                <div>
-                  <p className="mb-1.5 text-xs text-[var(--muted-text)]">
-                    Front
-                  </p>
-                  <DocImage
-                    src={data.documentFrontUrl}
-                    alt="Document Front"
-                    className="w-full aspect-[4/3]"
-                  />
+          {(() => {
+            // Always show the GOV_ID verification's images, not whatever verification was clicked
+            const govIdVerif = allVerifs.find(
+              (v) => v.verificationType === "GOVERNMENT_ID",
+            );
+            const idFront =
+              govIdVerif?.documentFrontUrl ?? data.documentFrontUrl;
+            const idBack = govIdVerif?.documentBackUrl ?? data.documentBackUrl;
+            const idSelfie = govIdVerif?.selfieUrl ?? data.selfieUrl;
+            return (
+              <Section title="ID Documents">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {idFront ? (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <p className="text-xs text-[var(--muted-text)]">
+                          Front
+                        </p>
+                        {data.documentStatuses?.documentFront && (
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(String(data.documentStatuses.documentFront))}`}
+                          >
+                            {String(data.documentStatuses.documentFront)}
+                          </span>
+                        )}
+                      </div>
+                      <DocImage
+                        src={idFront}
+                        alt="Document Front"
+                        className="w-full aspect-[4/3]"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
+                      <p className="text-xs text-[var(--muted-text)]">
+                        No front uploaded
+                      </p>
+                    </div>
+                  )}
+                  {idBack ? (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <p className="text-xs text-[var(--muted-text)]">Back</p>
+                        {data.documentStatuses?.documentBack && (
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(String(data.documentStatuses.documentBack))}`}
+                          >
+                            {String(data.documentStatuses.documentBack)}
+                          </span>
+                        )}
+                      </div>
+                      <DocImage
+                        src={idBack}
+                        alt="Document Back"
+                        className="w-full aspect-[4/3]"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
+                      <p className="text-xs text-[var(--muted-text)]">
+                        No back uploaded
+                      </p>
+                    </div>
+                  )}
+                  {idSelfie ? (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <p className="text-xs text-[var(--muted-text)]">
+                          Selfie
+                        </p>
+                        {data.documentStatuses?.selfie && (
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(String(data.documentStatuses.selfie))}`}
+                          >
+                            {String(data.documentStatuses.selfie)}
+                          </span>
+                        )}
+                      </div>
+                      <DocImage
+                        src={idSelfie}
+                        alt="Selfie"
+                        className="w-full aspect-[4/3]"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
+                      <p className="text-xs text-[var(--muted-text)]">
+                        No selfie uploaded
+                      </p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
-                  <p className="text-xs text-[var(--muted-text)]">
-                    No front uploaded
-                  </p>
-                </div>
-              )}
-              {data.documentBackUrl ? (
-                <div>
-                  <p className="mb-1.5 text-xs text-[var(--muted-text)]">
-                    Back
-                  </p>
-                  <DocImage
-                    src={data.documentBackUrl}
-                    alt="Document Back"
-                    className="w-full aspect-[4/3]"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
-                  <p className="text-xs text-[var(--muted-text)]">
-                    No back uploaded
-                  </p>
-                </div>
-              )}
-              {data.selfieUrl ? (
-                <div>
-                  <p className="mb-1.5 text-xs text-[var(--muted-text)]">
-                    Selfie
-                  </p>
-                  <DocImage
-                    src={data.selfieUrl}
-                    alt="Selfie"
-                    className="w-full aspect-[4/3]"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
-                  <p className="text-xs text-[var(--muted-text)]">
-                    No selfie uploaded
-                  </p>
-                </div>
-              )}
-            </div>
-          </Section>
+              </Section>
+            );
+          })()}
 
-          {/* Extracted Document Data (read-only, synced from Service Provider Info) */}
+          {/* Didit Verification Results */}
+          {(data.confidence != null ||
+            data.faceMatch != null ||
+            data.livenessCheck != null ||
+            data.fraudChecks) && (
+            <Section title="Didit Verification Results">
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {data.confidence != null && (
+                    <InfoCell
+                      label="Confidence"
+                      value={
+                        <span
+                          className={
+                            data.confidence >= 0.7
+                              ? "text-green-400"
+                              : data.confidence >= 0.4
+                                ? "text-yellow-400"
+                                : "text-red-400"
+                          }
+                        >
+                          {(data.confidence * 100).toFixed(1)}%
+                        </span>
+                      }
+                    />
+                  )}
+                  {data.faceMatch != null && (
+                    <InfoCell
+                      label="Face Match"
+                      value={
+                        <span
+                          className={
+                            data.faceMatch >= 70
+                              ? "text-green-400"
+                              : data.faceMatch >= 40
+                                ? "text-yellow-400"
+                                : "text-red-400"
+                          }
+                        >
+                          {data.faceMatch.toFixed(1)}%
+                        </span>
+                      }
+                    />
+                  )}
+                  {data.livenessCheck != null && (
+                    <InfoCell
+                      label="Liveness"
+                      value={
+                        <span
+                          className={
+                            data.livenessCheck
+                              ? "text-green-400"
+                              : "text-red-400"
+                          }
+                        >
+                          {data.livenessCheck ? "Passed" : "Failed"}
+                        </span>
+                      }
+                    />
+                  )}
+                  {data.providerReference && (
+                    <InfoCell
+                      label="Provider Ref"
+                      value={
+                        <span className="text-[10px] break-all">
+                          {data.providerReference}
+                        </span>
+                      }
+                    />
+                  )}
+                </div>
+                {data.fraudChecks && (
+                  <div className="space-y-2">
+                    {data.fraudChecks.warnings &&
+                      data.fraudChecks.warnings.length > 0 && (
+                        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-400 mb-1.5">
+                            Warnings
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {data.fraudChecks.warnings.map((w, i) => (
+                              <span
+                                key={i}
+                                className="inline-block rounded-md bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 text-[10px] text-yellow-300"
+                              >
+                                {String(w).replace(/_/g, " ")}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    {data.fraudChecks.errors &&
+                      data.fraudChecks.errors.length > 0 && (
+                        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-red-400 mb-1.5">
+                            Errors
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {data.fraudChecks.errors.map((e, i) => (
+                              <span
+                                key={i}
+                                className="inline-block rounded-md bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[10px] text-red-300"
+                              >
+                                {String(e).replace(/_/g, " ")}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                )}
+              </div>
+            </Section>
+          )}
+
+          {/* Extracted Document Data (read-only, synced from Service Provider Info or Didit) */}
           {data.extractedData ? (
             <Section title="Extracted Document Data">
-              <p className="mb-3 text-xs text-[var(--muted-text)]">
-                Data extracted and verified via the Service Provider Info tab.
-                Edit in the &quot;Service Provider Info&quot; tab.
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <InfoCell
-                  label="Legal First Name"
-                  value={
-                    (data.extractedData as ExtractedData).legalFirstName || "—"
-                  }
-                />
-                <InfoCell
-                  label="Legal Last Name"
-                  value={
-                    (data.extractedData as ExtractedData).legalLastName || "—"
-                  }
-                />
-                <InfoCell
-                  label="Date of Birth"
-                  value={
-                    (data.extractedData as ExtractedData).dateOfBirth
-                      ? formatDate(
-                          (data.extractedData as ExtractedData).dateOfBirth!,
-                        )
-                      : "—"
-                  }
-                />
-                <InfoCell
-                  label="Gender"
-                  value={(data.extractedData as ExtractedData).gender || "—"}
-                />
-                <InfoCell
-                  label="Citizenship"
-                  value={
-                    (data.extractedData as ExtractedData).isEuCitizen === true
-                      ? "EU / EEA Citizen"
-                      : (data.extractedData as ExtractedData).isEuCitizen ===
-                          false
-                        ? "Non-EU Citizen"
-                        : "—"
-                  }
-                />
-                <InfoCell
-                  label="Country of Citizenship"
-                  value={
-                    (data.extractedData as ExtractedData).citizenshipCountry ||
-                    "—"
-                  }
-                />
-                <InfoCell
-                  label="Document Type"
-                  value={
-                    (data.extractedData as ExtractedData).documentType || "—"
-                  }
-                />
-                <InfoCell
-                  label="Document Number"
-                  value={
-                    (data.extractedData as ExtractedData).documentNumber || "—"
-                  }
-                />
-                <InfoCell
-                  label="Issue Date"
-                  value={
-                    (data.extractedData as ExtractedData).issueDate
-                      ? formatDate(
-                          (data.extractedData as ExtractedData).issueDate!,
-                        )
-                      : "—"
-                  }
-                />
-                <InfoCell
-                  label="Expiry Date"
-                  value={
-                    (data.extractedData as ExtractedData).expiryDate
-                      ? formatDate(
-                          (data.extractedData as ExtractedData).expiryDate!,
-                        )
-                      : "—"
-                  }
-                />
-                <InfoCell
-                  label="Issuing Country"
-                  value={
-                    (data.extractedData as ExtractedData).issuingCountry || "—"
-                  }
-                />
-                <InfoCell
-                  label="Issuing Authority"
-                  value={
-                    (data.extractedData as ExtractedData).issuingAuthority ||
-                    "—"
-                  }
-                />
-                <InfoCell
-                  label="BSN / Tax Number"
-                  value={(data.extractedData as ExtractedData).bsnNumber || "—"}
-                />
-                <InfoCell
-                  label="Work Authorization"
-                  value={
-                    (data.extractedData as ExtractedData).workAuthorization ||
-                    "—"
-                  }
-                />
-                <InfoCell
-                  label="Photo Match"
-                  value={
-                    (data.extractedData as ExtractedData)
-                      .photoMatchConfirmed ? (
-                      <span className="text-green-400">Confirmed</span>
-                    ) : (
-                      <span className="text-yellow-400">Not confirmed</span>
-                    )
-                  }
-                />
-              </div>
-              {(data.extractedData as ExtractedData).adminNotes && (
-                <div className="mt-3 rounded-lg bg-[var(--background)] p-3">
-                  <p className="text-[10px] uppercase text-[var(--muted-text)]">
-                    Admin Notes
-                  </p>
-                  <p className="mt-1 text-sm text-[var(--foreground)] whitespace-pre-wrap">
-                    {(data.extractedData as ExtractedData).adminNotes}
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const ed = resolveExtracted(
+                  data.extractedData as ExtractedData,
+                );
+                return (
+                  <>
+                    <div className="mb-3 flex items-center gap-2">
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          ed.source === "admin"
+                            ? "bg-blue-500/20 text-blue-300"
+                            : ed.source === "didit"
+                              ? "bg-purple-500/20 text-purple-300"
+                              : "bg-[var(--surface-alt)] text-[var(--muted-text)]"
+                        }`}
+                      >
+                        {ed.source === "admin"
+                          ? "Admin Verified"
+                          : ed.source === "didit"
+                            ? "Auto-Extracted (Didit)"
+                            : "No Source"}
+                      </span>
+                      <p className="text-xs text-[var(--muted-text)]">
+                        {ed.source === "didit"
+                          ? 'Data auto-extracted by Didit. Review and confirm in the "Service Provider Info" tab.'
+                          : "Data verified by admin via the Service Provider Info tab."}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <InfoCell
+                        label="First Name"
+                        value={ed.firstName || "—"}
+                      />
+                      <InfoCell label="Last Name" value={ed.lastName || "—"} />
+                      {ed.fullName && (
+                        <InfoCell label="Full Name" value={ed.fullName} />
+                      )}
+                      <InfoCell
+                        label="Date of Birth"
+                        value={
+                          ed.dateOfBirth ? formatDate(ed.dateOfBirth) : "—"
+                        }
+                      />
+                      <InfoCell label="Gender" value={ed.gender || "—"} />
+                      <InfoCell
+                        label="Nationality"
+                        value={ed.nationality || "—"}
+                      />
+                      {ed.placeOfBirth && (
+                        <InfoCell
+                          label="Place of Birth"
+                          value={ed.placeOfBirth}
+                        />
+                      )}
+                      <InfoCell
+                        label="Citizenship"
+                        value={
+                          ed.isEuCitizen === true
+                            ? "EU / EEA Citizen"
+                            : ed.isEuCitizen === false
+                              ? "Non-EU Citizen"
+                              : "—"
+                        }
+                      />
+                      {ed.citizenshipCountry && (
+                        <InfoCell
+                          label="Country of Citizenship"
+                          value={ed.citizenshipCountry}
+                        />
+                      )}
+                      <InfoCell
+                        label="Document Type"
+                        value={ed.documentType || "—"}
+                      />
+                      <InfoCell
+                        label="Document Number"
+                        value={ed.documentNumber || "—"}
+                      />
+                      {ed.issueDate && (
+                        <InfoCell
+                          label="Issue Date"
+                          value={formatDate(ed.issueDate)}
+                        />
+                      )}
+                      <InfoCell
+                        label="Expiry Date"
+                        value={ed.expiryDate ? formatDate(ed.expiryDate) : "—"}
+                      />
+                      <InfoCell
+                        label="Issuing Country"
+                        value={ed.issuingCountry || "—"}
+                      />
+                      {ed.issuingAuthority && (
+                        <InfoCell
+                          label="Issuing Authority"
+                          value={ed.issuingAuthority}
+                        />
+                      )}
+                      {ed.bsnNumber && (
+                        <InfoCell
+                          label="BSN / Tax Number"
+                          value={ed.bsnNumber}
+                        />
+                      )}
+                      {ed.workAuthorization && (
+                        <InfoCell
+                          label="Work Authorization"
+                          value={ed.workAuthorization}
+                        />
+                      )}
+                      {ed.address && (
+                        <InfoCell label="Address" value={ed.address} />
+                      )}
+                      <InfoCell
+                        label="Photo Match"
+                        value={
+                          ed.photoMatchConfirmed ? (
+                            <span className="text-green-400">Confirmed</span>
+                          ) : (
+                            <span className="text-yellow-400">
+                              Not confirmed
+                            </span>
+                          )
+                        }
+                      />
+                    </div>
+                    {ed.warnings.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-400 mb-1.5">
+                          Document Warnings
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {ed.warnings.map((w, i) => (
+                            <span
+                              key={i}
+                              className="inline-block rounded-md bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 text-[10px] text-yellow-300"
+                            >
+                              {String(w).replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {ed.adminNotes && (
+                      <div className="mt-3 rounded-lg bg-[var(--background)] p-3">
+                        <p className="text-[10px] uppercase text-[var(--muted-text)]">
+                          Admin Notes
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--foreground)] whitespace-pre-wrap">
+                          {ed.adminNotes}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </Section>
           ) : (
             <Section title="Extracted Document Data">
@@ -1705,6 +2001,101 @@ export default function KYCDetailPage() {
               />
             </div>
           </Section>
+
+          {/* Driver's License Verification */}
+          {(() => {
+            const dlVerif = allVerifs.find(
+              (v) => v.verificationType === "DRIVERS_LICENSE",
+            );
+            if (!dlVerif)
+              return (
+                <Section title="Driver's License Verification">
+                  <p className="text-xs text-[var(--muted-text)]">
+                    No driver&apos;s license verification submitted yet.
+                  </p>
+                </Section>
+              );
+            return (
+              <Section title="Driver's License Verification">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${statusColor(dlVerif.status)}`}
+                    >
+                      {dlVerif.status.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-xs text-[var(--muted-text)]">
+                      Submitted {formatDate(dlVerif.createdAt)}
+                    </span>
+                    {dlVerif.id !== data.id && (
+                      <Link
+                        href={`/dashboard/admin/kyc/${dlVerif.id}`}
+                        className="text-xs text-[var(--primary)] hover:underline"
+                      >
+                        View Full Details →
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {dlVerif.documentFrontUrl ? (
+                      <div>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <p className="text-xs text-[var(--muted-text)]">
+                            Front
+                          </p>
+                          {dlVerif.documentStatuses?.documentFront && (
+                            <span
+                              className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(String(dlVerif.documentStatuses.documentFront))}`}
+                            >
+                              {String(dlVerif.documentStatuses.documentFront)}
+                            </span>
+                          )}
+                        </div>
+                        <DocImage
+                          src={dlVerif.documentFrontUrl}
+                          alt="Driver's License Front"
+                          className="w-full aspect-[4/3]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
+                        <p className="text-xs text-[var(--muted-text)]">
+                          No front uploaded
+                        </p>
+                      </div>
+                    )}
+                    {dlVerif.documentBackUrl ? (
+                      <div>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <p className="text-xs text-[var(--muted-text)]">
+                            Back
+                          </p>
+                          {dlVerif.documentStatuses?.documentBack && (
+                            <span
+                              className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(String(dlVerif.documentStatuses.documentBack))}`}
+                            >
+                              {String(dlVerif.documentStatuses.documentBack)}
+                            </span>
+                          )}
+                        </div>
+                        <DocImage
+                          src={dlVerif.documentBackUrl}
+                          alt="Driver's License Back"
+                          className="w-full aspect-[4/3]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--background)]">
+                        <p className="text-xs text-[var(--muted-text)]">
+                          No back uploaded
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Section>
+            );
+          })()}
 
           {/* All Verifications History */}
           {allVerifs.length > 1 && (
@@ -2112,6 +2503,28 @@ export default function KYCDetailPage() {
                 flags={data.backgroundCheck.documentAnalysisFlags}
                 analyzedAt={data.backgroundCheck.documentAnalyzedAt}
               />
+              {["SUBMITTED", "UNDER_REVIEW"].includes(
+                data.backgroundCheck.status,
+              ) && (
+                <div className="flex items-center gap-3 pt-3 border-t border-[var(--border-color)]">
+                  <button
+                    disabled={bgCheckLoading}
+                    onClick={() => handleBgCheckReview("CLEAN")}
+                    className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {bgCheckLoading
+                      ? "Processing…"
+                      : "Approve Background Check"}
+                  </button>
+                  <button
+                    disabled={bgCheckLoading}
+                    onClick={() => handleBgCheckReview("DISQUALIFYING")}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {bgCheckLoading ? "Processing…" : "Reject Background Check"}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-xs text-[var(--muted-text)]">
@@ -2128,53 +2541,606 @@ export default function KYCDetailPage() {
       {/* Review Actions — sticky bottom bar */}
       {isReviewable && (
         <div className="sticky bottom-0 z-10 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] p-5 shadow-lg">
-          {!reviewAction ? (
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm text-[var(--muted-text)]">
-                Review this verification submission
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-[var(--muted-text)]">
+              Review this verification submission
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setReviewAction("APPROVED");
+                  setShowApprovalModal(true);
+                }}
+                className="rounded-lg bg-[var(--achievement-green)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => {
+                  setReviewAction("REJECTED");
+                  setShowApprovalModal(true);
+                }}
+                className="rounded-lg bg-[var(--alert-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approval / Rejection Confirmation Modal */}
+      {showApprovalModal && data && reviewAction && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-8">
+          <div className="relative w-full max-w-4xl rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] shadow-2xl my-4">
+            {/* Modal Header */}
+            <div
+              className={`sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-[var(--border-color)] px-6 py-4 ${
+                reviewAction === "APPROVED"
+                  ? "bg-green-500/10"
+                  : "bg-red-500/10"
+              }`}
+            >
+              <div>
+                <h2 className="text-lg font-bold text-[var(--foreground)]">
+                  {reviewAction === "APPROVED"
+                    ? "Approve Service Provider"
+                    : "Reject Service Provider"}
+                </h2>
+                <p className="text-xs text-[var(--muted-text)]">
+                  {reviewAction === "APPROVED"
+                    ? "Review all information below before confirming approval. This will fully verify the service provider."
+                    : "Review the information below before confirming rejection."}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowApprovalModal(false);
+                  setReviewAction(null);
+                  setReviewNotes("");
+                }}
+                className="rounded-lg border border-[var(--border-color)] bg-[var(--surface)] p-2 text-[var(--muted-text)] hover:text-[var(--foreground)] transition-colors"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-5 p-6 max-h-[calc(100vh-220px)] overflow-y-auto">
+              {/* SP Personal Info */}
+              <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                  Service Provider Information
+                </h3>
+                <div className="flex items-center gap-4 mb-3">
+                  <Avatar
+                    src={user.avatarUrl}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    fallback={
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)]/20 text-lg font-bold text-[var(--primary)]">
+                        {user.firstName?.[0]}
+                        {user.lastName?.[0]}
+                      </div>
+                    }
+                    imgClassName="h-14 w-14 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-base font-semibold text-[var(--foreground)]">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="text-xs text-[var(--muted-text)]">
+                      {user.email}
+                    </p>
+                    {user.phone && (
+                      <p className="text-xs text-[var(--muted-text)]">
+                        {user.phone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <InfoCell
+                    label="Role"
+                    value={user.role?.replace(/_/g, " ")}
+                  />
+                  <InfoCell label="Country" value={user.country} />
+                  <InfoCell
+                    label="ID Verified"
+                    value={
+                      <span
+                        className={
+                          user.isIdVerified
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                        }
+                      >
+                        {user.isIdVerified ? "Yes" : "No"}
+                      </span>
+                    }
+                  />
+                  <InfoCell
+                    label="KYC Status"
+                    value={
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${statusColor(data.status)}`}
+                      >
+                        {data.status.replace(/_/g, " ")}
+                      </span>
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Extracted Data Summary */}
+              {data.extractedData &&
+                (() => {
+                  const ed = resolveExtracted(
+                    data.extractedData as ExtractedData,
+                  );
+                  return (
+                    <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                      <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                        Document Extracted Data
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <InfoCell
+                          label="First Name"
+                          value={ed.firstName || "—"}
+                        />
+                        <InfoCell
+                          label="Last Name"
+                          value={ed.lastName || "—"}
+                        />
+                        <InfoCell
+                          label="Date of Birth"
+                          value={
+                            ed.dateOfBirth ? formatDate(ed.dateOfBirth) : "—"
+                          }
+                        />
+                        <InfoCell
+                          label="Nationality"
+                          value={ed.nationality || "—"}
+                        />
+                        <InfoCell
+                          label="Document Type"
+                          value={ed.documentType || "—"}
+                        />
+                        <InfoCell
+                          label="Document Number"
+                          value={ed.documentNumber || "—"}
+                        />
+                        <InfoCell
+                          label="Expiry Date"
+                          value={
+                            ed.expiryDate ? formatDate(ed.expiryDate) : "—"
+                          }
+                        />
+                        <InfoCell
+                          label="Issuing Country"
+                          value={ed.issuingCountry || "—"}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+
+              {/* Verification Scores */}
+              {(data.confidence != null ||
+                data.faceMatch != null ||
+                data.livenessCheck != null) && (
+                <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                    Verification Scores
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {data.confidence != null && (
+                      <InfoCell
+                        label="Confidence"
+                        value={
+                          <span
+                            className={
+                              data.confidence >= 0.7
+                                ? "text-green-400"
+                                : data.confidence >= 0.4
+                                  ? "text-yellow-400"
+                                  : "text-red-400"
+                            }
+                          >
+                            {(data.confidence * 100).toFixed(1)}%
+                          </span>
+                        }
+                      />
+                    )}
+                    {data.faceMatch != null && (
+                      <InfoCell
+                        label="Face Match"
+                        value={
+                          <span
+                            className={
+                              data.faceMatch >= 70
+                                ? "text-green-400"
+                                : data.faceMatch >= 40
+                                  ? "text-yellow-400"
+                                  : "text-red-400"
+                            }
+                          >
+                            {data.faceMatch.toFixed(1)}%
+                          </span>
+                        }
+                      />
+                    )}
+                    {data.livenessCheck != null && (
+                      <InfoCell
+                        label="Liveness"
+                        value={
+                          <span
+                            className={
+                              data.livenessCheck
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }
+                          >
+                            {data.livenessCheck ? "Passed" : "Failed"}
+                          </span>
+                        }
+                      />
+                    )}
+                  </div>
+                  {/* Fraud Warnings */}
+                  {data.fraudChecks?.warnings &&
+                    data.fraudChecks.warnings.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-400 mb-1">
+                          Warnings
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data.fraudChecks.warnings.map((w, i) => (
+                            <span
+                              key={i}
+                              className="inline-block rounded-md bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 text-[10px] text-yellow-300"
+                            >
+                              {String(w).replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              )}
+
+              {/* KYC Documents — ID Front, Back, Selfie */}
+              <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                  ID Documents
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <p className="mb-1 text-[10px] text-[var(--muted-text)]">
+                      Front
+                    </p>
+                    {data.documentFrontUrl ? (
+                      <DocImage
+                        src={data.documentFrontUrl}
+                        alt="Document Front"
+                        className="w-full aspect-[4/3]"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--surface)]">
+                        <p className="text-[10px] text-[var(--muted-text)]">
+                          No front uploaded
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="mb-1 text-[10px] text-[var(--muted-text)]">
+                      Back
+                    </p>
+                    {data.documentBackUrl ? (
+                      <DocImage
+                        src={data.documentBackUrl}
+                        alt="Document Back"
+                        className="w-full aspect-[4/3]"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--surface)]">
+                        <p className="text-[10px] text-[var(--muted-text)]">
+                          No back uploaded
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="mb-1 text-[10px] text-[var(--muted-text)]">
+                      Selfie
+                    </p>
+                    {data.selfieUrl ? (
+                      <DocImage
+                        src={data.selfieUrl}
+                        alt="Selfie"
+                        className="w-full aspect-[4/3]"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center aspect-[4/3] rounded-lg border border-dashed border-[var(--border-color)] bg-[var(--surface)]">
+                        <p className="text-[10px] text-[var(--muted-text)]">
+                          No selfie uploaded
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Certifications */}
+              {certs.length > 0 && (
+                <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                    Certifications ({certs.length})
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {certs.map((c, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface)] p-2"
+                      >
+                        <DocImage
+                          src={c.url}
+                          alt={`Certification ${i + 1}`}
+                          className="w-full aspect-[4/3]"
+                        />
+                        <div className="mt-1.5 flex items-center justify-between">
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(c.status)}`}
+                          >
+                            {c.status}
+                          </span>
+                          <span className="text-[9px] text-[var(--muted-text)]">
+                            {formatDate(c.uploadedAt)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CV Documents */}
+              {cvs.length > 0 && (
+                <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                    CV Documents ({cvs.length})
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {cvs.map((c, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface)] p-2"
+                      >
+                        {c.url.toLowerCase().endsWith(".pdf") ? (
+                          <a
+                            href={resolveUrl(c.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface)] p-4 text-xs text-[var(--primary)] hover:underline"
+                          >
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.5}
+                                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                              />
+                            </svg>
+                            View PDF
+                          </a>
+                        ) : (
+                          <DocImage
+                            src={c.url}
+                            alt={`CV ${i + 1}`}
+                            className="w-full aspect-[4/3]"
+                          />
+                        )}
+                        <div className="mt-1.5 flex items-center justify-between">
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(c.status)}`}
+                          >
+                            {c.status}
+                          </span>
+                          <span className="text-[9px] text-[var(--muted-text)]">
+                            {formatDate(c.uploadedAt)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Background Check Summary */}
+              {data.backgroundCheck && (
+                <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                    Background Check
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <InfoCell
+                      label="Status"
+                      value={
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${statusColor(data.backgroundCheck.status)}`}
+                        >
+                          {data.backgroundCheck.status}
+                        </span>
+                      }
+                    />
+                    <InfoCell
+                      label="Certificate #"
+                      value={data.backgroundCheck.certificateNumber}
+                    />
+                    {data.backgroundCheck.submittedAt && (
+                      <InfoCell
+                        label="Submitted"
+                        value={formatDate(data.backgroundCheck.submittedAt)}
+                      />
+                    )}
+                  </div>
+                  {data.backgroundCheck.uploadedDocument && (
+                    <div className="mt-3">
+                      <p className="mb-1 text-[10px] text-[var(--muted-text)]">
+                        Uploaded Document
+                      </p>
+                      <DocImage
+                        src={data.backgroundCheck.uploadedDocument}
+                        alt="Background Check"
+                        className="max-w-xs aspect-[4/3]"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Vehicles Summary */}
+              {vehicles.length > 0 && (
+                <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                    Vehicles ({vehicles.length})
+                  </h3>
+                  {vehicles.map((v, idx) => (
+                    <div
+                      key={v.id}
+                      className={`${idx > 0 ? "mt-3 pt-3 border-t border-[var(--border-color)]" : ""}`}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-sm font-medium text-[var(--foreground)]">
+                          {v.make} {v.model} ({v.year})
+                        </p>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${statusColor(v.status)}`}
+                        >
+                          {v.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                        {v.photoFrontUrl && (
+                          <div>
+                            <p className="mb-0.5 text-[9px] text-[var(--muted-text)]">
+                              Front
+                            </p>
+                            <DocImage
+                              src={v.photoFrontUrl}
+                              alt="Front"
+                              className="w-full aspect-[4/3]"
+                            />
+                          </div>
+                        )}
+                        {v.photoBackUrl && (
+                          <div>
+                            <p className="mb-0.5 text-[9px] text-[var(--muted-text)]">
+                              Back
+                            </p>
+                            <DocImage
+                              src={v.photoBackUrl}
+                              alt="Back"
+                              className="w-full aspect-[4/3]"
+                            />
+                          </div>
+                        )}
+                        {v.photoLeftUrl && (
+                          <div>
+                            <p className="mb-0.5 text-[9px] text-[var(--muted-text)]">
+                              Left
+                            </p>
+                            <DocImage
+                              src={v.photoLeftUrl}
+                              alt="Left"
+                              className="w-full aspect-[4/3]"
+                            />
+                          </div>
+                        )}
+                        {v.photoRightUrl && (
+                          <div>
+                            <p className="mb-0.5 text-[9px] text-[var(--muted-text)]">
+                              Right
+                            </p>
+                            <DocImage
+                              src={v.photoRightUrl}
+                              alt="Right"
+                              className="w-full aspect-[4/3]"
+                            />
+                          </div>
+                        )}
+                        {v.vehicleLicenseUrl && (
+                          <div>
+                            <p className="mb-0.5 text-[9px] text-[var(--muted-text)]">
+                              License
+                            </p>
+                            <DocImage
+                              src={v.vehicleLicenseUrl}
+                              alt="License"
+                              className="w-full aspect-[4/3]"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Notes */}
+              <div className="rounded-xl border border-[var(--border-color)] bg-[var(--background)] p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--muted-text)]">
+                  Admin Notes
+                </h3>
+                <textarea
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  placeholder="Add notes for this decision (optional)"
+                  rows={3}
+                  className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t border-[var(--border-color)] bg-[var(--surface)] px-6 py-4">
+              <p className="text-xs text-[var(--muted-text)]">
+                {reviewAction === "APPROVED"
+                  ? "This will set the SP as fully ID-verified and unlock their account."
+                  : "This will mark verification as failed. The SP will be notified."}
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setReviewAction("APPROVED")}
-                  className="rounded-lg bg-[var(--achievement-green)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => setReviewAction("REJECTED")}
-                  className="rounded-lg bg-[var(--alert-red)] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-[var(--foreground)]">
-                {reviewAction === "APPROVED" ? "Approve" : "Reject"} this
-                verification?
-              </p>
-              <textarea
-                value={reviewNotes}
-                onChange={(e) => setReviewNotes(e.target.value)}
-                placeholder="Add notes (optional)"
-                rows={3}
-                className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
-              />
-              <div className="flex justify-end gap-3">
-                <button
                   onClick={() => {
+                    setShowApprovalModal(false);
                     setReviewAction(null);
                     setReviewNotes("");
                   }}
-                  className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]"
+                  className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReview}
                   disabled={actionLoading}
-                  className={`rounded-lg px-6 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity ${
+                  className={`rounded-lg px-8 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity ${
                     reviewAction === "APPROVED"
                       ? "bg-[var(--achievement-green)]"
                       : "bg-[var(--alert-red)]"
@@ -2182,11 +3148,13 @@ export default function KYCDetailPage() {
                 >
                   {actionLoading
                     ? "Processing..."
-                    : `Confirm ${reviewAction === "APPROVED" ? "Approve" : "Reject"}`}
+                    : reviewAction === "APPROVED"
+                      ? "Confirm Approval"
+                      : "Confirm Rejection"}
                 </button>
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

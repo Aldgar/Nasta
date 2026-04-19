@@ -47,6 +47,27 @@ export class SupportController {
     private readonly supportFileUpload: SupportFileUploadService,
   ) {}
 
+  @Post('feature-request')
+  @Public()
+  @ApiOperation({ summary: 'Submit a feature request (public endpoint)' })
+  async submitFeatureRequest(
+    @Body()
+    body: {
+      name: string;
+      email: string;
+      title: string;
+      description: string;
+      language?: string;
+    },
+  ) {
+    if (!body.name || !body.email || !body.title || !body.description) {
+      throw new BadRequestException(
+        'Name, email, title, and description are required',
+      );
+    }
+    return this.supportService.submitFeatureRequest(body);
+  }
+
   @Post('contact')
   @Public()
   @ApiOperation({ summary: 'Create a support ticket (public endpoint)' })

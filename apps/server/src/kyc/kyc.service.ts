@@ -13,6 +13,9 @@ import {
 } from './didit-verification.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailTranslationsService } from '../notifications/email-translations.service';
+import * as path from 'path';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const heicConvert = require('heic-convert');
 
 type VerificationType =
   | 'GOVERNMENT_ID'
@@ -45,17 +48,18 @@ export class KycService {
       throw new BadRequestException('Consent is required to initiate KYC');
     }
 
-    // Check for existing verifications in progress (exclude VERIFIED to allow re-verification)
+    // Check for existing verifications in progress of the SAME type (exclude VERIFIED to allow re-verification)
     const existing = await this.prisma.idVerification.findFirst({
       where: {
         userId,
+        verificationType,
         status: { in: ['PENDING', 'IN_PROGRESS', 'MANUAL_REVIEW'] },
       },
       orderBy: { createdAt: 'desc' },
     });
     if (existing) {
       throw new BadRequestException(
-        'You already have an ID verification in progress',
+        `You already have a ${verificationType} verification in progress`,
       );
     }
 
@@ -94,6 +98,9 @@ export class KycService {
       selfie?: Express.Multer.File;
     },
   ) {
+    this.logger.log(
+      `KYC upload for ${verificationId}: front=${files.documentFront ? `${files.documentFront.mimetype} ${files.documentFront.originalname} ${(files.documentFront.size / 1024) | 0}KB` : 'none'}, back=${files.documentBack ? `${files.documentBack.mimetype} ${files.documentBack.originalname} ${(files.documentBack.size / 1024) | 0}KB` : 'none'}, selfie=${files.selfie ? 'yes' : 'none'}`,
+    );
     const kyc = await this.prisma.idVerification.findUnique({
       where: { id: verificationId },
     });
@@ -154,30 +161,21 @@ export class KycService {
     const isDriversLicense = kyc.verificationType === 'DRIVERS_LICENSE';
 
     // Build in-memory file data for Didit API (avoids reading back from disk)
+    // Convert HEIC/HEIF to JPEG since Didit doesn't accept HEIC
     const fileBuffers: Record<string, KycFileData> = {};
     if (files.documentFront) {
-      fileBuffers.front = {
-        buffer: files.documentFront.buffer,
-        originalName: files.documentFront.originalname,
-        mimeType: files.documentFront.mimetype,
-      };
+      fileBuffers.front = await this.toDigitSafeFile(files.documentFront);
     }
     if (files.documentBack) {
-      fileBuffers.back = {
-        buffer: files.documentBack.buffer,
-        originalName: files.documentBack.originalname,
-        mimeType: files.documentBack.mimetype,
-      };
+      fileBuffers.back = await this.toDigitSafeFile(files.documentBack);
     }
     if (files.selfie) {
-      fileBuffers.selfie = {
-        buffer: files.selfie.buffer,
-        originalName: files.selfie.originalname,
-        mimeType: files.selfie.mimetype,
-      };
+      fileBuffers.selfie = await this.toDigitSafeFile(files.selfie);
     }
 
-    if (frontUrl && (isDriversLicense || selfieUrl)) {
+    // Only trigger Didit when we have the front document in this upload
+    // (back-only uploads just save the file, Didit was already triggered on front upload)
+    if (files.documentFront && frontUrl && (isDriversLicense || selfieUrl)) {
       this.triggerDiditVerification(
         verificationId,
         userId,
@@ -189,6 +187,45 @@ export class KycService {
     return {
       ...updated,
       message: 'Documents uploaded. Verification in progress.',
+    };
+  }
+
+  /**
+   * Convert HEIC/HEIF files to JPEG for Didit API compatibility.
+   * Didit only accepts: tiff, jpg, jpeg, png, webp, pdf.
+   */
+  private async toDigitSafeFile(
+    file: Express.Multer.File,
+  ): Promise<KycFileData> {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (
+      ext === '.heic' ||
+      ext === '.heif' ||
+      file.mimetype === 'image/heic' ||
+      file.mimetype === 'image/heif'
+    ) {
+      this.logger.log(
+        `Converting HEIC to JPEG for Didit: ${file.originalname}`,
+      );
+      const jpegBuffer = Buffer.from(
+        await heicConvert({
+          buffer: file.buffer,
+          format: 'JPEG',
+          quality: 0.9,
+        }),
+      );
+      return {
+        buffer: jpegBuffer,
+        originalName: file.originalname
+          .replace(/\.heic$/i, '.jpg')
+          .replace(/\.heif$/i, '.jpg'),
+        mimeType: 'image/jpeg',
+      };
+    }
+    return {
+      buffer: file.buffer,
+      originalName: file.originalname,
+      mimeType: file.mimetype,
     };
   }
 
@@ -236,12 +273,20 @@ export class KycService {
         // Rejections → FAILED, notify user to redo
         // Ambiguous → MANUAL_REVIEW for admin
         const updates: Record<string, unknown> = {};
+        // Always route to MANUAL_REVIEW — admin makes the final call
+        updates.status = 'MANUAL_REVIEW';
+        const docStatuses: Record<string, string> = {};
         if (result.overallStatus === 'Approved') {
-          updates.status = 'MANUAL_REVIEW';
+          if (fileBuffers.front) docStatuses.documentFront = 'APPROVED';
+          if (fileBuffers.back) docStatuses.documentBack = 'APPROVED';
+          if (fileBuffers.selfie) docStatuses.selfie = 'APPROVED';
         } else if (result.overallStatus === 'Declined') {
-          updates.status = 'FAILED';
-        } else {
-          updates.status = 'MANUAL_REVIEW';
+          if (fileBuffers.front) docStatuses.documentFront = 'REJECTED';
+          if (fileBuffers.back) docStatuses.documentBack = 'REJECTED';
+          if (fileBuffers.selfie) docStatuses.selfie = 'REJECTED';
+        }
+        if (Object.keys(docStatuses).length > 0) {
+          updates.documentStatuses = docStatuses;
         }
 
         // Store verification data
@@ -313,9 +358,7 @@ export class KycService {
           data: updates,
         });
 
-        // Update user verification status
-        // Approvals stay MANUAL_REVIEW — admin must confirm before isIdVerified is set
-        // Rejections → FAILED immediately
+        // Update user verification status — always MANUAL_REVIEW, admin makes final call
         const finalStatus = updates.status as string;
         const userUpdate: Record<string, unknown> = {
           idVerificationStatus: finalStatus,
@@ -341,64 +384,8 @@ export class KycService {
               : 'email.kyc.documentTypeId',
           );
 
-          if (finalStatus === 'FAILED') {
-            // Rejection → notify user via in-app + push + email
-            await this.notifications.createNotification({
-              userId,
-              type: 'SYSTEM',
-              title: t(
-                isDriversLicense
-                  ? 'email.kyc.notificationDlFailed'
-                  : 'email.kyc.notificationIdFailed',
-              ),
-              body: t(
-                isDriversLicense
-                  ? 'email.kyc.notificationDlFailedBody'
-                  : 'email.kyc.notificationIdFailedBody',
-              ),
-            });
-
-            // Send email notification for rejection
-            const user = await this.prisma.user.findUnique({
-              where: { id: userId },
-              select: { email: true, firstName: true },
-            });
-            if (user?.email) {
-              const firstName = user.firstName || t('email.common.there');
-              const subject = t(`email.kyc.${docTypeKey}Subject`);
-              const text = t(`email.kyc.${docTypeKey}Text`, { firstName });
-              const html = this.notifications.getKycVerificationHtml(
-                t(`email.kyc.${docTypeKey}Greeting` as any, { firstName }) ||
-                  t('email.kyc.idFailedGreeting', { firstName }),
-                t(`email.kyc.${docTypeKey}Header`),
-                t(`email.kyc.${docTypeKey}Message`),
-                {
-                  label:
-                    t(`email.kyc.${docTypeKey}NextSteps` as any) ||
-                    t('email.kyc.idFailedNextSteps'),
-                  items: [
-                    t(`email.kyc.${docTypeKey}Step1`),
-                    t(`email.kyc.${docTypeKey}Step2`),
-                    t(`email.kyc.${docTypeKey}Step3`),
-                    t(`email.kyc.${docTypeKey}Step4`),
-                  ],
-                },
-                lang,
-                t,
-                'error',
-              );
-              await this.notifications.sendEmail(
-                user.email,
-                subject,
-                text,
-                html,
-              );
-            }
-          } else if (
-            finalStatus === 'MANUAL_REVIEW' &&
-            result.overallStatus === 'Approved'
-          ) {
-            // Didit approved — notify user their docs are pending admin confirmation
+          if (finalStatus === 'MANUAL_REVIEW') {
+            // All results go to admin review — notify user their docs are under review
             await this.notifications.createNotification({
               userId,
               type: 'SYSTEM',
@@ -753,7 +740,13 @@ export class KycService {
     const userIds = [...new Set(verifications.map((v) => v.userId))];
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, firstName: true, lastName: true, email: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        isIdVerified: true,
+      },
     });
     const userMap = new Map(users.map((u) => [u.id, u]));
 
@@ -875,6 +868,8 @@ export class KycService {
         extractedData: true,
         extractedBy: true,
         extractedAt: true,
+        fraudChecks: true,
+        providerReference: true,
         userId: true,
         user: {
           select: {
@@ -1049,6 +1044,16 @@ export class KycService {
   ) {
     const kyc = await this.prisma.idVerification.findUnique({
       where: { id: verificationId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        documentFrontUrl: true,
+        documentBackUrl: true,
+        selfieUrl: true,
+        certifications: true,
+        cvDocuments: true,
+      },
     });
     if (!kyc) throw new NotFoundException('Verification not found');
     if (!['MANUAL_REVIEW', 'IN_PROGRESS', 'PENDING'].includes(kyc.status)) {
@@ -1057,27 +1062,73 @@ export class KycService {
       );
     }
     const verified = data.decision === 'VERIFIED';
+    // When approving, also set all individual document statuses to APPROVED
+    const documentStatusesUpdate = verified
+      ? {
+          documentFront: kyc.documentFrontUrl ? 'APPROVED' : undefined,
+          documentBack: kyc.documentBackUrl ? 'APPROVED' : undefined,
+          selfie: kyc.selfieUrl ? 'APPROVED' : undefined,
+          ...(Array.isArray(kyc.certifications as unknown[]) &&
+          (kyc.certifications as unknown[]).length > 0
+            ? { certifications: 'APPROVED' }
+            : {}),
+          ...(Array.isArray(kyc.cvDocuments as unknown[]) &&
+          (kyc.cvDocuments as unknown[]).length > 0
+            ? { cvDocuments: 'APPROVED' }
+            : {}),
+        }
+      : undefined;
     const updated = await this.prisma.idVerification.update({
       where: { id: verificationId },
       data: {
         status: verified ? 'VERIFIED' : 'FAILED',
         confidence: data.confidence ?? null,
+        ...(documentStatusesUpdate
+          ? { documentStatuses: documentStatusesUpdate }
+          : {}),
       } as unknown as { status: any; confidence?: number | null },
       select: { id: true, status: true },
     });
+    // Build user update data: always update ID verification fields
+    const userUpdateData: Record<string, unknown> = {
+      isIdVerified: verified,
+      idVerificationStatus: updated.status as unknown as
+        | 'PENDING'
+        | 'IN_PROGRESS'
+        | 'VERIFIED'
+        | 'FAILED'
+        | 'EXPIRED'
+        | 'MANUAL_REVIEW',
+    };
+
+    // When approving, also approve the background check if one is submitted/under review
+    if (verified) {
+      const bgCheck = await this.prisma.backgroundCheck.findFirst({
+        where: {
+          userId: kyc.userId,
+          status: { in: ['SUBMITTED', 'UNDER_REVIEW'] },
+        },
+      });
+      if (bgCheck) {
+        await this.prisma.backgroundCheck.update({
+          where: { id: bgCheck.id },
+          data: {
+            status: 'APPROVED',
+            overallResult: 'CLEAN',
+            verifiedBy: adminId,
+            verifiedAt: new Date(),
+          },
+        });
+        userUpdateData.isBackgroundVerified = true;
+        userUpdateData.backgroundCheckStatus = 'APPROVED';
+        userUpdateData.backgroundCheckResult = 'CLEAN';
+        userUpdateData.backgroundCheckExpiry = bgCheck.expiryDate ?? null;
+      }
+    }
+
     await this.prisma.user.update({
       where: { id: kyc.userId },
-      data: {
-        isIdVerified: verified,
-        // Cast limited to this assignment to satisfy current Prisma enum typing
-        idVerificationStatus: updated.status as unknown as
-          | 'PENDING'
-          | 'IN_PROGRESS'
-          | 'VERIFIED'
-          | 'FAILED'
-          | 'EXPIRED'
-          | 'MANUAL_REVIEW',
-      },
+      data: userUpdateData,
     });
 
     // Notify user of admin decision via in-app + push + email

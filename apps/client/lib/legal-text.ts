@@ -1,8 +1,11 @@
-export const LEGAL_TEXT = {
+const dateEN = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+const datePT = new Date().toLocaleDateString("pt-PT", { year: "numeric", month: "long", day: "numeric" });
+
+const LEGAL_EN = {
   TERMS_OF_SERVICE: `
 # Terms of Service
 
-**Last Updated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}**
+**Last Updated: ${dateEN}**
 
 ## 1. Acceptance of Terms
 
@@ -107,7 +110,7 @@ These Terms, together with the Privacy Policy, constitute the entire agreement b
   PRIVACY_POLICY: `
 # Privacy Policy
 
-**Last Updated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}**
+**Last Updated: ${dateEN}**
 
 ## Introduction
 
@@ -158,7 +161,6 @@ We may share your information with:
 - Your data is encrypted in transit and at rest
 - We regularly audit our security practices
 - However, no method of transmission is 100% secure
- - However, no method of transmission is 100% secure
 
 ## 5. Your Privacy Rights
 
@@ -212,7 +214,7 @@ For privacy-related questions or requests:
   COOKIES: `
 # Cookies Settings
 
-**Last Updated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}**
+**Last Updated: ${dateEN}**
 
 ## What Are Cookies?
 
@@ -254,7 +256,7 @@ You can manage your cookie preferences using the toggles below. Essential cookie
   PLATFORM_RULES: `
 # Platform Rules
 
-**Last Updated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}**
+**Last Updated: ${dateEN}**
 
 ## Introduction
 
@@ -372,7 +374,7 @@ For questions about Platform Rules:
   ACCOUNT_DELETION: `
 # Delete Your Account
 
-**Last Updated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}**
+**Last Updated: ${dateEN}**
 
 ## How to request account deletion
 
@@ -392,3 +394,412 @@ For questions about Platform Rules:
 - Use the subject: **Account Deletion Request**
 `,
 };
+
+const LEGAL_PT: typeof LEGAL_EN = {
+  TERMS_OF_SERVICE: `
+# Termos de Serviço
+
+**Última Atualização: ${datePT}**
+
+## 1. Aceitação dos Termos
+
+Ao aceder e utilizar a plataforma Nasta ("Plataforma", "Serviço"), concorda em ficar vinculado a estes Termos de Serviço ("Termos"). Se não concordar com estes Termos, não deve utilizar o Serviço.
+
+## 2. Descrição do Serviço
+
+A Nasta é uma plataforma de mercado que liga prestadores de serviços (candidatos a emprego, freelancers, contratados) a empregadores que procuram serviços. A Plataforma facilita:
+
+- Publicação e gestão de ofertas de emprego
+- Descoberta e correspondência de prestadores de serviços
+- Processamento seguro de pagamentos através do Stripe
+- Verificação de identidade (KYC) e verificação de antecedentes
+- Rastreamento e comunicação em tempo real
+- Gestão de reservas e agendamento
+- Mensagens e chat na aplicação
+- Tickets de suporte e denúncia de abusos
+
+## 3. Contas de Utilizador e Registo
+
+### 3.1 Criação de Conta
+- Deve fornecer informações precisas, atuais e completas durante o registo
+- Deve ter pelo menos 18 anos para utilizar a Plataforma
+- É responsável por manter a confidencialidade das suas credenciais de conta
+- Concorda em aceitar a responsabilidade por todas as atividades que ocorram na sua conta
+
+### 3.2 Tipos de Conta
+- **Empregadores**: Utilizadores que publicam empregos e contratam prestadores de serviços
+- **Prestadores de Serviços**: Utilizadores que oferecem serviços e candidatam-se a empregos
+- **Administradores**: Administradores da plataforma com capacidades específicas
+
+### 3.3 Requisitos de Verificação
+- A verificação de identidade (KYC) é obrigatória para todos os prestadores de serviços
+- Verificações de antecedentes podem ser necessárias para certas categorias de emprego
+- A verificação empresarial pode ser necessária para empregadores
+- O incumprimento da verificação pode resultar em restrições de conta
+
+## 4. Regras da Plataforma e Conduta Proibida
+
+### 4.1 Atividades Proibidas
+Concorda em NÃO:
+- Publicar informações falsas, enganosas ou fraudulentas
+- Participar em assédio, discriminação ou discurso de ódio
+- Solicitar serviços ou pagamentos fora da Plataforma
+- Partilhar informações de contacto pessoal antes de uma reserva ser confirmada
+- Utilizar a Plataforma para atividades ilegais
+- Violar quaisquer leis ou regulamentos aplicáveis
+
+## 5. Pagamentos e Termos Financeiros
+
+- Todos os pagamentos são processados através do Stripe
+- O processamento de pagamentos está sujeito aos termos e condições do Stripe
+- Os prestadores de serviços recebem pagamentos após a conclusão do trabalho
+- As taxas da plataforma são claramente divulgadas antes das transações
+
+## 6. Propriedade Intelectual
+
+- Todo o conteúdo na Plataforma está protegido por direitos de autor e outras leis de propriedade intelectual
+- Retém a propriedade do conteúdo que publica, mas concede à Nasta uma licença para o utilizar
+- Não pode utilizar as marcas comerciais ou logótipos da Nasta sem autorização
+
+## 7. Limitação de Responsabilidade
+
+- A Nasta fornece a Plataforma "tal como está" sem garantias
+- Não somos responsáveis por quaisquer danos indiretos, incidentais ou consequenciais
+- A nossa responsabilidade total está limitada ao montante que nos pagou nos últimos 12 meses
+
+## 8. Rescisão
+
+- Podemos suspender ou encerrar contas por violações destes Termos
+- Pode eliminar a sua conta a qualquer momento
+- Após a rescisão, o seu direito de utilizar a Plataforma cessa imediatamente
+
+## 9. Alterações aos Termos
+
+- Podemos atualizar estes Termos a qualquer momento
+- A utilização continuada após as alterações constitui aceitação
+- Notificaremos os utilizadores de alterações materiais
+
+## 10. Lei Aplicável
+
+- Estes Termos são regidos pelas leis de Portugal
+- Quaisquer disputas serão resolvidas nos tribunais portugueses
+
+## 11. Informações de Contacto
+
+Para questões sobre estes Termos, por favor contacte:
+- **Email**: legal@nasta.app
+- **Website**: https://nasta.app/terms
+
+## 12. Divisibilidade
+
+Se qualquer disposição destes Termos for considerada inexequível, as restantes disposições permanecerão em pleno efeito.
+
+## 13. Acordo Integral
+
+Estes Termos, juntamente com a Política de Privacidade, constituem o acordo integral entre si e a Nasta relativamente à utilização da Plataforma.
+
+**Ao utilizar a Nasta, reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos de Serviço.**
+`,
+
+  PRIVACY_POLICY: `
+# Política de Privacidade
+
+**Última Atualização: ${datePT}**
+
+## Introdução
+
+A Nasta ("nós", "nosso" ou "nos") está comprometida em proteger a sua privacidade. Esta Política de Privacidade explica como recolhemos, utilizamos, divulgamos e protegemos as suas informações quando utiliza a nossa plataforma ("App" ou "Plataforma").
+
+## 1. Informações que Recolhemos
+
+### 1.1 Informações Pessoais
+- Nome, endereço de email, número de telefone
+- Data de nascimento e documentos de verificação de identidade
+- Informações de pagamento e bancárias
+- Dados de localização
+- Fotos de perfil e descrições
+
+### 1.2 Informações de Utilização
+- Informações do dispositivo
+- Endereço IP
+- Tipo e versão do navegador
+- Padrões e preferências de utilização
+- Registos de comunicação
+
+### 1.3 Cookies e Rastreamento
+- Utilizamos cookies e tecnologias semelhantes
+- Pode gerir as preferências de cookies nas definições
+- Consulte a nossa Política de Cookies para mais detalhes
+
+## 2. Como Utilizamos as Suas Informações
+
+Utilizamos as informações recolhidas para:
+- Fornecer e melhorar os nossos serviços
+- Processar transações e pagamentos
+- Verificar identidades de utilizadores
+- Comunicar consigo
+- Aplicar as regras e políticas da Plataforma
+- Cumprir obrigações legais
+
+## 3. Partilha de Informações
+
+Podemos partilhar as suas informações com:
+- Prestadores de serviços (processadores de pagamento, serviços de verificação)
+- Autoridades legais quando exigido por lei
+- Outros utilizadores (conforme necessário para a funcionalidade da plataforma)
+- Parceiros comerciais (com o seu consentimento)
+
+## 4. Segurança de Dados
+
+- Implementamos medidas de segurança padrão da indústria
+- Os seus dados são encriptados em trânsito e em repouso
+- Auditamos regularmente as nossas práticas de segurança
+- No entanto, nenhum método de transmissão é 100% seguro
+
+## 5. Os Seus Direitos de Privacidade
+
+Tem o direito de:
+- Aceder aos seus dados pessoais
+- Corrigir informações imprecisas
+- Eliminar a sua conta e dados
+- Opor-se ao processamento
+- Portabilidade de dados
+- Retirar o consentimento
+
+## 6. Privacidade de Menores
+
+- A nossa Plataforma não se destina a utilizadores menores de 18 anos
+- Não recolhemos conscientemente dados de crianças
+- Se descobrirmos que recolhemos dados de uma criança, iremos eliminá-los
+
+## 7. Transferências Internacionais de Dados
+
+- Os seus dados podem ser transferidos e processados fora do seu país
+- Garantimos que estão implementadas salvaguardas adequadas
+- Ao utilizar a Plataforma, consente tais transferências
+
+## 8. Serviços de Terceiros
+
+- Processamento de pagamentos: a política de privacidade do Stripe aplica-se aos dados de pagamento
+- Serviços de verificação: os serviços de verificação têm as suas próprias políticas de privacidade
+- Análises: podemos utilizar serviços de análise de terceiros
+
+## 9. Retenção de Dados
+
+- Retemos os seus dados enquanto a sua conta estiver ativa
+- Podemos reter certos dados após a eliminação da conta para conformidade legal
+- Pode solicitar a eliminação de dados a qualquer momento
+
+## 10. Alterações a Esta Política de Privacidade
+
+- Podemos atualizar esta Política de Privacidade periodicamente
+- Notificaremos sobre alterações materiais
+- A utilização continuada após as alterações constitui aceitação
+
+## 11. Contacte-nos
+
+Para questões ou pedidos relacionados com privacidade:
+- **Email**: privacy@nasta.app
+- **Website**: https://nasta.app/privacy
+
+**Ao utilizar a Nasta, reconhece que leu e compreendeu esta Política de Privacidade.**
+`,
+
+  COOKIES: `
+# Definições de Cookies
+
+**Última Atualização: ${datePT}**
+
+## O Que São Cookies?
+
+Cookies são pequenos ficheiros de texto que são colocados no seu dispositivo quando visita o nosso website. Ajudam-nos a proporcionar-lhe uma melhor experiência e permitem que certas funcionalidades funcionem corretamente.
+
+## Tipos de Cookies que Utilizamos
+
+### Cookies Essenciais
+Estes cookies são necessários para o website funcionar corretamente. Não podem ser desativados.
+
+### Cookies de Análise
+Estes cookies ajudam-nos a compreender como os visitantes utilizam o nosso website, recolhendo e reportando informações de forma anónima.
+
+**Retenção**: Até 2 anos
+
+### Cookies de Marketing
+Estes cookies são utilizados para apresentar anúncios relevantes e acompanhar o desempenho das campanhas.
+
+**Retenção**: Até 1 ano
+
+## Os Seus Direitos
+
+- Aceder a informações sobre os cookies que utilizamos
+- Optar por não aceitar cookies não essenciais
+- Eliminar cookies através das definições do seu dispositivo
+- Solicitar informações sobre os dados recolhidos
+
+## Alterações à Política de Cookies
+
+Podemos atualizar as nossas práticas de cookies. As alterações serão refletidas nesta política e notificadas através da aplicação.
+
+## Gerir Cookies
+
+Pode gerir as suas preferências de cookies utilizando os controlos abaixo. Os cookies essenciais não podem ser desativados, pois são necessários para o funcionamento do website.
+
+**Nota**: A funcionalidade do website está atualmente em desenvolvimento. As preferências de cookies serão totalmente implementadas quando o website for lançado.
+`,
+
+  PLATFORM_RULES: `
+# Regras da Plataforma
+
+**Última Atualização: ${datePT}**
+
+## Introdução
+
+Estas Regras da Plataforma ("Regras") regem o comportamento e conduta aceitáveis na Nasta. Todos os utilizadores devem seguir estas Regras para manter um ambiente seguro, respeitoso e profissional.
+
+## 1. Conduta Geral
+
+### 1.1 Comunicação Respeitosa
+- Trate todos os utilizadores com respeito e profissionalismo
+- Sem assédio, bullying ou linguagem abusiva
+- Sem discriminação com base em raça, género, religião ou outras características protegidas
+- Mantenha limites profissionais em todas as interações
+
+### 1.2 Honestidade e Transparência
+- Forneça informações precisas no seu perfil
+- Seja honesto sobre as suas competências e experiência
+- Comunique claramente expectativas e requisitos
+- Denuncie qualquer atividade suspeita ou fraudulenta
+
+## 2. Publicações de Emprego
+
+### 2.1 Descrições de Emprego Precisas
+- Publique descrições de emprego claras e precisas
+- Inclua todos os detalhes relevantes (localização, pagamento, requisitos)
+- Atualize o estado do emprego prontamente
+- Remova empregos preenchidos ou cancelados
+
+### 2.2 Compensação Justa
+- Ofereça taxas justas e competitivas
+- Os termos de pagamento devem ser transparentes
+- Sem tentativas de negociar pagamentos fora da plataforma
+- Honre os calendários de pagamento acordados
+
+## 3. Conduta do Prestador de Serviços
+
+### 3.1 Profissionalismo
+- Complete o trabalho com o melhor das suas capacidades
+- Cumpra os prazos acordados
+- Comunique proativamente sobre atrasos ou problemas
+- Mantenha aparência e comportamento profissionais
+
+### 3.2 Qualificações
+- Candidate-se apenas a empregos para os quais está qualificado
+- Forneça informações precisas sobre a sua experiência
+- Complete as verificações necessárias
+- Mantenha as licenças e certificações necessárias
+
+## 4. Pagamentos e Transações
+
+### 4.1 Processamento de Pagamentos
+- Todos os pagamentos devem passar pela Plataforma
+- Sem pedidos de pagamento fora da Plataforma
+- Reporte quaisquer problemas de pagamento imediatamente
+- Compreenda e aceite os termos de pagamento antes de aceitar trabalhos
+
+### 4.2 Cancelamentos
+- Siga as políticas de cancelamento
+- Forneça aviso adequado quando possível
+- Compreenda as taxas de cancelamento e políticas de reembolso
+- Comunique cancelamentos claramente
+
+## 5. Atividades Proibidas
+
+NÃO pode:
+- Participar em atividades ilegais
+- Publicar informações falsas ou enganosas
+- Solicitar serviços fora da Plataforma
+- Partilhar informações de contacto pessoal antes da confirmação da reserva
+- Assediar, ameaçar ou discriminar outros utilizadores
+- Criar contas falsas ou fazer-se passar por outros
+- Manipular avaliações ou classificações
+- Violar direitos de propriedade intelectual
+
+## 6. Aplicação
+
+Os administradores da Nasta podem tomar as seguintes medidas para manter a segurança da plataforma e aplicar as regras:
+- Emitir avisos
+- Suspender contas temporariamente
+- Banir contas permanentemente
+- Denunciar atividades ilegais às autoridades
+- Remover conteúdo que viole as regras
+
+## 7. Denúncia de Violações
+
+Se presenciar uma violação destas Regras:
+- Denuncie através do sistema de denúncia na aplicação
+- Forneça o máximo de detalhes possível
+- Inclua capturas de ecrã ou provas quando disponíveis
+- Investigamos todas as denúncias prontamente
+
+## 8. Processo de Recurso
+
+Se acredita que foi penalizado injustamente:
+- Contacte o suporte com as informações da sua conta
+- Explique a situação claramente
+- Forneça quaisquer provas relevantes
+- Analisaremos o seu caso e responderemos
+
+## 9. Atualizações das Regras
+
+- Podemos modificar as Regras da Plataforma a qualquer momento
+- Alterações significativas serão comunicadas aos utilizadores
+- A utilização continuada após as alterações constitui aceitação
+- Consulte esta página regularmente para atualizações
+
+## 10. Contacto
+
+Para questões sobre as Regras da Plataforma:
+- **Email**: support@nasta.app
+- **Na App**: Utilize o sistema de tickets de suporte
+
+**Ao utilizar a Nasta, concorda em seguir estas Regras da Plataforma. As violações podem resultar em penalidades até e incluindo a rescisão da conta.**
+`,
+
+  ACCOUNT_DELETION: `
+# Eliminar a Sua Conta
+
+**Última Atualização: ${datePT}**
+
+## Como solicitar a eliminação da conta
+
+- Abra a aplicação móvel Nasta
+- Vá a **Definições**
+- Toque em **Eliminar conta**
+- Selecione um motivo, opcionalmente adicione detalhes, confirme e submeta
+
+## O que acontece a seguir
+
+- Processaremos o seu pedido e eliminaremos a sua conta e dados pessoais associados.
+- Algumas informações podem ser retidas quando necessário para fins legais, de segurança, prevenção de fraude ou manutenção de registos financeiros.
+
+## Se não conseguir aceder à aplicação
+
+- Envie email para **support@nasta.app** a partir do endereço de email associado à sua conta.
+- Utilize o assunto: **Pedido de Eliminação de Conta**
+`,
+};
+
+export type LegalTextKeys = keyof typeof LEGAL_EN;
+
+const LEGAL_TEXTS: Record<string, typeof LEGAL_EN> = {
+  en: LEGAL_EN,
+  pt: LEGAL_PT,
+};
+
+/** Return legal text object for the given language (falls back to English). */
+export function getLegalText(lang: string): typeof LEGAL_EN {
+  return LEGAL_TEXTS[lang] ?? LEGAL_EN;
+}
+
+/** Legacy export – English text for backwards compatibility. */
+export const LEGAL_TEXT = LEGAL_EN;

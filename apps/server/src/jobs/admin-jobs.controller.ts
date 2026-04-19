@@ -71,6 +71,26 @@ export class AdminJobsController {
           },
           category: { select: { id: true, name: true } },
           _count: { select: { applications: true, bookings: true } },
+          bookings: {
+            where: { status: 'IN_PROGRESS' },
+            select: {
+              id: true,
+              status: true,
+              startTime: true,
+              jobSeeker: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+              timesheetEntries: {
+                where: { clockOut: null },
+                select: { id: true, clockIn: true },
+                take: 1,
+              },
+            },
+          },
         },
       }),
       this.prisma.job.count({ where }),

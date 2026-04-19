@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import {
+  AppState,
   Platform,
   Text as RNText,
   TextInput as RNTextInput,
@@ -21,6 +22,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SecureStore from "expo-secure-store";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { getApiBase } from "../lib/api";
+import { getValidToken, forceLogout } from "../lib/authFetch";
 import * as Notifications from "expo-notifications";
 import * as Linking from "expo-linking";
 import { registerPushToken } from "../lib/pushNotifications";
@@ -398,6 +400,29 @@ function RootLayoutNav() {
     };
     syncLanguage();
   }, [language]);
+
+  // Re-validate / refresh token when app comes back from background
+  useEffect(() => {
+    const appStateRef = AppState.currentState;
+    const subscription = AppState.addEventListener(
+      "change",
+      async (nextState) => {
+        if (appStateRef === "background" && nextState === "active") {
+          try {
+            const token = await getValidToken();
+            if (!token) {
+              // Both tokens expired – force re-login
+              await forceLogout();
+            }
+          } catch {
+            // Silently ignore; forceLogout already handles redirect
+          }
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   const stackContent = (
     <NavThemeProvider value={isDark ? DarkTheme : DefaultTheme}>

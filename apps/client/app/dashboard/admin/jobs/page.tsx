@@ -18,6 +18,13 @@ interface JobItem {
   employer: { id: string; email: string; firstName: string; lastName: string };
   category?: { id: string; name: string };
   _count: { applications: number; bookings: number };
+  bookings?: {
+    id: string;
+    status: string;
+    startTime?: string;
+    jobSeeker: { id: string; firstName: string; lastName: string };
+    timesheetEntries: { id: string; clockIn: string }[];
+  }[];
 }
 
 const STATUS_TABS = [
@@ -155,6 +162,7 @@ export default function AdminJobsPage() {
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3">Employer</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Active Booking</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">City</th>
               <th className="px-4 py-3 text-center">Apps</th>
@@ -167,7 +175,7 @@ export default function AdminJobsPage() {
             {loading ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-4 py-12 text-center text-[var(--muted-text)]"
                 >
                   Loading…
@@ -176,7 +184,7 @@ export default function AdminJobsPage() {
             ) : items.length === 0 ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-4 py-12 text-center text-[var(--muted-text)]"
                 >
                   No jobs found.
@@ -208,6 +216,40 @@ export default function AdminJobsPage() {
                     >
                       {job.status.replace(/_/g, " ")}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const active = job.bookings?.find(
+                        (b) => b.status === "IN_PROGRESS",
+                      );
+                      if (!active)
+                        return (
+                          <span className="text-[var(--muted-text)]">—</span>
+                        );
+                      const isTracking = active.timesheetEntries?.length > 0;
+                      return (
+                        <div className="flex flex-col gap-0.5">
+                          <span
+                            className={`inline-flex items-center gap-1 text-xs font-medium ${
+                              isTracking ? "text-emerald-600" : "text-amber-600"
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-2 w-2 rounded-full ${
+                                isTracking
+                                  ? "bg-emerald-500 animate-pulse"
+                                  : "bg-amber-500"
+                              }`}
+                            />
+                            {isTracking ? "Tracking" : "Active"}
+                          </span>
+                          <span className="text-[10px] text-[var(--muted-text)] truncate max-w-[120px]">
+                            {active.jobSeeker.firstName}{" "}
+                            {active.jobSeeker.lastName}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted-text)]">
                     {job.category?.name ?? "—"}

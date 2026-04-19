@@ -1244,12 +1244,12 @@ export default function Home() {
                     </Link>
                   </li>
                   <li>
-                    <a
-                      href="mailto:support@nasta.app"
+                    <Link
+                      href="/feature-request"
                       className="transition-colors hover:text-[var(--primary)]"
                     >
                       {t("landing.featureRequest", "Feature Request")}
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -1336,7 +1336,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-3.5 text-[var(--muted-text)]">
                   <a
-                    href="#"
+                    href="https://x.com/NastaJobs"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-colors hover:text-[var(--primary)]"
@@ -1351,7 +1351,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://www.linkedin.com/company/112877399/admin/dashboard/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-colors hover:text-[var(--primary)]"
@@ -1366,7 +1366,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/nastajobs/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-colors hover:text-[var(--primary)]"
@@ -1381,7 +1381,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://www.facebook.com/profile.php?id=61576433085774"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-colors hover:text-[var(--primary)]"

@@ -1005,4 +1005,123 @@ export class SupportService {
 
     return { success: true, message: 'Response sent successfully', emailSent };
   }
+
+  /**
+   * Handle a public feature request submission.
+   * 1. Email the feature request details to feature-request@nasta.app
+   * 2. Send a branded confirmation email to the user
+   */
+  async submitFeatureRequest(data: {
+    name: string;
+    email: string;
+    title: string;
+    description: string;
+    language?: string;
+  }) {
+    const lang = (data.language === 'pt' ? 'pt' : 'en') as 'en' | 'pt';
+    const t = this.emailTranslations.getTranslator(lang);
+
+    // 1. Send the feature request to the team
+    const internalSubject = `Feature Request: ${data.title}`;
+    const internalText = [
+      `New feature request from ${data.name} (${data.email})`,
+      '',
+      `Title: ${data.title}`,
+      '',
+      `Description:`,
+      data.description,
+    ].join('\n');
+
+    const internalHtml = this.notifications.getBrandedEmailTemplate(
+      'New Feature Request',
+      `From: ${data.name} (${data.email})`,
+      `
+        <p style="margin: 0 0 16px; font-weight: 600; color: #F5E6C8;">${data.title}</p>
+        <p style="margin: 0; white-space: pre-wrap;">${data.description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+      `,
+      `Reply directly to this user at ${data.email}`,
+      undefined,
+      'en',
+    );
+
+    try {
+      await this.notifications.sendEmail(
+        'feature-request@nasta.app',
+        internalSubject,
+        internalText,
+        internalHtml,
+      );
+      this.logger.log(
+        `✅ Feature request forwarded to feature-request@nasta.app from ${data.email}`,
+      );
+    } catch (err) {
+      this.logger.error(`❌ Failed to forward feature request: ${err}`);
+    }
+
+    // 2. Send a branded confirmation email to the user
+    const userSubject =
+      lang === 'pt'
+        ? 'Obrigado pelo seu pedido de funcionalidade!'
+        : 'Thank you for your feature request!';
+
+    const greeting = lang === 'pt' ? `Olá ${data.name},` : `Hi ${data.name},`;
+
+    const content =
+      lang === 'pt'
+        ? `
+          <p style="margin: 0 0 16px;">Recebemos o seu pedido de funcionalidade e agradecemos por dedicar o seu tempo a ajudar-nos a melhorar a Nasta!</p>
+          <div style="margin: 20px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+            <p style="margin: 0 0 8px; font-weight: 600; color: #F5E6C8;">${data.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+            <p style="margin: 0; color: #8B7A5E; white-space: pre-wrap;">${data.description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+          </div>
+          <p style="margin: 0 0 16px;">A nossa equipa irá analisar a sua sugestão cuidadosamente. Embora não possamos garantir que todas as funcionalidades solicitadas sejam implementadas, cada ideia ajuda-nos a moldar o futuro da plataforma.</p>
+          <p style="margin: 0;">Se tivermos dúvidas ou atualizações, entraremos em contacto consigo através deste email.</p>
+        `
+        : `
+          <p style="margin: 0 0 16px;">We've received your feature request and truly appreciate you taking the time to help us improve Nasta!</p>
+          <div style="margin: 20px 0; padding: 20px; background-color: #0E1B32; border-radius: 8px; border-left: 4px solid #C9963F;">
+            <p style="margin: 0 0 8px; font-weight: 600; color: #F5E6C8;">${data.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+            <p style="margin: 0; color: #8B7A5E; white-space: pre-wrap;">${data.description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+          </div>
+          <p style="margin: 0 0 16px;">Our team will review your suggestion carefully. While we can't guarantee every requested feature will be implemented, every idea helps us shape the future of the platform.</p>
+          <p style="margin: 0;">If we have questions or updates, we'll reach out to you at this email address.</p>
+        `;
+
+    const footerNote =
+      lang === 'pt'
+        ? 'Este é um email automático. Não precisa de responder.'
+        : 'This is an automated email. No reply is needed.';
+
+    const userHtml = this.notifications.getBrandedEmailTemplate(
+      userSubject,
+      greeting,
+      content,
+      footerNote,
+      undefined,
+      lang,
+    );
+
+    const userText =
+      lang === 'pt'
+        ? `Olá ${data.name},\n\nRecebemos o seu pedido de funcionalidade: "${data.title}".\n\nA nossa equipa irá analisá-lo cuidadosamente.\n\nObrigado,\nEquipa Nasta`
+        : `Hi ${data.name},\n\nWe've received your feature request: "${data.title}".\n\nOur team will review it carefully.\n\nThank you,\nThe Nasta Team`;
+
+    try {
+      await this.notifications.sendEmail(
+        data.email,
+        userSubject,
+        userText,
+        userHtml,
+      );
+      this.logger.log(
+        `✅ Feature request confirmation email sent to ${data.email}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        `❌ Failed to send feature request confirmation: ${err}`,
+      );
+    }
+
+    return { success: true, message: 'Feature request submitted successfully' };
+  }
 }

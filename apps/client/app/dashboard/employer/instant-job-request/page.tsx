@@ -13,6 +13,30 @@ interface Category {
   name: string;
 }
 
+interface ProviderRate {
+  rate: number;
+  paymentType: string;
+  description?: string;
+  otherSpecification?: string;
+}
+
+interface CandidateData {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  skills?: Array<{ name?: string } | string>;
+  rates?: ProviderRate[];
+  hasVerifiedVehicle?: boolean;
+  hasVerifiedDriversLicense?: boolean;
+  availability?: Array<{
+    id?: string;
+    start: string;
+    end: string;
+    isRecurring?: boolean;
+  }>;
+}
+
 const WORK_MODES = [
   { value: "ON_SITE", label: "On-site" },
   { value: "REMOTE", label: "Remote" },
@@ -54,6 +78,32 @@ const CURRENCIES = [
   "CZK",
 ];
 
+const PAYMENT_TYPE_MAP: Record<string, string> = {
+  HOUR: "HOURLY",
+  DAY: "DAILY",
+  WEEK: "WEEKLY",
+  MONTH: "MONTHLY",
+  HOURLY: "HOURLY",
+  DAILY: "DAILY",
+  WEEKLY: "WEEKLY",
+  MONTHLY: "MONTHLY",
+  FIXED: "FIXED",
+  OTHER: "OTHER",
+};
+
+const PAYMENT_TYPE_LABELS: Record<string, string> = {
+  HOUR: "Per Hour",
+  HOURLY: "Per Hour",
+  DAY: "Per Day",
+  DAILY: "Per Day",
+  WEEK: "Per Week",
+  WEEKLY: "Per Week",
+  MONTH: "Per Month",
+  MONTHLY: "Per Month",
+  FIXED: "Fixed Price",
+  OTHER: "Other",
+};
+
 export default function InstantJobRequestPage() {
   const { t } = useLanguage();
   const router = useRouter();
@@ -66,6 +116,12 @@ export default function InstantJobRequestPage() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+
+  // Candidate / provider data
+  const [candidateData, setCandidateData] = useState<CandidateData | null>(
+    null,
+  );
+  const [candidateLoading, setCandidateLoading] = useState(true);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -81,22 +137,41 @@ export default function InstantJobRequestPage() {
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("09:00");
   const [endDate, setEndDate] = useState("");
+
+  // Payment — provider rate selection + custom rate
+  const [selectedProviderRateIndices, setSelectedProviderRateIndices] =
+    useState<number[]>([]);
+  const [useCustomRate, setUseCustomRate] = useState(false);
   const [rateAmount, setRateAmount] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [paymentType, setPaymentType] = useState("HOURLY");
+
   const [requirements, setRequirements] = useState<string[]>([""]);
+  const [responsibilities, setResponsibilities] = useState<string[]>([""]);
   const [isRestrictedSector, setIsRestrictedSector] = useState(false);
   const [requiresVehicle, setRequiresVehicle] = useState(false);
   const [requiresDriverLicense, setRequiresDriverLicense] = useState(false);
+
+  // Two-step flow: form -> review
+  const [showReview, setShowReview] = useState(false);
 
   const fetchCategories = useCallback(async () => {
     const res = await api<Category[]>("/jobs/categories");
     if (res.data && Array.isArray(res.data)) setCategories(res.data);
   }, []);
 
+  const fetchCandidateData = useCallback(async () => {
+    if (!candidateId) return;
+    setCandidateLoading(true);
+    const res = await api<CandidateData>(`/users/candidates/${candidateId}`);
+    if (res.data) setCandidateData(res.data);
+    setCandidateLoading(false);
+  }, [candidateId]);
+
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchCandidateData();
+  }, [fetchCategories, fetchCandidateData]);
 
   useEffect(() => {
     if (toast) {
@@ -105,8 +180,36 @@ export default function InstantJobRequestPage() {
     }
   }, [toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Build selectedRates array for the API
+  const buildSelectedRates = () => {
+    const rates: Array<{
+      rate: number;
+      paymentType: string;
+      description?: string;
+      isCustom?: boolean;
+    }> = [];
+    const providerRates = candidateData?.rates || [];
+    for (const idx of selectedProviderRateIndices) {
+      const pr = providerRates[idx];
+      if (pr) {
+        rates.push({
+          rate: pr.rate,
+          paymentType: pr.paymentType,
+          description: pr.description || pr.otherSpecification,
+        });
+      }
+    }
+    if (useCustomRate && rateAmount && parseFloat(rateAmount) > 0) {
+      rates.push({
+        rate: parseFloat(rateAmount),
+        paymentType: paymentType,
+        isCustom: true,
+      });
+    }
+    return rates;
+  };
+
+  const handleContinueToReview = () => {
     if (!candidateId) {
       setToast({ message: "Missing candidate ID", type: "error" });
       return;
@@ -136,9 +239,30 @@ export default function InstantJobRequestPage() {
       return;
     }
 
+    // Payment validation: at least one provider rate OR valid custom rate
+    const hasProviderRate = selectedProviderRateIndices.length > 0;
+    const hasCustom = useCustomRate && rateAmount && parseFloat(rateAmount) > 0;
+    if (!hasProviderRate && !hasCustom) {
+      setToast({
+        message: t(
+          "employerDashboard.instantJob.paymentRequired",
+          "Please select at least one service provider rate or add a custom rate.",
+        ),
+        type: "error",
+      });
+      return;
+    }
+
+    setShowReview(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSubmit = async () => {
+    if (!candidateId) return;
     setLoading(true);
 
     const startDateTime = `${startDate}T${startTime || "09:00"}:00.000Z`;
+    const selectedRates = buildSelectedRates();
 
     const payload: Record<string, unknown> = {
       title: title.trim(),
@@ -162,25 +286,34 @@ export default function InstantJobRequestPage() {
     }
 
     if (endDate) payload.endDate = `${endDate}T23:59:59.000Z`;
-    if (rateAmount && parseFloat(rateAmount) > 0) {
-      payload.rateAmount = Math.round(parseFloat(rateAmount) * 100);
+
+    // Set the first rate on the job for backward compatibility
+    if (selectedRates.length > 0) {
+      const primary = selectedRates[0];
+      payload.rateAmount = Math.round(primary.rate * 100);
       payload.currency = currency;
-      payload.paymentType = paymentType;
+      payload.paymentType =
+        PAYMENT_TYPE_MAP[primary.paymentType] || primary.paymentType;
     }
 
     const filteredReqs = requirements.filter((r) => r.trim());
     if (filteredReqs.length > 0) payload.requirements = filteredReqs;
+    const filteredResps = responsibilities.filter((r) => r.trim());
+    if (filteredResps.length > 0) payload.responsibilities = filteredResps;
 
     if (requiresVehicle) payload.requiresVehicle = true;
     if (requiresDriverLicense) payload.requiresDriverLicense = true;
 
     // Step 1: Create the job
-    const jobRes = await api<{ id: string }>("/jobs", {
-      method: "POST",
-      body: payload,
-    });
+    const jobRes = await api<{ job: { id: string }; message: string }>(
+      "/jobs",
+      {
+        method: "POST",
+        body: payload,
+      },
+    );
 
-    if (jobRes.error || !jobRes.data?.id) {
+    if (jobRes.error || !jobRes.data?.job?.id) {
       setLoading(false);
       setToast({
         message:
@@ -192,10 +325,13 @@ export default function InstantJobRequestPage() {
       return;
     }
 
-    // Step 2: Auto-apply the candidate
+    // Step 2: Auto-apply the candidate with selectedRates
     const applyRes = await api(
-      `/applications/instant/${jobRes.data.id}/${candidateId}`,
-      { method: "POST" },
+      `/applications/instant/${jobRes.data.job.id}/${candidateId}`,
+      {
+        method: "POST",
+        body: { selectedRates },
+      },
     );
 
     setLoading(false);
@@ -248,6 +384,12 @@ export default function InstantJobRequestPage() {
     setter(list.filter((_, i) => i !== idx));
   };
 
+  const toggleProviderRate = (idx: number) => {
+    setSelectedProviderRateIndices((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
+    );
+  };
+
   const inputCls =
     "w-full rounded-xl border border-[var(--border-color)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] transition-colors focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30";
   const labelCls = "block text-sm font-medium text-[var(--foreground)] mb-1.5";
@@ -282,6 +424,366 @@ export default function InstantJobRequestPage() {
     );
   }
 
+  // --- REVIEW / SUMMARY STEP ---
+  if (showReview) {
+    const selectedRates = buildSelectedRates();
+    const providerRates = candidateData?.rates || [];
+    const selectedRatesList = selectedProviderRateIndices
+      .map((idx) => providerRates[idx])
+      .filter(Boolean);
+    const hasCustom = useCustomRate && rateAmount && parseFloat(rateAmount) > 0;
+    const categoryLabel =
+      categoryId === "custom"
+        ? customCategory
+        : categories.find((c) => c.id === categoryId)?.name || "\u2014";
+
+    return (
+      <div className="mx-auto max-w-4xl">
+        {/* Toast */}
+        {toast && (
+          <div
+            className={`fixed right-6 top-6 z-50 rounded-xl px-5 py-3 text-sm font-medium shadow-lg transition-all ${
+              toast.type === "success"
+                ? "bg-[var(--achievement-green)] text-white"
+                : "bg-[var(--alert-red)] text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => setShowReview(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] text-[var(--muted-text)] transition-colors hover:text-[var(--foreground)]"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#C9963F]">
+              {t("employerDashboard.instantJob.badge", "Instant")}
+            </p>
+          </div>
+          <h1 className="mt-2 text-2xl font-bold text-[var(--foreground)]">
+            {t("employerDashboard.instantJob.reviewRequest", "Review Request")}
+          </h1>
+          <p className="mt-1 text-sm text-[var(--muted-text)]">
+            {t(
+              "employerDashboard.instantJob.reviewSubtitle",
+              "Review the details before sending your instant job request.",
+            )}
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          {/* Provider Info Card */}
+          {candidateData && (
+            <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9963F]">
+                {t(
+                  "employerDashboard.instantJob.serviceProvider",
+                  "Service Provider",
+                )}
+              </h2>
+              <div className="flex items-center gap-4">
+                {candidateData.avatar ? (
+                  <img
+                    src={candidateData.avatar}
+                    alt=""
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C9963F]/10">
+                    <svg
+                      className="h-6 w-6 text-[#C9963F]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                      />
+                    </svg>
+                  </div>
+                )}
+                <div>
+                  <p className="text-base font-semibold text-[var(--foreground)]">
+                    {candidateData.firstName} {candidateData.lastName}
+                  </p>
+                  {candidateData.skills && candidateData.skills.length > 0 && (
+                    <p className="text-xs text-[var(--muted-text)]">
+                      {candidateData.skills
+                        .slice(0, 3)
+                        .map((s) => (typeof s === "string" ? s : s.name || ""))
+                        .join(" \u00B7 ")}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Provider Availability */}
+              {candidateData.availability &&
+                candidateData.availability.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs font-medium text-[var(--muted-text)]">
+                      {t(
+                        "employerDashboard.instantJob.providerAvailability",
+                        "Provider Availability",
+                      )}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {candidateData.availability.map((avail, idx) => (
+                        <span
+                          key={avail.id || idx}
+                          className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-xs text-[var(--foreground)]"
+                        >
+                          {new Date(avail.start).toLocaleDateString(undefined, {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                          })}{" "}
+                          {new Date(avail.start).toLocaleTimeString(undefined, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}{" "}
+                          -{" "}
+                          {new Date(avail.end).toLocaleTimeString(undefined, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                          {avail.isRecurring ? " \u21BB" : ""}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </section>
+          )}
+
+          {/* Job Details Summary */}
+          <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9963F]">
+              {t("employerDashboard.postJob.jobDetails", "Job Details")}
+            </h2>
+            <div className="space-y-3">
+              <SummaryRow
+                label={t("employerDashboard.postJob.jobTitle", "Job Title")}
+                value={title}
+              />
+              <SummaryRow
+                label={t("employerDashboard.postJob.categoryLabel", "Category")}
+                value={categoryLabel}
+              />
+              <SummaryRow
+                label={t("employerDashboard.postJob.location", "Location")}
+                value={`${location}, ${city}, ${country}`}
+              />
+              <SummaryRow
+                label={t("employerDashboard.postJob.startDateAndTime", "Start")}
+                value={`${startDate} ${startTime}`}
+              />
+              {endDate && (
+                <SummaryRow
+                  label={t("employerDashboard.postJob.endDate", "End Date")}
+                  value={endDate}
+                />
+              )}
+              <SummaryRow
+                label={t("employerDashboard.postJob.workMode", "Work Mode")}
+                value={
+                  WORK_MODES.find((w) => w.value === workMode)?.label ||
+                  workMode
+                }
+              />
+              <SummaryRow
+                label={t("employerDashboard.postJob.urgency", "Urgency")}
+                value={urgency}
+              />
+
+              {/* Selected Rates */}
+              {(selectedRatesList.length > 0 || hasCustom) && (
+                <div className="border-t border-[var(--border-color)] pt-3 mt-3">
+                  <p className="mb-2 text-xs font-medium text-[var(--muted-text)]">
+                    {t("employerDashboard.instantJob.paymentLabel", "Payment")}
+                  </p>
+                  <div className="space-y-1.5">
+                    {selectedRatesList.map((rate, i) => (
+                      <p
+                        key={`pr-${i}`}
+                        className="text-sm text-[var(--foreground)]"
+                      >
+                        • {currency} {rate.rate.toFixed(2)} /{" "}
+                        {PAYMENT_TYPE_LABELS[rate.paymentType] ||
+                          rate.paymentType}
+                        {rate.description || rate.otherSpecification
+                          ? ` — ${rate.description || rate.otherSpecification}`
+                          : ""}
+                      </p>
+                    ))}
+                    {hasCustom && (
+                      <p className="text-sm text-blue-500">
+                        • {currency} {rateAmount} /{" "}
+                        {PAYMENT_TYPE_LABELS[paymentType] || paymentType} (
+                        {t(
+                          "employerDashboard.instantJob.customRateLabel",
+                          "Custom",
+                        )}
+                        )
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Requirements */}
+              {requirements.filter((r) => r.trim()).length > 0 && (
+                <div className="border-t border-[var(--border-color)] pt-3 mt-3">
+                  <p className="mb-2 text-xs font-medium text-[var(--muted-text)]">
+                    {t(
+                      "employerDashboard.postJob.requirementsTitle",
+                      "Requirements",
+                    )}
+                  </p>
+                  {requirements
+                    .filter((r) => r.trim())
+                    .map((req, i) => (
+                      <p key={i} className="text-sm text-[var(--foreground)]">
+                        • {req}
+                      </p>
+                    ))}
+                </div>
+              )}
+
+              {/* Responsibilities */}
+              {responsibilities.filter((r) => r.trim()).length > 0 && (
+                <div className="border-t border-[var(--border-color)] pt-3 mt-3">
+                  <p className="mb-2 text-xs font-medium text-[var(--muted-text)]">
+                    {t(
+                      "employerDashboard.instantJob.responsibilities",
+                      "Responsibilities",
+                    )}
+                  </p>
+                  {responsibilities
+                    .filter((r) => r.trim())
+                    .map((resp, i) => (
+                      <p key={i} className="text-sm text-[var(--foreground)]">
+                        • {resp}
+                      </p>
+                    ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Info Banner */}
+          <div className="flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+            <svg
+              className="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+              />
+            </svg>
+            <p className="text-sm text-[var(--foreground)]">
+              {t(
+                "employerDashboard.instantJob.requestWillBeSent",
+                "Your request will be sent to the service provider for review. They can accept or decline your instant job request.",
+              )}
+            </p>
+          </div>
+
+          {/* Submit */}
+          <div className="flex items-center justify-between rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+            <button
+              type="button"
+              onClick={() => setShowReview(false)}
+              className="text-sm font-medium text-[var(--muted-text)] transition-colors hover:text-[var(--foreground)]"
+            >
+              {t(
+                "employerDashboard.instantJob.backToEdit",
+                "\u2190 Back to Edit",
+              )}
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="flex items-center gap-2 rounded-xl bg-emerald-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  {t("employerDashboard.instantJob.sending", "Sending...")}
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                    />
+                  </svg>
+                  {t(
+                    "employerDashboard.instantJob.sendRequest",
+                    "Send Instant Request",
+                  )}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- FORM STEP ---
   return (
     <div className="mx-auto max-w-4xl">
       {/* Toast */}
@@ -333,8 +835,70 @@ export default function InstantJobRequestPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* ── Basic Info ─────────────────────────────── */}
+      <div className="space-y-8">
+        {/* -- Provider Info Card -- */}
+        {candidateLoading ? (
+          <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 animate-pulse rounded-full bg-[var(--border-color)]" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 animate-pulse rounded bg-[var(--border-color)]" />
+                <div className="h-3 w-24 animate-pulse rounded bg-[var(--border-color)]" />
+              </div>
+            </div>
+          </section>
+        ) : (
+          candidateData && (
+            <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9963F]">
+                {t(
+                  "employerDashboard.instantJob.serviceProvider",
+                  "Service Provider",
+                )}
+              </h2>
+              <div className="flex items-center gap-4">
+                {candidateData.avatar ? (
+                  <img
+                    src={candidateData.avatar}
+                    alt=""
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C9963F]/10">
+                    <svg
+                      className="h-6 w-6 text-[#C9963F]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                      />
+                    </svg>
+                  </div>
+                )}
+                <div>
+                  <p className="text-base font-semibold text-[var(--foreground)]">
+                    {candidateData.firstName} {candidateData.lastName}
+                  </p>
+                  {candidateData.skills && candidateData.skills.length > 0 && (
+                    <p className="text-xs text-[var(--muted-text)]">
+                      {candidateData.skills
+                        .slice(0, 3)
+                        .map((s) => (typeof s === "string" ? s : s.name || ""))
+                        .join(" \u00B7 ")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )
+        )}
+
+        {/* -- Basic Info -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.jobDetails", "Job Details")}
@@ -425,7 +989,7 @@ export default function InstantJobRequestPage() {
           </div>
         </section>
 
-        {/* ── Work Mode & Urgency ────────────────────── */}
+        {/* -- Work Mode & Urgency -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.workMode", "Work Mode")} &{" "}
@@ -481,7 +1045,7 @@ export default function InstantJobRequestPage() {
           </div>
         </section>
 
-        {/* ── Location ───────────────────────────────── */}
+        {/* -- Location -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.location", "Location")}
@@ -530,7 +1094,7 @@ export default function InstantJobRequestPage() {
           </div>
         </section>
 
-        {/* ── Schedule ───────────────────────────────── */}
+        {/* -- Schedule -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.schedule", "Schedule")}
@@ -570,57 +1134,174 @@ export default function InstantJobRequestPage() {
           </div>
         </section>
 
-        {/* ── Payment ────────────────────────────────── */}
+        {/* -- Payment: Provider Rates + Custom Rate -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.compensation", "Payment")}
           </h2>
-          <p className="mb-4 text-xs text-[var(--muted-text)]">
-            Optional. The provider can see your offered rate.
-          </p>
 
-          <div className="grid gap-5 sm:grid-cols-3">
-            <div>
-              <label className={labelCls}>
-                {t("employerDashboard.postJob.rate", "Rate Amount")}
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={rateAmount}
-                onChange={(e) => setRateAmount(e.target.value)}
-                placeholder="0.00"
-                className={inputCls}
-              />
+          {/* Provider Rates */}
+          {candidateData?.rates && candidateData.rates.length > 0 ? (
+            <div className="mb-5">
+              <p className="mb-3 text-xs text-[var(--muted-text)]">
+                {t(
+                  "employerDashboard.instantJob.selectProviderRates",
+                  "Select from provider's rates:",
+                )}
+              </p>
+              <div className="space-y-2">
+                {candidateData.rates.map((rate, idx) => {
+                  const isSelected = selectedProviderRateIndices.includes(idx);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => toggleProviderRate(idx)}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+                        isSelected
+                          ? "border-[#C9963F] bg-[#C9963F]/10"
+                          : "border-[var(--border-color)] bg-[var(--surface-alt)] hover:border-[#C9963F]/30"
+                      }`}
+                    >
+                      <svg
+                        className={`h-5 w-5 shrink-0 ${
+                          isSelected
+                            ? "text-[#C9963F]"
+                            : "text-[var(--muted-text)]"
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        {isSelected ? (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                          />
+                        ) : (
+                          <circle cx="12" cy="12" r="9" />
+                        )}
+                      </svg>
+                      <div>
+                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                          {currency} {rate.rate.toFixed(2)} /{" "}
+                          {PAYMENT_TYPE_LABELS[rate.paymentType] ||
+                            rate.paymentType}
+                        </p>
+                        {(rate.description || rate.otherSpecification) && (
+                          <p className="text-xs text-[var(--muted-text)]">
+                            {rate.description || rate.otherSpecification}
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div>
-              <label className={labelCls}>
-                {t("employerDashboard.postJob.currency", "Currency")}
-              </label>
-              <BrandedSelect
-                value={currency}
-                onChange={setCurrency}
-                options={CURRENCIES.map((c) => ({ value: c, label: c }))}
-              />
+          ) : (
+            <div className="mb-5 rounded-xl border border-[var(--border-color)] bg-[var(--surface-alt)] p-4 text-center">
+              <p className="text-xs text-[var(--muted-text)]">
+                {t(
+                  "employerDashboard.instantJob.noProviderRates",
+                  "This provider has no rates set. Please add a custom rate below.",
+                )}
+              </p>
             </div>
-            <div>
-              <label className={labelCls}>
-                {t("employerDashboard.postJob.paymentType", "Payment Type")}
-              </label>
-              <BrandedSelect
-                value={paymentType}
-                onChange={setPaymentType}
-                options={PAYMENT_TYPES.map((p) => ({
-                  value: p.value,
-                  label: p.label,
-                }))}
-              />
+          )}
+
+          {/* Custom Rate Toggle */}
+          <button
+            type="button"
+            onClick={() => setUseCustomRate(!useCustomRate)}
+            className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+              useCustomRate
+                ? "border-blue-500 bg-blue-500/10"
+                : "border-[var(--border-color)] bg-[var(--surface-alt)] hover:border-blue-500/30"
+            }`}
+          >
+            <svg
+              className={`h-5 w-5 shrink-0 ${
+                useCustomRate ? "text-blue-500" : "text-[var(--muted-text)]"
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              {useCustomRate ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m4.5 12.75 6 6 9-13.5"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              )}
+            </svg>
+            <span
+              className={`text-sm font-semibold ${
+                useCustomRate ? "text-blue-500" : "text-[var(--foreground)]"
+              }`}
+            >
+              {t(
+                "employerDashboard.instantJob.addCustomRate",
+                "Add Custom Rate",
+              )}
+            </span>
+          </button>
+
+          {/* Custom Rate Fields */}
+          {useCustomRate && (
+            <div className="mt-4 grid gap-5 sm:grid-cols-3">
+              <div>
+                <label className={labelCls}>
+                  {t("employerDashboard.postJob.rate", "Rate Amount")}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={rateAmount}
+                  onChange={(e) => setRateAmount(e.target.value)}
+                  placeholder="0.00"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>
+                  {t("employerDashboard.postJob.currency", "Currency")}
+                </label>
+                <BrandedSelect
+                  value={currency}
+                  onChange={setCurrency}
+                  options={CURRENCIES.map((c) => ({ value: c, label: c }))}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>
+                  {t("employerDashboard.postJob.paymentType", "Payment Type")}
+                </label>
+                <BrandedSelect
+                  value={paymentType}
+                  onChange={setPaymentType}
+                  options={PAYMENT_TYPES.map((p) => ({
+                    value: p.value,
+                    label: p.label,
+                  }))}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
-        {/* ── Requirements ───────────────────────────── */}
+        {/* -- Requirements -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t("employerDashboard.postJob.requirementsTitle", "Requirements")}
@@ -689,7 +1370,82 @@ export default function InstantJobRequestPage() {
           </div>
         </section>
 
-        {/* ── Vehicle / License Requirements ─────────── */}
+        {/* -- Responsibilities -- */}
+        <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
+          <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
+            {t(
+              "employerDashboard.instantJob.responsibilities",
+              "Responsibilities",
+            )}
+          </h2>
+
+          <div className="space-y-2">
+            {responsibilities.map((resp, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={resp}
+                  onChange={(e) =>
+                    updateListItem(
+                      responsibilities,
+                      setResponsibilities,
+                      i,
+                      e.target.value,
+                    )
+                  }
+                  placeholder={`Responsibility ${i + 1}...`}
+                  className={inputCls}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeListItem(responsibilities, setResponsibilities, i)
+                  }
+                  className="shrink-0 rounded-lg p-2 text-[var(--muted-text)] transition-colors hover:bg-[var(--alert-red)]/10 hover:text-[var(--alert-red)]"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addListItem(responsibilities, setResponsibilities)}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
+            >
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              {t(
+                "employerDashboard.instantJob.addResponsibility",
+                "Add responsibility",
+              )}
+            </button>
+          </div>
+        </section>
+
+        {/* -- Vehicle / License Requirements -- */}
         <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <h2 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
             {t(
@@ -704,7 +1460,13 @@ export default function InstantJobRequestPage() {
               <p className="mb-2 text-sm text-[var(--secondary-text)]">
                 {t(
                   "employerDashboard.postJob.restrictedSectorQuestion",
-                  "Is this job related to Healthcare, Government, Finance, or Military?",
+                  "Is this job related to Healthcare, Government, Finance, Military, Government Papers, or Babysitting?",
+                )}
+              </p>
+              <p className="mb-3 text-xs text-[var(--muted-text)]">
+                {t(
+                  "employerDashboard.postJob.restrictedSectorDisclaimer",
+                  "Please declare: Nasta is not responsible for incidents related to these job types as they are outside of Nasta\u2019s scope.",
                 )}
               </p>
               <label className="relative inline-flex cursor-pointer items-center gap-3">
@@ -751,13 +1513,13 @@ export default function InstantJobRequestPage() {
                 <p className="text-sm text-[var(--alert-red)]">
                   {t(
                     "employerDashboard.postJob.restrictedSectorWarning",
-                    "Jobs in Healthcare, Government, Finance, and Military sectors are not currently supported on Nasta. Please use a specialized platform for these sectors.",
+                    "Jobs in Healthcare, Government, Finance, Military, Government Papers, and Babysitting sectors require special verification. These job types are outside of Nasta\u2019s scope and Nasta is not responsible for any related incidents.",
                   )}
                 </p>
               </div>
             )}
 
-            {/* Vehicle & driver requirements (only if not restricted sector) */}
+            {/* Vehicle & driver requirements */}
             {!isRestrictedSector && (
               <>
                 <div>
@@ -802,12 +1564,97 @@ export default function InstantJobRequestPage() {
                     </label>
                   </div>
                 </div>
+
+                {/* Provider verification warnings */}
+                {(requiresVehicle || requiresDriverLicense) &&
+                  candidateData && (
+                    <>
+                      {requiresVehicle &&
+                        candidateData.hasVerifiedVehicle === false && (
+                          <div className="flex items-start gap-3 rounded-xl border border-[var(--alert-red)]/30 bg-[var(--alert-red)]/5 p-4">
+                            <svg
+                              className="mt-0.5 h-5 w-5 shrink-0 text-[var(--alert-red)]"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                              />
+                            </svg>
+                            <p className="text-sm text-[var(--alert-red)]">
+                              {t(
+                                "employerDashboard.instantJob.providerMissingVehicle",
+                                "This provider does not have a verified vehicle yet. You can still send the request, but the provider may not be able to fulfil this requirement.",
+                              )}
+                            </p>
+                          </div>
+                        )}
+                      {requiresDriverLicense &&
+                        candidateData.hasVerifiedDriversLicense === false &&
+                        candidateData.hasVerifiedVehicle !== true && (
+                          <div className="flex items-start gap-3 rounded-xl border border-[var(--alert-red)]/30 bg-[var(--alert-red)]/5 p-4">
+                            <svg
+                              className="mt-0.5 h-5 w-5 shrink-0 text-[var(--alert-red)]"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                              />
+                            </svg>
+                            <p className="text-sm text-[var(--alert-red)]">
+                              {t(
+                                "employerDashboard.instantJob.providerMissingLicense",
+                                "This provider does not have a verified driver's license yet. You can still send the request, but the provider may not be able to fulfil this requirement.",
+                              )}
+                            </p>
+                          </div>
+                        )}
+
+                      {/* General driving requirement hint */}
+                      {((requiresVehicle &&
+                        candidateData.hasVerifiedVehicle === false) ||
+                        (requiresDriverLicense &&
+                          candidateData.hasVerifiedDriversLicense === false &&
+                          candidateData.hasVerifiedVehicle !== true)) && (
+                        <div className="flex items-start gap-3 rounded-xl border border-[#C9963F]/30 bg-[#C9963F]/5 p-4">
+                          <svg
+                            className="mt-0.5 h-5 w-5 shrink-0 text-[#C9963F]"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                            />
+                          </svg>
+                          <p className="text-sm text-[var(--foreground)]">
+                            {t(
+                              "employerDashboard.instantJob.drivingRequirementsHint",
+                              "This provider must have a verified vehicle or driver's license to fulfil driving requirements. The request can still be sent.",
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
               </>
             )}
           </div>
         </section>
 
-        {/* ── Submit ─────────────────────────────────── */}
+        {/* -- Continue to Review -- */}
         <div className="flex items-center justify-between rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <button
             type="button"
@@ -817,57 +1664,42 @@ export default function InstantJobRequestPage() {
             Cancel
           </button>
           <button
-            type="submit"
-            disabled={loading || isRestrictedSector}
+            type="button"
+            disabled={isRestrictedSector}
+            onClick={handleContinueToReview}
             className="flex items-center gap-2 rounded-xl bg-[#C9963F] px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-[#B8822A] disabled:opacity-50"
           >
-            {loading ? (
-              <>
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                {t("employerDashboard.instantJob.sending", "Sending...")}
-              </>
-            ) : (
-              <>
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
-                  />
-                </svg>
-                {t(
-                  "employerDashboard.instantJob.sendRequest",
-                  "Send Instant Request",
-                )}
-              </>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+              />
+            </svg>
+            {t(
+              "employerDashboard.instantJob.continueToReview",
+              "Continue to Review",
             )}
           </button>
         </div>
-      </form>
+      </div>
+    </div>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <span className="shrink-0 text-xs text-[var(--muted-text)]">{label}</span>
+      <span className="text-right text-sm font-medium text-[var(--foreground)]">
+        {value}
+      </span>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   ConsentDto,
 } from './dto/background-check.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { AdminJwtGuard } from '../auth/guards/admin-jwt.guard';
 import { AdminCapabilityGuard } from '../auth/guards/admin-capability.guard';
 import { RequireCapability } from '../auth/decorators/require-capability.decorator';
@@ -87,7 +88,12 @@ export class BackgroundCheckController {
   // User uploads certificate document
   @Post(':checkId/upload-document')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('certificate'))
+  @UseInterceptors(
+    FileInterceptor('certificate', {
+      storage: memoryStorage(),
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
   async uploadCertificate(
     @Param('checkId') checkId: string,
     @UploadedFile() file: Express.Multer.File,

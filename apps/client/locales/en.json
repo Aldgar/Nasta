@@ -1152,9 +1152,18 @@
     "submitReport": "Submit Report",
     "teamWillReview": "Our team will review your message and respond shortly.",
     "emailCategory": {
-      "support": { "label": "General Support", "desc": "Account issues, technical help, or general questions" },
-      "policy": { "label": "Policy & Legal", "desc": "Privacy, terms of service, or compliance inquiries" },
-      "feature": { "label": "Feature Request", "desc": "Suggest improvements or new features for Nasta" }
+      "support": {
+        "label": "General Support",
+        "desc": "Account issues, technical help, or general questions"
+      },
+      "policy": {
+        "label": "Policy & Legal",
+        "desc": "Privacy, terms of service, or compliance inquiries"
+      },
+      "feature": {
+        "label": "Feature Request",
+        "desc": "Suggest improvements or new features for Nasta"
+      }
     },
     "regarding": "Regarding:",
     "briefInquiry": "Brief description of your inquiry",
@@ -1192,7 +1201,8 @@
     "q10": "Can I use Nasta as a side job?",
     "a10": "Absolutely. Many service providers use Nasta to pick up extra work on their own schedule. You choose when you are available and which jobs to accept. There are no minimum hours or commitments.",
     "q11": "How fast can I find a worker?",
-    "a11": "Employers can use instant requests to find available, verified service providers nearby in seconds. For scheduled jobs, you will typically receive applications from qualified candidates shortly after posting."
+    "a11": "Employers can use instant requests to find available, verified service providers nearby in seconds. For scheduled jobs, you will typically receive applications from qualified candidates shortly after posting.",
+    "contactSupport": "Contact Support"
   },
   "howItWorks": {
     "title": "How Nasta Works",
@@ -1236,7 +1246,15 @@
     "quickStart": "Quick start:",
     "quickStartDesc": "You can browse verified service providers immediately after creating your account. Add your address and verify your phone to post your first job or send an instant request.",
     "trustTitle": "Every verification builds trust",
-    "trustDesc": "These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified employers attract better talent."
+    "trustDesc": "These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified employers attract better talent.",
+    "heroLabel": "How it works",
+    "heroDesc": "We take trust seriously. Every user completes a verification process before they can post or accept a single job. Here is exactly what is required for each side.",
+    "spFullDesc": "Complete your verification to unlock instant job requests and start earning. Every step builds your trust score and visibility to employers.",
+    "empFullDesc": "A lighter setup so you can start hiring fast. Add the essentials and request your first service provider today.",
+    "stillHaveQuestions": "Still have questions?",
+    "stillHaveQuestionsDesc": "Our team is here to help. Whether you need guidance on verification, payment, or anything else, reach out anytime.",
+    "contactSupport": "Contact Support",
+    "viewFAQs": "View FAQs"
   },
   "payouts": {
     "active": "Active"
@@ -2903,7 +2921,6 @@
     "required": "Required",
     "optional": "Optional",
     "readyToPostJobs": "Ready to post jobs",
-
     "myJobsPage": {
       "manage": "Manage",
       "title": "My Jobs",
@@ -2938,7 +2955,6 @@
       "saving": "Saving...",
       "saveChanges": "Save Changes"
     },
-
     "jobDetail": {
       "backToMyJobs": "Back to My Jobs",
       "jobNotFound": "Job not found",
@@ -2968,7 +2984,6 @@
       "deleting": "Deleting...",
       "posted": "Posted"
     },
-
     "postJob": {
       "create": "Create",
       "title": "Post a Job",
@@ -3001,9 +3016,45 @@
       "responsibilityPlaceholder": "Responsibility",
       "addResponsibility": "Add Responsibility",
       "posting": "Posting...",
-      "postJobButton": "Post Job"
+      "postJobButton": "Post Job",
+      "restrictedSectorQuestion": "Is this job related to Healthcare, Government, Finance, Military, Government Papers, or Babysitting?",
+      "restrictedSectorDisclaimer": "Please declare: Nasta is not responsible for incidents related to these job types as they are outside of Nasta's scope.",
+      "restrictedSectorYes": "Yes — Restricted Sector",
+      "restrictedSectorWarning": "Jobs in Healthcare, Government, Finance, Military, Government Papers, and Babysitting sectors are not currently supported on Nasta. These job types are outside of Nasta's scope and Nasta is not responsible for any related incidents.",
+      "no": "No",
+      "vehicleQuestion": "Does this job have any of these requirements?",
+      "requiresVehicle": "Requires a vehicle / truck",
+      "requiresDriverLicense": "Requires a driving license"
     },
-
+    "instantJob": {
+      "badge": "Instant",
+      "title": "Request Instant Job",
+      "subtitle": "Create an instant job request and send it directly to this service provider.",
+      "missingCandidate": "No candidate specified",
+      "missingCandidateDesc": "Please select a service provider first.",
+      "browseProviders": "Browse Service Providers",
+      "serviceProvider": "Service Provider",
+      "providerAvailability": "Provider Availability",
+      "selectProviderRates": "Select from provider's rates:",
+      "noProviderRates": "This provider has no rates set. Please add a custom rate below.",
+      "addCustomRate": "Add Custom Rate",
+      "customRateLabel": "Custom",
+      "paymentRequired": "Please select at least one service provider rate or add a custom rate.",
+      "paymentLabel": "Payment",
+      "responsibilities": "Responsibilities",
+      "addResponsibility": "Add responsibility",
+      "continueToReview": "Continue to Review",
+      "reviewRequest": "Review Request",
+      "reviewSubtitle": "Review the details before sending your instant job request.",
+      "requestWillBeSent": "Your request will be sent to the service provider for review. They can accept or decline your instant job request.",
+      "backToEdit": "← Back to Edit",
+      "sendRequest": "Send Instant Request",
+      "sending": "Sending...",
+      "success": "Instant job request sent successfully!",
+      "providerMissingVehicle": "This provider does not have a verified vehicle yet. You can still send the request, but the provider may not be able to fulfil this requirement.",
+      "providerMissingLicense": "This provider does not have a verified driver's license yet. You can still send the request, but the provider may not be able to fulfil this requirement.",
+      "drivingRequirementsHint": "This provider must have a verified vehicle or driver's license to fulfil driving requirements. The request can still be sent."
+    },
     "applications": {
       "review": "Review",
       "title": "Applications",
@@ -3023,7 +3074,6 @@
       "appliedFor": "Applied for",
       "instant": "Instant"
     },
-
     "serviceProviders": {
       "title": "Service Providers",
       "subtitle": "Browse verified service providers available for hire",
@@ -3061,7 +3111,6 @@
       "downloadCv": "Download CV",
       "moreSlots": "more slots"
     },
-
     "paymentsPage": {
       "billing": "Billing",
       "title": "Payments",
@@ -3095,5 +3144,152 @@
       "provider": "Provider:",
       "emailSent": "Email sent"
     }
+  },
+  "aboutPage": {
+    "title": "About Nasta",
+    "intro": "Nasta is an on-demand workforce marketplace that connects verified service providers with trusted employers instantly. Whether you need someone right now for an urgent task or want to schedule a long-term contract, Nasta makes hiring fast, fair, and fully transparent.",
+    "missionTitle": "Our Mission",
+    "missionDesc": "We believe that everyone deserves instant access to legitimate work opportunities, and every employer deserves instant access to reliable, verified talent. Nasta was built to make that connection instant and seamless, while protecting both sides with secure payments, identity verification, and real-time job monitoring.",
+    "howItWorksTitle": "How It Works",
+    "forSP": "For Service Providers:",
+    "forSPDesc": "Create a verified profile and receive instant job requests near you. Use Nasta as your main income or a flexible side gig, and get paid securely when the work is done.",
+    "forEmp": "For Employers:",
+    "forEmpDesc": "Post instant requests for on-demand help or schedule jobs across unlimited categories. Browse verified candidates, book with confidence, and only release payment when you're satisfied.",
+    "trustTitle": "Trust & Safety",
+    "trustDesc": "Every user on Nasta is identity-verified with government-issued documents. Payments are held in escrow via Stripe until the job is complete. Live GPS tracking and digital check-in/out ensure full accountability for every assignment.",
+    "contactTitle": "Contact Us",
+    "contactDesc": "Have questions? Reach out at"
+  },
+  "forEmployersPage": {
+    "heroLabel": "For Employers",
+    "heroTitle": "Instant access to verified talent",
+    "heroDesc": "Need something done right now? Request instantly available, verified service providers on demand. Every worker is ID-verified, every assignment is monitored in real-time, and every payment is protected by Stripe escrow.",
+    "whyTitle": "Why employers choose Nasta",
+    "benefit0Title": "ID-Verified Workers",
+    "benefit0Desc": "Every service provider undergoes government ID verification before they can accept any assignment. You always know exactly who is showing up.",
+    "benefit1Title": "Secure Escrow Payments",
+    "benefit1Desc": "Your money is held safely by Stripe until the job is marked complete. You only release payment when you are satisfied with the work.",
+    "benefit2Title": "Real-Time Monitoring",
+    "benefit2Desc": "Live GPS tracking and digital check-in/out for every assignment. Full visibility from start to finish, so there are never any surprises.",
+    "benefit3Title": "Instant Requests",
+    "benefit3Desc": "Need help right now? Post an instant request and get matched with verified, available service providers near you. Or schedule ahead for planned work.",
+    "benefit4Title": "Ratings and Reviews",
+    "benefit4Desc": "See every service provider's track record before you book. Verified reviews from real employers help you make confident decisions.",
+    "benefit5Title": "Unlimited Categories",
+    "benefit5Desc": "From cleaning and childcare to construction and events. Post any type of job across unlimited service categories.",
+    "howTitle": "How it works",
+    "step0Title": "Post or request instantly",
+    "step0Desc": "Need help right now? Use instant request to find available providers nearby. Or post a scheduled job for later. Takes less than two minutes.",
+    "step1Title": "Get matched with verified talent",
+    "step1Desc": "Instantly available service providers are matched to your request. Every one is ID-verified with ratings, reviews, and verified experience.",
+    "step2Title": "Book, monitor, and pay",
+    "step2Desc": "Book with confidence. Track the assignment in real-time. Release payment only when the work meets your standards.",
+    "reqTitle": "What you need to get started",
+    "reqDesc": "A quick setup so you can start hiring fast. Add the essentials and request your first service provider today.",
+    "req0Title": "Physical Address",
+    "req0Desc": "Your business or residential address for job location accuracy",
+    "req1Title": "Phone Number",
+    "req1Desc": "For direct communication and account security",
+    "req2Title": "Email & Phone Verification",
+    "req2Desc": "SMS and email confirmation to verify your account",
+    "req3Title": "Payment Method",
+    "req3Desc": "Add a card to book service providers and secure payment in escrow",
+    "required": "Required",
+    "optional": "Optional",
+    "protectedTitle": "Your money is protected",
+    "protectedP1": "When you book a service provider, payment is secured in Stripe escrow before work begins. The service provider can see the payment is secured, but cannot access the funds.",
+    "protectedP2": "Once the job is complete and you confirm satisfaction, the funds are released. If there is a dispute, our team reviews the case with full GPS logs, check-in/out records, and communication history.",
+    "protectedP3": "Nasta takes a small platform commission to cover payment processing, identity verification, and monitoring infrastructure. You never pay more than the agreed job price.",
+    "ctaTitle": "Ready to hire?",
+    "ctaDesc": "Create a free employer account and post your first job in minutes.",
+    "ctaButton": "Create Employer Account"
+  },
+  "forServiceProvidersPage": {
+    "heroLabel": "For Service Providers",
+    "heroTitle": "Earn instantly. On your terms.",
+    "heroDesc": "Whether it is your main income or a side gig, Nasta connects you with instant job requests from verified employers. Get paid fast, work on your schedule, and build your reputation.",
+    "whyTitle": "Why service providers choose Nasta",
+    "benefit0Title": "Instant Payouts",
+    "benefit0Desc": "Funds are released as soon as the job is marked complete. No invoices, no delays. Instant payouts straight to your account, perfect for side income.",
+    "benefit1Title": "Payment Guaranteed",
+    "benefit1Desc": "Every job is backed by Stripe escrow. The employer's payment is secured before you start, so you are guaranteed to be paid for completed work.",
+    "benefit2Title": "Verified Employers",
+    "benefit2Desc": "Every employer on Nasta is verified too. You always know who you are working for, with transparent job details and fair terms.",
+    "benefit3Title": "Unlimited Categories",
+    "benefit3Desc": "Cleaning, childcare, construction, events, tutoring, and more. Pick up instant jobs in any category, whether as your main work or a side gig.",
+    "benefit4Title": "Mobile First",
+    "benefit4Desc": "Get instant job notifications, apply with one tap, chat with employers, and track your earnings. Full-featured iOS and Android app.",
+    "benefit5Title": "Build Your Reputation",
+    "benefit5Desc": "Every completed job earns you ratings and reviews. A strong profile means more bookings, better jobs, and higher earnings over time.",
+    "howTitle": "How it works",
+    "step0Title": "Create your profile",
+    "step0Desc": "Sign up for free, verify your identity with a government ID, and set up your skills and availability. Takes less than five minutes.",
+    "step1Title": "Get instant job requests",
+    "step1Desc": "Receive real-time notifications for jobs near you that match your skills. Accept with one tap, or browse and apply on your schedule.",
+    "step2Title": "Work and get paid",
+    "step2Desc": "Complete the assignment, check out digitally, and funds are released to your payout account. Simple, fast, transparent.",
+    "verifyTitle": "Get verified once, earn forever",
+    "verifyDesc": "Complete your verification to unlock instant job requests and start earning. Every step builds your trust score and visibility.",
+    "req0Title": "Identity Verification",
+    "req0Desc": "Government-issued photo ID to confirm your real identity",
+    "req1Title": "Driver's License",
+    "req1Desc": "Required for driving jobs, must be issued at least 3 years ago",
+    "req2Title": "Background & Criminal Record Check",
+    "req2Desc": "Comprehensive screening for your safety and employer trust",
+    "req3Title": "Professional CV",
+    "req3Desc": "Your work experience and qualifications on file",
+    "req4Title": "Skills & Service Rates",
+    "req4Desc": "List your professional skills with your service rates in EUR",
+    "req5Title": "Bank Account & Payout Setup",
+    "req5Desc": "Date of birth, address, verified phone and email required for payouts",
+    "req6Title": "Phone & Email Verification",
+    "req6Desc": "SMS and email confirmation to secure your account",
+    "required": "Required",
+    "protectedTitle": "Your earnings are protected",
+    "protectedP1": "Before you start any job, the employer's payment is already secured in Stripe escrow. Whether this is your full-time work or a side gig, you will never do work without the guarantee of getting paid.",
+    "protectedP2": "Once the job is complete and confirmed, your earnings are released directly to your connected payout account. Most payouts arrive within 1-2 business days.",
+    "protectedP3": "Nasta takes a small platform commission from each completed job to cover payment processing and platform operations. You always see the exact amount you will earn before accepting a job.",
+    "ctaTitle": "Ready to start earning?",
+    "ctaDesc": "Create a free account, verify your identity, and start applying for jobs today.",
+    "ctaButton": "Create Free Account"
+  },
+  "featureRequest": {
+    "title": "Feature Request",
+    "subtitle": "Suggest a new feature or improvement for the platform",
+    "thankYouTitle": "Thank You for Your Request!",
+    "thankYouMessage": "We truly appreciate you taking the time to suggest improvements. Your ideas help us build a better platform for everyone.",
+    "confirmationSent": "A confirmation has been sent to",
+    "submitting": "Submitting..."
+  },
+  "supportPage": {
+    "title": "Support",
+    "subtitle": "Need help? We are here for you. Choose a topic below or send us a message.",
+    "faqsTitle": "FAQs",
+    "faqsDesc": "Browse common questions",
+    "deleteAccountTitle": "Delete Account",
+    "deleteAccountDesc": "Request permanent deletion",
+    "contactUsTitle": "Contact Us",
+    "contactUsDesc": "For general support or policy inquiries",
+    "department": "Department",
+    "generalSupport": "General Support",
+    "policyLegal": "Policy & Legal",
+    "sendingTo": "Sending to",
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "sendMessage": "Send Message",
+    "openingEmailClient": "Opening email client...",
+    "namePlaceholder": "Your full name",
+    "emailPlaceholder": "you@example.com",
+    "subjectPlaceholder": "Brief summary of your inquiry",
+    "messagePlaceholder": "Describe your question or issue in detail...",
+    "featureRequestTitle": "Feature Request",
+    "featureRequestDesc": "Suggest a new feature or improvement. Sends to feature-request@nasta.app",
+    "featureTitle": "Feature Title",
+    "description": "Description",
+    "submitRequest": "Submit Request",
+    "featureTitlePlaceholder": "e.g. Add scheduling for recurring jobs",
+    "descriptionPlaceholder": "Describe the feature, why it would be useful, and any details that help us understand your idea..."
   }
 }

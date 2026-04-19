@@ -2,10 +2,12 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import PublicTopbar from "../../components/public/PublicTopbar";
+import { useLanguage } from "../../context/LanguageContext";
 
 type Department = "support" | "policy";
 
 function ContactForm() {
+  const { t } = useLanguage();
   const [dept, setDept] = useState<Department>("support");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +30,7 @@ function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Department selector */}
       <div>
-        <label className="mb-2 block text-sm font-medium">Department</label>
+        <label className="mb-2 block text-sm font-medium">{t("supportPage.department", "Department")}</label>
         <div className="flex gap-3">
           {(["support", "policy"] as const).map((d) => (
             <button
@@ -41,19 +43,19 @@ function ContactForm() {
                   : "border-[var(--border-color)]/20 bg-white/[0.02] text-[var(--muted-text)] hover:border-[var(--border-color)]/40"
               }`}
             >
-              {d === "support" ? "General Support" : "Policy & Legal"}
+              {d === "support" ? t("supportPage.generalSupport", "General Support") : t("supportPage.policyLegal", "Policy & Legal")}
             </button>
           ))}
         </div>
         <p className="mt-1.5 text-xs text-[var(--muted-text)]">
-          Sending to {recipient}
+          {t("supportPage.sendingTo", "Sending to")} {recipient}
         </p>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="c-name" className="mb-2 block text-sm font-medium">
-            Name
+            {t("supportPage.name", "Name")}
           </label>
           <input
             id="c-name"
@@ -61,13 +63,13 @@ function ContactForm() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your full name"
+            placeholder={t("supportPage.namePlaceholder", "Your full name")}
             className="input-field"
           />
         </div>
         <div>
           <label htmlFor="c-email" className="mb-2 block text-sm font-medium">
-            Email
+            {t("supportPage.email", "Email")}
           </label>
           <input
             id="c-email"
@@ -75,7 +77,7 @@ function ContactForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("supportPage.emailPlaceholder", "you@example.com")}
             className="input-field"
           />
         </div>
@@ -83,7 +85,7 @@ function ContactForm() {
 
       <div>
         <label htmlFor="c-subject" className="mb-2 block text-sm font-medium">
-          Subject
+          {t("supportPage.subject", "Subject")}
         </label>
         <input
           id="c-subject"
@@ -91,14 +93,14 @@ function ContactForm() {
           required
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Brief summary of your inquiry"
+          placeholder={t("supportPage.subjectPlaceholder", "Brief summary of your inquiry")}
           className="input-field"
         />
       </div>
 
       <div>
         <label htmlFor="c-message" className="mb-2 block text-sm font-medium">
-          Message
+          {t("supportPage.message", "Message")}
         </label>
         <textarea
           id="c-message"
@@ -106,7 +108,7 @@ function ContactForm() {
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Describe your question or issue in detail..."
+          placeholder={t("supportPage.messagePlaceholder", "Describe your question or issue in detail...")}
           className="input-field resize-none"
         />
       </div>
@@ -115,7 +117,7 @@ function ContactForm() {
         type="submit"
         className="btn-glow inline-flex items-center rounded-xl bg-gradient-to-b from-[var(--primary)] to-[#96691E] border border-white/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_24px_rgba(201,150,63,0.3)]"
       >
-        {sent ? "Opening email client..." : "Send Message"}
+        {sent ? t("supportPage.openingEmailClient", "Opening email client...") : t("supportPage.sendMessage", "Send Message")}
         {!sent && (
           <svg
             className="ml-2 h-4 w-4"
@@ -137,6 +139,7 @@ function ContactForm() {
 }
 
 function FeatureRequestForm() {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
@@ -156,7 +159,7 @@ function FeatureRequestForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="f-name" className="mb-2 block text-sm font-medium">
-            Name
+            {t("supportPage.name", "Name")}
           </label>
           <input
             id="f-name"
@@ -164,13 +167,13 @@ function FeatureRequestForm() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your full name"
+            placeholder={t("supportPage.namePlaceholder", "Your full name")}
             className="input-field"
           />
         </div>
         <div>
           <label htmlFor="f-email" className="mb-2 block text-sm font-medium">
-            Email
+            {t("supportPage.email", "Email")}
           </label>
           <input
             id="f-email"
@@ -178,7 +181,7 @@ function FeatureRequestForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("supportPage.emailPlaceholder", "you@example.com")}
             className="input-field"
           />
         </div>
@@ -186,7 +189,7 @@ function FeatureRequestForm() {
 
       <div>
         <label htmlFor="f-title" className="mb-2 block text-sm font-medium">
-          Feature Title
+          {t("supportPage.featureTitle", "Feature Title")}
         </label>
         <input
           id="f-title"
@@ -194,14 +197,14 @@ function FeatureRequestForm() {
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Add scheduling for recurring jobs"
+          placeholder={t("supportPage.featureTitlePlaceholder", "e.g. Add scheduling for recurring jobs")}
           className="input-field"
         />
       </div>
 
       <div>
         <label htmlFor="f-desc" className="mb-2 block text-sm font-medium">
-          Description
+          {t("supportPage.description", "Description")}
         </label>
         <textarea
           id="f-desc"
@@ -209,7 +212,7 @@ function FeatureRequestForm() {
           rows={5}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe the feature, why it would be useful, and any details that help us understand your idea..."
+          placeholder={t("supportPage.descriptionPlaceholder", "Describe the feature, why it would be useful, and any details that help us understand your idea...")}
           className="input-field resize-none"
         />
       </div>
@@ -218,7 +221,7 @@ function FeatureRequestForm() {
         type="submit"
         className="btn-glow inline-flex items-center rounded-xl bg-gradient-to-b from-[var(--primary)] to-[#96691E] border border-white/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_24px_rgba(201,150,63,0.3)]"
       >
-        {sent ? "Opening email client..." : "Submit Request"}
+        {sent ? t("supportPage.openingEmailClient", "Opening email client...") : t("supportPage.submitRequest", "Submit Request")}
         {!sent && (
           <svg
             className="ml-2 h-4 w-4"
@@ -240,6 +243,8 @@ function FeatureRequestForm() {
 }
 
 export default function SupportPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-brand-gradient text-[var(--foreground)]">
       <PublicTopbar />
@@ -261,15 +266,14 @@ export default function SupportPage() {
               d="M15.75 19.5L8.25 12l7.5-7.5"
             />
           </svg>
-          Back
+          {t("common.back", "Back")}
         </Link>
 
         <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
-          Support
+          {t("supportPage.title", "Support")}
         </h1>
         <p className="mb-10 text-base text-[var(--muted-text)]">
-          Need help? We are here for you. Choose a topic below or send us a
-          message.
+          {t("supportPage.subtitle", "Need help? We are here for you. Choose a topic below or send us a message.")}
         </p>
 
         {/* Quick links */}
@@ -294,9 +298,9 @@ export default function SupportPage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-sm font-semibold">FAQs</h3>
+              <h3 className="text-sm font-semibold">{t("supportPage.faqsTitle", "FAQs")}</h3>
               <p className="text-xs text-[var(--muted-text)]">
-                Browse common questions
+                {t("supportPage.faqsDesc", "Browse common questions")}
               </p>
             </div>
           </Link>
@@ -320,9 +324,9 @@ export default function SupportPage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-sm font-semibold">Delete Account</h3>
+              <h3 className="text-sm font-semibold">{t("supportPage.deleteAccountTitle", "Delete Account")}</h3>
               <p className="text-xs text-[var(--muted-text)]">
-                Request permanent deletion
+                {t("supportPage.deleteAccountDesc", "Request permanent deletion")}
               </p>
             </div>
           </Link>
@@ -347,9 +351,9 @@ export default function SupportPage() {
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight">Contact Us</h2>
+              <h2 className="text-xl font-bold tracking-tight">{t("supportPage.contactUsTitle", "Contact Us")}</h2>
               <p className="text-sm text-[var(--muted-text)]">
-                For general support or policy inquiries
+                {t("supportPage.contactUsDesc", "For general support or policy inquiries")}
               </p>
             </div>
           </div>
@@ -378,11 +382,10 @@ export default function SupportPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight">
-                Feature Request
+                {t("supportPage.featureRequestTitle", "Feature Request")}
               </h2>
               <p className="text-sm text-[var(--muted-text)]">
-                Suggest a new feature or improvement. Sends to
-                feature-request@nasta.app
+                {t("supportPage.featureRequestDesc", "Suggest a new feature or improvement. Sends to feature-request@nasta.app")}
               </p>
             </div>
           </div>
