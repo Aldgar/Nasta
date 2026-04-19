@@ -27,7 +27,7 @@ export default function LegalContent({ content }: LegalContentProps) {
             {listItems.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}
-          </ul>
+          </ul>,
         );
         listItems = [];
       }
@@ -49,9 +49,12 @@ export default function LegalContent({ content }: LegalContentProps) {
       if (trimmed.startsWith("# ")) {
         flushList();
         elements.push(
-          <h1 key={key++} className="text-4xl font-bold mb-6 mt-8 text-[var(--foreground)]">
+          <h1
+            key={key++}
+            className="text-4xl font-bold mb-6 mt-8 text-[var(--foreground)]"
+          >
             {trimmed.substring(2)}
-          </h1>
+          </h1>,
         );
       } else if (trimmed.startsWith("## ")) {
         flushList();
@@ -61,7 +64,7 @@ export default function LegalContent({ content }: LegalContentProps) {
             className="text-2xl font-semibold mb-4 mt-6 text-[var(--foreground)]"
           >
             {trimmed.substring(3)}
-          </h2>
+          </h2>,
         );
       } else if (trimmed.startsWith("### ")) {
         flushList();
@@ -71,7 +74,7 @@ export default function LegalContent({ content }: LegalContentProps) {
             className="text-xl font-semibold mb-3 mt-5 text-[var(--foreground)]"
           >
             {trimmed.substring(4)}
-          </h3>
+          </h3>,
         );
       } else if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
         flushList();
@@ -79,7 +82,7 @@ export default function LegalContent({ content }: LegalContentProps) {
         elements.push(
           <p key={key++} className="font-bold mb-2 text-[var(--foreground)]">
             {boldText}
-          </p>
+          </p>,
         );
       } else if (trimmed.startsWith("- ")) {
         inList = true;
@@ -88,9 +91,12 @@ export default function LegalContent({ content }: LegalContentProps) {
       } else {
         flushList();
         elements.push(
-          <p key={key++} className="mb-3 text-[var(--muted-text)] leading-relaxed">
+          <p
+            key={key++}
+            className="mb-3 text-[var(--muted-text)] leading-relaxed"
+          >
             {trimmed}
-          </p>
+          </p>,
         );
       }
     });
