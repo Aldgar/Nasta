@@ -22,6 +22,7 @@ import * as Location from "expo-location";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useAppResume } from "../context/AppResumeContext";
 import { getApiBase } from "../lib/api";
 import { unregisterPushToken } from "../lib/pushNotifications";
 import AvatarImage from "../components/AvatarImage";
@@ -120,6 +121,7 @@ const RequirementItem = ({
 export default function Settings() {
   const { theme, setTheme, colors, isDark } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const resumeCount = useAppResume();
 
   // Helper function to translate verification status
   const translateStatus = (status: string): string => {
@@ -540,6 +542,13 @@ export default function Settings() {
       })();
     }, [fetchProfile]),
   );
+
+  // Re-fetch when app resumes from background
+  useEffect(() => {
+    if (resumeCount > 0) {
+      fetchProfile();
+    }
+  }, [resumeCount]);
 
   const toggleLocation = async (value: boolean) => {
     /* ... existing location logic ... */

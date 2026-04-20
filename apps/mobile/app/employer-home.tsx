@@ -8,7 +8,7 @@ import {
   Alert,
   BackHandler,
 } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useAppResume } from "../context/AppResumeContext";
 import { getApiBase } from "../lib/api";
 import { TouchableButton } from "../components/TouchableButton";
 import EmailVerificationBanner from "../components/EmailVerificationBanner";
@@ -23,13 +24,11 @@ import EmailVerificationBanner from "../components/EmailVerificationBanner";
 export default function EmployerHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+  const resumeCount = useAppResume();
 
   useFocusEffect(
     useCallback(() => {
-      const sub = BackHandler.addEventListener(
-        "hardwareBackPress",
-        () => true,
-      );
+      const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
       return () => sub.remove();
     }, []),
   );
@@ -173,6 +172,14 @@ export default function EmployerHome() {
       fetchActiveBooking();
     }, []),
   );
+
+  // Re-fetch when app resumes from background
+  useEffect(() => {
+    if (resumeCount > 0) {
+      fetchProfile();
+      fetchActiveBooking();
+    }
+  }, [resumeCount]);
 
   const onRefresh = async () => {
     setRefreshing(true);

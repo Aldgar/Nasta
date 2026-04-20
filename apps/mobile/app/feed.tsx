@@ -19,6 +19,7 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import GradientBackground from "../components/GradientBackground";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useAppResume } from "../context/AppResumeContext";
 import { TouchableButton } from "../components/TouchableButton";
 import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
@@ -428,6 +429,7 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+  const resumeCount = useAppResume();
   const [activeBooking, setActiveBooking] = useState<any>(null);
   const [balance, setBalance] = useState<number>(0);
   const [paidToBank, setPaidToBank] = useState<number>(0);
@@ -464,6 +466,19 @@ export default function Feed() {
       fetchUnreadMessages();
     }, []),
   );
+
+  // Re-fetch when app resumes from background
+  useEffect(() => {
+    if (resumeCount > 0) {
+      fetchJobs();
+      fetchActiveBooking();
+      fetchBalance();
+      fetchProfile();
+      fetchAppliedJobs();
+      fetchAcceptedJobs();
+      fetchUnreadMessages();
+    }
+  }, [resumeCount]);
 
   const fetchAppliedJobs = async () => {
     try {

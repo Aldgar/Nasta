@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useAppResume } from "../context/AppResumeContext";
 import { getApiBase } from "../lib/api";
 import { TouchableButton } from "../components/TouchableButton";
 import { Feather } from "@expo/vector-icons";
@@ -14,6 +15,7 @@ import { Fonts } from "../constants/theme";
 export default function UserHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
+  const resumeCount = useAppResume();
 
   useFocusEffect(
     useCallback(() => {
@@ -101,7 +103,7 @@ export default function UserHome() {
       }
     };
     loadStatus();
-  }, []);
+  }, [resumeCount]);
 
   return (
     <GradientBackground>

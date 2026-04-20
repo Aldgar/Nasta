@@ -26,6 +26,7 @@ import { getValidToken, forceLogout } from "../lib/authFetch";
 import * as Notifications from "expo-notifications";
 import * as Linking from "expo-linking";
 import { registerPushToken } from "../lib/pushNotifications";
+import { AppResumeProvider } from "../context/AppResumeContext";
 
 // Note: react-native-reanimated is imported by individual components that use it
 // The Babel plugin handles worklet transformation automatically
@@ -403,11 +404,14 @@ function RootLayoutNav() {
 
   // Re-validate / refresh token when app comes back from background
   useEffect(() => {
-    const appStateRef = AppState.currentState;
+    const appStateRef = { current: AppState.currentState };
     const subscription = AppState.addEventListener(
       "change",
       async (nextState) => {
-        if (appStateRef === "background" && nextState === "active") {
+        if (
+          appStateRef.current.match(/inactive|background/) &&
+          nextState === "active"
+        ) {
           try {
             const token = await getValidToken();
             if (!token) {
@@ -418,6 +422,7 @@ function RootLayoutNav() {
             // Silently ignore; forceLogout already handles redirect
           }
         }
+        appStateRef.current = nextState;
       },
     );
 
@@ -628,10 +633,12 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <RootLayoutNav />
-      </ThemeProvider>
-    </LanguageProvider>
+    <AppResumeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <RootLayoutNav />
+        </ThemeProvider>
+      </LanguageProvider>
+    </AppResumeProvider>
   );
 }
