@@ -9,6 +9,7 @@ import {
   ScrollView,
   Linking,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import GradientBackground from "../components/GradientBackground";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
@@ -62,7 +63,7 @@ export default function KycStartScreen() {
   useEffect(() => {
     const checkExistingVerification = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           console.log("⚠️ No token found in SecureStore");
           setCheckingStatus(false);
@@ -151,7 +152,7 @@ export default function KycStartScreen() {
     }
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);

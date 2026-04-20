@@ -7,10 +7,10 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { getValidToken } from "../../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../../../context/ThemeContext";
 import { useLanguage } from "../../../context/LanguageContext";
 import { getApiBase } from "../../../lib/api";
@@ -90,7 +90,7 @@ export default function EmployerReceiptDetailsScreen() {
   const fetchReceipt = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token || !applicationId) {
         setRow(null);
         return;

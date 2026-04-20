@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -21,7 +22,6 @@ import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useAppResume } from "../context/AppResumeContext";
 import { TouchableButton } from "../components/TouchableButton";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import EmailVerificationBanner from "../components/EmailVerificationBanner";
 import ActionBanner from "../components/ActionBanner";
@@ -482,7 +482,7 @@ export default function Feed() {
 
   const fetchAppliedJobs = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -520,7 +520,7 @@ export default function Feed() {
   const fetchAcceptedJobs = async () => {
     try {
       setLoadingAcceptedJobs(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -591,7 +591,7 @@ export default function Feed() {
 
   const fetchUnreadMessages = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       // Decode current user ID from token
@@ -710,7 +710,7 @@ export default function Feed() {
 
     try {
       setApplying(selectedJobId);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("jobs.notSignedIn"), t("jobs.pleaseLogInAgain"));
         return;
@@ -763,7 +763,7 @@ export default function Feed() {
 
   const fetchProfile = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
       const res = await fetch(`${base}/profiles/me`, {
@@ -798,7 +798,7 @@ export default function Feed() {
   const fetchBalance = async () => {
     try {
       setLoadingBalance(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         setBalance(0);
         setPaidToBank(0);
@@ -835,7 +835,7 @@ export default function Feed() {
 
   const fetchActiveBooking = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
 
@@ -877,7 +877,7 @@ export default function Feed() {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();

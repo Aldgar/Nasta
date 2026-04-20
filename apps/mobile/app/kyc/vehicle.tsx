@@ -12,12 +12,12 @@ import {
   ActionSheetIOS,
   Platform,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
-import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import GradientBackground from "../../components/GradientBackground";
@@ -174,7 +174,7 @@ export default function VehicleScreen() {
 
     setSubmitting(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
 

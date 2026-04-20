@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
+import { getValidToken } from "../lib/authFetch";
 import {
   View,
   Text,
@@ -138,11 +139,11 @@ export default function LegalAcceptanceScreen() {
 
       // Try to save to backend if user is logged in
       // Retry getting token with small delay in case it's still being stored
-      let token = await SecureStore.getItemAsync("auth_token");
+      let token = await getValidToken();
       if (!token) {
         // Wait a bit and retry - token might still be storing from registration
         await new Promise((resolve) => setTimeout(resolve, 300));
-        token = await SecureStore.getItemAsync("auth_token");
+        token = await getValidToken();
       }
 
       if (token && endpoint) {

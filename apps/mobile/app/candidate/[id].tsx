@@ -11,6 +11,7 @@ import {
   Linking,
   Modal,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -18,7 +19,6 @@ import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import GradientBackground from "../../components/GradientBackground";
 import { TouchableButton } from "../../components/TouchableButton";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 import AvatarImage from "../../components/AvatarImage";
 import { useStripeAvailability } from "../../context/StripeContext";
@@ -213,7 +213,7 @@ export default function CandidateProfileScreen() {
 
   const fetchEmployerVerification = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -262,7 +262,7 @@ export default function CandidateProfileScreen() {
   const fetchCandidate = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         setLoading(false);
         router.replace("/login" as never);
@@ -438,7 +438,7 @@ export default function CandidateProfileScreen() {
   const fetchEmployerJobs = async () => {
     try {
       setLoadingJobs(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -491,7 +491,7 @@ export default function CandidateProfileScreen() {
 
     try {
       setReferring(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -558,7 +558,7 @@ export default function CandidateProfileScreen() {
 
     try {
       setPaymentProcessing(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),

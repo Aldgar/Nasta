@@ -10,10 +10,10 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -95,7 +95,7 @@ export default function DeleteAccountScreen() {
     try {
       setSubmitting(true);
 
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLoginAgain"));
         router.dismissAll();

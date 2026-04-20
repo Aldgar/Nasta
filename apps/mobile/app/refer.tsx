@@ -7,7 +7,7 @@ import GradientBackground from "../components/GradientBackground";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getApiBase } from "../lib/api";
-import * as SecureStore from "expo-secure-store";
+import { getValidToken } from "../lib/authFetch";
 
 export default function Refer() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function Refer() {
 
     setLoading(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("refer.pleaseLogInToSendInvites"));
         router.push("/login");

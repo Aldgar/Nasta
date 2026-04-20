@@ -9,13 +9,13 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack, useFocusEffect } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import GradientBackground from "../components/GradientBackground";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 
 type Application = {
@@ -58,7 +58,7 @@ export default function ManageApplications() {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -129,7 +129,7 @@ export default function ManageApplications() {
           onPress: async () => {
             try {
               setDeletingId(applicationId);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(
                   t("common.error"),

@@ -2,10 +2,10 @@ import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import { useLocalSearchParams, router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { TextInput } from "react-native-gesture-handler";
 import { useLanguage } from "../context/LanguageContext";
+import { getValidToken } from "../lib/authFetch";
 
 export default function KycDetails() {
   const { t } = useLanguage();
@@ -22,7 +22,7 @@ export default function KycDetails() {
     }
     try {
       setSaving(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("kyc.notSignedIn"), t("kyc.pleaseLogInAgain"));
         router.replace("/login" as never);

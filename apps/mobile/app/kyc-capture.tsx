@@ -14,11 +14,11 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import GradientBackground from "../components/GradientBackground";
 import VehicleVerificationSection from "../components/VehicleVerificationSection";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { useLocalSearchParams, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -157,7 +157,7 @@ export default function KycCapture() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token || !verificationId) {
           setLoading(false);
           return;
@@ -589,7 +589,7 @@ export default function KycCapture() {
 
     try {
       setUploadingDocument("front"); // Use a generic state for bulk upload
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -694,7 +694,7 @@ export default function KycCapture() {
 
     try {
       setUploadingDocument(documentType);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -789,7 +789,7 @@ export default function KycCapture() {
       setUploadingDocument(
         side === "front" ? "driversLicenseFront" : "driversLicenseBack",
       );
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -919,7 +919,7 @@ export default function KycCapture() {
 
     try {
       setUploadingDocument("criminalRecord");
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -1008,7 +1008,7 @@ export default function KycCapture() {
 
     try {
       setUploadingDocument(`certification-${index}` as any);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -1079,7 +1079,7 @@ export default function KycCapture() {
 
     try {
       setUploadingDocument(`cv-${index}` as any);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("auth.notSignedIn"), t("auth.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -1327,7 +1327,7 @@ export default function KycCapture() {
               onPress={async () => {
                 // Navigate to appropriate home screen based on user role
                 try {
-                  const token = await SecureStore.getItemAsync("auth_token");
+                  const token = await getValidToken();
                   if (token) {
                     const payload = decodeJwtPayload(token);
                     if (payload) {

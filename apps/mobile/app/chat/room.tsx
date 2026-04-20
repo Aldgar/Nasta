@@ -15,6 +15,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -139,7 +140,7 @@ export default function ChatRoom() {
 
   const fetchCurrentUser = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         // Don't redirect - let the conversation creation handle auth
         console.warn("No token found in chat room");
@@ -203,7 +204,7 @@ export default function ChatRoom() {
   const findOrCreateConversation = async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("applications.authenticationRequired"),
@@ -429,7 +430,7 @@ export default function ChatRoom() {
     }
 
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         console.log("❌ fetchContactInfo: No token");
         return;
@@ -647,7 +648,7 @@ export default function ChatRoom() {
 
     try {
       if (!silent) setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         if (!silent) setLoading(false);
         return;
@@ -848,7 +849,7 @@ export default function ChatRoom() {
     }
 
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;
@@ -935,7 +936,7 @@ export default function ChatRoom() {
 
     try {
       setSending(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         router.replace("/login" as never);

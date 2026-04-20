@@ -8,6 +8,7 @@ import {
   Alert,
   BackHandler,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { useState, useCallback, useEffect } from "react";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
@@ -52,7 +53,7 @@ export default function EmployerHome() {
 
   const fetchProfile = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
       const res = await fetch(`${base}/profiles/employer/me`, {
@@ -105,7 +106,7 @@ export default function EmployerHome() {
 
   const fetchActiveBooking = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         console.log("No auth token found for booking fetch");
         return;

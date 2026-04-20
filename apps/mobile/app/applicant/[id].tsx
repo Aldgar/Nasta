@@ -15,6 +15,7 @@ import {
   Image,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Stack,
@@ -32,7 +33,6 @@ import {
   TrackingTimeline,
   buildEmployerTimeline,
 } from "../../components/TrackingTimeline";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 import { useStripeAvailability } from "../../context/StripeContext";
 
@@ -315,7 +315,7 @@ export default function ApplicantDetailScreen() {
         if (showLoading) {
           setLoading(true);
         }
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           router.replace("/login" as never);
           return;
@@ -632,7 +632,7 @@ export default function ApplicantDetailScreen() {
       }
 
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) return;
 
         const base = getApiBase();
@@ -685,7 +685,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setProcessing(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -824,7 +824,7 @@ export default function ApplicantDetailScreen() {
     if (!application || !candidateData?.rates) return;
 
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const selectedRatesData = Array.from(newSelectedRates)
@@ -934,7 +934,7 @@ export default function ApplicantDetailScreen() {
         // This ensures the UI updates instantly without requiring navigation
         const refreshPaymentStatus = async () => {
           try {
-            const token = await SecureStore.getItemAsync("auth_token");
+            const token = await getValidToken();
             if (!token) return;
 
             const base = getApiBase();
@@ -1020,7 +1020,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setSuggestingNegotiation(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1087,7 +1087,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setResponding(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1157,7 +1157,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setRespondingToEmployerNegotiation(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1239,7 +1239,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setSendingEmployerCounterOffer(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1317,7 +1317,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setRespondingToCounterOffer(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1440,7 +1440,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setRequestingAdditionalTime(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1497,7 +1497,7 @@ export default function ApplicantDetailScreen() {
 
     try {
       setRespondingToAdditionalTime(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1582,7 +1582,7 @@ export default function ApplicantDetailScreen() {
           onPress: async () => {
             try {
               setCompletingJob(true);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(
                   t("common.error"),
@@ -1928,7 +1928,7 @@ export default function ApplicantDetailScreen() {
       // NOTE: Do NOT add accepted negotiation rates into `selectedRatesData`.
       // Negotiations are not services; they are accounted via `totalAmount` and server-side negotiation metadata.
 
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -2063,7 +2063,7 @@ export default function ApplicantDetailScreen() {
       // Immediately check payment status (this will update database if payment is authorized)
       const checkPaymentStatus = async (): Promise<boolean> => {
         try {
-          const token = await SecureStore.getItemAsync("auth_token");
+          const token = await getValidToken();
           if (!token) return false;
 
           const base = getApiBase();

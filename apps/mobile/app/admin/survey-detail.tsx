@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 interface SurveyTicket {
@@ -55,7 +55,7 @@ export default function SurveyDetailScreen() {
   const fetchSurvey = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

@@ -6,9 +6,9 @@ import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useKyc } from "../../context/KycContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 import GradientBackground from "../../components/GradientBackground";
+import { getValidToken } from "../../lib/authFetch";
 
 /** Guess mime type from a file URI */
 function mimeFromUri(uri: string): string {
@@ -88,7 +88,7 @@ export default function ProcessingScreen() {
         dispatch({ type: "SET_SUBMITTING", submitting: true });
 
         const base = getApiBase();
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) throw new Error("Not authenticated");
 
         const headers = { Authorization: `Bearer ${token}` };

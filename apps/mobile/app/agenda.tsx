@@ -7,7 +7,7 @@ import GradientBackground from "../components/GradientBackground";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getApiBase } from "../lib/api";
-import * as SecureStore from "expo-secure-store";
+import { getValidToken } from "../lib/authFetch";
 
 interface BookingItem {
   id: string;
@@ -100,7 +100,7 @@ export default function Agenda() {
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -161,7 +161,7 @@ export default function Agenda() {
     // If there's a jobId but no applicationId, try to find the application
     if (booking.jobId) {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) return;
 
         const base = getApiBase();

@@ -11,6 +11,7 @@ import {
   FlatList,
   Platform,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { Feather } from "@expo/vector-icons";
@@ -19,7 +20,6 @@ import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
-import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import { androidScrollProps } from "../../utils/androidStyles";
 
@@ -275,7 +275,7 @@ export default function ExploreMap() {
   ) => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         console.log("No auth token");
         return;

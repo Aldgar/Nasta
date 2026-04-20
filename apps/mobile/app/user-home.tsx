@@ -11,6 +11,7 @@ import { getApiBase } from "../lib/api";
 import { TouchableButton } from "../components/TouchableButton";
 import { Feather } from "@expo/vector-icons";
 import { Fonts } from "../constants/theme";
+import { getValidToken } from "../lib/authFetch";
 
 export default function UserHome() {
   const { colors, isDark } = useTheme();
@@ -46,7 +47,7 @@ export default function UserHome() {
   useEffect(() => {
     const loadStatus = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) return;
         const base = getApiBase();
         // Load KYC status

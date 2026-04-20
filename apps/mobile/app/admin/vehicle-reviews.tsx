@@ -8,13 +8,13 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 interface VehicleReview {
@@ -53,7 +53,7 @@ export default function VehicleReviewsScreen() {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

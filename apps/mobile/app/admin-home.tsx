@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   BackHandler,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -61,7 +62,7 @@ export default function AdminHome() {
 
   const fetchCounts = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

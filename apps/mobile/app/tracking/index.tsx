@@ -13,6 +13,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { socketService } from "../../services/socket";
@@ -209,7 +210,7 @@ export default function TrackingScreen() {
 
         // Otherwise, get role from JWT token
         try {
-          const token = await SecureStore.getItemAsync("auth_token");
+          const token = await getValidToken();
           if (token) {
             const payload = decodeJwtPayload(token);
             if (payload?.role) {
@@ -259,7 +260,7 @@ export default function TrackingScreen() {
       setLoadingBookings(true);
       setError(null);
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           setLoadingBookings(false);
           return;
@@ -336,7 +337,7 @@ export default function TrackingScreen() {
       setError(null);
       setLoadingBooking(true);
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           if (!cancelled) {
             setError("Authentication required");
@@ -1032,7 +1033,7 @@ export default function TrackingScreen() {
                               try {
                                 setStartingTracking(b.id);
                                 const token =
-                                  await SecureStore.getItemAsync("auth_token");
+                                  await getValidToken();
                                 if (!token) {
                                   setStartingTracking(null);
                                   return;
@@ -1162,7 +1163,7 @@ export default function TrackingScreen() {
                               try {
                                 setStoppingTracking(b.id);
                                 const token =
-                                  await SecureStore.getItemAsync("auth_token");
+                                  await getValidToken();
                                 if (!token) {
                                   setStoppingTracking(null);
                                   return;
@@ -1848,7 +1849,7 @@ export default function TrackingScreen() {
                     try {
                       setStoppingTracking(bookingId);
                       const token =
-                        await SecureStore.getItemAsync("auth_token");
+                        await getValidToken();
                       if (!token) {
                         setStoppingTracking(null);
                         return;

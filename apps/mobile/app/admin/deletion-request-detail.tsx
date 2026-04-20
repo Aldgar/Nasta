@@ -9,13 +9,13 @@ import {
   TextInput,
   Alert,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 interface DeletionRequest {
@@ -56,7 +56,7 @@ export default function DeletionRequestDetailScreen() {
   const fetchRequest = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -85,7 +85,7 @@ export default function DeletionRequestDetailScreen() {
 
   const handleAssign = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -135,7 +135,7 @@ export default function DeletionRequestDetailScreen() {
   const submitReview = async (decision: "approve" | "deny") => {
     try {
       setSubmitting(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();

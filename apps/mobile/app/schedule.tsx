@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, Stack } from "expo-router";
@@ -16,7 +17,6 @@ import GradientBackground from "../components/GradientBackground";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useState, useEffect, useCallback } from "react";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { TouchableWithoutFeedback } from "react-native";
 
@@ -130,7 +130,7 @@ export default function Schedule() {
   // Fetch user role and existing availability
   const fetchData = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/");
         return;
@@ -205,7 +205,7 @@ export default function Schedule() {
     }
 
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/");
         return;

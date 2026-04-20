@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { View, Text, Alert, StyleSheet, ActivityIndicator } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import GradientBackground from "../components/GradientBackground";
+import { getValidToken } from "../lib/authFetch";
 
 /**
  * Email verification screen via deep linking
@@ -75,7 +75,7 @@ export default function VerifyEmailScreen() {
               {
                 text: t("common.ok"),
                 onPress: async () => {
-                  const token = await SecureStore.getItemAsync("auth_token");
+                  const token = await getValidToken();
                   if (token) {
                     if (router.canGoBack()) {
                       router.back();

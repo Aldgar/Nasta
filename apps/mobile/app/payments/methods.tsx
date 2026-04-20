@@ -10,10 +10,10 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { useRouter, Stack, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
@@ -56,7 +56,7 @@ function PaymentMethodsFallback() {
 
   const fetchPaymentMethods = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const baseUrl = getApiBase();
@@ -95,7 +95,7 @@ function PaymentMethodsFallback() {
   const handleAddViaCheckout = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;
@@ -165,7 +165,7 @@ function PaymentMethodsFallback() {
           onPress: async () => {
             try {
               setDeletingId(paymentMethodId);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
                 return;
@@ -218,7 +218,7 @@ function PaymentMethodsFallback() {
   const handleSetDefault = async (paymentMethodId: string) => {
     try {
       setSettingDefaultId(paymentMethodId);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;
@@ -552,7 +552,7 @@ function PaymentMethodsInner() {
 
   const fetchPaymentMethods = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;
@@ -593,7 +593,7 @@ function PaymentMethodsInner() {
 
   const fetchPaymentSheetParams = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return null;
@@ -727,7 +727,7 @@ function PaymentMethodsInner() {
           onPress: async () => {
             try {
               setDeletingId(paymentMethodId);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
                 return;
@@ -780,7 +780,7 @@ function PaymentMethodsInner() {
   const handleSetDefault = async (paymentMethodId: string) => {
     try {
       setSettingDefaultId(paymentMethodId);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;

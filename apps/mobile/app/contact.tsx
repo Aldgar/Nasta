@@ -10,10 +10,10 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -48,7 +48,7 @@ export default function Contact() {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (token) {
           try {
             const payload = JSON.parse(atob(token.split(".")[1]));
@@ -67,7 +67,7 @@ export default function Contact() {
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

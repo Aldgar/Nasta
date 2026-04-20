@@ -11,13 +11,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import GradientBackground from "../../components/GradientBackground";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 export default function ServiceProviderRatingScreen() {
@@ -59,7 +59,7 @@ export default function ServiceProviderRatingScreen() {
 
     setSubmitting(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("applications.authenticationRequired"));
         setSubmitting(false);

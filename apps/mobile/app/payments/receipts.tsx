@@ -10,10 +10,10 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { useRouter, useFocusEffect, Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
@@ -84,7 +84,7 @@ export default function ReceiptsScreen() {
 
   const fetchReceipts = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const baseUrl = getApiBase();
@@ -227,7 +227,7 @@ export default function ReceiptsScreen() {
   };
 
   const syncWithStripe = useCallback(async () => {
-    const token = await SecureStore.getItemAsync("auth_token");
+    const token = await getValidToken();
     if (!token) return;
 
     const baseUrl = getApiBase();

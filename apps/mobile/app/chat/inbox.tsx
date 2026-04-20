@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -21,7 +22,6 @@ import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import AvatarImage from "../../components/AvatarImage";
 import GradientBackground from "../../components/GradientBackground";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 type ChatPreview = {
@@ -56,7 +56,7 @@ export default function InboxScreen() {
   const fetchChats = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();

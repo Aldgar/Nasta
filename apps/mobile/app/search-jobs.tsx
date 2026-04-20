@@ -11,6 +11,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useState, useEffect, useCallback } from "react";
@@ -18,7 +19,6 @@ import GradientBackground from "../components/GradientBackground";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -158,7 +158,7 @@ export default function SearchJobs() {
   const loadAllJobs = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;
@@ -202,7 +202,7 @@ export default function SearchJobs() {
     setHasSearched(true);
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

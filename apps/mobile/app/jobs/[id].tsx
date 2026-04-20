@@ -12,6 +12,7 @@ import {
   Platform,
   Modal,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -19,7 +20,6 @@ import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
-import * as SecureStore from "expo-secure-store";
 import { TouchableButton } from "../../components/TouchableButton";
 import * as Location from "expo-location";
 import * as DocumentPicker from "expo-document-picker";
@@ -707,7 +707,7 @@ export default function JobDetailScreen() {
 
   const fetchUserVerification = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -739,7 +739,7 @@ export default function JobDetailScreen() {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;
@@ -836,7 +836,7 @@ export default function JobDetailScreen() {
     let cancelled = false;
     const checkApplicationStatus = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token || cancelled) {
           if (!cancelled) setHasApplied(false);
           return;
@@ -899,7 +899,7 @@ export default function JobDetailScreen() {
   const handleUpdateStatus = async (status: string) => {
     try {
       setProcessing(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -953,7 +953,7 @@ export default function JobDetailScreen() {
 
     try {
       setProcessing(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       // Get coordinates
@@ -1103,7 +1103,7 @@ export default function JobDetailScreen() {
 
     try {
       setApplying(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("jobs.notSignedIn"), t("jobs.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -1162,7 +1162,7 @@ export default function JobDetailScreen() {
 
     try {
       setWithdrawing(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("jobs.notSignedIn"), t("jobs.pleaseLogInAgain"));
         router.replace("/login" as never);
@@ -1234,7 +1234,7 @@ export default function JobDetailScreen() {
 
     try {
       setDeleting(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("jobs.notSignedIn"), t("jobs.pleaseLogInAgain"));
         router.replace("/login" as never);

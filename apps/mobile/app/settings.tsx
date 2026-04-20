@@ -15,6 +15,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect, Stack } from "expo-router";
@@ -295,7 +296,7 @@ export default function Settings() {
   // Fetch Profile & Status
   const fetchProfile = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -631,7 +632,7 @@ export default function Settings() {
           selectedImg = { ...selectedImg, uri: manipulated.uri };
         }
 
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           Alert.alert(
             t("common.error"),
@@ -959,7 +960,7 @@ export default function Settings() {
 
     setIsSaving(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -1218,7 +1219,7 @@ export default function Settings() {
 
   const requestEmailVerification = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -1258,7 +1259,7 @@ export default function Settings() {
   const requestPhoneVerification = async () => {
     setIsRequestingCode(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -1304,7 +1305,7 @@ export default function Settings() {
 
       setIsVerifying(true);
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) return;
 
         const base = getApiBase();

@@ -9,6 +9,7 @@ import {
   Platform,
   SectionList,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
@@ -16,7 +17,6 @@ import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { getApiBase } from "../../lib/api";
-import * as SecureStore from "expo-secure-store";
 import { useFocusEffect, useRouter } from "expo-router";
 
 interface Notification {
@@ -49,7 +49,7 @@ export default function EmployerNotifications() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         setLoading(false);
         setRefreshing(false);
@@ -115,7 +115,7 @@ export default function EmployerNotifications() {
 
   const markAsRead = async (id: string) => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const baseUrl = getApiBase();

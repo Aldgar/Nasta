@@ -13,6 +13,7 @@ import {
   Switch,
   Image,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -20,7 +21,6 @@ import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 import GradientBackground from "../components/GradientBackground";
 import { TouchableButton } from "../components/TouchableButton";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../lib/api";
 import * as Location from "expo-location";
 
@@ -624,7 +624,7 @@ export default function InstantJobRequest() {
 
   const fetchCandidateVerification = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token || !candidateId) return;
       const base = getApiBase();
       const res = await fetch(`${base}/users/candidates/${candidateId}`, {
@@ -643,7 +643,7 @@ export default function InstantJobRequest() {
 
   const fetchEmployerInfo = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -796,7 +796,7 @@ export default function InstantJobRequest() {
   const handleSubmitRequest = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("jobs.notSignedIn"), t("jobs.pleaseLogInAgain"));
         router.replace("/login" as never);

@@ -10,6 +10,7 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -81,7 +82,7 @@ export default function EmployerFeed() {
 
   const fetchProfile = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
       const res = await fetch(`${base}/profiles/employer/me`, {
@@ -162,7 +163,7 @@ export default function EmployerFeed() {
 
   const fetchUnreadMessages = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       let myUserId: string | null = null;
@@ -201,7 +202,7 @@ export default function EmployerFeed() {
 
   const fetchActiveBooking = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         return;
       }
@@ -267,7 +268,7 @@ export default function EmployerFeed() {
   const fetchCandidates = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         console.warn("[EmployerFeed] No auth token found");
         setLoading(false);

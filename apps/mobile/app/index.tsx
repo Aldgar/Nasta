@@ -6,6 +6,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -24,7 +25,6 @@ import Animated, {
   withDelay,
   Easing,
 } from "react-native-reanimated";
-import * as SecureStore from "expo-secure-store";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function LandingPage() {
@@ -137,7 +137,7 @@ export default function LandingPage() {
   // Check auth
   useEffect(() => {
     const checkAuth = async () => {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (token) return;
     };
     checkAuth();

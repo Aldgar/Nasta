@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -18,7 +19,6 @@ import { TouchableButton } from "../../components/TouchableButton";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
-import * as SecureStore from "expo-secure-store";
 
 const decodeJwtPayload = (
   token: string,
@@ -75,7 +75,7 @@ export default function EmployerJobs() {
     // Get user ID from token
     const getUserId = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (token) {
           const decoded = decodeJwtPayload(token);
           setUserId(decoded?.id || decoded?.userId || decoded?.sub || null);
@@ -90,7 +90,7 @@ export default function EmployerJobs() {
 
   const fetchEmployerVerification = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -147,7 +147,7 @@ export default function EmployerJobs() {
     try {
       isFetchingRef.current = true;
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();

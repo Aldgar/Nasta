@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Stack,
@@ -243,7 +244,7 @@ export default function MyApplicationDetailScreen() {
         if (showLoading) {
           setLoading(true);
         }
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           router.replace("/login" as never);
           return;
@@ -527,7 +528,7 @@ export default function MyApplicationDetailScreen() {
       }
 
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) return;
 
         const base = getApiBase();
@@ -614,7 +615,7 @@ export default function MyApplicationDetailScreen() {
 
     try {
       setRequestingNegotiation(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -688,7 +689,7 @@ export default function MyApplicationDetailScreen() {
 
     try {
       setRespondingToNegotiation(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -764,7 +765,7 @@ export default function MyApplicationDetailScreen() {
 
     try {
       setSendingCounterOffer(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -844,7 +845,7 @@ export default function MyApplicationDetailScreen() {
 
     try {
       setRespondingToAdditionalTime(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(
           t("common.error"),
@@ -929,7 +930,7 @@ export default function MyApplicationDetailScreen() {
           onPress: async () => {
             try {
               setMarkingJobAsDone(true);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(
                   t("common.error"),
@@ -997,7 +998,7 @@ export default function MyApplicationDetailScreen() {
         onPress: async () => {
           try {
             setRespondingToRequest(true);
-            const token = await SecureStore.getItemAsync("auth_token");
+            const token = await getValidToken();
             if (!token) {
               Alert.alert(
                 t("common.error"),
@@ -4850,7 +4851,7 @@ export default function MyApplicationDetailScreen() {
                         try {
                           setVerifyingCode(true);
                           const token =
-                            await SecureStore.getItemAsync("auth_token");
+                            await getValidToken();
                           if (!token) {
                             Alert.alert(
                               t("common.error"),

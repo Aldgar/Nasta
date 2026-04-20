@@ -12,11 +12,11 @@ import {
   Modal,
   KeyboardAvoidingView,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { useRouter, Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/theme";
-import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { getApiBase } from "../../lib/api";
@@ -129,7 +129,7 @@ export default function PayoutSettingsScreen() {
   // Poll or fetch status
   const fetchStatus = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const baseUrl = getApiBase();
 
@@ -165,7 +165,7 @@ export default function PayoutSettingsScreen() {
           onPress: async () => {
             try {
               setLoading(true);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
                 return;
@@ -212,7 +212,7 @@ export default function PayoutSettingsScreen() {
   const handleSetDefault = async (bankAccountId: string) => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         return;
@@ -326,7 +326,7 @@ export default function PayoutSettingsScreen() {
 
     try {
       setSaving(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("chat.pleaseLoginToContinue"));
         setSaving(false);

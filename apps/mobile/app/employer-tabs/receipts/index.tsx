@@ -10,10 +10,10 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import { getValidToken } from "../../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { useTheme } from "../../../context/ThemeContext";
 import { useLanguage } from "../../../context/LanguageContext";
 import { getApiBase } from "../../../lib/api";
@@ -88,7 +88,7 @@ export default function EmployerReceiptsScreen() {
 
   const fetchEmployerReceipts = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         setRows([]);
         return;
@@ -137,7 +137,7 @@ export default function EmployerReceiptsScreen() {
     );
     animationRef.current.start();
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const baseUrl = getApiBase();

@@ -10,13 +10,13 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 interface VehicleDetail {
@@ -71,7 +71,7 @@ export default function VehicleReviewDetailScreen() {
 
   const fetchVehicle = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token || !vehicleId) return;
 
       const base = getApiBase();
@@ -101,7 +101,7 @@ export default function VehicleReviewDetailScreen() {
 
     setSubmitting(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token || !vehicleId) return;
 
       const base = getApiBase();

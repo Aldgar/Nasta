@@ -12,6 +12,7 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -20,7 +21,7 @@ import { useLanguage } from "../context/LanguageContext";
 import GradientBackground from "../components/GradientBackground";
 import { TouchableButton } from "../components/TouchableButton";
 import * as DocumentPicker from "expo-document-picker";
-import * as SecureStore from "expo-secure-store"; // Added SecureStore
+ // Added SecureStore
 import { getApiBase } from "../lib/api"; // Added getApiBase
 
 export default function OnboardingScreen() {
@@ -154,7 +155,7 @@ export default function OnboardingScreen() {
     const loadProfile = async () => {
       try {
         setLoadingProfile(true);
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           setLoadingProfile(false);
           return;
@@ -833,7 +834,7 @@ export default function OnboardingScreen() {
 
     setLoading(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         Alert.alert(t("common.error"), t("onboarding.notLoggedIn"));
         setLoading(false);
@@ -3690,7 +3691,7 @@ export default function OnboardingScreen() {
                   }
 
                   try {
-                    const token = await SecureStore.getItemAsync("auth_token");
+                    const token = await getValidToken();
                     const base = getApiBase();
                     const res = await fetch(`${base}/jobs/categories`, {
                       method: "POST",

@@ -11,6 +11,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
+import { getValidToken } from "../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../components/GradientBackground";
@@ -193,7 +194,7 @@ export default function ContentPage() {
       }
 
       // Check backend if user is logged in (non-blocking, with timeout)
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (token) {
         // Don't block - check in background
         Promise.race([
@@ -316,7 +317,7 @@ export default function ContentPage() {
       ]);
 
       // Try to save to backend in background (non-blocking)
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       console.log("Token exists:", !!token);
 
       if (token) {

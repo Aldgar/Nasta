@@ -12,13 +12,13 @@ import {
   Modal,
   Platform,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 import { useFocusEffect } from "expo-router";
 
@@ -64,7 +64,7 @@ export default function ManageAdminsScreen() {
   useEffect(() => {
     const checkSuperAdmin = async () => {
       try {
-        const token = await SecureStore.getItemAsync("auth_token");
+        const token = await getValidToken();
         if (!token) {
           setIsSuperAdmin(false);
           return;
@@ -99,7 +99,7 @@ export default function ManageAdminsScreen() {
   const fetchAdmins = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;
@@ -172,7 +172,7 @@ export default function ManageAdminsScreen() {
 
     try {
       setIsCreating(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
 
       const base = getApiBase();
@@ -260,7 +260,7 @@ export default function ManageAdminsScreen() {
           onPress: async () => {
             try {
               setDeletingAdminId(adminId);
-              const token = await SecureStore.getItemAsync("auth_token");
+              const token = await getValidToken();
               if (!token) {
                 Alert.alert(t("common.error"), t("auth.tokenNotFound"));
                 setDeletingAdminId(null);

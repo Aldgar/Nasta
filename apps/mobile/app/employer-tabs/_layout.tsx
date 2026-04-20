@@ -8,8 +8,8 @@ import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
+import { getValidToken } from "../../lib/authFetch";
 
 export default function EmployerTabLayout() {
   const { colorScheme } = useTheme();
@@ -19,7 +19,7 @@ export default function EmployerTabLayout() {
 
   const fetchUnreadCount = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         setUnreadCount(0);
         return;

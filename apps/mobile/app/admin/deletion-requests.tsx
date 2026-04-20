@@ -8,12 +8,12 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 interface DeletionRequest {
@@ -52,7 +52,7 @@ export default function DeletionRequestsScreen() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) {
         router.replace("/login" as never);
         return;

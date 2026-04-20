@@ -8,13 +8,13 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { getValidToken } from "../../lib/authFetch";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import GradientBackground from "../../components/GradientBackground";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import * as SecureStore from "expo-secure-store";
 import { getApiBase } from "../../lib/api";
 
 type FilterStatus =
@@ -161,7 +161,7 @@ export default function MyApplicationsTab() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await getValidToken();
       if (!token) return;
       const base = getApiBase();
       const res = await fetch(`${base}/applications/me?limit=100`, {
