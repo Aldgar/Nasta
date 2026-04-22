@@ -1,82 +1,58 @@
 export const EMPLOYER_REFUND_PT = `# Política de Reembolso
 
-Este guia explica como os reembolsos funcionam na Nasta, incluindo quando pode esperar um reembolso automático e como contestar cobranças.
+A Nasta utiliza o sistema de garantia (escrow) da Stripe para proteger os seus pagamentos. Eis como funcionam os reembolsos na plataforma.
 
-## Como Funciona o Pagamento
+## Como Funcionam os Pagamentos
 
-Quando publica um emprego e um prestador é aceite, o pagamento é retido em **custódia** pela Nasta. Isto significa:
-- O seu pagamento está protegido
-- O prestador não recebe até o trabalho estar concluído
-- Se algo correr mal, o seu dinheiro não se perde
+Quando aceita um prestador de serviços para um trabalho:
 
-## Reembolsos Automáticos
+- O seu pagamento é cobrado imediatamente e mantido em segurança pela Stripe
+- Os fundos permanecem em garantia durante toda a duração do trabalho
+- O pagamento só é libertado para o prestador de serviços quando confirma que o trabalho está concluído
 
-Os reembolsos automáticos são emitidos **apenas** num caso:
+## Quando Recebe um Reembolso Automático
 
-### Não Comparência do Prestador
-Se o prestador aceite não se apresentar no emprego e reportar uma não comparência:
-- Recebe um **reembolso total automático**
-- O reembolso é processado em **3 a 5 dias úteis**
-- Não é necessária qualquer ação da sua parte além de reportar a não comparência
+### Não Comparência do Prestador de Serviços
 
-## Quando os Reembolsos NÃO São Automáticos
+Se um prestador de serviços não comparecer a um trabalho confirmado, recebe um **reembolso automático total**. Eis o processo:
 
-Os reembolsos não são automaticamente emitidos nestas situações:
-- O prestador apareceu mas o trabalho foi insatisfatório
+1. A hora de início agendada passa
+2. O código de verificação não foi utilizado (o prestador de serviços não fez check-in)
+3. Reporta a não comparência através da aplicação
+4. O sistema confirma a não comparência
+5. O reembolso total é emitido automaticamente para o seu método de pagamento original
+
+## Quando os Reembolsos Automáticos Não Estão Disponíveis
+
+Uma vez aceite um trabalho e efetuado o pagamento, os reembolsos automáticos **não estão disponíveis** nos seguintes casos:
+
+- O prestador de serviços compareceu e iniciou o trabalho
 - O trabalho foi parcialmente concluído
-- Houve um mal-entendido sobre o âmbito
-- O prestador chegou atrasado
-- Pretende cancelar após o trabalho ter começado
+- Tem uma disputa sobre a qualidade do trabalho
 
-Para estas situações, precisa de abrir um **ticket de suporte**.
+## Disputas e Reembolsos Manuais
 
-## Contestar Cobranças
+Para situações não cobertas por reembolsos automáticos:
 
-Se acredita que merece um reembolso por qualquer razão além de não comparência:
+1. **Abrir um Pedido de Suporte** — Vá ao separador Contacto e descreva o problema em detalhe
+2. **Fornecer Provas** — Inclua fotografias ou qualquer documentação relevante
+3. **A Nossa Equipa Analisa** — A equipa de suporte irá investigar utilizando os registos do código de verificação, o histórico de movimentação do trabalho e o histórico de comunicação
+4. **Resolução** — Se a reclamação for válida, pode ser emitido um reembolso parcial ou total
 
-1. Abra a secção de **Suporte** na aplicação
-2. Crie um novo **ticket de suporte**
-3. Selecione o emprego relevante
-4. Descreva o problema em detalhe
-5. Inclua quaisquer provas (fotos, mensagens, etc.)
-6. Submeta no prazo de **7 dias** após a conclusão do emprego
+**Importante:** As disputas de pagamento devem ser reportadas antes da conclusão do trabalho ser confirmada.
 
-A equipa de suporte da Nasta irá rever o seu caso e tomar uma decisão.
+## Cancelamento Antes do Serviço
 
-## Políticas de Cancelamento
+- Se cancelar um trabalho antes do prestador de serviços iniciar, é emitido um reembolso total para o seu método de pagamento original
+- O cancelamento só está disponível antes do código de verificação ser ativado
 
-As políticas de cancelamento variam dependendo do momento do cancelamento:
+## Taxas da Plataforma
 
-### Antes do Trabalho Começar
-- Se cancelar antes do trabalho começar, pode ser elegível para um reembolso total
-- O reembolso depende das circunstâncias e de quanto aviso foi dado
-
-### Depois do Trabalho Começar
-- Se o trabalho já foi iniciado, os reembolsos são tratados caso a caso
-- Contacte o suporte com detalhes sobre o que aconteceu
-
-### Prazo de Reembolso para Disputas
-- Deve submeter disputas no prazo de **7 dias** após a conclusão do emprego
-- Disputas submetidas após 7 dias podem não ser elegíveis para reembolso
+- As taxas da plataforma não são reembolsáveis, exceto se o reembolso se dever a uma não comparência ou a um erro verificado da plataforma
+- Todas as estruturas de taxas são divulgadas antes do pagamento ser efetuado
 
 ## Tempos de Processamento
 
-- **Reembolsos automáticos** (não comparência): 3 a 5 dias úteis
-- **Reembolsos manuais** (decisão de suporte): 5 a 10 dias úteis
-
-Os reembolsos são processados para o método de pagamento original usado para o emprego.
-
-## Taxa da Plataforma em Reembolsos
-
-- Reembolsos totais incluem a taxa da plataforma
-- Reembolsos parciais são calculados caso a caso
-- A taxa da plataforma pode ser retida para cancelamentos por culpa do empregador
-
-## Dicas
-
-- Comunique sempre com o seu prestador através do chat da aplicação
-- Documente quaisquer problemas com fotos ou mensagens
-- Reporte não comparências rapidamente para reembolso automático
-- Apresente disputas no prazo de 7 dias para a melhor hipótese de resolução
-- Mantenha as expectativas claras desde o início para evitar mal-entendidos
+- **Reembolsos automáticos (não comparência):** Processados imediatamente, aparecem em 3-5 dias úteis
+- **Reembolsos manuais (suporte):** Analisados e tratados no prazo de 48 horas, depois deve aguardar 3-5 dias úteis para a Stripe processar para o seu método de pagamento original
 `;

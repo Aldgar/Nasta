@@ -2334,11 +2334,39 @@ export class PaymentsService {
           date: Math.floor(Date.now() / 1000),
           ip: tosIp,
         },
+        // Payout settings:
+        // - 2-day rolling delay gives the platform a grace window to reverse a transfer
+        //   if a dispute is raised after job completion.
+        // - statement_descriptor controls what the provider sees on their bank statement
+        //   (so it reads "NASTA" instead of "STRIPE").
+        settings: {
+          payouts: {
+            schedule: { interval: 'daily', delay_days: 2 },
+            statement_descriptor: 'NASTA',
+          },
+        },
       });
       await this.prisma.user.update({
         where: { id: userId },
         data: { connectedAccountId: acct.id },
       });
+
+      // Best-effort: ensure payout settings are applied even if Stripe ignored them
+      // during create (some account states require a follow-up update).
+      try {
+        await this.stripe.accounts.update(acct.id, {
+          settings: {
+            payouts: {
+              schedule: { interval: 'daily', delay_days: 2 },
+              statement_descriptor: 'NASTA',
+            },
+          },
+        });
+      } catch (settingsErr) {
+        this.logger.warn(
+          `[PaymentsService] Could not apply payout settings on new account ${acct.id}: ${settingsErr}`,
+        );
+      }
 
       this.logger.log(
         '[PaymentsService] ✅ Stripe Connect account created:',
@@ -2378,6 +2406,36 @@ export class PaymentsService {
       const profile = user.userProfile;
       const updateData: any = {};
       let needsUpdate = false;
+
+      // Backfill payout settings on existing accounts:
+      // - 2-day rolling delay so the platform has a grace window to reverse a transfer.
+      // - statement_descriptor so the provider's bank statement reads "NASTA" not "STRIPE".
+      try {
+        const currentSchedule = account.settings?.payouts?.schedule;
+        const currentDescriptor =
+          account.settings?.payouts?.statement_descriptor;
+        const needsScheduleUpdate =
+          currentSchedule?.interval !== 'daily' ||
+          currentSchedule?.delay_days !== 2;
+        const needsDescriptorUpdate = currentDescriptor !== 'NASTA';
+        if (needsScheduleUpdate || needsDescriptorUpdate) {
+          await this.stripe.accounts.update(accountId, {
+            settings: {
+              payouts: {
+                schedule: { interval: 'daily', delay_days: 2 },
+                statement_descriptor: 'NASTA',
+              },
+            },
+          });
+          this.logger.log(
+            `[PaymentsService] Backfilled payout settings (delay_days=2, descriptor=NASTA) on account ${accountId}`,
+          );
+        }
+      } catch (settingsErr) {
+        this.logger.warn(
+          `[PaymentsService] Could not backfill payout settings on ${accountId}: ${settingsErr}`,
+        );
+      }
 
       // Build complete individual object with all available information
       // We always rebuild it to ensure all fields are present, even if they exist

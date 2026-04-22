@@ -21,38 +21,6 @@ type FilterStatus =
   | "REJECTED"
   | "WITHDRAWN";
 
-const STATUS_META: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  PENDING: {
-    label: "Pending",
-    color: "text-[var(--fulfillment-gold)]",
-    bg: "bg-[var(--fulfillment-gold)]/15",
-  },
-  REVIEWING: {
-    label: "Reviewing",
-    color: "text-[var(--fulfillment-gold)]",
-    bg: "bg-[var(--fulfillment-gold)]/15",
-  },
-  SHORTLISTED: {
-    label: "Shortlisted",
-    color: "text-[var(--primary)]",
-    bg: "bg-[var(--primary)]/15",
-  },
-  ACCEPTED: {
-    label: "Accepted",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/15",
-  },
-  REJECTED: { label: "Rejected", color: "text-red-400", bg: "bg-red-500/15" },
-  WITHDRAWN: {
-    label: "Withdrawn",
-    color: "text-[var(--muted-text)]",
-    bg: "bg-[var(--muted-text)]/15",
-  },
-};
-
 function progressLevel(status: string): number {
   const s = status.toUpperCase();
   if (s === "REJECTED" || s === "WITHDRAWN") return -1;
@@ -99,6 +67,47 @@ export default function EmployerApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>("ALL");
 
+  const STATUS_META: Record<
+    string,
+    { label: string; color: string; bg: string }
+  > = {
+    PENDING: {
+      label: t("employerDashboard.applications.new", "New"),
+      color: "text-[var(--fulfillment-gold)]",
+      bg: "bg-[var(--fulfillment-gold)]/15",
+    },
+    REQUESTED: {
+      label: t("employerDashboard.applications.requested", "Requested"),
+      color: "text-[var(--fulfillment-gold)]",
+      bg: "bg-[var(--fulfillment-gold)]/15",
+    },
+    REVIEWING: {
+      label: t("employerDashboard.applications.reviewing", "Reviewing"),
+      color: "text-[var(--fulfillment-gold)]",
+      bg: "bg-[var(--fulfillment-gold)]/15",
+    },
+    SHORTLISTED: {
+      label: t("employerDashboard.applications.shortlisted", "Shortlisted"),
+      color: "text-[var(--primary)]",
+      bg: "bg-[var(--primary)]/15",
+    },
+    ACCEPTED: {
+      label: t("employerDashboard.applications.accepted", "Accepted"),
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/15",
+    },
+    REJECTED: {
+      label: t("employerDashboard.applications.rejected", "Rejected"),
+      color: "text-red-400",
+      bg: "bg-red-500/15",
+    },
+    WITHDRAWN: {
+      label: t("employerDashboard.applications.withdrawn", "Withdrawn"),
+      color: "text-[var(--muted-text)]",
+      bg: "bg-[var(--muted-text)]/15",
+    },
+  };
+
   const fetchApps = useCallback(async () => {
     setLoading(true);
     const qs = filter !== "ALL" ? `&status=${filter}` : "";
@@ -114,12 +123,24 @@ export default function EmployerApplicationsPage() {
   }, [fetchApps]);
 
   const filters: { key: FilterStatus; label: string }[] = [
-    { key: "ALL", label: "All" },
-    { key: "PENDING", label: "New" },
-    { key: "REVIEWING", label: "Reviewing" },
-    { key: "SHORTLISTED", label: "Shortlisted" },
-    { key: "ACCEPTED", label: "Accepted" },
-    { key: "REJECTED", label: "Rejected" },
+    { key: "ALL", label: t("employerDashboard.applications.all", "All") },
+    { key: "PENDING", label: t("employerDashboard.applications.new", "New") },
+    {
+      key: "REVIEWING",
+      label: t("employerDashboard.applications.reviewing", "Reviewing"),
+    },
+    {
+      key: "SHORTLISTED",
+      label: t("employerDashboard.applications.shortlisted", "Shortlisted"),
+    },
+    {
+      key: "ACCEPTED",
+      label: t("employerDashboard.applications.accepted", "Accepted"),
+    },
+    {
+      key: "REJECTED",
+      label: t("employerDashboard.applications.rejected", "Rejected"),
+    },
   ];
 
   const counts = applications.reduce<Record<string, number>>((acc, a) => {

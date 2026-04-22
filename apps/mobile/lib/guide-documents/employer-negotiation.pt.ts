@@ -1,12 +1,12 @@
 export const EMPLOYER_NEGOTIATION_PT = `# Pedidos de Negociação
 
-Este guia explica como a negociação de taxas funciona na Nasta para empregadores. A negociação permite que empregadores e prestadores de serviços cheguem a um preço justo antes do trabalho começar.
+Este guia explica como a negociação de taxas funciona na Nasta para clientes. A negociação permite que clientes e prestadores de serviços cheguem a um preço justo antes do trabalho começar.
 
 ## Quando a Negociação Está Disponível
 
-A negociação está disponível para qualquer emprego aceite **antes de ser marcado como concluído**. Tanto o empregador como o prestador de serviços podem iniciar uma negociação.
+A negociação está disponível para qualquer emprego aceite **antes de ser marcado como concluído**. Tanto o cliente como o prestador de serviços podem iniciar uma negociação.
 
-## Como Empregador
+## Como Cliente
 
 ### Sugerir uma Taxa Diferente
 Se aceitou um prestador mas gostaria de ajustar a taxa:

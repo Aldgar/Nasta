@@ -387,7 +387,7 @@ export default function ServiceProviderFeed() {
             upcoming.job?.title || t("dashboard.scheduledJob", "Scheduled Job");
           const employerName = upcoming.employer
             ? `${upcoming.employer.firstName ?? ""} ${upcoming.employer.lastName ?? ""}`.trim()
-            : t("common.employer", "Employer");
+            : t("common.employer", "Client");
           const jobCity = upcoming.job?.city || upcoming.employer?.city;
           const jobCountry =
             upcoming.job?.country || upcoming.employer?.country;
@@ -457,7 +457,7 @@ export default function ServiceProviderFeed() {
               icon: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z",
               text: t(
                 "dashboard.reminderArriveOnTime",
-                "Arrive on time — the employer will share a verification code",
+                "Arrive on time — the client will share a verification code",
               ),
               color: "var(--soft-blue)",
             });
@@ -965,7 +965,7 @@ export default function ServiceProviderFeed() {
                     ? `${job.employer.firstName} ${job.employer.lastName}`
                     : job.employerName ||
                       companyName ||
-                      t("common.employer", "Employer");
+                      t("common.employer", "Client");
                   const locationLabel =
                     [job.city, job.country].filter(Boolean).join(", ") ||
                     job.location ||
@@ -1247,8 +1247,16 @@ export default function ServiceProviderFeed() {
                     appStatusIcons[app.status] ?? appStatusIcons.PENDING;
                   const displayStatus =
                     app.status === "PENDING" || app.status === "REVIEWING"
-                      ? "UNDER REVIEW"
-                      : app.status;
+                      ? t("dashboard.underReview", "Under Review")
+                      : app.status === "SHORTLISTED"
+                        ? t("dashboard.shortlisted", "Shortlisted")
+                        : app.status === "ACCEPTED"
+                          ? t("dashboard.accepted", "Accepted")
+                          : app.status === "REJECTED"
+                            ? t("dashboard.rejected", "Rejected")
+                            : app.status === "REQUESTED"
+                              ? t("dashboard.requested", "Requested")
+                              : app.status;
                   const borderAccent =
                     app.status === "ACCEPTED"
                       ? "border-l-[var(--achievement-green)]"
@@ -1398,7 +1406,7 @@ export default function ServiceProviderFeed() {
                 <p className="mt-1 text-[10px] text-[var(--muted-text)]">
                   {t(
                     "dashboard.skillsHelpEmployers",
-                    "Skills help employers find you for the right jobs",
+                    "Skills help clients find you for the right jobs",
                   )}
                 </p>
                 <Link

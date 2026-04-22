@@ -499,7 +499,11 @@ export default function NotificationsPage() {
             {t("notifications.previous", "Previous")}
           </button>
           <span className="text-sm text-[var(--muted-text)]">
-            {t("notifications.pageInfo", `Page ${page} of ${totalPages}`)}
+            {t("notifications.pageInfo", {
+              defaultValue: "Page {{page}} of {{total}}",
+              page,
+              total: totalPages,
+            })}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

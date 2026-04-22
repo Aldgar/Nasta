@@ -1,20 +1,20 @@
 export const SP_NO_SHOW_EN = `# No-Show Policy
 
-This guide explains what happens if you accept a job but do not show up. Nasta has a strict no-show policy to protect employers and maintain trust on the platform.
+This guide explains what happens if you accept a job but do not show up. Nasta has a strict no-show policy to protect clients and maintain trust on the platform.
 
 ## What Counts as a No-Show?
 
 A no-show occurs when:
 - The job start time has passed
 - You did not use the **check-in code** at the job location
-- The employer reports you as a no-show
+- The client reports you as a no-show
 
 If you checked in using the code, you are not considered a no-show, even if there is a dispute about the work performed.
 
-## How the Employer Reports a No-Show
+## How the Client Reports a No-Show
 
-1. After the scheduled start time passes without your check-in, the employer can report a no-show
-2. The employer fills out a report describing the situation
+1. After the scheduled start time passes without your check-in, the client can report a no-show
+2. The client fills out a report describing the situation
 3. The system records the no-show on your account
 
 ## Consequences
@@ -31,7 +31,7 @@ If you checked in using the code, you are not considered a no-show, even if ther
 
 ### For Every No-Show
 - The job is **cancelled**
-- The employer receives a **full automatic refund**
+- The client receives a **full automatic refund**
 - Your **no-show count** increases permanently
 - Repeated no-shows may lead to account suspension or removal from the platform
 
@@ -41,7 +41,7 @@ If you checked in using the code, you are not considered a no-show, even if ther
 - **Update your availability** — Keep your calendar current so you do not get booked when you are unavailable
 - **Plan ahead** — Know the job location and travel time
 - **Set reminders** — Mark job dates in your personal calendar
-- **Communicate early** — If something comes up and you cannot make it, contact the employer through in-app chat as soon as possible
+- **Communicate early** — If something comes up and you cannot make it, contact the client through in-app chat as soon as possible
 - **Cancel in time** — If you know you cannot make it, cancel the job before the scheduled time rather than simply not showing up
 
 ## What if You Have a Genuine Emergency?
@@ -50,13 +50,13 @@ If you have a legitimate reason for missing a job (medical emergency, accident, 
 
 ## Checking Your No-Show Count
 
-Your no-show count is tracked on your profile. Both you and employers can see this information. A high no-show count makes it harder to get hired, as employers prefer reliable service providers.
+Your no-show count is tracked on your profile. Both you and clients can see this information. A high no-show count makes it harder to get hired, as clients prefer reliable service providers.
 
 ## Summary
 
 - First no-show: Warning only
 - Second and later: €25 penalty each
-- Employer gets full refund every time
+- Client gets full refund every time
 - Your account tracks all no-shows permanently
 - Repeated no-shows risk account suspension
 `;

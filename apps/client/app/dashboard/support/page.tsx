@@ -169,8 +169,11 @@ export default function SupportPage() {
     const ticketNumber = res.data?.ticket?.ticketNumber;
     setTicketSuccess(
       ticketNumber
-        ? `Ticket #${ticketNumber} submitted successfully!`
-        : "Ticket submitted successfully!",
+        ? t("support.ticketSuccessWithNumber", {
+            defaultValue: "Ticket #{{n}} submitted successfully!",
+            n: ticketNumber,
+          })
+        : t("support.ticketSuccess", "Ticket submitted successfully!"),
     );
     setTicketSubject("");
     setTicketMessage("");
@@ -208,8 +211,11 @@ export default function SupportPage() {
     const ticketNumber = res.data?.ticket?.ticketNumber;
     setReportSuccess(
       ticketNumber
-        ? `Report #${ticketNumber} filed successfully.`
-        : "Report filed successfully.",
+        ? t("support.reportSuccessWithNumber", {
+            defaultValue: "Report #{{n}} filed successfully.",
+            n: ticketNumber,
+          })
+        : t("support.reportSuccess", "Report filed successfully."),
     );
     setReportSubject("");
     setReportMessage("");
@@ -254,8 +260,16 @@ export default function SupportPage() {
     const ticketNumber = res.data?.ticket?.ticketNumber;
     setEmailSuccess(
       ticketNumber
-        ? `Message sent! Ticket #${ticketNumber} created. We'll respond to ${cfg.email} inquiries within 24 hours.`
-        : `Message sent to ${cfg.label}! We'll get back to you shortly.`,
+        ? t("support.emailSuccessWithNumber", {
+            defaultValue:
+              "Message sent! Ticket #{{n}} created. We'll respond to {{email}} inquiries within 24 hours.",
+            n: ticketNumber,
+            email: cfg.email,
+          })
+        : t(
+            "support.emailSuccessShort",
+            "Message sent! We'll get back to you shortly.",
+          ),
     );
     setEmailSubject("");
     setEmailMessage("");

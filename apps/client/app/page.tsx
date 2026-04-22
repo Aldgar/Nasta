@@ -60,25 +60,29 @@ function Reveal({
 function Counter({
   end,
   suffix = "",
-  duration = 1800,
+  duration = 900,
 }: {
   end: number;
   suffix?: string;
   duration?: number;
 }) {
   const { ref, visible } = useInView();
+  // Start from 60% of the end value so small numbers (2, 5) don't linger on wrong digits
+  const startFraction = end <= 5 ? 0.6 : 0;
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!visible) return;
     const t0 = performance.now();
     function tick(now: number) {
       const t = Math.min((now - t0) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setCount(Math.floor(eased * end));
+      // Ease out quart: fast start, smooth finish
+      const eased = 1 - Math.pow(1 - t, 4);
+      const value = startFraction * end + eased * end * (1 - startFraction);
+      setCount(Math.round(value));
       if (t < 1) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
-  }, [visible, end, duration]);
+  }, [visible, end, duration, startFraction]);
   return (
     <span ref={ref}>
       {count}
@@ -129,7 +133,7 @@ const features = [
     ),
     title: "ID-Verified Profiles",
     titleKey: "landing.featIdVerifiedTitle",
-    desc: "Every employer and service provider is identity-verified with government-issued documents before accepting any assignment.",
+    desc: "Every client and service provider is identity-verified with government-issued documents before accepting any assignment.",
     descKey: "landing.featIdVerifiedDesc",
   },
   {
@@ -483,7 +487,7 @@ export default function Home() {
               <p className="mb-6 text-[15px] leading-relaxed text-[var(--muted-text)]">
                 {t(
                   "landing.providerDesc",
-                  "Whether it is your main hustle or a side gig, get instant job requests from verified employers and start earning immediately. No applications, no waiting.",
+                  "Whether it is your main hustle or a side gig, get instant job requests from verified clients and start earning immediately. No applications, no waiting.",
                 )}
               </p>
               <ul className="space-y-3 text-sm text-[var(--muted-text)]">
@@ -596,7 +600,7 @@ export default function Home() {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M11.42 15.17l-5.384-3.19m0 0a2.25 2.25 0 10-2.155 3.952 2.25 2.25 0 002.155-3.952zm0 0L6.75 7.77m5.67 7.4l5.384-3.19m0 0a2.25 2.25 0 10-2.155 3.952 2.25 2.25 0 002.155-3.952zm0 0l.743-5.45m-11.554 5.45L6.75 7.77m0 0a2.25 2.25 0 10-2.155-3.952 2.25 2.25 0 002.155 3.952zm0 0L12 12.77m0 0l5.25-4.999m-5.25 5l.743 5.45"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
                       />
                     </svg>
                     {t("landing.spBadge", "Service Providers")}
@@ -678,7 +682,7 @@ export default function Home() {
                         ),
                         desc: t(
                           "landing.spBackgroundDesc",
-                          "Comprehensive screening for your safety and employer trust",
+                          "Comprehensive screening for your safety and client trust",
                         ),
                       },
                       {
@@ -1010,7 +1014,7 @@ export default function Home() {
               <p className="mx-auto max-w-lg text-sm leading-relaxed text-[var(--muted-text)]">
                 {t(
                   "landing.trustDesc",
-                  "These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified employers attract better talent. The result is a marketplace where both sides can work with confidence.",
+                  "These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified clients attract better talent. The result is a marketplace where both sides can work with confidence.",
                 )}
               </p>
             </div>

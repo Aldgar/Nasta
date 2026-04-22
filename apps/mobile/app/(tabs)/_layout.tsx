@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import React, { useState } from "react";
+import { Tabs, router } from "expo-router";
+import React, { useState, useEffect } from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,13 +10,29 @@ import { useLanguage } from "../../context/LanguageContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { getApiBase } from "../../lib/api";
-import { getValidToken } from "../../lib/authFetch";
+import { getValidToken, decodeJwtPayload } from "../../lib/authFetch";
 
 export default function TabLayout() {
   const { colorScheme } = useTheme();
   const { t } = useLanguage();
   const [unreadCount, setUnreadCount] = useState(0);
   const insets = useSafeAreaInsets();
+
+  // Role guard: only JOB_SEEKER (Service Provider) can access SP tabs
+  useEffect(() => {
+    const checkRole = async () => {
+      const token = await getValidToken();
+      if (!token) return;
+      const payload = decodeJwtPayload(token);
+      const role = String(payload?.role || "").toUpperCase();
+      if (role === "EMPLOYER") {
+        router.replace("/employer-home" as never);
+      } else if (role === "ADMIN") {
+        router.replace("/admin-home" as never);
+      }
+    };
+    checkRole();
+  }, []);
 
   const fetchUnreadCount = async () => {
     try {

@@ -2,7 +2,7 @@ export const FOR_PROVIDERS_EN = `# For Service Providers
 
 Earn instantly. On your terms.
 
-Whether it is your main income or a side gig, Nasta connects you with instant job requests from verified employers. Get paid fast, work on your schedule, and build your reputation.
+Whether it is your main income or a side gig, Nasta connects you with instant job requests from verified clients. Get paid fast, work on your schedule, and build your reputation.
 
 ## Why Service Providers Choose Nasta
 
@@ -10,16 +10,16 @@ Whether it is your main income or a side gig, Nasta connects you with instant jo
 Funds are released as soon as the job is marked complete. No invoices, no delays. Instant payouts straight to your account, perfect for side income.
 
 ### Payment Guaranteed
-Every job is backed by Stripe escrow. The employer's payment is secured before you start, so you are guaranteed to be paid for completed work.
+Every job is backed by Stripe escrow. The client's payment is secured before you start, so you are guaranteed to be paid for completed work.
 
-### Verified Employers
-Every employer on Nasta is verified too. You always know who you are working for, with transparent job details and fair terms.
+### Verified Clients
+Every client on Nasta is verified too. You always know who you are working for, with transparent job details and fair terms.
 
 ### Unlimited Categories
 Cleaning, childcare, construction, events, tutoring, and more. Pick up instant jobs in any category, whether as your main work or a side gig.
 
 ### Mobile First
-Get instant job notifications, apply with one tap, chat with employers, and track your earnings. Full-featured iOS and Android app.
+Get instant job notifications, apply with one tap, chat with clients, and track your earnings. Full-featured iOS and Android app.
 
 ### Build Your Reputation
 Every completed job earns you ratings and reviews. A strong profile means more bookings, better jobs, and higher earnings over time.

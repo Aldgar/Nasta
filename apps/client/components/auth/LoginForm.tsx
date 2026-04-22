@@ -69,7 +69,9 @@ export default function LoginForm() {
         if (!emp.ok) {
           const userProbe = await tryLogin("/auth/user/login");
           if (userProbe.ok) {
-            setError("Please use the Service Provider login if you are a Service Provider");
+            setError(
+              "Please use the Service Provider login if you are a Service Provider",
+            );
           } else {
             setError("Invalid email or password");
           }
@@ -91,7 +93,7 @@ export default function LoginForm() {
         if (!user.ok) {
           const empProbe = await tryLogin("/auth/employer/login");
           if (empProbe.ok) {
-            setError("Please use Employer login if you are Employer");
+            setError("Please use Client login if you are a Client");
           } else {
             setError("Invalid email or password");
           }
@@ -118,7 +120,7 @@ export default function LoginForm() {
         {(
           [
             ["JOB_SEEKER", "Service Provider"],
-            ["EMPLOYER", "Employer"],
+            ["EMPLOYER", "Client"],
             ["ADMIN", "Admin"],
           ] as const
         ).map(([value, label]) => (
@@ -138,7 +140,7 @@ export default function LoginForm() {
         ))}
       </div>
       <p className="text-xs text-neutral-600">
-        Choose your portal: Service Provider for workers, Employer for companies,
+        Choose your portal: Service Provider for workers, Client for companies,
         and Admin for platform administrators.
       </p>
 

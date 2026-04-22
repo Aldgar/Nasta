@@ -8,35 +8,37 @@ Ao aceder e utilizar a aplicação móvel Nasta ("App", "Plataforma", "Serviço"
 
 ## 2. Descrição do Serviço
 
-O Nasta é uma plataforma de marketplace que conecta prestadores de serviços (candidatos a emprego, freelancers, contratantes) com empregadores que procuram serviços. A Plataforma facilita:
+A Nasta é uma plataforma de marketplace que liga prestadores de serviços individuais (candidatos, freelancers, contratantes) a clientes individuais que procuram serviços. A Plataforma facilita:
 
 - Publicação de trabalhos e gestão de candidaturas
 - Descoberta e correspondência de prestadores de serviços
-- Processamento seguro de pagamentos através do Stripe
-- Verificação de identidade (KYC) e verificações de antecedentes
-- Rastreamento e comunicação em tempo real
+- Processamento seguro de pagamentos através da Stripe
+- Verificação de identidade (KYC), antecedentes, veículo e carta de condução
 - Gestão de reservas e agendamento
 - Mensagens e chat na aplicação
-- Sistema de tickets de suporte e denúncia de abusos
+- Suporte por bilhetes e reporte de abusos
+
+A Nasta destina-se **exclusivamente a indivíduos**. A Plataforma não se destina a transações entre empresas, recrutamento para emprego permanente, nem verificação de entidades empresariais.
 
 ## 3. Contas de Utilizador e Registo
 
 ### 3.1 Criação de Conta
 - Deve fornecer informações precisas, atuais e completas durante o registo
-- Deve ter pelo menos 18 anos de idade para utilizar a Plataforma
+- Deve ter pelo menos 18 anos para utilizar a Plataforma
 - É responsável por manter a confidencialidade das credenciais da sua conta
-- Concorda em aceitar a responsabilidade por todas as atividades que ocorram na sua conta
+- Aceita responsabilidade por todas as atividades que ocorrem na sua conta
+- Uma conta por indivíduo — contas múltiplas ou duplicadas não são permitidas
 
 ### 3.2 Tipos de Conta
-- **Empregadores**: Utilizadores que publicam trabalhos e contratam prestadores de serviços
-- **Prestadores de Serviços**: Utilizadores que oferecem serviços e candidatam-se a trabalhos
-- **Administradores**: Administradores da plataforma com capacidades específicas
+- **Clientes**: Indivíduos que publicam trabalhos e contratam prestadores de serviços
+- **Prestadores de Serviços**: Indivíduos que oferecem serviços e se candidatam a trabalhos
+- **Administradores**: Administradores da Plataforma com capacidades específicas
 
 ### 3.3 Requisitos de Verificação
 - A verificação de identidade (KYC) é obrigatória para todos os prestadores de serviços
-- Verificações de antecedentes podem ser necessárias para certas categorias de trabalho
-- A verificação comercial pode ser necessária para empregadores
-- A falha na conclusão da verificação pode resultar em restrições de conta
+- A verificação de antecedentes é obrigatória para todos os prestadores de serviços
+- Podem ser exigidas verificações adicionais consoante a categoria do trabalho (ver Secção 7)
+- A não conclusão da verificação restringirá o acesso a funcionalidades da Plataforma
 
 ## 4. Regras da Plataforma e Conduta Proibida
 
@@ -47,195 +49,203 @@ Concorda em NÃO:
 - Solicitar serviços ou pagamentos fora da Plataforma
 - Partilhar informações de contacto pessoal antes de uma reserva ser confirmada
 - Utilizar a Plataforma para atividades ilegais
-- Fazer-se passar por outra pessoa ou entidade
+- Fazer-se passar por outra pessoa
 - Interferir ou perturbar o funcionamento da Plataforma
 - Tentar obter acesso não autorizado a qualquer parte da Plataforma
 - Utilizar sistemas automatizados para extrair ou recolher dados
-- Violar qualquer lei local, estadual, nacional ou internacional aplicável
+- Violar qualquer lei aplicável
 
 ### 4.2 Padrões de Conteúdo
 - As publicações de trabalhos devem ser precisas e cumprir todas as leis aplicáveis
 - Os perfis dos prestadores de serviços devem refletir qualificações e experiência verdadeiras
-- As avaliações e classificações devem ser honestas e baseadas na prestação real de serviços
-- Avaliações ou classificações falsas são estritamente proibidas
+- As avaliações devem ser honestas e baseadas na entrega real do serviço
+- Avaliações falsas são estritamente proibidas
 
 ## 5. Pagamentos e Termos Financeiros
 
 ### 5.1 Processamento de Pagamentos
-- Todos os pagamentos são processados através do Stripe, um processador de pagamentos de terceiros
-- O Nasta atua como intermediário e não detém fundos
-- O processamento de pagamentos está sujeito aos termos e condições do Stripe
+- Todos os pagamentos são processados através da Stripe
+- Os fundos são mantidos em segurança no escrow da Stripe até o trabalho ser confirmado como concluído
+- A Nasta não detém fundos diretamente
+- O processamento de pagamentos está sujeito aos termos da Stripe
 
 ### 5.2 Cronograma de Pagamentos
-- **Para Prestadores de Serviços**: Os pagamentos são normalmente processados no prazo de 2-5 dias úteis após a conclusão do trabalho e aprovação do empregador
-- **Para Empregadores**: Os pagamentos são cobrados imediatamente após a confirmação da reserva
-- Disputas de pagamento devem ser reportadas no prazo de 7 dias após a conclusão do serviço
+- **Para Clientes**: O pagamento é cobrado imediatamente após a confirmação da reserva e mantido em escrow
+- **Para Prestadores de Serviços**: O pagamento é libertado após o cliente confirmar a conclusão do trabalho, normalmente disponível na sua conta em 2-5 dias úteis
+- As disputas de pagamento devem ser reportadas antes do trabalho ser confirmado como concluído
 
 ### 5.3 Taxas
-- As taxas da plataforma são claramente divulgadas antes da confirmação da reserva
-- Os prestadores de serviços recebem o pagamento menos as taxas aplicáveis da plataforma
-- Todas as taxas são não reembolsáveis, salvo indicação em contrário
+- As taxas da Plataforma são divulgadas claramente antes da confirmação da reserva
+- Os prestadores de serviços recebem o pagamento menos as taxas aplicáveis
+- As taxas da Plataforma não são reembolsáveis, exceto em casos de não comparência ou erro verificado da plataforma
 
 ### 5.4 Reembolsos e Cancelamentos
-- As políticas de cancelamento variam conforme o tipo de trabalho e são divulgadas na reserva
-- Os reembolsos são processados de acordo com a política de cancelamento selecionada
-- As disputas são tratadas através do sistema de suporte da Plataforma
+O tratamento de reembolsos é descrito em detalhe na nossa **Política de Reembolso**. Em resumo:
+- São emitidos reembolsos automáticos totais para não comparências verificadas do prestador de serviços
+- Cancelamentos efetuados antes do código de verificação ser ativado recebem reembolso total
+- Disputas fora dos reembolsos automáticos são tratadas através do sistema de suporte da Plataforma
 
-## 6. Transações Fora da Plataforma e Compras de Equipamentos
+## 6. Transações Fora da Plataforma
 
 ### 6.1 Transações Fora da Plataforma Proibidas
-**IMPORTANTE**: Todas as transações, comunicações e acordos devem ocorrer dentro da Plataforma Nasta. Qualquer tentativa de conduzir negócios fora da Plataforma é estritamente proibida e pode resultar no encerramento imediato da conta.
+**IMPORTANTE**: Todas as transações, comunicações e acordos devem ocorrer dentro da Plataforma Nasta. Qualquer tentativa de conduzir negócios fora da Plataforma é estritamente proibida e pode resultar em terminação imediata da conta.
 
-### 6.2 Compras de Equipamentos e Serviços
-**O Nasta NÃO é responsável por:**
+### 6.2 A Nasta NÃO é responsável por:
 - Qualquer equipamento, ferramentas ou materiais comprados fora da Plataforma
-- Qualquer serviço arranjado ou pago fora da Plataforma
-- Qualquer acordo, contrato ou arranjo feito fora da Plataforma
-- Qualquer disputa decorrente de transações fora da plataforma
-- Qualquer perda financeira decorrente de atividades fora da plataforma
+- Quaisquer serviços organizados ou pagos fora da Plataforma
+- Quaisquer acordos efetuados fora da Plataforma
+- Quaisquer disputas decorrentes de transações fora da Plataforma
+- Quaisquer perdas financeiras decorrentes de atividades fora da Plataforma
 
 ### 6.3 Consequências de Acordos Fora da Plataforma
-- Utilizadores que se envolvem em transações fora da plataforma podem enfrentar:
-  - Suspensão ou encerramento imediato da conta
-  - Perda de acesso às funcionalidades da Plataforma
-  - Ação legal por violação de contrato
-  - Denúncia às autoridades competentes
-- Os acordos fora da plataforma não são protegidos pelo processo de resolução de disputas do Nasta
-- Os utilizadores que se envolvem em transações fora da plataforma fazem-no por sua conta e risco e podem estar sujeitos a consequências legais sob a lei aplicável
+Os utilizadores que se envolvam em transações fora da Plataforma podem enfrentar:
+- Suspensão ou terminação imediata da conta
+- Perda de acesso a funcionalidades e proteções da Plataforma (incluindo escrow e resolução de disputas)
+- Reporte às autoridades competentes quando aplicável
 
-### 6.4 Consequências Legais
-Quaisquer acordos feitos fora da Plataforma são:
-- Não regidos por estes Termos de Serviço
-- Não sujeitos à resolução de disputas do Nasta
-- Sujeitos às leis locais, estaduais e federais aplicáveis
-- Podem resultar em responsabilidade civil ou criminal
-- Os utilizadores são os únicos responsáveis por quaisquer consequências legais
+Os acordos fora da Plataforma não são protegidos pelo processo de resolução de disputas da Nasta e os utilizadores fazem-no por sua conta e risco.
 
-## 7. Verificação de Identidade e Verificações de Antecedentes
+## 7. Verificação de Identidade, Antecedentes, Veículo e Carta de Condução
 
-### 7.1 Processo de Verificação
-- Os prestadores de serviços devem completar a verificação de identidade (KYC)
-- Verificações de antecedentes podem ser necessárias para certas categorias de trabalho
+### 7.1 Verificação de Identidade (KYC)
+- Os prestadores de serviços devem completar a verificação de identidade utilizando documento de identificação oficial e selfie
 - Os documentos de verificação são armazenados de forma segura e encriptados
-- O estado de verificação é exibido nos perfis dos utilizadores
+- O estado da verificação é exibido nos perfis dos utilizadores
 
-### 7.2 Precisão da Verificação
-- O Nasta verifica informações da melhor forma possível, mas não garante precisão
+### 7.2 Verificação de Antecedentes
+- É exigida uma verificação de antecedentes criminais para todos os prestadores de serviços
+- Os prestadores de serviços devem carregar um documento oficial de verificação de antecedentes durante a integração
+- A Nasta analisa as submissões e pode solicitar nova verificação ou rejeitar documentos imprecisos
+
+### 7.3 Verificação do Veículo
+Para categorias de trabalho que envolvam transporte, entregas ou condução (tais como mudanças, estafeta, serviços relacionados com transporte), o prestador de serviços deve completar a **verificação do veículo**:
+- Carregar fotografias claras do veículo (frente, traseira, laterais, matrícula)
+- Fornecer documentos de registo do veículo
+- O veículo deve estar em condições seguras e legais para a estrada
+- A Nasta pode rejeitar veículos que sejam inseguros, não registados ou que não correspondam aos documentos submetidos
+
+### 7.4 Verificação da Carta de Condução
+Para qualquer categoria de trabalho relacionada com condução, o prestador de serviços deve completar a **verificação da carta de condução**:
+- Carregar fotografias claras da frente e do verso de uma carta de condução válida
+- A carta de condução **deve ter pelo menos 3 anos de antiguidade** (emitida há pelo menos 3 anos antes da data de submissão)
+- A carta deve ser válida (não expirada, suspensa ou revogada)
+- A Nasta pode rejeitar cartas que não cumpram o requisito de antiguidade, estejam expiradas ou pareçam adulteradas
+
+### 7.5 Precisão e Limites da Verificação
+- A Nasta verifica as informações com o melhor das suas capacidades, mas não garante a precisão
 - Os utilizadores são responsáveis por fornecer informações precisas
-- Informações falsas ou fraudulentas podem resultar no encerramento da conta
+- Informações falsas ou fraudulentas podem resultar em terminação imediata da conta e potencial ação legal
 
-## 8. Publicações de Trabalhos e Candidaturas
+## 8. Publicações de Trabalho e Candidaturas
 
-### 8.1 Publicações de Trabalhos
-- Os empregadores são responsáveis por descrições de trabalho precisas
-- As publicações de trabalhos devem cumprir todas as leis de emprego aplicáveis
-- Os empregadores devem responder às candidaturas de forma oportuna
-- Publicações de trabalhos falsas ou enganosas são proibidas
+### 8.1 Publicações de Trabalho
+- Os clientes são responsáveis por descrições precisas dos trabalhos
+- As publicações devem cumprir todas as leis aplicáveis
+- Os clientes devem responder às candidaturas em tempo útil
+- Publicações de trabalho falsas ou enganosas são proibidas
 
 ### 8.2 Candidaturas
-- Os prestadores de serviços podem candidatar-se a múltiplos trabalhos
+- Os prestadores de serviços podem candidatar-se a vários trabalhos
 - As candidaturas devem ser verdadeiras e precisas
 - Os prestadores de serviços podem retirar candidaturas a qualquer momento
-- Os empregadores podem rejeitar candidaturas a seu critério
+- Os clientes podem rejeitar candidaturas a seu critério
 
-## 9. Reservas e Prestação de Serviços
+## 9. Reservas e Entrega de Serviços
 
 ### 9.1 Processo de Reserva
-- As reservas são confirmadas quando ambas as partes concordam
-- Os prestadores de serviços devem chegar a tempo e completar o trabalho conforme acordado
-- Os empregadores devem fornecer requisitos de trabalho e localização precisos
-- Alterações às reservas devem ser acordadas por ambas as partes
+- As reservas são confirmadas quando ambas as partes concordam e o pagamento é mantido em escrow
+- Os prestadores de serviços devem chegar a tempo e fazer check-in utilizando o código de verificação fornecido pelo cliente
+- Os clientes devem fornecer requisitos e localização precisos
+- As alterações às reservas devem ser acordadas por ambas as partes
 
 ### 9.2 Padrões de Serviço
-- Os serviços devem ser prestados conforme descrito na publicação do trabalho
-- Os prestadores de serviços devem ter as competências, ferramentas e equipamentos necessários
-- Os empregadores devem fornecer um ambiente de trabalho seguro
-- Ambas as partes devem comunicar de forma clara e profissional
+- Os serviços devem ser entregues conforme descrito na publicação do trabalho
+- Os prestadores de serviços devem possuir as competências, ferramentas e equipamento necessários
+- Os clientes devem fornecer um ambiente de trabalho seguro
+- Ambas as partes devem comunicar de forma clara e profissional através da Plataforma
 
 ## 10. Resolução de Disputas
 
 ### 10.1 Resolução Interna
-- As disputas devem primeiro ser resolvidas através de comunicação direta
-- Se não resolvidas, as disputas podem ser escaladas para o suporte do Nasta
-- Os tickets de suporte são revistos pela nossa equipa no prazo de 24-48 horas
-- As decisões são tomadas com base em evidências disponíveis e políticas da plataforma
+- As disputas devem ser primeiro resolvidas através de comunicação direta na Plataforma
+- Se não resolvidas, podem ser escaladas para o suporte da Nasta
+- Os bilhetes de suporte são analisados pela nossa equipa em 24-48 horas
+- As decisões são tomadas com base nas evidências disponíveis (registos do código de verificação, histórico de movimentação do trabalho, histórico de comunicação) e nas políticas da plataforma
 
 ### 10.2 Mediação
-- Para disputas complexas, o Nasta pode oferecer serviços de mediação
+- Para disputas complexas, a Nasta pode oferecer mediação
 - A mediação é voluntária e ambas as partes devem concordar em participar
-- As decisões de mediação são vinculativas para ambas as partes
 
-## 11. Denúncia de Abusos e Penalidades
+## 11. Reporte de Abusos e Penalizações
 
-### 11.1 Denúncia de Abusos
-- Os utilizadores podem denunciar abusos, assédio ou violações através da Plataforma
-- As denúncias são revistas pela nossa equipa de segurança
-- Denúncias falsas podem resultar em penalidades para o utilizador que denuncia
+### 11.1 Reporte de Abusos
+- Os utilizadores podem reportar abusos, assédio ou violações através da Plataforma
+- Os relatos são analisados pela nossa equipa de segurança
+- Relatos falsos podem resultar em penalizações para o utilizador denunciante
 
-### 11.2 Penalidades por Violações
-As violações destes Termos podem resultar em:
-- **Aviso**: Violações menores pela primeira vez
-- **Suspensão Temporária**: 7-30 dias para violações repetidas
-- **Banimento Permanente**: Para violações graves ou ofensas repetidas
-- **Ação Legal**: Para atividades ilegais ou fraude
-- **Penalidades Financeiras**: Para violações relacionadas com pagamentos
+### 11.2 Penalizações por Violações
+Violações destes Termos podem resultar em:
+- **Aviso** para violações menores em primeira instância
+- **Suspensão Temporária** de 7-30 dias para violações repetidas
+- **Banimento Permanente** para violações graves ou ofensas repetidas
+- **Ação Legal** para atividades ilegais ou fraude
+- **Penalizações Financeiras** para violações relacionadas com pagamentos
 
 ### 11.3 Tipos de Violações
 - Assédio, discriminação ou discurso de ódio
 - Fraude ou deturpação
-- Transações fora da plataforma
-- Fraude de pagamento ou chargebacks
-- Roubo de identidade ou fraude de verificação
+- Transações fora da Plataforma
+- Fraude de pagamento ou estornos
+- Fraude na verificação de identidade, antecedentes, veículo ou carta de condução
 - Spam ou comunicações não solicitadas
 - Violação de privacidade ou proteção de dados
 
 ## 12. Propriedade Intelectual
 
 ### 12.1 Conteúdo da Plataforma
-- Todo o conteúdo na Plataforma é propriedade do Nasta ou dos seus licenciadores
-- Os utilizadores não podem copiar, modificar ou distribuir conteúdo da Plataforma sem permissão
-- O conteúdo gerado pelo utilizador permanece propriedade do utilizador, mas concede ao Nasta uma licença para o utilizar
+- Todo o conteúdo da Plataforma é propriedade da Nasta ou dos seus licenciadores
+- Os utilizadores não podem copiar, modificar ou distribuir o conteúdo da Plataforma sem permissão
 
 ### 12.2 Conteúdo do Utilizador
 - Os utilizadores mantêm a propriedade do conteúdo que publicam
-- Ao publicar conteúdo, os utilizadores concedem ao Nasta uma licença mundial, não exclusiva para usar, exibir e distribuir o conteúdo
+- Ao publicar conteúdo, os utilizadores concedem à Nasta uma licença mundial e não exclusiva para utilizar, exibir e distribuir o conteúdo dentro da Plataforma
 - Os utilizadores são responsáveis por garantir que têm direitos sobre qualquer conteúdo que publicam
 
 ## 13. Privacidade e Proteção de Dados
 
-A sua utilização da Plataforma também é regida pela nossa Política de Privacidade. Por favor, reveja-a para entender como recolhemos, usamos e protegemos as suas informações.
+A sua utilização da Plataforma é também regida pela nossa Política de Privacidade. Por favor, reveja-a para compreender como recolhemos, utilizamos e protegemos as suas informações.
 
 ## 14. Limitação de Responsabilidade
 
 ### 14.1 Responsabilidade da Plataforma
-- O Nasta fornece a Plataforma "como está" sem garantias
+- A Nasta fornece a Plataforma "tal como está" sem garantias
 - Não garantimos serviço ininterrupto ou livre de erros
-- Não somos responsáveis por quaisquer danos indiretos, incidentais ou consequenciais
-- A nossa responsabilidade total é limitada ao valor que pagou em taxas nos 12 meses anteriores à reclamação
+- Não somos responsáveis por danos indiretos, incidentais ou consequenciais
+- A nossa responsabilidade total é limitada ao valor pago em taxas nos 12 meses anteriores à reclamação
 
 ### 14.2 Responsabilidade do Utilizador
 - Os utilizadores são responsáveis pelas suas próprias ações e conteúdo
 - Os utilizadores são responsáveis por quaisquer danos causados por violações destes Termos
-- Os utilizadores devem indemnizar o Nasta contra reclamações decorrentes da sua utilização da Plataforma
+- Os utilizadores devem indemnizar a Nasta contra reclamações decorrentes da sua utilização da Plataforma
 
-## 15. Rescisão
+## 15. Terminação
 
 ### 15.1 Pelo Utilizador
-- Os utilizadores podem encerrar a sua conta a qualquer momento
-- Os pedidos de eliminação de conta são processados no prazo de 30 dias
-- Os pagamentos pendentes devem ser resolvidos antes da eliminação da conta
+- Os utilizadores podem terminar a sua conta a qualquer momento nas definições da conta na aplicação
+- Os pedidos de eliminação de conta são processados prontamente
+- Os pagamentos pendentes e reservas ativas devem ser resolvidos antes da eliminação da conta
 
-### 15.2 Pelo Nasta
-- Podemos suspender ou encerrar contas por violações destes Termos
-- Podemos encerrar contas que estejam inativas por períodos prolongados
-- A rescisão não isenta os utilizadores de obrigações pendentes
+### 15.2 Pela Nasta
+- Podemos suspender ou terminar contas por violações destes Termos
+- Podemos terminar contas inativas por períodos prolongados
+- A terminação não isenta os utilizadores de obrigações pendentes
 
 ## 16. Alterações aos Termos
 
 - Podemos atualizar estes Termos a qualquer momento
-- Alterações materiais serão notificadas através da App ou por email
-- A utilização continuada após alterações constitui aceitação
-- Utilizadores que não concordem com alterações devem parar de utilizar a Plataforma
+- Alterações substanciais serão notificadas através da Aplicação
+- O uso continuado após alterações constitui aceitação
+- Os utilizadores que não concordem com as alterações devem deixar de utilizar a Plataforma
 
 ## 17. Lei Aplicável e Jurisdição
 
@@ -243,35 +253,21 @@ A sua utilização da Plataforma também é regida pela nossa Política de Priva
 - As disputas serão resolvidas nos tribunais de Portugal
 - Os utilizadores concordam em submeter-se à jurisdição dos tribunais portugueses
 
-## 18. Conformidade com Lojas de Aplicações
-
-### 18.1 Apple App Store
-- Esta App cumpre as diretrizes da Apple App Store
-- As compras na aplicação são processadas através do sistema de pagamento da Apple, quando aplicável
-- A Apple não é responsável pelo funcionamento ou conteúdo da Plataforma
-
-### 18.2 Google Play Store
-- Esta App cumpre as políticas da Google Play Store
-- As compras na aplicação são processadas através do Google Play Billing, quando aplicável
-- A Google não é responsável pelo funcionamento ou conteúdo da Plataforma
-
-## 19. Informações de Contacto
+## 18. Informações de Contacto
 
 Para questões sobre estes Termos, por favor contacte:
 - Email: support@nasta.app
-- Portal de Suporte: Disponível na App
+- Portal de Suporte: Disponível na Aplicação
 
+## 19. Divisibilidade
 
-## 20. Divisibilidade
+Se alguma disposição destes Termos for considerada inexequível, as restantes disposições permanecerão em pleno vigor.
 
-Se qualquer disposição destes Termos for considerada inexequível, as disposições restantes permanecerão em pleno vigor.
+## 20. Acordo Integral
 
-## 21. Acordo Completo
-
-Estes Termos, juntamente com a Política de Privacidade, constituem o acordo completo entre si e o Nasta relativamente à utilização da Plataforma.
+Estes Termos, juntamente com a Política de Privacidade e a Política de Reembolso, constituem o acordo integral entre si e a Nasta relativamente à utilização da Plataforma.
 
 ---
 
-**Ao utilizar o Nasta, reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos de Serviço.**
-
+**Ao utilizar a Nasta, reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos de Serviço.**
 `;

@@ -12,7 +12,7 @@ Tap on a service provider to view their full profile. Check their:
 - Verification badges (ID, background check, driver's license)
 - Skills and experience
 - Service rates
-- Ratings and reviews from other employers
+- Ratings and reviews from other clients
 - Availability calendar
 
 ### 3. Tap "Request Instant Job"

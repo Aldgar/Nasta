@@ -2,7 +2,7 @@ export const FOR_PROVIDERS_PT = `# Para Prestadores de Serviços
 
 Ganhe instantaneamente. Nos seus termos.
 
-Quer seja o seu rendimento principal ou um trabalho adicional, a Nasta conecta-o com pedidos de trabalho instantâneos de empregadores verificados. Receba o pagamento rapidamente, trabalhe no seu horário e construa a sua reputação.
+Quer seja o seu rendimento principal ou um trabalho adicional, a Nasta conecta-o com pedidos de trabalho instantâneos de clientes verificados. Receba o pagamento rapidamente, trabalhe no seu horário e construa a sua reputação.
 
 ## Porquê os Prestadores de Serviços Escolhem a Nasta
 
@@ -10,16 +10,16 @@ Quer seja o seu rendimento principal ou um trabalho adicional, a Nasta conecta-o
 Os fundos são libertados assim que o trabalho é marcado como concluído. Sem faturas, sem atrasos. Pagamentos instantâneos diretamente na sua conta, perfeito para rendimento adicional.
 
 ### Pagamento Garantido
-Cada trabalho é suportado por custódia Stripe. O pagamento do empregador é assegurado antes de começar, garantindo que será pago pelo trabalho concluído.
+Cada trabalho é suportado por custódia Stripe. O pagamento do cliente é assegurado antes de começar, garantindo que será pago pelo trabalho concluído.
 
-### Empregadores Verificados
-Todos os empregadores na Nasta também são verificados. Sabe sempre para quem está a trabalhar, com detalhes de trabalho transparentes e condições justas.
+### Clientes Verificados
+Todos os clientes na Nasta também são verificados. Sabe sempre para quem está a trabalhar, com detalhes de trabalho transparentes e condições justas.
 
 ### Categorias Ilimitadas
 Limpeza, cuidado de crianças, construção, eventos, tutoria e muito mais. Aceite trabalhos instantâneos em qualquer categoria, como trabalho principal ou adicional.
 
 ### Mobile First
-Receba notificações instantâneas de trabalhos, candidate-se com um toque, converse com empregadores e acompanhe os seus ganhos. Aplicação completa para iOS e Android.
+Receba notificações instantâneas de trabalhos, candidate-se com um toque, converse com clientes e acompanhe os seus ganhos. Aplicação completa para iOS e Android.
 
 ### Construa a Sua Reputação
 Cada trabalho concluído ganha-lhe avaliações e comentários. Um perfil forte significa mais reservas, melhores trabalhos e ganhos mais elevados ao longo do tempo.

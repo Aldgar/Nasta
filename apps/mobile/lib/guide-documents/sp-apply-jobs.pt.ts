@@ -1,6 +1,6 @@
 export const SP_APPLY_JOBS_PT = `# Candidatar-se a Empregos
 
-Este guia explica como encontrar e candidatar-se a empregos publicados por empregadores na Nasta.
+Este guia explica como encontrar e candidatar-se a empregos publicados por clientes na Nasta.
 
 ## Pré-requisitos
 
@@ -33,23 +33,23 @@ Os empregos são apresentados com os mais recentes primeiro. Percorra para encon
 3. Se for adequado, toque no botão **Candidatar**
 4. A sua candidatura é enviada imediatamente — candidatura com um toque
 
-Não é necessária carta de apresentação ou candidatura escrita. O empregador irá rever o seu perfil diretamente.
+Não é necessária carta de apresentação ou candidatura escrita. O cliente irá rever o seu perfil diretamente.
 
 ## Estados da Candidatura
 
 Após se candidatar, a sua candidatura pode estar em vários estados:
 
 ### Pendente
-A sua candidatura foi submetida e está à espera da revisão do empregador. This é o estado inicial.
+A sua candidatura foi submetida e está à espera da revisão do cliente. This é o estado inicial.
 
 ### Aceite
-O empregador escolheu-o para o emprego. Receberá uma notificação, e o emprego aparecerá nos seus empregos ativos. Pode então negociar a taxa se necessário.
+O cliente escolheu-o para o emprego. Receberá uma notificação, e o emprego aparecerá nos seus empregos ativos. Pode então negociar a taxa se necessário.
 
 ### Rejeitado
-O empregador escolheu outro candidato. Não desanime — continue a candidatar-se a outros empregos.
+O cliente escolheu outro candidato. Não desanime — continue a candidatar-se a outros empregos.
 
 ### Retirado
-Retirou a sua candidatura antes do empregador tomar uma decisão.
+Retirou a sua candidatura antes do cliente tomar uma decisão.
 
 ## Retirar uma Candidatura
 
@@ -60,14 +60,14 @@ Se mudar de ideias depois de se candidatar:
 4. Forneça um motivo para a retirada
 5. Confirme
 
-Uma vez retirada, a sua candidatura é removida e o empregador é notificado.
+Uma vez retirada, a sua candidatura é removida e o cliente é notificado.
 
 ## Dicas para Ser Aceite
 
-- **Complete o seu perfil** — Empregadores verificam as competências, experiência e taxas dos candidatos
+- **Complete o seu perfil** — Clientes verificam as competências, experiência e taxas dos candidatos
 - **Adicione competências relevantes** — Certifique-se de que as suas competências correspondem aos empregos a que se candidata
 - **Defina taxas competitivas** — Taxas razoáveis tornam-no mais atrativo
 - **Mantenha boa reputação** — Zero ou baixas não comparências constrói confiança
 - **Candidate-se cedo** — Os primeiros candidatos são frequentemente revistos primeiro
-- **Esteja verificado** — Perfis com KYC concluído são preferidos pelos empregadores
+- **Esteja verificado** — Perfis com KYC concluído são preferidos pelos clientes
 `;

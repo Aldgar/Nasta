@@ -673,6 +673,12 @@ export default function DashboardLayout({
   }
 
   const navItems = NAV_ITEMS[user.role] ?? NAV_ITEMS.JOB_SEEKER;
+  const homeHref =
+    user.role === "EMPLOYER"
+      ? "/dashboard/employer"
+      : user.role === "ADMIN"
+        ? "/dashboard/admin"
+        : "/dashboard";
   const initials = (user.firstName?.[0] ?? user.email[0] ?? "?").toUpperCase();
   const roleName =
     user.role === "JOB_SEEKER"
@@ -713,7 +719,7 @@ export default function DashboardLayout({
         {/* Sidebar header */}
         <div className="flex h-14 shrink-0 items-center border-b border-[var(--border-color)] px-3">
           <Link
-            href="/dashboard"
+            href={homeHref}
             className="flex items-center gap-2.5 overflow-hidden"
           >
             <Image
@@ -830,6 +836,10 @@ export default function DashboardLayout({
               href: "/dashboard/legal/platform-rules",
               label: t("web.nav.platformRules", "Platform Rules"),
             },
+            {
+              href: "/dashboard/legal/refund",
+              label: t("web.nav.refundPolicy", "Refund Policy"),
+            },
           ].map((link) => (
             <Link
               key={link.href}
@@ -902,7 +912,7 @@ export default function DashboardLayout({
       {/* ── Main area ──────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-[var(--border-color)] bg-[var(--surface)]/80 px-4 backdrop-blur-md">
+        <header className="relative z-10 flex h-14 shrink-0 items-center gap-4 border-b border-[var(--border-color)] bg-[var(--surface)]/80 px-4 backdrop-blur-md">
           {/* Mobile hamburger */}
           <button
             className="rounded-md p-1.5 text-[var(--muted-text)] hover:bg-[var(--surface-alt)] lg:hidden"

@@ -12,7 +12,7 @@ const TITLES: Record<string, string> = {
   "/verify-email": "Verify Email",
   "/faq": "FAQ",
   "/how-it-works": "How It Works",
-  "/for-employers": "For Employers",
+  "/for-employers": "For Clients",
   "/for-service-providers": "For Service Providers",
   "/terms": "Terms of Service",
   "/privacy": "Privacy Policy",
@@ -21,7 +21,7 @@ const TITLES: Record<string, string> = {
   "/support": "Support",
   "/delete-account": "Delete Account",
   "/auth/callback": "Authenticating",
-  "/onboarding/employer": "Employer Onboarding",
+  "/onboarding/employer": "Client Onboarding",
   "/onboarding/job-seeker": "Job Seeker Onboarding",
   "/settings": "Settings",
   "/settings/verification": "Verification",
@@ -58,7 +58,7 @@ const TITLES: Record<string, string> = {
   "/dashboard/admin/admins": "Admin Management",
 
   // Dashboard – employer
-  "/dashboard/employer": "Employer Dashboard",
+  "/dashboard/employer": "Client Dashboard",
   "/dashboard/employer/my-jobs": "My Jobs",
   "/dashboard/employer/post-job": "Post a Job",
   "/dashboard/employer/applications": "Applications",

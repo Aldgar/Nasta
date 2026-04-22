@@ -121,7 +121,7 @@ export default function SurveyScreen() {
             "Invalid or missing role:",
             role,
             "Full response:",
-            data
+            data,
           );
         }
       } else {
@@ -137,14 +137,14 @@ export default function SurveyScreen() {
 
   const updateEmployerData = (
     field: keyof EmployerSurveyData,
-    value: string
+    value: string,
   ) => {
     setEmployerData((prev) => ({ ...prev, [field]: value }));
   };
 
   const updateProviderData = (
     field: keyof ServiceProviderSurveyData,
-    value: string
+    value: string,
   ) => {
     setProviderData((prev) => ({ ...prev, [field]: value }));
   };
@@ -202,7 +202,7 @@ export default function SurveyScreen() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          subject: `${userRole === "EMPLOYER" ? "Employer" : "Service Provider"} Survey Response`,
+          subject: `${userRole === "EMPLOYER" ? "Client" : "Service Provider"} Survey Response`,
           message: message,
           category:
             userRole === "EMPLOYER" ? "EMPLOYER_SURVEY" : "PROVIDER_SURVEY",
@@ -220,7 +220,7 @@ export default function SurveyScreen() {
           .catch(() => ({ message: "Failed to submit survey" }));
         Alert.alert(
           t("common.error"),
-          error.message || t("survey.failedToSubmitSurvey")
+          error.message || t("survey.failedToSubmitSurvey"),
         );
       }
     } catch (error: any) {
@@ -259,7 +259,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.employer.question1Placeholder")}
@@ -490,7 +492,9 @@ export default function SurveyScreen() {
                   styles.optionText,
                   {
                     color:
-                      employerData.hasTools === option ? "#FFFAF0" : colors.text,
+                      employerData.hasTools === option
+                        ? "#FFFAF0"
+                        : colors.text,
                   },
                 ]}
               >
@@ -641,7 +645,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareWhatYouEnjoyed")}
@@ -665,7 +671,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareYourSuggestions")}
@@ -689,7 +697,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.employer.question10Placeholder")}
@@ -1130,7 +1140,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.serviceProvider.question8Placeholder")}
@@ -1154,7 +1166,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.shareYourSuggestions")}
@@ -1178,7 +1192,9 @@ export default function SurveyScreen() {
             {
               backgroundColor: isDark ? "rgba(201,150,63,0.12)" : "#FFFAF0",
               color: colors.text,
-              borderColor: isDark ? "rgba(201,150,63,0.12)" : "rgba(184,130,42,0.2)",
+              borderColor: isDark
+                ? "rgba(201,150,63,0.12)"
+                : "rgba(184,130,42,0.2)",
             },
           ]}
           placeholder={t("survey.serviceProvider.question10Placeholder")}
@@ -1237,29 +1253,32 @@ export default function SurveyScreen() {
 
   return (
     <GradientBackground>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableButton onPress={() => router.back()}>
-            <Feather name="arrow-left" size={24} color={colors.text} />
-          </TouchableButton>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {t("survey.title")}
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
-        {userRole === "EMPLOYER" ? (
-          renderEmployerSurvey()
-        ) : userRole === "JOB_SEEKER" ? (
-          renderServiceProviderSurvey()
-        ) : (
-          <View style={styles.loadingContainer}>
-            <Text style={[styles.errorText, { color: colors.text }]}>
-              {t("survey.unableToDetermineRole")}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <TouchableButton onPress={() => router.back()}>
+              <Feather name="arrow-left" size={24} color={colors.text} />
+            </TouchableButton>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              {t("survey.title")}
             </Text>
+            <View style={{ width: 24 }} />
           </View>
-        )}
-      </SafeAreaView>
+          {userRole === "EMPLOYER" ? (
+            renderEmployerSurvey()
+          ) : userRole === "JOB_SEEKER" ? (
+            renderServiceProviderSurvey()
+          ) : (
+            <View style={styles.loadingContainer}>
+              <Text style={[styles.errorText, { color: colors.text }]}>
+                {t("survey.unableToDetermineRole")}
+              </Text>
+            </View>
+          )}
+        </SafeAreaView>
       </KeyboardAvoidingView>
     </GradientBackground>
   );

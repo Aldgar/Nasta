@@ -566,7 +566,7 @@ export default function AdminUsersPage() {
               onClick={() => setActiveTab("employers")}
               className={`px-5 py-2.5 text-sm font-medium transition-colors ${activeTab === "employers" ? "bg-[var(--primary)] text-white" : "text-[var(--muted-text)] hover:bg-[var(--surface-alt)]"}`}
             >
-              Employers ({employers.length})
+              Clients ({employers.length})
             </button>
           </div>
 
@@ -579,8 +579,7 @@ export default function AdminUsersPage() {
             <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-12 text-center">
               <p className="text-4xl mb-3">👥</p>
               <p className="text-[var(--muted-text)]">
-                No{" "}
-                {activeTab === "providers" ? "service providers" : "employers"}{" "}
+                No {activeTab === "providers" ? "service providers" : "clients"}{" "}
                 found
               </p>
             </div>
@@ -651,7 +650,7 @@ export default function AdminUsersPage() {
                     <p className="text-sm text-[var(--muted-text)]">
                       {userDetails.user.role === "JOB_SEEKER"
                         ? "Service Provider"
-                        : "Employer"}
+                        : "Client"}
                     </p>
                   </div>
                   <span

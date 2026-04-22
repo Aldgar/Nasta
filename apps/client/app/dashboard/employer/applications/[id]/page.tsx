@@ -168,6 +168,20 @@ function formatLabel(val: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+function getPaymentTypeLabel(
+  type: string,
+  t: (key: string, fallback: string) => string,
+): string {
+  const map: Record<string, string> = {
+    HOURLY: t("employerDashboard.applications.paymentTypeHourly", "Hourly"),
+    DAILY: t("employerDashboard.applications.paymentTypeDaily", "Daily"),
+    WEEKLY: t("employerDashboard.applications.paymentTypeWeekly", "Weekly"),
+    MONTHLY: t("employerDashboard.applications.paymentTypeMonthly", "Monthly"),
+    FIXED: t("employerDashboard.applications.paymentTypeFixed", "Fixed"),
+  };
+  return map[type.toUpperCase()] ?? formatLabel(type);
+}
+
 function fmtDate(iso?: string | null): string {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-IE", {
@@ -195,7 +209,10 @@ interface TimelineStep {
   state: "complete" | "current" | "pending" | "failed";
 }
 
-function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
+function buildEmployerTimeline(
+  app: ApplicationDetail,
+  t: (key: string, fallback: string) => string,
+): TimelineStep[] {
   const status = app.status.toUpperCase();
   const isRejected = status === "REJECTED";
   const isWithdrawn = status === "WITHDRAWN";
@@ -225,8 +242,14 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   // 1. Application Received
   steps.push({
     key: "received",
-    label: "Application Received",
-    description: "A service provider applied for this position",
+    label: t(
+      "employerDashboard.applications.applicationReceived",
+      "Application Received",
+    ),
+    description: t(
+      "employerDashboard.applications.applicationReceivedDesc",
+      "A service provider applied for this position",
+    ),
     timestamp: app.appliedAt,
     state: "complete",
   });
@@ -236,8 +259,11 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
     ["REVIEWING", "ACCEPTED"].includes(status) || isRejected || isWithdrawn;
   steps.push({
     key: "review",
-    label: "Under Review",
-    description: "Application is being reviewed",
+    label: t("employerDashboard.applications.underReview", "Under Review"),
+    description: t(
+      "employerDashboard.applications.underReviewDesc",
+      "Application is being reviewed",
+    ),
     state:
       isRejected || isWithdrawn
         ? "complete"
@@ -252,8 +278,11 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   if (isRejected) {
     steps.push({
       key: "rejected",
-      label: "Rejected",
-      description: "Application was declined",
+      label: t("employerDashboard.applications.rejectedStep", "Rejected"),
+      description: t(
+        "employerDashboard.applications.rejectedDesc",
+        "Application was declined",
+      ),
       state: "failed",
     });
     return steps;
@@ -261,8 +290,11 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   if (isWithdrawn) {
     steps.push({
       key: "withdrawn",
-      label: "Withdrawn",
-      description: "Applicant withdrew their application",
+      label: t("employerDashboard.applications.withdrawnStep", "Withdrawn"),
+      description: t(
+        "employerDashboard.applications.withdrawnDesc",
+        "Applicant withdrew their application",
+      ),
       state: "failed",
     });
     return steps;
@@ -270,15 +302,22 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
 
   // 3. Negotiation
   const negoEmpDesc = negotiationAccepted
-    ? "Negotiation accepted"
-    : negotiationPending
-      ? "Rate negotiation in progress"
-      : hasNegotiation
-        ? "Rate negotiation in progress"
-        : "No negotiation requested";
+    ? t(
+        "employerDashboard.applications.negotiationAccepted",
+        "Negotiation accepted",
+      )
+    : negotiationPending || hasNegotiation
+      ? t(
+          "employerDashboard.applications.negotiationPending",
+          "Rate negotiation in progress",
+        )
+      : t(
+          "employerDashboard.applications.noNegotiation",
+          "No negotiation requested",
+        );
   steps.push({
     key: "negotiation",
-    label: "Negotiation",
+    label: t("employerDashboard.applications.negotiation", "Negotiation"),
     description: negoEmpDesc,
     state:
       isAccepted || negotiationAccepted
@@ -291,9 +330,14 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   // 4. Payment Made
   steps.push({
     key: "payment",
-    label: "Payment Made",
+    label: t("employerDashboard.applications.paymentMade", "Payment Made"),
     description:
-      isAccepted || paymentMade ? "Payment has been made" : "Payment pending",
+      isAccepted || paymentMade
+        ? t(
+            "employerDashboard.applications.paymentMadeDesc",
+            "Payment has been made",
+          )
+        : t("employerDashboard.applications.paymentPending", "Payment pending"),
     state:
       isAccepted || paymentMade
         ? "complete"
@@ -305,16 +349,25 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   // 5. Hired
   steps.push({
     key: "accepted",
-    label: "Hired",
-    description: "You accepted this service provider",
+    label: t("employerDashboard.applications.hiredStep", "Hired"),
+    description: t(
+      "employerDashboard.applications.hiredDesc",
+      "You accepted this service provider",
+    ),
     state: isAccepted ? "complete" : "pending",
   });
 
   // 6. Service Started
   steps.push({
     key: "started",
-    label: "Service Started",
-    description: "Service provider verified the code and started working",
+    label: t(
+      "employerDashboard.applications.serviceStarted",
+      "Service Started",
+    ),
+    description: t(
+      "employerDashboard.applications.serviceStartedDesc",
+      "Service provider verified the code and started working",
+    ),
     timestamp: app.verificationCodeVerifiedAt,
     state: isAccepted ? (serviceStarted ? "complete" : "current") : "pending",
   });
@@ -323,8 +376,14 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   if (hasAdditionalNego) {
     steps.push({
       key: "additionalNego",
-      label: "Additional Negotiation",
-      description: "Additional amounts were requested during the job",
+      label: t(
+        "employerDashboard.applications.additionalNegotiation",
+        "Additional Negotiation",
+      ),
+      description: t(
+        "employerDashboard.applications.additionalNegotiationDesc",
+        "Additional amounts were requested during the job",
+      ),
       state: isAccepted && serviceStarted ? "complete" : "pending",
     });
   }
@@ -332,8 +391,14 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   // 8. Provider Marked Done
   steps.push({
     key: "done",
-    label: "Provider Marked Done",
-    description: "Service provider marked the work as complete",
+    label: t(
+      "employerDashboard.applications.providerMarkedDone",
+      "Provider Marked Done",
+    ),
+    description: t(
+      "employerDashboard.applications.providerMarkedDoneDesc",
+      "Service provider marked the work as complete",
+    ),
     timestamp: app.serviceProviderMarkedDoneAt,
     state: isAccepted
       ? markedDone
@@ -347,8 +412,11 @@ function buildEmployerTimeline(app: ApplicationDetail): TimelineStep[] {
   // 9. Completed
   steps.push({
     key: "completed",
-    label: "Completed",
-    description: "Job is complete",
+    label: t("employerDashboard.applications.completedStep", "Completed"),
+    description: t(
+      "employerDashboard.applications.completedDesc",
+      "Job is complete",
+    ),
     timestamp: app.completedAt,
     state: isAccepted
       ? completed
@@ -496,6 +564,7 @@ function EmployerNegotiationCard({
     status: "ACCEPTED" | "REJECTED",
   ) => void;
 }) {
+  const { t } = useLanguage();
   const [showCounterForm, setShowCounterForm] = useState(false);
   const [counterRates, setCounterRates] = useState<
     { rate: string; paymentType: string }[]
@@ -530,7 +599,15 @@ function EmployerNegotiationCard({
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--foreground)]">
-          {isFromProvider ? "Provider request" : "Your suggestion"}
+          {isFromProvider
+            ? t(
+                "employerDashboard.applications.providerRequest",
+                "Provider request",
+              )
+            : t(
+                "employerDashboard.applications.yourSuggestion",
+                "Your suggestion",
+              )}
         </span>
         <span
           className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
@@ -544,12 +621,15 @@ function EmployerNegotiationCard({
           }`}
         >
           {isAccepted
-            ? "Accepted"
+            ? t("employerDashboard.applications.acceptedStatus", "Accepted")
             : isRejected
-              ? "Rejected"
+              ? t("employerDashboard.applications.rejectedStatus", "Rejected")
               : hasCounterOffer
-                ? "Counter Offer"
-                : "Pending"}
+                ? t(
+                    "employerDashboard.applications.counterOffer",
+                    "Counter Offer",
+                  )
+                : t("employerDashboard.applications.pendingStatus", "Pending")}
         </span>
       </div>
 
@@ -560,21 +640,27 @@ function EmployerNegotiationCard({
               key={j}
               className="rounded-lg bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
             >
-              €{r.rate} / {formatLabel(r.paymentType).toLowerCase()}
+              €{r.rate} / {getPaymentTypeLabel(r.paymentType, t).toLowerCase()}
             </span>
           ))}
         </div>
       )}
       {typeof nr.totalAmount === "number" && (
         <p className="mt-1.5 text-xs font-semibold text-[var(--foreground)]">
-          Total: €{nr.totalAmount.toFixed(2)}
+          {t("employerDashboard.applications.totalColon", "Total:")} €
+          {nr.totalAmount.toFixed(2)}
         </p>
       )}
 
       {nr.message && (
         <div className="mt-2 rounded-lg bg-[var(--surface)]/60 px-3 py-2">
           <p className="text-[10px] font-medium text-[var(--muted-text)]">
-            {isFromProvider ? "Provider explanation" : "Your message"}
+            {isFromProvider
+              ? t(
+                  "employerDashboard.applications.providerExplanation",
+                  "Provider explanation",
+                )
+              : t("employerDashboard.applications.yourMessage", "Your message")}
           </p>
           <p className="mt-0.5 text-xs text-[var(--foreground)]/80">
             {nr.message}
@@ -585,7 +671,15 @@ function EmployerNegotiationCard({
       {nr.responseMessage && !hasCounterOffer && (
         <div className="mt-2 rounded-lg bg-[var(--surface)]/60 px-3 py-2">
           <p className="text-[10px] font-medium text-[var(--muted-text)]">
-            {isFromProvider ? "Your response" : "Provider response"}
+            {isFromProvider
+              ? t(
+                  "employerDashboard.applications.yourResponseLabel",
+                  "Your response",
+                )
+              : t(
+                  "employerDashboard.applications.providerResponseLabel",
+                  "Provider response",
+                )}
           </p>
           <p className="mt-0.5 text-xs text-[var(--foreground)]/80">
             {nr.responseMessage}
@@ -601,13 +695,13 @@ function EmployerNegotiationCard({
               onClick={() => onRespond(nr.id!, "ACCEPTED")}
               className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
             >
-              Accept
+              {t("employerDashboard.applications.accept", "Accept")}
             </button>
             <button
               onClick={() => onRespond(nr.id!, "REJECTED")}
               className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-500"
             >
-              Reject
+              {t("employerDashboard.applications.reject", "Reject")}
             </button>
           </div>
           {!showCounterForm ? (
@@ -615,12 +709,18 @@ function EmployerNegotiationCard({
               onClick={() => setShowCounterForm(true)}
               className="w-full rounded-lg border border-[var(--fulfillment-gold)]/30 py-2 text-xs font-semibold text-[var(--fulfillment-gold)] transition-colors hover:bg-[var(--fulfillment-gold)]/10"
             >
-              Counter Offer
+              {t(
+                "employerDashboard.applications.counterOffer",
+                "Counter Offer",
+              )}
             </button>
           ) : (
             <div className="rounded-lg border border-[var(--fulfillment-gold)]/30 bg-[var(--fulfillment-gold)]/5 p-3">
               <p className="mb-2 text-[10px] font-bold text-[var(--fulfillment-gold)]">
-                Your Counter Offer
+                {t(
+                  "employerDashboard.applications.yourCounterOfferAwaiting",
+                  "Your Counter Offer",
+                )}
               </p>
               {counterRates.map((r, i) => (
                 <div key={i} className="mt-1.5 flex items-center gap-2">
@@ -695,12 +795,15 @@ function EmployerNegotiationCard({
                 }
                 className="mt-1 text-[10px] font-medium text-[var(--primary)]"
               >
-                + Add rate
+                {t("employerDashboard.applications.addRate", "+ Add rate")}
               </button>
               <textarea
                 value={counterMsg}
                 onChange={(e) => setCounterMsg(e.target.value)}
-                placeholder="Message (optional)..."
+                placeholder={t(
+                  "employerDashboard.applications.messagePlaceholder",
+                  "Message (optional)...",
+                )}
                 rows={2}
                 className="mt-2 w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-2.5 py-1.5 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
               />
@@ -709,13 +812,16 @@ function EmployerNegotiationCard({
                   onClick={submitCounter}
                   className="flex-1 rounded-lg bg-[var(--fulfillment-gold)] py-1.5 text-xs font-semibold text-[var(--background)] hover:opacity-90"
                 >
-                  Send Counter
+                  {t(
+                    "employerDashboard.applications.sendCounter",
+                    "Send Counter",
+                  )}
                 </button>
                 <button
                   onClick={() => setShowCounterForm(false)}
                   className="rounded-lg border border-[var(--border-color)] px-3 py-1.5 text-xs text-[var(--muted-text)]"
                 >
-                  Cancel
+                  {t("employerDashboard.applications.cancel", "Cancel")}
                 </button>
               </div>
             </div>
@@ -728,10 +834,19 @@ function EmployerNegotiationCard({
         <div className="mt-3 rounded-lg border-l-2 border-[var(--fulfillment-gold)] bg-[var(--fulfillment-gold)]/5 px-3 py-2.5">
           <p className="text-[10px] font-bold text-[var(--fulfillment-gold)]">
             {nr.counterOffer.status === "PENDING" && isFromProvider
-              ? "Your Counter Offer (awaiting response)"
+              ? t(
+                  "employerDashboard.applications.yourCounterOfferAwaiting",
+                  "Your Counter Offer (awaiting response)",
+                )
               : nr.counterOffer.status === "PENDING" && !isFromProvider
-                ? "Provider Counter Offer (awaiting response)"
-                : "Counter Offer"}
+                ? t(
+                    "employerDashboard.applications.providerCounterOfferAwaiting",
+                    "Provider Counter Offer (awaiting response)",
+                  )
+                : t(
+                    "employerDashboard.applications.counterOfferLabel",
+                    "Counter Offer",
+                  )}
           </p>
           {nr.counterOffer.rates && nr.counterOffer.rates.length > 0 && (
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -740,14 +855,16 @@ function EmployerNegotiationCard({
                   key={j}
                   className="rounded-lg bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
                 >
-                  €{r.rate} / {formatLabel(r.paymentType).toLowerCase()}
+                  €{r.rate} /{" "}
+                  {getPaymentTypeLabel(r.paymentType, t).toLowerCase()}
                 </span>
               ))}
             </div>
           )}
           {typeof nr.counterOffer.totalAmount === "number" && (
             <p className="mt-1.5 text-xs font-semibold text-[var(--foreground)]">
-              Total: €{nr.counterOffer.totalAmount.toFixed(2)}
+              {t("employerDashboard.applications.totalColon", "Total:")} €
+              {nr.counterOffer.totalAmount.toFixed(2)}
             </p>
           )}
           {nr.counterOffer.message && (
@@ -768,7 +885,7 @@ function EmployerNegotiationCard({
                   }
                   className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
                 >
-                  Accept
+                  {t("employerDashboard.applications.accept", "Accept")}
                 </button>
                 <button
                   onClick={() =>
@@ -776,18 +893,24 @@ function EmployerNegotiationCard({
                   }
                   className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-500"
                 >
-                  Reject
+                  {t("employerDashboard.applications.reject", "Reject")}
                 </button>
               </div>
             )}
           {nr.counterOffer.status === "ACCEPTED" && (
             <p className="mt-2 text-xs font-bold text-emerald-400">
-              Counter offer accepted
+              {t(
+                "employerDashboard.applications.counterOfferAccepted",
+                "Counter offer accepted",
+              )}
             </p>
           )}
           {nr.counterOffer.status === "REJECTED" && (
             <p className="mt-2 text-xs font-bold text-red-400">
-              Counter offer rejected
+              {t(
+                "employerDashboard.applications.counterOfferRejected",
+                "Counter offer rejected",
+              )}
             </p>
           )}
         </div>
@@ -1420,7 +1543,7 @@ export default function EmployerApplicationDetailPage() {
   ]
     .filter(Boolean)
     .join(", ");
-  const steps = buildEmployerTimeline(app);
+  const steps = buildEmployerTimeline(app, t);
 
   // Payment required check — mirrors mobile isPaymentRequired()
   const totalAmount = getSelectedTotal();
@@ -1549,7 +1672,7 @@ export default function EmployerApplicationDetailPage() {
                     d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
                   />
                 </svg>
-                ID Verified
+                {t("employerDashboard.applications.idVerified", "ID Verified")}
               </span>
             )}
             {applicant?.isBackgroundVerified && (
@@ -1567,7 +1690,10 @@ export default function EmployerApplicationDetailPage() {
                     d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Background Checked
+                {t(
+                  "employerDashboard.applications.backgroundChecked",
+                  "Background Checked",
+                )}
               </span>
             )}
           </div>
@@ -1592,12 +1718,16 @@ export default function EmployerApplicationDetailPage() {
           </svg>
           <div>
             <p className="text-sm font-bold text-blue-400">
-              Waiting for Provider Response
+              {t(
+                "employerDashboard.applications.waitingForProviderResponse",
+                "Waiting for Provider Response",
+              )}
             </p>
             <p className="mt-1 text-sm text-[var(--foreground)]/70">
-              Your request has been sent to the service provider. They will
-              review the job details and respond. You will be notified when they
-              accept or decline.
+              {t(
+                "employerDashboard.applications.waitingForProviderResponseDesc",
+                "Your request has been sent to the service provider. They will review the job details and respond. You will be notified when they accept or decline.",
+              )}
             </p>
           </div>
         </div>
@@ -1627,10 +1757,16 @@ export default function EmployerApplicationDetailPage() {
               </div>
               <div>
                 <h2 className="text-base font-bold text-[var(--foreground)]">
-                  Tracking Timeline
+                  {t(
+                    "employerDashboard.applications.trackingTimeline",
+                    "Tracking Timeline",
+                  )}
                 </h2>
                 <p className="text-xs text-[var(--muted-text)]">
-                  Follow the progress of this application
+                  {t(
+                    "employerDashboard.applications.followProgress",
+                    "Follow the progress of this application",
+                  )}
                 </p>
               </div>
             </div>
@@ -1641,7 +1777,10 @@ export default function EmployerApplicationDetailPage() {
           {applicant && (
             <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
               <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">
-                Applicant Profile
+                {t(
+                  "employerDashboard.applications.applicantProfile",
+                  "Applicant Profile",
+                )}
               </h2>
               {(applicant.bio || applicant.userProfile?.bio) && (
                 <p className="mb-4 text-sm leading-relaxed text-[var(--muted-text)]">
@@ -1656,7 +1795,7 @@ export default function EmployerApplicationDetailPage() {
               {applicant.userProfile?.skillsSummary && (
                 <div className="rounded-xl bg-[var(--surface-alt)] p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted-text)]">
-                    Skills
+                    {t("employerDashboard.applications.skills", "Skills")}
                   </p>
                   <p className="mt-1 text-sm text-[var(--foreground)]">
                     {applicant.userProfile.skillsSummary}
@@ -1670,7 +1809,10 @@ export default function EmployerApplicationDetailPage() {
           {app.coverLetter && (
             <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
               <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                Cover Letter
+                {t(
+                  "employerDashboard.applications.coverLetter",
+                  "Cover Letter",
+                )}
               </h2>
               <p className="whitespace-pre-line text-sm leading-relaxed text-[var(--muted-text)]">
                 {app.coverLetter}
@@ -1682,10 +1824,16 @@ export default function EmployerApplicationDetailPage() {
           {app.negotiationRequests && app.negotiationRequests.length > 0 && (
             <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
               <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
-                Negotiation History
+                {t(
+                  "employerDashboard.applications.negotiationHistory",
+                  "Negotiation History",
+                )}
               </h2>
               <p className="mb-4 text-xs text-[var(--muted-text)]">
-                All negotiation requests for this application
+                {t(
+                  "employerDashboard.applications.allNegotiationsDesc",
+                  "All negotiation requests for this application",
+                )}
               </p>
               <div className="space-y-3">
                 {app.negotiationRequests.map((nr, i) => {
@@ -1722,10 +1870,16 @@ export default function EmployerApplicationDetailPage() {
             status !== "REQUESTED" && (
               <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
                 <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
-                  Select Services
+                  {t(
+                    "employerDashboard.applications.selectServices",
+                    "Select Services",
+                  )}
                 </h2>
                 <p className="mb-4 text-xs text-[var(--muted-text)]">
-                  Choose the services you want from this provider
+                  {t(
+                    "employerDashboard.applications.selectServicesDesc",
+                    "Choose the services you want from this provider",
+                  )}
                 </p>
                 <div className="space-y-2">
                   {candidateData.rates.map((rate, i) => {
@@ -1755,7 +1909,10 @@ export default function EmployerApplicationDetailPage() {
                         <div className="flex-1">
                           <span className="text-sm font-medium text-[var(--foreground)]">
                             €{rate.rate.toFixed(2)} /{" "}
-                            {formatLabel(rate.paymentType).toLowerCase()}
+                            {getPaymentTypeLabel(
+                              rate.paymentType,
+                              t,
+                            ).toLowerCase()}
                           </span>
                           {rate.otherSpecification && (
                             <span className="ml-2 text-xs text-[var(--muted-text)]">
@@ -1765,7 +1922,10 @@ export default function EmployerApplicationDetailPage() {
                         </div>
                         {isPaid && (
                           <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                            Paid
+                            {t(
+                              "employerDashboard.applications.paidBadge",
+                              "Paid",
+                            )}
                           </span>
                         )}
                       </label>
@@ -1774,7 +1934,7 @@ export default function EmployerApplicationDetailPage() {
                 </div>
                 {savingRates && (
                   <p className="mt-2 text-[10px] text-[var(--muted-text)]">
-                    Saving...
+                    {t("employerDashboard.applications.saving", "Saving...")}
                   </p>
                 )}
 
@@ -1789,11 +1949,17 @@ export default function EmployerApplicationDetailPage() {
                   return (
                     <div className="mt-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface-alt)] p-4">
                       <h3 className="text-xs font-bold text-[var(--foreground)]">
-                        Selected Services
+                        {t(
+                          "employerDashboard.applications.selectServices",
+                          "Selected Services",
+                        )}
                       </h3>
                       <div className="mt-2 flex items-center justify-between">
                         <span className="text-xs text-[var(--muted-text)]">
-                          Total Amount:
+                          {t(
+                            "employerDashboard.applications.totalAmount",
+                            "Total Amount:",
+                          )}
                         </span>
                         <span className="text-sm font-bold text-[var(--foreground)]">
                           EUR {total.toFixed(2)}
@@ -1802,7 +1968,10 @@ export default function EmployerApplicationDetailPage() {
                       {paid > 0 && (
                         <div className="mt-1 flex items-center justify-between">
                           <span className="text-xs text-emerald-400">
-                            Already Paid:
+                            {t(
+                              "employerDashboard.applications.alreadyPaid",
+                              "Already Paid:",
+                            )}
                           </span>
                           <span className="text-sm font-semibold text-emerald-400">
                             EUR {paid.toFixed(2)}
@@ -1812,7 +1981,10 @@ export default function EmployerApplicationDetailPage() {
                       {additionalNeeded > 0 && (
                         <div className="mt-1 flex items-center justify-between">
                           <span className="text-xs font-bold text-[#C9963F]">
-                            Payment Required:
+                            {t(
+                              "employerDashboard.applications.paymentRequired",
+                              "Payment Required:",
+                            )}
                           </span>
                           <span className="text-base font-bold text-[#C9963F]">
                             EUR {additionalNeeded.toFixed(2)}
@@ -1839,14 +2011,23 @@ export default function EmployerApplicationDetailPage() {
                             />
                           </svg>
                           {paymentProcessing
-                            ? "Processing..."
-                            : "Proceed to Payment"}
+                            ? t(
+                                "employerDashboard.applications.processing",
+                                "Processing...",
+                              )
+                            : t(
+                                "employerDashboard.applications.proceedToPayment",
+                                "Proceed to Payment",
+                              )}
                         </button>
                       )}
                       {app?.paymentStatus?.completed &&
                         additionalNeeded === 0 && (
                           <p className="mt-2 text-center text-xs font-semibold text-emerald-400">
-                            Payment Complete
+                            {t(
+                              "employerDashboard.applications.paymentComplete",
+                              "Payment Complete",
+                            )}
                           </p>
                         )}
                     </div>
@@ -1860,19 +2041,28 @@ export default function EmployerApplicationDetailPage() {
             <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                  Suggest Negotiation
+                  {t(
+                    "employerDashboard.applications.suggestNegotiation",
+                    "Suggest Negotiation",
+                  )}
                 </h2>
                 {!showSuggestNego && (
                   <button
                     onClick={() => setShowSuggestNego(true)}
                     className="rounded-lg bg-[var(--fulfillment-gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--fulfillment-gold)] transition-colors hover:bg-[var(--fulfillment-gold)]/20"
                   >
-                    Propose a rate
+                    {t(
+                      "employerDashboard.applications.proposeRate",
+                      "Propose a rate",
+                    )}
                   </button>
                 )}
               </div>
               <p className="mb-3 text-xs text-[var(--muted-text)]">
-                Propose a different rate and explain why
+                {t(
+                  "employerDashboard.applications.proposeRateDesc",
+                  "Propose a different rate and explain why",
+                )}
               </p>
               {showSuggestNego && (
                 <div className="space-y-3 rounded-xl border border-[var(--fulfillment-gold)]/30 bg-[var(--fulfillment-gold)]/5 p-4">
@@ -1949,12 +2139,15 @@ export default function EmployerApplicationDetailPage() {
                     }
                     className="text-xs font-medium text-[var(--primary)]"
                   >
-                    + Add rate
+                    {t("employerDashboard.applications.addRate", "+ Add rate")}
                   </button>
                   <textarea
                     value={negoMsg}
                     onChange={(e) => setNegoMsg(e.target.value)}
-                    placeholder="Explain your proposed rate..."
+                    placeholder={t(
+                      "employerDashboard.applications.explainProposedRate",
+                      "Explain your proposed rate...",
+                    )}
                     rows={3}
                     className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
                   />
@@ -1964,7 +2157,15 @@ export default function EmployerApplicationDetailPage() {
                       disabled={suggestingNego}
                       className="flex-1 rounded-lg bg-[var(--fulfillment-gold)] py-2 text-xs font-semibold text-[var(--background)] hover:opacity-90 disabled:opacity-50"
                     >
-                      {suggestingNego ? "Sending..." : "Send Suggestion"}
+                      {suggestingNego
+                        ? t(
+                            "employerDashboard.applications.sending",
+                            "Sending...",
+                          )
+                        : t(
+                            "employerDashboard.applications.sendSuggestion",
+                            "Send Suggestion",
+                          )}
                     </button>
                     <button
                       onClick={() => {
@@ -1974,7 +2175,7 @@ export default function EmployerApplicationDetailPage() {
                       }}
                       className="rounded-lg border border-[var(--border-color)] px-4 py-2 text-xs text-[var(--muted-text)]"
                     >
-                      Cancel
+                      {t("employerDashboard.applications.cancel", "Cancel")}
                     </button>
                   </div>
                 </div>
@@ -1987,10 +2188,16 @@ export default function EmployerApplicationDetailPage() {
             app.additionalRateRequests.length > 0 && (
               <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
                 <h2 className="mb-1 text-sm font-semibold text-[var(--foreground)]">
-                  Additional Rate Requests
+                  {t(
+                    "employerDashboard.applications.additionalRateRequests",
+                    "Additional Rate Requests",
+                  )}
                 </h2>
                 <p className="mb-4 text-xs text-[var(--muted-text)]">
-                  Service provider requested additional services during the job
+                  {t(
+                    "employerDashboard.applications.additionalRateDesc",
+                    "Service provider requested additional services during the job",
+                  )}
                 </p>
                 <div className="space-y-3">
                   {app.additionalRateRequests.map((req) => (
@@ -2018,10 +2225,19 @@ export default function EmployerApplicationDetailPage() {
                           }`}
                         >
                           {req.status === "APPROVED"
-                            ? "Approved"
+                            ? t(
+                                "employerDashboard.applications.approved",
+                                "Approved",
+                              )
                             : req.status === "REJECTED"
-                              ? "Rejected"
-                              : "Pending"}
+                              ? t(
+                                  "employerDashboard.applications.rejectedStatus",
+                                  "Rejected",
+                                )
+                              : t(
+                                  "employerDashboard.applications.pendingStatus",
+                                  "Pending",
+                                )}
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
@@ -2031,12 +2247,19 @@ export default function EmployerApplicationDetailPage() {
                             className="rounded-lg bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
                           >
                             €{r.rate.toFixed(2)} /{" "}
-                            {formatLabel(r.paymentType).toLowerCase()}
+                            {getPaymentTypeLabel(
+                              r.paymentType,
+                              t,
+                            ).toLowerCase()}
                           </span>
                         ))}
                       </div>
                       <p className="mt-1 text-xs font-semibold text-[var(--foreground)]">
-                        Total: €{req.totalAmount.toFixed(2)}
+                        {t(
+                          "employerDashboard.applications.totalColon",
+                          "Total:",
+                        )}{" "}
+                        €{req.totalAmount.toFixed(2)}
                       </p>
                       {req.message && (
                         <p className="mt-2 text-xs text-[var(--muted-text)] italic">
@@ -2045,7 +2268,11 @@ export default function EmployerApplicationDetailPage() {
                       )}
                       {req.responseMessage && (
                         <p className="mt-1 text-xs text-[var(--foreground)]/70">
-                          Response: {req.responseMessage}
+                          {t(
+                            "employerDashboard.applications.responseLabel",
+                            "Response:",
+                          )}{" "}
+                          {req.responseMessage}
                         </p>
                       )}
 
@@ -2058,7 +2285,10 @@ export default function EmployerApplicationDetailPage() {
                                 onChange={(e) =>
                                   setRateRespondMsg(e.target.value)
                                 }
-                                placeholder="Response message (optional)..."
+                                placeholder={t(
+                                  "employerDashboard.applications.responseMessagePlaceholder",
+                                  "Response message (optional)...",
+                                )}
                                 rows={2}
                                 className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
                               />
@@ -2072,7 +2302,10 @@ export default function EmployerApplicationDetailPage() {
                                   }
                                   className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
                                 >
-                                  Approve
+                                  {t(
+                                    "employerDashboard.applications.approve",
+                                    "Approve",
+                                  )}
                                 </button>
                                 <button
                                   onClick={() =>
@@ -2083,7 +2316,10 @@ export default function EmployerApplicationDetailPage() {
                                   }
                                   className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white hover:bg-red-500"
                                 >
-                                  Reject
+                                  {t(
+                                    "employerDashboard.applications.reject",
+                                    "Reject",
+                                  )}
                                 </button>
                                 <button
                                   onClick={() => {
@@ -2092,7 +2328,10 @@ export default function EmployerApplicationDetailPage() {
                                   }}
                                   className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs text-[var(--muted-text)]"
                                 >
-                                  Cancel
+                                  {t(
+                                    "employerDashboard.applications.cancel",
+                                    "Cancel",
+                                  )}
                                 </button>
                               </div>
                             </div>
@@ -2101,7 +2340,10 @@ export default function EmployerApplicationDetailPage() {
                               onClick={() => setRespondingRateId(req.id)}
                               className="w-full rounded-lg border border-[var(--primary)]/30 py-2 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
                             >
-                              Respond
+                              {t(
+                                "employerDashboard.applications.respond",
+                                "Respond",
+                              )}
                             </button>
                           )}
                         </div>
@@ -2118,10 +2360,16 @@ export default function EmployerApplicationDetailPage() {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                    Additional Time
+                    {t(
+                      "employerDashboard.applications.additionalTime",
+                      "Additional Time",
+                    )}
                   </h2>
                   <p className="text-xs text-[var(--muted-text)]">
-                    Request or respond to additional time requests
+                    {t(
+                      "employerDashboard.applications.additionalTimeDesc",
+                      "Request or respond to additional time requests",
+                    )}
                   </p>
                 </div>
                 {!showTimeReqForm && (
@@ -2129,7 +2377,10 @@ export default function EmployerApplicationDetailPage() {
                     onClick={() => setShowTimeReqForm(true)}
                     className="rounded-lg bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20"
                   >
-                    Request Time
+                    {t(
+                      "employerDashboard.applications.requestTime",
+                      "Request Time",
+                    )}
                   </button>
                 )}
               </div>
@@ -2139,7 +2390,10 @@ export default function EmployerApplicationDetailPage() {
                   <textarea
                     value={timeReqMsg}
                     onChange={(e) => setTimeReqMsg(e.target.value)}
-                    placeholder="Explain why additional time is needed..."
+                    placeholder={t(
+                      "employerDashboard.applications.explainAdditionalTime",
+                      "Explain why additional time is needed...",
+                    )}
                     rows={3}
                     className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
                   />
@@ -2149,7 +2403,15 @@ export default function EmployerApplicationDetailPage() {
                       disabled={requestingTime}
                       className="flex-1 rounded-lg bg-[var(--primary)] py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
-                      {requestingTime ? "Sending..." : "Send Request"}
+                      {requestingTime
+                        ? t(
+                            "employerDashboard.applications.sending",
+                            "Sending...",
+                          )
+                        : t(
+                            "employerDashboard.applications.sendRequest",
+                            "Send Request",
+                          )}
                     </button>
                     <button
                       onClick={() => {
@@ -2158,7 +2420,7 @@ export default function EmployerApplicationDetailPage() {
                       }}
                       className="rounded-lg border border-[var(--border-color)] px-4 py-2 text-xs text-[var(--muted-text)]"
                     >
-                      Cancel
+                      {t("employerDashboard.applications.cancel", "Cancel")}
                     </button>
                   </div>
                 </div>
@@ -2181,8 +2443,14 @@ export default function EmployerApplicationDetailPage() {
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-[var(--foreground)]">
                             {req.requestedBy === "EMPLOYER"
-                              ? "You requested"
-                              : "Provider requested"}
+                              ? t(
+                                  "employerDashboard.applications.youRequested",
+                                  "You requested",
+                                )
+                              : t(
+                                  "employerDashboard.applications.providerRequested",
+                                  "Provider requested",
+                                )}
                           </span>
                           <span
                             className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
@@ -2194,10 +2462,19 @@ export default function EmployerApplicationDetailPage() {
                             }`}
                           >
                             {req.status === "ACCEPTED"
-                              ? "Accepted"
+                              ? t(
+                                  "employerDashboard.applications.acceptedStatus",
+                                  "Accepted",
+                                )
                               : req.status === "REJECTED"
-                                ? "Rejected"
-                                : "Pending"}
+                                ? t(
+                                    "employerDashboard.applications.rejectedStatus",
+                                    "Rejected",
+                                  )
+                                : t(
+                                    "employerDashboard.applications.pendingStatus",
+                                    "Pending",
+                                  )}
                           </span>
                         </div>
                         <p className="text-xs text-[var(--muted-text)]">
@@ -2213,7 +2490,11 @@ export default function EmployerApplicationDetailPage() {
                         </p>
                         {req.employerResponseMessage && (
                           <p className="mt-1 text-xs text-[var(--foreground)]/70">
-                            Your response: {req.employerResponseMessage}
+                            {t(
+                              "employerDashboard.applications.yourResponseDisplay",
+                              "Your response:",
+                            )}{" "}
+                            {req.employerResponseMessage}
                           </p>
                         )}
 
@@ -2228,7 +2509,10 @@ export default function EmployerApplicationDetailPage() {
                                     onChange={(e) =>
                                       setTimeRespondMsg(e.target.value)
                                     }
-                                    placeholder="Response message (optional)..."
+                                    placeholder={t(
+                                      "employerDashboard.applications.responseMessagePlaceholder",
+                                      "Response message (optional)...",
+                                    )}
                                     rows={2}
                                     className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-[var(--primary)] focus:outline-none"
                                   />
@@ -2242,7 +2526,10 @@ export default function EmployerApplicationDetailPage() {
                                       }
                                       className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
                                     >
-                                      Accept
+                                      {t(
+                                        "employerDashboard.applications.accept",
+                                        "Accept",
+                                      )}
                                     </button>
                                     <button
                                       onClick={() =>
@@ -2253,7 +2540,10 @@ export default function EmployerApplicationDetailPage() {
                                       }
                                       className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white hover:bg-red-500"
                                     >
-                                      Reject
+                                      {t(
+                                        "employerDashboard.applications.reject",
+                                        "Reject",
+                                      )}
                                     </button>
                                     <button
                                       onClick={() => {
@@ -2262,7 +2552,10 @@ export default function EmployerApplicationDetailPage() {
                                       }}
                                       className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs text-[var(--muted-text)]"
                                     >
-                                      Cancel
+                                      {t(
+                                        "employerDashboard.applications.cancel",
+                                        "Cancel",
+                                      )}
                                     </button>
                                   </div>
                                 </div>
@@ -2271,7 +2564,10 @@ export default function EmployerApplicationDetailPage() {
                                   onClick={() => setRespondingTimeId(req.id)}
                                   className="w-full rounded-lg border border-[var(--primary)]/30 py-2 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
                                 >
-                                  Respond
+                                  {t(
+                                    "employerDashboard.applications.respond",
+                                    "Respond",
+                                  )}
                                 </button>
                               )}
                             </div>
@@ -2289,12 +2585,17 @@ export default function EmployerApplicationDetailPage() {
               typeof app.paymentStatus.unpaidAmount === "number") && (
               <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
                 <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">
-                  Payment Summary
+                  {t(
+                    "employerDashboard.applications.paymentSummary",
+                    "Payment Summary",
+                  )}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {typeof app.paymentStatus.paidAmount === "number" && (
                     <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
-                      <p className="text-xs text-emerald-400/80">Paid</p>
+                      <p className="text-xs text-emerald-400/80">
+                        {t("employerDashboard.applications.paidLabel", "Paid")}
+                      </p>
                       <p className="mt-1 text-xl font-bold text-emerald-400">
                         €{app.paymentStatus.paidAmount.toFixed(2)}
                       </p>
@@ -2303,7 +2604,9 @@ export default function EmployerApplicationDetailPage() {
                   {typeof app.paymentStatus.unpaidAmount === "number" &&
                     app.paymentStatus.unpaidAmount > 0 && (
                       <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-center">
-                        <p className="text-xs text-amber-400/80">Unpaid</p>
+                        <p className="text-xs text-amber-400/80">
+                          {t("employerDashboard.applications.unpaid", "Unpaid")}
+                        </p>
                         <p className="mt-1 text-xl font-bold text-amber-400">
                           €{app.paymentStatus.unpaidAmount.toFixed(2)}
                         </p>
@@ -2320,7 +2623,10 @@ export default function EmployerApplicationDetailPage() {
           {!isTerminal && !completed && status !== "REQUESTED" && (
             <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                Manage Application
+                {t(
+                  "employerDashboard.applications.manageApplication",
+                  "Manage Application",
+                )}
               </h3>
 
               {!isAccepted && (
@@ -2330,11 +2636,22 @@ export default function EmployerApplicationDetailPage() {
                     disabled={updatingStatus || isPaymentRequired()}
                     className="mt-3 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
                   >
-                    {updatingStatus ? "Updating..." : "Accept & Hire"}
+                    {updatingStatus
+                      ? t(
+                          "employerDashboard.applications.updating",
+                          "Updating...",
+                        )
+                      : t(
+                          "employerDashboard.applications.acceptAndHire",
+                          "Accept & Hire",
+                        )}
                   </button>
                   {isPaymentRequired() && (
                     <p className="mt-1.5 text-center text-[10px] text-[#C9963F]">
-                      Payment required before accepting
+                      {t(
+                        "employerDashboard.applications.paymentRequiredBeforeAccepting",
+                        "Payment required before accepting",
+                      )}
                     </p>
                   )}
                 </>
@@ -2345,7 +2662,10 @@ export default function EmployerApplicationDetailPage() {
                   onClick={() => setShowReject(true)}
                   className="mt-2 w-full rounded-xl border border-red-500/30 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10"
                 >
-                  Reject Application
+                  {t(
+                    "employerDashboard.applications.rejectApplication",
+                    "Reject Application",
+                  )}
                 </button>
               )}
 
@@ -2354,7 +2674,10 @@ export default function EmployerApplicationDetailPage() {
                   <textarea
                     value={rejectMsg}
                     onChange={(e) => setRejectMsg(e.target.value)}
-                    placeholder="Reason for rejection (optional)..."
+                    placeholder={t(
+                      "employerDashboard.applications.reasonForRejection",
+                      "Reason for rejection (optional)...",
+                    )}
                     rows={3}
                     className="w-full resize-none rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:border-red-500 focus:outline-none"
                   />
@@ -2366,13 +2689,18 @@ export default function EmployerApplicationDetailPage() {
                       disabled={updatingStatus}
                       className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-50"
                     >
-                      {updatingStatus ? "..." : "Confirm Reject"}
+                      {updatingStatus
+                        ? "..."
+                        : t(
+                            "employerDashboard.applications.confirmReject",
+                            "Confirm Reject",
+                          )}
                     </button>
                     <button
                       onClick={() => setShowReject(false)}
                       className="rounded-xl border border-[var(--border-color)] px-4 py-2.5 text-sm font-medium text-[var(--muted-text)]"
                     >
-                      Cancel
+                      {t("employerDashboard.applications.cancel", "Cancel")}
                     </button>
                   </div>
                 </div>
@@ -2408,7 +2736,10 @@ export default function EmployerApplicationDetailPage() {
             return (
               <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
                 <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                  Selected Services
+                  {t(
+                    "employerDashboard.applications.selectServices",
+                    "Selected Services",
+                  )}
                 </h3>
                 <div className="space-y-2">
                   {rates.map((r, i) => (
@@ -2417,7 +2748,7 @@ export default function EmployerApplicationDetailPage() {
                       className="flex items-center justify-between rounded-xl bg-[var(--surface-alt)] px-3 py-2"
                     >
                       <span className="text-xs text-[var(--muted-text)]">
-                        {`€${r.rate.toFixed(2)}/${formatLabel(r.paymentType)}`}
+                        {`€${r.rate.toFixed(2)}/${getPaymentTypeLabel(r.paymentType, t)}`}
                       </span>
                       {r.otherSpecification && (
                         <span className="text-[10px] text-[var(--muted-text)]">
@@ -2430,7 +2761,10 @@ export default function EmployerApplicationDetailPage() {
                 <div className="mt-3 border-t border-[var(--border-color)] pt-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-[var(--foreground)]">
-                      Total Amount:
+                      {t(
+                        "employerDashboard.applications.totalAmount",
+                        "Total Amount:",
+                      )}
                     </span>
                     <span className="text-sm font-bold text-[var(--foreground)]">
                       {currency} {total.toFixed(2)}
@@ -2439,7 +2773,10 @@ export default function EmployerApplicationDetailPage() {
                   {total > 0 && !app?.paymentStatus?.completed && (
                     <div className="mt-2 rounded-xl border border-[#C9963F]/20 bg-[#C9963F]/5 p-3 text-center">
                       <p className="text-[10px] font-medium text-[#C9963F]">
-                        Payment Required:
+                        {t(
+                          "employerDashboard.applications.paymentRequired",
+                          "Payment Required:",
+                        )}
                       </p>
                       <p className="mt-0.5 text-base font-bold text-[#C9963F]">
                         {currency} {total.toFixed(2)}
@@ -2448,7 +2785,10 @@ export default function EmployerApplicationDetailPage() {
                   )}
                   {app?.paymentStatus?.completed && (
                     <p className="mt-2 text-center text-xs font-semibold text-emerald-400">
-                      Payment Complete
+                      {t(
+                        "employerDashboard.applications.paymentComplete",
+                        "Payment Complete",
+                      )}
                     </p>
                   )}
                   {total > 0 &&
@@ -2473,8 +2813,14 @@ export default function EmployerApplicationDetailPage() {
                           />
                         </svg>
                         {paymentProcessing
-                          ? "Processing..."
-                          : "Proceed to Payment"}
+                          ? t(
+                              "employerDashboard.applications.processing",
+                              "Processing...",
+                            )
+                          : t(
+                              "employerDashboard.applications.proceedToPayment",
+                              "Proceed to Payment",
+                            )}
                       </button>
                     )}
                 </div>
@@ -2488,10 +2834,16 @@ export default function EmployerApplicationDetailPage() {
             app.verificationCodeVisible !== false && (
               <div className="rounded-2xl border border-[var(--primary)]/30 bg-[var(--primary)]/5 p-5">
                 <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                  Verification Code
+                  {t(
+                    "employerDashboard.applications.verificationCode",
+                    "Verification Code",
+                  )}
                 </h3>
                 <p className="mt-1 text-xs text-[var(--muted-text)]">
-                  Share this code with the service provider to start the service
+                  {t(
+                    "employerDashboard.applications.shareCodeDesc",
+                    "Share this code with the service provider to start the service",
+                  )}
                 </p>
                 <div className="mt-3 rounded-xl bg-[var(--surface)] p-4 text-center">
                   <p className="text-3xl font-bold tracking-[0.3em] text-[var(--primary)]">
@@ -2505,7 +2857,10 @@ export default function EmployerApplicationDetailPage() {
                 )}
                 {serviceStarted && (
                   <p className="mt-2 text-xs text-emerald-400">
-                    Code verified on{" "}
+                    {t(
+                      "employerDashboard.applications.codeVerifiedOn",
+                      "Code verified on",
+                    )}{" "}
                     {fmtDateTime(app.verificationCodeVerifiedAt)}
                   </p>
                 )}
@@ -2530,13 +2885,22 @@ export default function EmployerApplicationDetailPage() {
                   />
                 </svg>
                 <p className="text-sm font-semibold text-[var(--fulfillment-gold)]">
-                  Provider marked done
+                  {t(
+                    "employerDashboard.applications.providerMarkedDoneBanner",
+                    "Provider marked done",
+                  )}
                 </p>
               </div>
               <p className="mt-1 text-xs text-[var(--muted-text)]">
-                The service provider marked this job as done on{" "}
-                {fmtDateTime(app.serviceProviderMarkedDoneAt)}. Review the work
-                and mark as complete.
+                {t(
+                  "employerDashboard.applications.reviewWorkDesc",
+                  "The service provider marked this job as done on",
+                )}{" "}
+                {fmtDateTime(app.serviceProviderMarkedDoneAt)}
+                {t(
+                  "employerDashboard.applications.reviewWorkDesc2",
+                  ". Review the work and mark as complete.",
+                )}
               </p>
             </div>
           )}
@@ -2545,25 +2909,41 @@ export default function EmployerApplicationDetailPage() {
           {isAccepted && !completed && (
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                Complete Job
+                {t(
+                  "employerDashboard.applications.completeJob",
+                  "Complete Job",
+                )}
               </h3>
               {serviceStarted ? (
                 <>
                   <p className="mt-1 text-xs text-[var(--muted-text)]">
-                    Confirm the work is complete to process payment
+                    {t(
+                      "employerDashboard.applications.confirmWorkComplete",
+                      "Confirm the work is complete to process payment",
+                    )}
                   </p>
                   <button
                     onClick={handleComplete}
                     disabled={completing}
                     className="mt-3 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
                   >
-                    {completing ? "Processing..." : "Mark as Complete & Pay"}
+                    {completing
+                      ? t(
+                          "employerDashboard.applications.processing",
+                          "Processing...",
+                        )
+                      : t(
+                          "employerDashboard.applications.markAsComplete",
+                          "Mark as Complete & Pay",
+                        )}
                   </button>
                 </>
               ) : (
                 <p className="mt-1 text-xs text-[var(--muted-text)]">
-                  The service provider must verify the start code before you can
-                  mark the job as complete.
+                  {t(
+                    "employerDashboard.applications.waitingForCodeVerification",
+                    "The service provider must verify the start code before you can mark the job as complete.",
+                  )}
                 </p>
               )}
             </div>
@@ -2577,23 +2957,34 @@ export default function EmployerApplicationDetailPage() {
             new Date(job.startDate) < new Date() && (
               <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-5">
                 <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                  Report No-Show
+                  {t(
+                    "employerDashboard.applications.reportNoShow",
+                    "Report No-Show",
+                  )}
                 </h3>
                 <p className="mt-1 text-xs text-[var(--muted-text)]">
-                  The service provider did not show up for the scheduled job
-                  start date. Reporting a no-show will cancel the job.
+                  {t(
+                    "employerDashboard.applications.reportNoShowDesc",
+                    "The service provider did not show up for the scheduled job start date. Reporting a no-show will cancel the job.",
+                  )}
                 </p>
                 {!showNoShowConfirm ? (
                   <button
                     onClick={() => setShowNoShowConfirm(true)}
                     className="mt-3 w-full rounded-xl border border-red-500/30 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10"
                   >
-                    Report No-Show
+                    {t(
+                      "employerDashboard.applications.reportNoShow",
+                      "Report No-Show",
+                    )}
                   </button>
                 ) : (
                   <div className="mt-3">
                     <p className="mb-2 text-xs font-medium text-red-400">
-                      Are you sure? This action cannot be undone.
+                      {t(
+                        "employerDashboard.applications.areYouSure",
+                        "Are you sure? This action cannot be undone.",
+                      )}
                     </p>
                     <div className="flex gap-2">
                       <button
@@ -2601,13 +2992,21 @@ export default function EmployerApplicationDetailPage() {
                         disabled={reportingNoShow}
                         className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-500 disabled:opacity-50"
                       >
-                        {reportingNoShow ? "Reporting..." : "Confirm No-Show"}
+                        {reportingNoShow
+                          ? t(
+                              "employerDashboard.applications.reporting",
+                              "Reporting...",
+                            )
+                          : t(
+                              "employerDashboard.applications.confirmNoShow",
+                              "Confirm No-Show",
+                            )}
                       </button>
                       <button
                         onClick={() => setShowNoShowConfirm(false)}
                         className="rounded-xl border border-[var(--border-color)] px-4 py-2.5 text-sm font-medium text-[var(--muted-text)]"
                       >
-                        Cancel
+                        {t("employerDashboard.applications.cancel", "Cancel")}
                       </button>
                     </div>
                   </div>
@@ -2633,11 +3032,18 @@ export default function EmployerApplicationDetailPage() {
                   />
                 </svg>
                 <p className="text-sm font-semibold text-emerald-400">
-                  Job Completed
+                  {t(
+                    "employerDashboard.applications.jobCompleted",
+                    "Job Completed",
+                  )}
                 </p>
               </div>
               <p className="mt-1 text-xs text-[var(--muted-text)]">
-                Completed on {fmtDateTime(app.completedAt)}
+                {t(
+                  "employerDashboard.applications.completedOn",
+                  "Completed on",
+                )}{" "}
+                {fmtDateTime(app.completedAt)}
               </p>
             </div>
           )}
@@ -2650,7 +3056,10 @@ export default function EmployerApplicationDetailPage() {
             ) && (
               <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
                 <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                  Provider Info
+                  {t(
+                    "employerDashboard.applications.providerInfo",
+                    "Provider Info",
+                  )}
                 </h3>
                 {typeof candidateData.rating === "number" && (
                   <div className="mb-3 flex items-center gap-2">
@@ -2666,7 +3075,12 @@ export default function EmployerApplicationDetailPage() {
                     </span>
                     {candidateData.ratingCount && (
                       <span className="text-xs text-[var(--muted-text)]">
-                        ({candidateData.ratingCount} reviews)
+                        ({candidateData.ratingCount}{" "}
+                        {t(
+                          "employerDashboard.applications.reviewsLabel",
+                          "reviews",
+                        )}
+                        )
                       </span>
                     )}
                   </div>
@@ -2706,7 +3120,10 @@ export default function EmployerApplicationDetailPage() {
                   d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                 />
               </svg>
-              View Full Profile
+              {t(
+                "employerDashboard.applications.viewFullProfile",
+                "View Full Profile",
+              )}
             </Link>
           )}
 
@@ -2729,7 +3146,7 @@ export default function EmployerApplicationDetailPage() {
                   d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"
                 />
               </svg>
-              View My Jobs
+              {t("employerDashboard.applications.viewMyJobs", "View My Jobs")}
             </Link>
           )}
         </div>

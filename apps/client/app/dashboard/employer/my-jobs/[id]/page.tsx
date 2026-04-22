@@ -78,6 +78,45 @@ export default function EmployerJobDetailPage({
 }) {
   const { id: jobId } = use(params);
   const { t } = useLanguage();
+
+  const typeLabels: Record<string, string> = {
+    FULL_TIME: t("employerDashboard.postJob.jobTypeFullTime", "Full Time"),
+    PART_TIME: t("employerDashboard.postJob.jobTypePartTime", "Part Time"),
+    CONTRACT: t("employerDashboard.postJob.jobTypeContract", "Contract"),
+    TEMPORARY: t("employerDashboard.postJob.jobTypeTemporary", "Temporary"),
+    FREELANCE: t("employerDashboard.postJob.jobTypeFreelance", "Freelance"),
+    INTERNSHIP: t("employerDashboard.postJob.jobTypeInternship", "Internship"),
+    GIG: t("employerDashboard.postJob.jobTypeGig", "Gig"),
+  };
+  const workModeLabels: Record<string, string> = {
+    ON_SITE: t("employerDashboard.postJob.workModeOnSite", "On-site"),
+    REMOTE: t("employerDashboard.postJob.workModeRemote", "Remote"),
+    HYBRID: t("employerDashboard.postJob.workModeHybrid", "Hybrid"),
+  };
+  const paymentTypeLabels: Record<string, string> = {
+    HOURLY: t("employerDashboard.postJob.paymentTypePerHour", "Per Hour"),
+    DAILY: t("employerDashboard.postJob.paymentTypePerDay", "Per Day"),
+    WEEKLY: t("employerDashboard.postJob.paymentTypePerWeek", "Per Week"),
+    MONTHLY: t("employerDashboard.postJob.paymentTypePerMonth", "Per Month"),
+    FIXED: t("employerDashboard.postJob.paymentTypeFixed", "Fixed Price"),
+    PROJECT: t("employerDashboard.postJob.paymentTypeFixed", "Fixed Price"),
+  };
+  const statusLabels: Record<string, string> = {
+    ACTIVE: t("employerDashboard.jobDetail.statusActive", "Active"),
+    OPEN: t("employerDashboard.jobDetail.statusActive", "Active"),
+    ASSIGNED: t("employerDashboard.jobDetail.statusAssigned", "In Progress"),
+    COMPLETED: t("employerDashboard.jobDetail.statusCompleted", "Completed"),
+    CLOSED: t("employerDashboard.jobDetail.statusClosed", "Closed"),
+    DRAFT: t("employerDashboard.jobDetail.statusDraft", "Draft"),
+    PAUSED: t("employerDashboard.jobDetail.statusPaused", "Paused"),
+    EXPIRED: t("employerDashboard.jobDetail.statusExpired", "Expired"),
+    CANCELLED: t("employerDashboard.jobDetail.statusCancelled", "Cancelled"),
+  };
+  const urgencyLabels: Record<string, string> = {
+    NORMAL: t("employerDashboard.postJob.urgencyNormal", "Normal"),
+    URGENT: t("employerDashboard.postJob.urgencyUrgent", "Urgent"),
+  };
+
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -214,7 +253,7 @@ export default function EmployerJobDetailPage({
               d="M15.75 19.5 8.25 12l7.5-7.5"
             />
           </svg>
-          Back to My Jobs
+          {t("employerDashboard.jobDetail.backToMyJobs", "Back to My Jobs")}
         </Link>
         <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-12 text-center">
           <h2 className="text-lg font-semibold text-[var(--foreground)]">
@@ -269,7 +308,7 @@ export default function EmployerJobDetailPage({
             d="M15.75 19.5 8.25 12l7.5-7.5"
           />
         </svg>
-        Back to My Jobs
+        {t("employerDashboard.jobDetail.backToMyJobs", "Back to My Jobs")}
       </Link>
 
       {/* Header Card */}
@@ -284,12 +323,12 @@ export default function EmployerJobDetailPage({
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColor(job.status)}`}
                 >
-                  {fmt(job.status)}
+                  {statusLabels[job.status] ?? fmt(job.status)}
                 </span>
               )}
               {job.isInstantBook && (
                 <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-400">
-                  Instant Book
+                  {t("employerDashboard.jobDetail.instantBook", "Instant Book")}
                 </span>
               )}
             </div>
@@ -304,7 +343,9 @@ export default function EmployerJobDetailPage({
               </p>
               {job.paymentType && (
                 <p className="mt-0.5 text-xs text-[var(--muted-text)]">
-                  per {fmt(job.paymentType).toLowerCase()}
+                  {t("employerDashboard.jobDetail.per", "per")}{" "}
+                  {paymentTypeLabels[job.paymentType] ??
+                    fmt(job.paymentType).toLowerCase()}
                 </p>
               )}
             </div>
@@ -334,11 +375,13 @@ export default function EmployerJobDetailPage({
             </svg>
             {loc}
           </span>
-          {job.type && <span>{fmt(job.type)}</span>}
-          {job.workMode && <span>{fmt(job.workMode)}</span>}
+          {job.type && <span>{typeLabels[job.type] ?? fmt(job.type)}</span>}
+          {job.workMode && (
+            <span>{workModeLabels[job.workMode] ?? fmt(job.workMode)}</span>
+          )}
           {job.urgency && job.urgency !== "NORMAL" && (
             <span className="rounded-full bg-red-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-red-400">
-              {fmt(job.urgency)}
+              {urgencyLabels[job.urgency] ?? fmt(job.urgency)}
             </span>
           )}
           {job.createdAt && (
@@ -352,12 +395,12 @@ export default function EmployerJobDetailPage({
         <div className="mt-4 flex flex-wrap gap-2">
           {job.type && (
             <span className="rounded-lg bg-[var(--fulfillment-gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--fulfillment-gold)]">
-              {fmt(job.type)}
+              {typeLabels[job.type] ?? fmt(job.type)}
             </span>
           )}
           {job.workMode && (
             <span className="rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400">
-              {fmt(job.workMode)}
+              {workModeLabels[job.workMode] ?? fmt(job.workMode)}
             </span>
           )}
           {catName && (
@@ -532,8 +575,10 @@ export default function EmployerJobDetailPage({
               </h3>
             </div>
             <p className="mb-4 text-xs text-[var(--muted-text)]">
-              Edit job details, update requirements, modify payment information,
-              or make other changes.
+              {t(
+                "employerDashboard.jobDetail.manageJobPostDesc",
+                "Edit job details, update requirements, modify payment information, or make other changes.",
+              )}
             </p>
 
             {/* Status actions */}
@@ -610,32 +655,41 @@ export default function EmployerJobDetailPage({
           {/* Job details sidebar */}
           <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5">
             <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-              Details
+              {t("employerDashboard.jobDetail.detailsSection", "Details")}
             </h3>
             <div className="space-y-2.5">
               {job.type && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--muted-text)]">Type</span>
+                  <span className="text-[var(--muted-text)]">
+                    {t("employerDashboard.jobDetail.typeLabel", "Type")}
+                  </span>
                   <span className="font-medium text-[var(--foreground)]">
-                    {fmt(job.type)}
+                    {typeLabels[job.type] ?? fmt(job.type)}
                   </span>
                 </div>
               )}
               {job.workMode && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--muted-text)]">Work Mode</span>
+                  <span className="text-[var(--muted-text)]">
+                    {t(
+                      "employerDashboard.jobDetail.workModeLabel",
+                      "Work Mode",
+                    )}
+                  </span>
                   <span className="font-medium text-[var(--foreground)]">
-                    {fmt(job.workMode)}
+                    {workModeLabels[job.workMode] ?? fmt(job.workMode)}
                   </span>
                 </div>
               )}
               {rate && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--muted-text)]">Rate</span>
+                  <span className="text-[var(--muted-text)]">
+                    {t("employerDashboard.jobDetail.rateLabel", "Rate")}
+                  </span>
                   <span className="font-medium text-[var(--foreground)]">
                     €{rate}
                     {job.paymentType
-                      ? ` / ${fmt(job.paymentType).toLowerCase()}`
+                      ? ` / ${paymentTypeLabels[job.paymentType] ?? fmt(job.paymentType).toLowerCase()}`
                       : ""}
                   </span>
                 </div>
@@ -643,7 +697,10 @@ export default function EmployerJobDetailPage({
               {job.maxApplicants && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[var(--muted-text)]">
-                    Max Applicants
+                    {t(
+                      "employerDashboard.jobDetail.maxApplicantsLabel",
+                      "Max Applicants",
+                    )}
                   </span>
                   <span className="font-medium text-[var(--foreground)]">
                     {job.maxApplicants}
@@ -652,7 +709,9 @@ export default function EmployerJobDetailPage({
               )}
               {job.createdAt && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--muted-text)]">Posted</span>
+                  <span className="text-[var(--muted-text)]">
+                    {t("employerDashboard.jobDetail.posted", "Posted")}
+                  </span>
                   <span className="font-medium text-[var(--foreground)]">
                     {fmtDate(job.createdAt)}
                   </span>
@@ -679,7 +738,7 @@ export default function EmployerJobDetailPage({
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-[var(--muted-text)]">
-                  Title
+                  {t("employerDashboard.jobDetail.titleLabel", "Title")}
                 </label>
                 <input
                   type="text"
@@ -690,7 +749,10 @@ export default function EmployerJobDetailPage({
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-[var(--muted-text)]">
-                  Description
+                  {t(
+                    "employerDashboard.jobDetail.descriptionLabel",
+                    "Description",
+                  )}
                 </label>
                 <textarea
                   value={editDesc}
@@ -781,7 +843,10 @@ export default function EmployerJobDetailPage({
               <textarea
                 value={deleteCustom}
                 onChange={(e) => setDeleteCustom(e.target.value)}
-                placeholder="Please specify..."
+                placeholder={t(
+                  "employerDashboard.jobDetail.specifyPlaceholder",
+                  "Please specify...",
+                )}
                 rows={3}
                 className={`mt-3 ${inputCls} resize-none`}
               />

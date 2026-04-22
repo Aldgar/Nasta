@@ -8,7 +8,7 @@ import {
   Alert,
   BackHandler,
 } from "react-native";
-import { getValidToken } from "../lib/authFetch";
+import { getValidToken, decodeJwtPayload } from "../lib/authFetch";
 import { useState, useCallback, useEffect } from "react";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
@@ -26,6 +26,24 @@ export default function EmployerHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
   const resumeCount = useAppResume();
+
+  // Role guard: only EMPLOYER can access employer home
+  useFocusEffect(
+    useCallback(() => {
+      const checkRole = async () => {
+        const token = await getValidToken();
+        if (!token) return;
+        const payload = decodeJwtPayload(token);
+        const role = String(payload?.role || "").toUpperCase();
+        if (role === "JOB_SEEKER") {
+          router.replace("/user-home" as never);
+        } else if (role === "ADMIN") {
+          router.replace("/admin-home" as never);
+        }
+      };
+      checkRole();
+    }, []),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -241,7 +259,7 @@ export default function EmployerHome() {
                   },
                 ]}
               >
-                EMPLOYER HQ
+                CLIENT HQ
               </Text>
               <Text
                 style={[

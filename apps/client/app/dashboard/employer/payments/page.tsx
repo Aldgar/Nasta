@@ -109,7 +109,10 @@ export default function EmployerPaymentsPage() {
       window.location.href = res.data.url;
     } else {
       setToast({
-        message: "Could not initiate card setup. Please try again.",
+        message: t(
+          "employerDashboard.paymentsPage.couldNotInitiateCard",
+          "Could not initiate card setup. Please try again.",
+        ),
         type: "error",
       });
     }
@@ -117,7 +120,14 @@ export default function EmployerPaymentsPage() {
   };
 
   const handleDeleteMethod = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this payment method?"))
+    if (
+      !confirm(
+        t(
+          "employerDashboard.paymentsPage.confirmRemovePaymentMethod",
+          "Are you sure you want to remove this payment method?",
+        ),
+      )
+    )
       return;
     setDeletingId(id);
     const res = await api(`/payments/payment-methods/${id}`, {
@@ -128,7 +138,13 @@ export default function EmployerPaymentsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: "Payment method removed.", type: "success" });
+    setToast({
+      message: t(
+        "employerDashboard.paymentsPage.paymentMethodRemoved",
+        "Payment method removed.",
+      ),
+      type: "success",
+    });
     fetchMethods();
   };
 
@@ -142,7 +158,13 @@ export default function EmployerPaymentsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: "Default payment method updated.", type: "success" });
+    setToast({
+      message: t(
+        "employerDashboard.paymentsPage.defaultPaymentUpdated",
+        "Default payment method updated.",
+      ),
+      type: "success",
+    });
     fetchMethods();
   };
 
@@ -157,7 +179,10 @@ export default function EmployerPaymentsPage() {
       return;
     }
     setToast({
-      message: "Missing receipt emails have been resent.",
+      message: t(
+        "employerDashboard.paymentsPage.receiptsResent",
+        "Missing receipt emails have been resent.",
+      ),
       type: "success",
     });
   };
@@ -343,7 +368,22 @@ export default function EmployerPaymentsPage() {
                       <span
                         className={`text-[10px] font-bold uppercase ${tx.status === "COMPLETED" ? "text-[var(--achievement-green)]" : tx.status === "IN_PROGRESS" ? "text-[var(--fulfillment-gold)]" : "text-[var(--muted-text)]"}`}
                       >
-                        {tx.status?.replace(/_/g, " ") || "Unknown"}
+                        {tx.status === "COMPLETED"
+                          ? t(
+                              "employerDashboard.paymentsPage.statusCompleted",
+                              "Completed",
+                            )
+                          : tx.status === "IN_PROGRESS"
+                            ? t(
+                                "employerDashboard.paymentsPage.statusInProgress",
+                                "In Progress",
+                              )
+                            : tx.status
+                              ? tx.status.replace(/_/g, " ")
+                              : t(
+                                  "employerDashboard.paymentsPage.statusUnknown",
+                                  "Unknown",
+                                )}
                       </span>
                     </div>
                   </div>

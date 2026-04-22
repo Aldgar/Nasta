@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { padding: 4 },
   headerTitle: { fontSize: 18, fontWeight: "700", letterSpacing: 1.5 },
-  scroll: { padding: 20, paddingBottom: 100 },
+  scroll: { paddingHorizontal: 28, paddingTop: 20, paddingBottom: 100 },
   contentContainer: {
     marginBottom: 20,
     backgroundColor: "transparent",

@@ -8,7 +8,7 @@ let refreshPromise: Promise<string | null> | null = null;
 /**
  * Decode a JWT payload without verification (client-side only).
  */
-function decodeJwtPayload(
+export function decodeJwtPayload(
   token: string,
 ): { sub?: string; exp?: number; role?: string } | null {
   try {

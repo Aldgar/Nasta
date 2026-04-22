@@ -699,7 +699,7 @@ export default function EmployerFeed() {
                 href="/dashboard/employer/applications"
                 className="text-xs font-medium text-[var(--primary)] hover:text-[var(--soft-blue)]"
               >
-                View all →
+                {t("employerDashboard.viewAll", "View all →")}
               </Link>
             </div>
             {loading ? (
@@ -724,6 +724,8 @@ export default function EmployerFeed() {
               <div className="space-y-2">
                 {recentApps.map((app) => {
                   const statusColor: Record<string, string> = {
+                    REQUESTED:
+                      "text-[var(--fulfillment-gold)] bg-[var(--fulfillment-gold)]/15",
                     PENDING:
                       "text-[var(--fulfillment-gold)] bg-[var(--fulfillment-gold)]/15",
                     REVIEWING:
@@ -757,7 +759,26 @@ export default function EmployerFeed() {
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${color}`}
                       >
-                        {app.status}
+                        {t(
+                          `employerDashboard.applications.${
+                            app.status === "PENDING"
+                              ? "new"
+                              : app.status === "REQUESTED"
+                                ? "requested"
+                                : app.status === "REVIEWING"
+                                  ? "reviewing"
+                                  : app.status === "SHORTLISTED"
+                                    ? "shortlisted"
+                                    : app.status === "ACCEPTED"
+                                      ? "accepted"
+                                      : app.status === "REJECTED"
+                                        ? "rejected"
+                                        : app.status === "WITHDRAWN"
+                                          ? "withdrawn"
+                                          : "new"
+                          }`,
+                          app.status,
+                        )}
                       </span>
                     </Link>
                   );
@@ -779,7 +800,7 @@ export default function EmployerFeed() {
                 href="/dashboard/employer/service-providers"
                 className="text-xs font-medium text-[var(--primary)] hover:text-[var(--soft-blue)]"
               >
-                View all →
+                {t("employerDashboard.viewAll", "View all →")}
               </Link>
             </div>
             {loading ? (

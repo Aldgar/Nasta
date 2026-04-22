@@ -15,7 +15,7 @@ Nesta ("we," "our," or "us") is committed to protecting your privacy. This Priva
 - Profile information (bio, location, skills, experience)
 - Profile photos and avatars
 - Payment information (processed securely through Stripe)
-- Business information (for employers)
+- Business information (for clients)
 
 **Verification Information:**
 - Government-issued ID documents (passport, national ID, driver's license, residence permit)

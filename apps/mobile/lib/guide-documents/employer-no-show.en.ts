@@ -1,6 +1,6 @@
 export const EMPLOYER_NO_SHOW_EN = `# No-Show Policy
 
-The no-show policy protects employers when a service provider fails to show up for a confirmed job. It also holds service providers accountable for their commitments.
+The no-show policy protects clients when a service provider fails to show up for a confirmed job. It also holds service providers accountable for their commitments.
 
 ## What Counts as a No-Show?
 
@@ -18,7 +18,7 @@ A no-show is confirmed when:
 4. The system verifies that the check-in code was not used
 5. The no-show is confirmed and recorded
 
-**You can only report a no-show for jobs where you are the employer.**
+**You can only report a no-show for jobs where you are the client.**
 
 ## What Happens to the Service Provider
 

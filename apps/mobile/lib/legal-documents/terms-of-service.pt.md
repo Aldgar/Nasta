@@ -8,7 +8,7 @@ Ao aceder e utilizar a aplicação móvel Nesta ("App", "Plataforma", "Serviço"
 
 ## 2. Descrição do Serviço
 
-O Nesta é uma plataforma de marketplace que conecta prestadores de serviços (candidatos a emprego, freelancers, contratantes) com empregadores que procuram serviços. A Plataforma facilita:
+O Nesta é uma plataforma de marketplace que conecta prestadores de serviços (candidatos a emprego, freelancers, contratantes) com clientes que procuram serviços. A Plataforma facilita:
 
 - Publicação de trabalhos e gestão de candidaturas
 - Descoberta e correspondência de prestadores de serviços
@@ -28,14 +28,14 @@ O Nesta é uma plataforma de marketplace que conecta prestadores de serviços (c
 - Concorda em aceitar a responsabilidade por todas as atividades que ocorram na sua conta
 
 ### 3.2 Tipos de Conta
-- **Empregadores**: Utilizadores que publicam trabalhos e contratam prestadores de serviços
+- **Clientes**: Utilizadores que publicam trabalhos e contratam prestadores de serviços
 - **Prestadores de Serviços**: Utilizadores que oferecem serviços e candidatam-se a trabalhos
 - **Administradores**: Administradores da plataforma com capacidades específicas
 
 ### 3.3 Requisitos de Verificação
 - A verificação de identidade (KYC) é obrigatória para todos os prestadores de serviços
 - Verificações de antecedentes podem ser necessárias para certas categorias de trabalho
-- A verificação comercial pode ser necessária para empregadores
+- A verificação comercial pode ser necessária para clientes
 - A falha na conclusão da verificação pode resultar em restrições de conta
 
 ## 4. Regras da Plataforma e Conduta Proibida
@@ -67,8 +67,8 @@ Concorda em NÃO:
 - O processamento de pagamentos está sujeito aos termos e condições do Stripe
 
 ### 5.2 Cronograma de Pagamentos
-- **Para Prestadores de Serviços**: Os pagamentos são normalmente processados no prazo de 2-5 dias úteis após a conclusão do trabalho e aprovação do empregador
-- **Para Empregadores**: Os pagamentos são cobrados imediatamente após a confirmação da reserva
+- **Para Prestadores de Serviços**: Os pagamentos são normalmente processados no prazo de 2-5 dias úteis após a conclusão do trabalho e aprovação do cliente
+- **Para Clientes**: Os pagamentos são cobrados imediatamente após a confirmação da reserva
 - Disputas de pagamento devem ser reportadas no prazo de 7 dias após a conclusão do serviço
 
 ### 5.3 Taxas
@@ -127,29 +127,29 @@ Quaisquer acordos feitos fora da Plataforma são:
 ## 8. Publicações de Trabalhos e Candidaturas
 
 ### 8.1 Publicações de Trabalhos
-- Os empregadores são responsáveis por descrições de trabalho precisas
+- Os clientes são responsáveis por descrições de trabalho precisas
 - As publicações de trabalhos devem cumprir todas as leis de emprego aplicáveis
-- Os empregadores devem responder às candidaturas de forma oportuna
+- Os clientes devem responder às candidaturas de forma oportuna
 - Publicações de trabalhos falsas ou enganosas são proibidas
 
 ### 8.2 Candidaturas
 - Os prestadores de serviços podem candidatar-se a múltiplos trabalhos
 - As candidaturas devem ser verdadeiras e precisas
 - Os prestadores de serviços podem retirar candidaturas a qualquer momento
-- Os empregadores podem rejeitar candidaturas a seu critério
+- Os clientes podem rejeitar candidaturas a seu critério
 
 ## 9. Reservas e Prestação de Serviços
 
 ### 9.1 Processo de Reserva
 - As reservas são confirmadas quando ambas as partes concordam
 - Os prestadores de serviços devem chegar a tempo e completar o trabalho conforme acordado
-- Os empregadores devem fornecer requisitos de trabalho e localização precisos
+- Os clientes devem fornecer requisitos de trabalho e localização precisos
 - Alterações às reservas devem ser acordadas por ambas as partes
 
 ### 9.2 Padrões de Serviço
 - Os serviços devem ser prestados conforme descrito na publicação do trabalho
 - Os prestadores de serviços devem ter as competências, ferramentas e equipamentos necessários
-- Os empregadores devem fornecer um ambiente de trabalho seguro
+- Os clientes devem fornecer um ambiente de trabalho seguro
 - Ambas as partes devem comunicar de forma clara e profissional
 
 ## 10. Resolução de Disputas

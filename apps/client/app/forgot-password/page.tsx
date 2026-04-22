@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
       setError(
         t(
           "web.forgotPassword.networkError",
-          "Network error — check your connection.",
+          "Network error, check your connection.",
         ),
       );
     } finally {
@@ -144,7 +144,10 @@ export default function ForgotPasswordPage() {
               </form>
 
               <p className="mt-6 text-center text-sm text-[var(--muted-text)]">
-                Remember your password?{" "}
+                {t(
+                  "web.forgotPassword.rememberPassword",
+                  "Remember your password?",
+                )}{" "}
                 <Link
                   href="/login"
                   className="font-semibold text-[var(--soft-blue)] hover:text-[var(--warm-coral)] transition-colors"

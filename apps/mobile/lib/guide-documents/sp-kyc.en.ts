@@ -1,10 +1,10 @@
 export const SP_KYC_EN = `# KYC — Identity Verification
 
-Know Your Customer (KYC) verification is required before you can apply for jobs or accept instant requests. This process protects everyone on the platform and builds trust with employers.
+Know Your Customer (KYC) verification is required before you can apply for jobs or accept instant requests. This process protects everyone on the platform and builds trust with clients.
 
 ## Why Is KYC Required?
 
-- Employers need to know exactly who is showing up for their jobs
+- Clients need to know exactly who is showing up for their jobs
 - Verified providers get more job requests and higher visibility
 - It protects you from fraudulent job postings
 - It is a legal requirement for workforce platforms

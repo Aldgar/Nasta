@@ -1,10 +1,10 @@
 export const SP_AVAILABILITY_EN = `# Availability
 
-Your availability tells employers when you are free to work. Keeping your availability calendar up to date helps you receive relevant job offers and instant requests that fit your schedule.
+Your availability tells clients when you are free to work. Keeping your availability calendar up to date helps you receive relevant job offers and instant requests that fit your schedule.
 
 ## How It Works
 
-Nasta uses a **calendar-based availability system**. You select the dates when you are available to work, and employers can see this when browsing service providers or reviewing applications.
+Nasta uses a **calendar-based availability system**. You select the dates when you are available to work, and clients can see this when browsing service providers or reviewing applications.
 
 ## Setting Your Availability
 
@@ -25,23 +25,23 @@ Nasta uses a **calendar-based availability system**. You select the dates when y
 ## Why Availability Matters
 
 ### For Job Applications
-When you apply for a job, employers can check if your available dates match the job schedule. Being available on the right dates increases your chances of being accepted.
+When you apply for a job, clients can check if your available dates match the job schedule. Being available on the right dates increases your chances of being accepted.
 
 ### For Instant Job Requests
-Employers browsing for instant jobs can see who is available today or in the coming days. If your calendar shows availability, you are more likely to receive instant requests.
+Clients browsing for instant jobs can see who is available today or in the coming days. If your calendar shows availability, you are more likely to receive instant requests.
 
 ### Professionalism
-An up-to-date calendar shows employers you are organized and reliable. Empty or outdated availability may give the impression you are not actively looking for work.
+An up-to-date calendar shows clients you are organized and reliable. Empty or outdated availability may give the impression you are not actively looking for work.
 
 ## Best Practices
 
 - **Update regularly** — Check your calendar at least weekly
 - **Mark unavailable days** — Remove dates you cannot work
-- **Plan ahead** — Set availability for the coming weeks so employers can book you in advance
+- **Plan ahead** — Set availability for the coming weeks so clients can book you in advance
 - **Be realistic** — Only mark dates when you are genuinely free to accept work
 - **After accepting a job** — Update your calendar to remove the booked dates so you do not get double-booked
 
 ## Both Roles Can Access
 
-If you use Nasta as both a service provider and an employer, the availability calendar is shared. The dates you set apply to your overall schedule.
+If you use Nasta as both a service provider and an client, the availability calendar is shared. The dates you set apply to your overall schedule.
 `;

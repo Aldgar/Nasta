@@ -132,7 +132,15 @@ function paymentTypeLabel(t: string) {
   return map[t] ?? `/${t.toLowerCase()}`;
 }
 
-function StarRating({ rating, count }: { rating: number; count: number }) {
+function StarRating({
+  rating,
+  count,
+  reviewLabel,
+}: {
+  rating: number;
+  count: number;
+  reviewLabel?: string;
+}) {
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -146,8 +154,8 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
         </svg>
       ))}
       <span className="ml-1 text-sm text-[var(--muted-text)]">
-        {rating > 0 ? rating.toFixed(1) : "—"} ({count} review
-        {count !== 1 ? "s" : ""})
+        {rating > 0 ? rating.toFixed(1) : "—"} ({count}{" "}
+        {reviewLabel ?? (count !== 1 ? "reviews" : "review")})
       </span>
     </div>
   );
@@ -268,6 +276,43 @@ export default function ServiceProviderDetailPage({
   const initials =
     `${profile.firstName?.[0] ?? ""}${profile.lastName?.[0] ?? ""}`.toUpperCase();
 
+  const getVehicleTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      TRUCK: t("employerDashboard.serviceProviders.vehicleTypeTruck", "Truck"),
+      CAR: t("employerDashboard.serviceProviders.vehicleTypeCar", "Car"),
+      VAN: t("employerDashboard.serviceProviders.vehicleTypeVan", "Van"),
+      MOTORCYCLE: t(
+        "employerDashboard.serviceProviders.vehicleTypeMotorcycle",
+        "Motorcycle",
+      ),
+      BUS: t("employerDashboard.serviceProviders.vehicleTypeBus", "Bus"),
+      OTHER: t("employerDashboard.serviceProviders.vehicleTypeOther", "Other"),
+    };
+    return labels[type] ?? type.charAt(0) + type.slice(1).toLowerCase();
+  };
+
+  const getProficiencyLabel = (level: string) => {
+    const labels: Record<string, string> = {
+      BEGINNER: t(
+        "employerDashboard.serviceProviders.proficiencyBeginner",
+        "Beginner",
+      ),
+      INTERMEDIATE: t(
+        "employerDashboard.serviceProviders.proficiencyIntermediate",
+        "Intermediate",
+      ),
+      ADVANCED: t(
+        "employerDashboard.serviceProviders.proficiencyAdvanced",
+        "Advanced",
+      ),
+      EXPERT: t(
+        "employerDashboard.serviceProviders.proficiencyExpert",
+        "Expert",
+      ),
+    };
+    return labels[level] ?? level.charAt(0) + level.slice(1).toLowerCase();
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Back link */}
@@ -339,7 +384,18 @@ export default function ServiceProviderDetailPage({
                 {[profile.city, profile.country].filter(Boolean).join(", ")}
               </p>
             )}
-            <StarRating rating={profile.rating} count={profile.ratingCount} />
+            <StarRating
+              rating={profile.rating}
+              count={profile.ratingCount}
+              reviewLabel={
+                profile.ratingCount !== 1
+                  ? t(
+                      "employerDashboard.serviceProviders.reviewPlural",
+                      "reviews",
+                    )
+                  : t("employerDashboard.serviceProviders.review", "review")
+              }
+            />
             <div className="flex flex-wrap gap-2">
               <VerificationBadge
                 label={t(
@@ -475,7 +531,7 @@ export default function ServiceProviderDetailPage({
                       {s.name}
                       {s.proficiency && (
                         <span className="rounded bg-[var(--primary)]/20 px-1.5 py-0.5 text-[10px]">
-                          {s.proficiency}
+                          {getProficiencyLabel(s.proficiency)}
                         </span>
                       )}
                       {s.yearsExp && (
@@ -779,7 +835,7 @@ export default function ServiceProviderDetailPage({
                       </div>
                       <div className="space-y-1 text-xs text-[var(--secondary-text)]">
                         <p>
-                          {vehicle.vehicleType}
+                          {getVehicleTypeLabel(vehicle.vehicleType)}
                           {vehicle.otherTypeSpecification
                             ? ` – ${vehicle.otherTypeSpecification}`
                             : ""}

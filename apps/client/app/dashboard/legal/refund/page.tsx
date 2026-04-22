@@ -5,7 +5,7 @@ import { useLanguage } from "../../../../context/LanguageContext";
 import { useAuth } from "../../../../lib/auth";
 import DashboardLegalContent from "../DashboardLegalContent";
 
-export default function DashboardTermsPage() {
+export default function DashboardRefundPolicyPage() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const legal = getLegalText(language);
@@ -38,11 +38,11 @@ export default function DashboardTermsPage() {
           {t("common.backToDashboard", "Back to Dashboard")}
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-[var(--foreground)]">
-          {t("legal.termsOfService", "Terms of Service")}
+          {t("legal.refundPolicy", "Refund Policy")}
         </h1>
       </div>
       <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 sm:p-10">
-        <DashboardLegalContent content={legal.TERMS_OF_SERVICE} />
+        <DashboardLegalContent content={legal.REFUND_POLICY} />
       </div>
     </div>
   );

@@ -94,7 +94,12 @@ export default function RegisterPage() {
       const who = (data.user ?? data) as Record<string, unknown>;
 
       if (!token) {
-        setError("Registration succeeded but no token received.");
+        setError(
+          t(
+            "web.register.noToken",
+            "Registration succeeded but no token received.",
+          ),
+        );
         setLoading(false);
         return;
       }
@@ -108,10 +113,7 @@ export default function RegisterPage() {
       });
     } catch {
       setError(
-        t(
-          "web.register.networkError",
-          "Network error — check your connection.",
-        ),
+        t("web.register.networkError", "Network error, check your connection."),
       );
       setLoading(false);
     }
@@ -153,7 +155,7 @@ export default function RegisterPage() {
                 },
                 {
                   value: "EMPLOYER" as Role,
-                  label: t("web.register.employer", "Employer"),
+                  label: t("web.register.employer", "Client"),
                 },
               ] as const
             ).map((r) => (

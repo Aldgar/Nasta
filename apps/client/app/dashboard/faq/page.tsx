@@ -6,31 +6,31 @@ import { useLanguage } from "../../../context/LanguageContext";
 const faqs = [
   {
     q: "What is Nasta?",
-    a: "Nasta is an on-demand marketplace that connects verified service providers with trusted employers for instant work. Think of it like a ride-sharing app, but for jobs. Employers can request help right now, and service providers can pick up jobs instantly as their main work or a side gig.",
+    a: "Nasta is an on-demand marketplace that connects verified service providers with trusted clients for instant work. Think of it like a ride-sharing app, but for jobs. Clients can request help right now, and service providers can pick up jobs instantly as their main work or a side gig.",
   },
   {
     q: "How does payment work?",
-    a: "When an employer books a job, payment is secured upfront via Stripe and held in escrow. Once the job is marked complete by both parties, funds are released to the service provider automatically.",
+    a: "When a client books a job, payment is secured upfront via Stripe and held in escrow. Once the job is marked complete by both parties, funds are released to the service provider automatically.",
   },
   {
     q: "Is my identity verified?",
-    a: "Yes. Every user on Nasta goes through identity verification with government-issued documents before they can accept or post jobs. This protects both employers and service providers.",
+    a: "Yes. Every user on Nasta goes through identity verification with government-issued documents before they can accept or post jobs. This protects both clients and service providers.",
   },
   {
     q: "What types of jobs can I find on Nasta?",
     a: "Nasta supports unlimited job categories including cleaning, childcare, elderly care, construction, event staffing, moving, gardening, tutoring, and much more. If you can do it, you can list it.",
   },
   {
-    q: "How does Nasta protect employers?",
-    a: "Employers only pay when the job is complete. Every worker is ID-verified, assignments include live GPS tracking and digital check-in/out, and there is a fair cancellation and no-show protection policy.",
+    q: "How does Nasta protect clients?",
+    a: "Clients only pay when the job is complete. Every worker is ID-verified, assignments include live GPS tracking and digital check-in/out, and there is a fair cancellation and no-show protection policy.",
   },
   {
     q: "How does Nasta protect service providers?",
-    a: "Payment is secured before work begins, so you are guaranteed to get paid for completed work. All employers are also verified, and you can rate and review every assignment.",
+    a: "Payment is secured before work begins, so you are guaranteed to get paid for completed work. All clients are also verified, and you can rate and review every assignment.",
   },
   {
     q: "What are the fees?",
-    a: "Creating an account is free for both employers and service providers. Nasta takes a small platform commission from each completed job to cover payment processing and platform operations.",
+    a: "Creating an account is free for both clients and service providers. Nasta takes a small platform commission from each completed job to cover payment processing and platform operations.",
   },
   {
     q: "Is Nasta available on mobile?",
@@ -46,7 +46,7 @@ const faqs = [
   },
   {
     q: "How fast can I find a worker?",
-    a: "Employers can use instant requests to find available, verified service providers nearby in seconds. For scheduled jobs, you will typically receive applications from qualified candidates shortly after posting.",
+    a: "Clients can use instant requests to find available, verified service providers nearby in seconds. For scheduled jobs, you will typically receive applications from qualified candidates shortly after posting.",
   },
 ];
 

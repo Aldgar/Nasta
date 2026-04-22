@@ -62,7 +62,7 @@ export default function LoginPage() {
         | undefined;
 
       if (!token) {
-        setError(t("web.login.noToken", "Login failed — no token received."));
+        setError(t("web.login.noToken", "Login failed, no token received."));
         setLoading(false);
         return;
       }
@@ -77,7 +77,7 @@ export default function LoginPage() {
       });
     } catch {
       setError(
-        t("web.login.networkError", "Network error — check your connection."),
+        t("web.login.networkError", "Network error, check your connection."),
       );
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export default function LoginPage() {
     },
     {
       value: "EMPLOYER",
-      label: t("web.login.employer", "Employer"),
+      label: t("web.login.employer", "Client"),
       desc: t("web.login.empDesc", "Post jobs & hire talent"),
     },
     {

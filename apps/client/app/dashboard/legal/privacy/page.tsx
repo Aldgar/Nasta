@@ -1,16 +1,25 @@
 "use client";
 import Link from "next/link";
-import { LEGAL_TEXT } from "../../../../lib/legal-text";
+import { getLegalText } from "../../../../lib/legal-text";
 import { useLanguage } from "../../../../context/LanguageContext";
+import { useAuth } from "../../../../lib/auth";
 import DashboardLegalContent from "../DashboardLegalContent";
 
 export default function DashboardPrivacyPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const legal = getLegalText(language);
+  const dashboardHref =
+    user?.role === "EMPLOYER"
+      ? "/dashboard/employer"
+      : user?.role === "ADMIN"
+        ? "/dashboard/admin"
+        : "/dashboard";
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <Link
-          href="/dashboard"
+          href={dashboardHref}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-text)] transition-colors hover:text-[var(--primary)]"
         >
           <svg
@@ -33,7 +42,7 @@ export default function DashboardPrivacyPage() {
         </h1>
       </div>
       <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 sm:p-10">
-        <DashboardLegalContent content={LEGAL_TEXT.PRIVACY_POLICY} />
+        <DashboardLegalContent content={legal.PRIVACY_POLICY} />
       </div>
     </div>
   );

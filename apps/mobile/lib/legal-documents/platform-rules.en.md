@@ -77,7 +77,7 @@
 ### 3.2 Application Rules
 - Applications must be truthful and relevant
 - Do not apply for jobs you cannot complete
-- Respond to employer communications promptly
+- Respond to client communications promptly
 - Withdraw applications if you cannot fulfill the job
 
 ## 4. Service Delivery Standards
@@ -87,9 +87,9 @@
 - Complete work as described and agreed
 - Bring necessary tools and equipment
 - Maintain professional conduct
-- Communicate clearly with employers
+- Communicate clearly with clients
 
-### 4.2 Employer Responsibilities
+### 4.2 Client Responsibilities
 - Provide accurate job descriptions
 - Provide a safe working environment
 - Pay agreed amounts on time
@@ -106,7 +106,7 @@
 
 ### 5.2 Payment Timeline
 - Service providers receive payment 2-5 business days after job completion
-- Employers are charged immediately upon booking confirmation
+- Clients are charged immediately upon booking confirmation
 - Refunds follow the cancellation policy
 
 ### 5.3 Prohibited Payment Practices

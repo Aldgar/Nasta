@@ -14,7 +14,7 @@ Se algum destes estiver em falta, aceda às definições do perfil para os compl
 ## Passo a Passo
 
 ### 1. Abrir o Formulário de Publicação
-Toque no botão **Publicar Emprego** a partir do ecrã inicial do empregador ou do separador de empregos.
+Toque no botão **Publicar Emprego** a partir do ecrã inicial do cliente ou do separador de empregos.
 
 ### 2. Título do Emprego
 Dê ao seu emprego um título claro e descritivo. Isto é a primeira coisa que os prestadores veem.

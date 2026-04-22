@@ -164,7 +164,10 @@ export default function ServiceProvidersPage() {
         <BrandedSelect
           value={skillFilter}
           onChange={setSkillFilter}
-          placeholder="All Skills"
+          placeholder={t(
+            "employerDashboard.serviceProviders.allSkills",
+            "All Skills",
+          )}
           options={allSkills.map((s) => ({ value: s, label: s }))}
         />
       </div>
@@ -349,7 +352,10 @@ export default function ServiceProvidersPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Fully Verified
+                  {t(
+                    "employerDashboard.serviceProviders.fullyVerified",
+                    "Fully Verified",
+                  )}
                 </div>
               </Link>
             );

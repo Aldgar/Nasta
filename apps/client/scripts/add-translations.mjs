@@ -228,19 +228,19 @@ pt.faq = {
     "Estamos aqui para ajudar. Contacte-nos a qualquer momento.",
   contactSupport: "Contactar Suporte",
   q1: "O que é a Nasta?",
-  a1: "A Nasta é um marketplace on-demand que conecta prestadores de serviços verificados com empregadores de confiança para trabalho instantâneo. Pense nisto como uma app de transporte, mas para trabalhos. Empregadores podem pedir ajuda agora mesmo, e prestadores de serviços podem aceitar trabalhos instantaneamente como trabalho principal ou extra.",
+  a1: "A Nasta é um marketplace on-demand que conecta prestadores de serviços verificados com clientes de confiança para trabalho instantâneo. Pense nisto como uma app de transporte, mas para trabalhos. Clientes podem pedir ajuda agora mesmo, e prestadores de serviços podem aceitar trabalhos instantaneamente como trabalho principal ou extra.",
   q2: "Como funciona o pagamento?",
-  a2: "Quando um empregador reserva um trabalho, o pagamento é assegurado antecipadamente via Stripe e retido em custódia. Assim que o trabalho é marcado como concluído por ambas as partes, os fundos são libertados automaticamente para o prestador de serviços.",
+  a2: "Quando um cliente reserva um trabalho, o pagamento é assegurado antecipadamente via Stripe e retido em custódia. Assim que o trabalho é marcado como concluído por ambas as partes, os fundos são libertados automaticamente para o prestador de serviços.",
   q3: "A minha identidade é verificada?",
-  a3: "Sim. Todos os utilizadores da Nasta passam por verificação de identidade com documentos emitidos pelo governo antes de poderem aceitar ou publicar trabalhos. Isto protege tanto empregadores como prestadores de serviços.",
+  a3: "Sim. Todos os utilizadores da Nasta passam por verificação de identidade com documentos emitidos pelo governo antes de poderem aceitar ou publicar trabalhos. Isto protege tanto clientes como prestadores de serviços.",
   q4: "Que tipos de trabalhos posso encontrar na Nasta?",
   a4: "A Nasta suporta categorias ilimitadas de trabalho incluindo limpeza, cuidado de crianças, cuidado de idosos, construção, eventos, mudanças, jardinagem, tutoria e muito mais. Se o consegue fazer, pode listá-lo.",
-  q5: "Como é que a Nasta protege os empregadores?",
-  a5: "Os empregadores só pagam quando o trabalho está concluído. Todos os trabalhadores são verificados por ID, as tarefas incluem rastreamento GPS em tempo real e check-in/check-out digital, e existe uma política justa de cancelamento e proteção contra faltas.",
+  q5: "Como é que a Nasta protege os clientes?",
+  a5: "Os clientes só pagam quando o trabalho está concluído. Todos os trabalhadores são verificados por ID, as tarefas incluem rastreamento GPS em tempo real e check-in/check-out digital, e existe uma política justa de cancelamento e proteção contra faltas.",
   q6: "Como é que a Nasta protege os prestadores de serviços?",
-  a6: "O pagamento é assegurado antes do início do trabalho, portanto tem garantia de ser pago pelo trabalho concluído. Todos os empregadores também são verificados, e pode avaliar e comentar cada tarefa.",
+  a6: "O pagamento é assegurado antes do início do trabalho, portanto tem garantia de ser pago pelo trabalho concluído. Todos os clientes também são verificados, e pode avaliar e comentar cada tarefa.",
   q7: "Quais são as taxas?",
-  a7: "Criar uma conta é gratuito tanto para empregadores como para prestadores de serviços. A Nasta cobra uma pequena comissão de plataforma por cada trabalho concluído para cobrir processamento de pagamentos e operações da plataforma.",
+  a7: "Criar uma conta é gratuito tanto para clientes como para prestadores de serviços. A Nasta cobra uma pequena comissão de plataforma por cada trabalho concluído para cobrir processamento de pagamentos e operações da plataforma.",
   q8: "A Nasta está disponível no telemóvel?",
   a8: "Sim. A Nasta tem apps completas para iOS e Android. Pode candidatar-se a trabalhos, gerir reservas, conversar e receber pagamentos tudo a partir do seu telemóvel.",
   q9: "Como começo?",
@@ -248,7 +248,7 @@ pt.faq = {
   q10: "Posso usar a Nasta como trabalho extra?",
   a10: "Absolutamente. Muitos prestadores de serviços usam a Nasta para trabalhos extra no seu próprio horário. Você escolhe quando está disponível e quais trabalhos aceitar. Não há horas mínimas ou compromissos.",
   q11: "Quão rápido posso encontrar um trabalhador?",
-  a11: "Os empregadores podem usar pedidos instantâneos para encontrar prestadores de serviços verificados e disponíveis por perto em segundos. Para trabalhos agendados, normalmente receberá candidaturas de candidatos qualificados pouco depois de publicar.",
+  a11: "Os clientes podem usar pedidos instantâneos para encontrar prestadores de serviços verificados e disponíveis por perto em segundos. Para trabalhos agendados, normalmente receberá candidaturas de candidatos qualificados pouco depois de publicar.",
 };
 
 // ─── How It Works ───
@@ -264,7 +264,7 @@ pt.howItWorks = {
     "Registe-se, verifique a sua identidade e defina as suas preferências.",
   step2Title: "Peça ou candidate-se",
   step2Desc:
-    "Empregadores pedem on-demand. Prestadores candidatam-se com um toque.",
+    "Clientes pedem on-demand. Prestadores candidatam-se com um toque.",
   step3Title: "Conclua e receba",
   step3Desc:
     "Trabalho feito, fundos libertados instantaneamente. Simples e transparente.",
@@ -273,7 +273,7 @@ pt.howItWorks = {
   spDesc:
     "Complete a sua verificação para desbloquear pedidos de trabalho instantâneos e começar a ganhar.",
   spFullDesc:
-    "Complete a sua verificação para desbloquear pedidos de trabalho instantâneos e começar a ganhar. Cada passo constrói a sua pontuação de confiança e visibilidade para empregadores.",
+    "Complete a sua verificação para desbloquear pedidos de trabalho instantâneos e começar a ganhar. Cada passo constrói a sua pontuação de confiança e visibilidade para clientes.",
   spReq0Title: "Verificação de Identidade",
   spReq0Desc:
     "Documento de identificação com foto emitido pelo governo para confirmar a sua identidade real",
@@ -282,7 +282,7 @@ pt.howItWorks = {
     "Necessária para trabalhos de condução, deve ter sido emitida há pelo menos 3 anos",
   spReq2Title: "Verificação de Antecedentes e Registo Criminal",
   spReq2Desc:
-    "Rastreio abrangente para a sua segurança e confiança do empregador",
+    "Rastreio abrangente para a sua segurança e confiança do cliente",
   spReq3Title: "CV Profissional",
   spReq3Desc: "A sua experiência de trabalho e qualificações em ficheiro",
   spReq4Title: "Competências e Tarifas de Serviço",
@@ -295,7 +295,7 @@ pt.howItWorks = {
   spReq6Desc: "Confirmação por SMS e email para proteger a sua conta",
   required: "Obrigatório",
   optional: "Opcional",
-  empBadge: "Empregadores",
+  empBadge: "Clientes",
   empTitle: "Publique o seu primeiro trabalho em minutos",
   empDesc: "Uma configuração mais leve para começar a contratar rapidamente.",
   empFullDesc:
@@ -315,7 +315,7 @@ pt.howItWorks = {
     "Pode navegar por prestadores de serviços verificados imediatamente após criar a sua conta. Adicione a sua morada e verifique o seu telefone para publicar o seu primeiro trabalho ou enviar um pedido instantâneo.",
   trustTitle: "Cada verificação constrói confiança",
   trustDesc:
-    "Estes passos existem para proteger todos na plataforma. Prestadores de serviços verificados recebem mais pedidos de trabalho. Empregadores verificados atraem melhor talento.",
+    "Estes passos existem para proteger todos na plataforma. Prestadores de serviços verificados recebem mais pedidos de trabalho. Clientes verificados atraem melhor talento.",
   stillHaveQuestions: "Ainda tem dúvidas?",
   stillHaveQuestionsDesc:
     "A nossa equipa está aqui para ajudar. Seja sobre verificação, pagamento, ou qualquer outra coisa, contacte-nos a qualquer momento.",
@@ -327,15 +327,15 @@ pt.howItWorks = {
 pt.aboutPage = {
   title: "Sobre a Nasta",
   intro:
-    "A Nasta é um marketplace de força de trabalho on-demand que conecta prestadores de serviços verificados com empregadores de confiança instantaneamente. Quer precise de alguém agora mesmo para uma tarefa urgente ou queira agendar um contrato de longo prazo, a Nasta torna a contratação rápida, justa e totalmente transparente.",
+    "A Nasta é um marketplace de força de trabalho on-demand que conecta prestadores de serviços verificados com clientes de confiança instantaneamente. Quer precise de alguém agora mesmo para uma tarefa urgente ou queira agendar um contrato de longo prazo, a Nasta torna a contratação rápida, justa e totalmente transparente.",
   missionTitle: "A Nossa Missão",
   missionDesc:
-    "Acreditamos que todos merecem acesso instantâneo a oportunidades de trabalho legítimas, e cada empregador merece acesso instantâneo a talento fiável e verificado. A Nasta foi construída para tornar essa conexão instantânea e perfeita, enquanto protege ambos os lados com pagamentos seguros, verificação de identidade e monitorização de trabalho em tempo real.",
+    "Acreditamos que todos merecem acesso instantâneo a oportunidades de trabalho legítimas, e cada cliente merece acesso instantâneo a talento fiável e verificado. A Nasta foi construída para tornar essa conexão instantânea e perfeita, enquanto protege ambos os lados com pagamentos seguros, verificação de identidade e monitorização de trabalho em tempo real.",
   howItWorksTitle: "Como Funciona",
   forSP: "Para Prestadores de Serviços:",
   forSPDesc:
     "Crie um perfil verificado e receba pedidos de trabalho instantâneos perto de si. Use a Nasta como rendimento principal ou trabalho extra flexível, e receba pagamento seguro quando o trabalho estiver feito.",
-  forEmp: "Para Empregadores:",
+  forEmp: "Para Clientes:",
   forEmpDesc:
     "Publique pedidos instantâneos para ajuda on-demand ou agende trabalhos em categorias ilimitadas. Navegue por candidatos verificados, reserve com confiança, e só liberte o pagamento quando estiver satisfeito.",
   trustTitle: "Confiança e Segurança",
@@ -347,11 +347,11 @@ pt.aboutPage = {
 
 // ─── For Employers page ───
 pt.forEmployersPage = {
-  heroLabel: "Para Empregadores",
+  heroLabel: "Para Clientes",
   heroTitle: "Acesso instantâneo a talento verificado",
   heroDesc:
     "Precisa de algo feito agora mesmo? Peça prestadores de serviços verificados e instantaneamente disponíveis on-demand. Todos os trabalhadores são verificados por ID, cada tarefa é monitorizada em tempo real, e cada pagamento é protegido pela custódia Stripe.",
-  whyTitle: "Porque é que os empregadores escolhem a Nasta",
+  whyTitle: "Porque é que os clientes escolhem a Nasta",
   benefit0Title: "Trabalhadores Verificados por ID",
   benefit0Desc:
     "Todos os prestadores de serviços passam por verificação de ID governamental antes de poderem aceitar qualquer tarefa. Sabe sempre exatamente quem vai aparecer.",
@@ -366,7 +366,7 @@ pt.forEmployersPage = {
     "Precisa de ajuda agora? Publique um pedido instantâneo e seja correspondido com prestadores de serviços verificados e disponíveis perto de si. Ou agende para trabalho planeado.",
   benefit4Title: "Avaliações e Comentários",
   benefit4Desc:
-    "Veja o histórico de cada prestador de serviços antes de reservar. Avaliações verificadas de empregadores reais ajudam-no a tomar decisões confiantes.",
+    "Veja o histórico de cada prestador de serviços antes de reservar. Avaliações verificadas de clientes reais ajudam-no a tomar decisões confiantes.",
   benefit5Title: "Categorias Ilimitadas",
   benefit5Desc:
     "Da limpeza e cuidado de crianças à construção e eventos. Publique qualquer tipo de trabalho em categorias de serviço ilimitadas.",
@@ -404,8 +404,8 @@ pt.forEmployersPage = {
     "A Nasta cobra uma pequena comissão de plataforma para cobrir processamento de pagamentos, verificação de identidade e infraestrutura de monitorização. Nunca paga mais do que o preço acordado do trabalho.",
   ctaTitle: "Pronto para contratar?",
   ctaDesc:
-    "Crie uma conta de empregador gratuita e publique o seu primeiro trabalho em minutos.",
-  ctaButton: "Criar Conta de Empregador",
+    "Crie uma conta de cliente gratuita e publique o seu primeiro trabalho em minutos.",
+  ctaButton: "Criar Conta de Cliente",
 };
 
 // ─── For Service Providers page ───
@@ -413,23 +413,23 @@ pt.forServiceProvidersPage = {
   heroLabel: "Para Prestadores de Serviços",
   heroTitle: "Ganhe instantaneamente. Nos seus termos.",
   heroDesc:
-    "Quer seja o seu rendimento principal ou um trabalho extra, a Nasta conecta-o com pedidos de trabalho instantâneos de empregadores verificados. Receba rapidamente, trabalhe no seu horário e construa a sua reputação.",
+    "Quer seja o seu rendimento principal ou um trabalho extra, a Nasta conecta-o com pedidos de trabalho instantâneos de clientes verificados. Receba rapidamente, trabalhe no seu horário e construa a sua reputação.",
   whyTitle: "Porque é que os prestadores de serviços escolhem a Nasta",
   benefit0Title: "Pagamentos Instantâneos",
   benefit0Desc:
     "Os fundos são libertados assim que o trabalho é marcado como concluído. Sem faturas, sem atrasos. Pagamentos instantâneos diretamente na sua conta, perfeito para rendimento extra.",
   benefit1Title: "Pagamento Garantido",
   benefit1Desc:
-    "Cada trabalho é apoiado pela custódia Stripe. O pagamento do empregador é assegurado antes de começar, para que tenha garantia de ser pago pelo trabalho concluído.",
-  benefit2Title: "Empregadores Verificados",
+    "Cada trabalho é apoiado pela custódia Stripe. O pagamento do cliente é assegurado antes de começar, para que tenha garantia de ser pago pelo trabalho concluído.",
+  benefit2Title: "Clientes Verificados",
   benefit2Desc:
-    "Todos os empregadores na Nasta também são verificados. Sabe sempre para quem está a trabalhar, com detalhes de trabalho transparentes e termos justos.",
+    "Todos os clientes na Nasta também são verificados. Sabe sempre para quem está a trabalhar, com detalhes de trabalho transparentes e termos justos.",
   benefit3Title: "Categorias Ilimitadas",
   benefit3Desc:
     "Limpeza, cuidado de crianças, construção, eventos, tutoria e mais. Aceite trabalhos instantâneos em qualquer categoria, seja como trabalho principal ou extra.",
   benefit4Title: "Mobile First",
   benefit4Desc:
-    "Receba notificações de trabalho instantâneas, candidate-se com um toque, converse com empregadores e acompanhe os seus ganhos. App completa para iOS e Android.",
+    "Receba notificações de trabalho instantâneas, candidate-se com um toque, converse com clientes e acompanhe os seus ganhos. App completa para iOS e Android.",
   benefit5Title: "Construa a Sua Reputação",
   benefit5Desc:
     "Cada trabalho concluído ganha-lhe avaliações e comentários. Um perfil forte significa mais reservas, melhores trabalhos e maiores ganhos ao longo do tempo.",
@@ -454,7 +454,7 @@ pt.forServiceProvidersPage = {
     "Necessária para trabalhos de condução, deve ter sido emitida há pelo menos 3 anos",
   req2Title: "Verificação de Antecedentes e Registo Criminal",
   req2Desc:
-    "Rastreio abrangente para a sua segurança e confiança do empregador",
+    "Rastreio abrangente para a sua segurança e confiança do cliente",
   req3Title: "CV Profissional",
   req3Desc: "A sua experiência de trabalho e qualificações em ficheiro",
   req4Title: "Competências e Tarifas de Serviço",
@@ -468,7 +468,7 @@ pt.forServiceProvidersPage = {
   required: "Obrigatório",
   protectedTitle: "Os seus ganhos estão protegidos",
   protectedP1:
-    "Antes de iniciar qualquer trabalho, o pagamento do empregador já está assegurado na custódia Stripe. Quer este seja o seu trabalho a tempo inteiro ou um extra, nunca fará trabalho sem a garantia de ser pago.",
+    "Antes de iniciar qualquer trabalho, o pagamento do cliente já está assegurado na custódia Stripe. Quer este seja o seu trabalho a tempo inteiro ou um extra, nunca fará trabalho sem a garantia de ser pago.",
   protectedP2:
     "Assim que o trabalho estiver completo e confirmado, os seus ganhos são libertados diretamente para a sua conta de pagamento conectada. A maioria dos pagamentos chega em 1-2 dias úteis.",
   protectedP3:

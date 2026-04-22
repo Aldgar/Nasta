@@ -144,7 +144,15 @@ function statusColor(status: string): string {
   return "bg-[var(--surface-alt)] text-[var(--muted-text)]";
 }
 
-function StarRating({ rating, count }: { rating: number; count: number }) {
+function StarRating({
+  rating,
+  count,
+  reviewsLabel,
+}: {
+  rating: number;
+  count: number;
+  reviewsLabel?: string;
+}) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
   return (
@@ -165,7 +173,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
         {rating.toFixed(1)}
       </span>
       <span className="text-xs text-[var(--muted-text)]">
-        ({count} {count === 1 ? "review" : "reviews"})
+        {reviewsLabel ?? `(${count} ${count === 1 ? "review" : "reviews"})`}
       </span>
     </div>
   );
@@ -626,7 +634,7 @@ export default function ProfilePage() {
     });
   if (unreadNotifs > 0)
     attentionItems.push({
-      label: `${unreadNotifs} unread notification${unreadNotifs > 1 ? "s" : ""}`,
+      label: `${unreadNotifs} ${unreadNotifs === 1 ? t("profile.unreadNotification", "unread notification") : t("profile.unreadNotifications", "unread notifications")}`,
       href: "/dashboard/notifications",
       severity: "info",
     });
@@ -744,7 +752,7 @@ export default function ProfilePage() {
               </h2>
               {pUser.isActive && (
                 <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                  Active
+                  {t("profile.active", "Active")}
                 </span>
               )}
               {emailVerified && phoneVerified && pUser.isIdVerified && (
@@ -762,7 +770,7 @@ export default function ProfilePage() {
                       d="M4.5 12.75l6 6 9-13.5"
                     />
                   </svg>
-                  Verified
+                  {t("profile.verified", "Verified")}
                 </span>
               )}
             </div>
@@ -797,11 +805,11 @@ export default function ProfilePage() {
                   {pUser.email}
                   {emailVerified ? (
                     <span className="ml-1 rounded bg-emerald-500/15 px-1 text-[9px] font-bold text-emerald-400">
-                      Verified
+                      {t("profile.verified", "Verified")}
                     </span>
                   ) : (
                     <span className="ml-1 rounded bg-amber-500/15 px-1 text-[9px] font-bold text-amber-400">
-                      Unverified
+                      {t("profile.unverified", "Unverified")}
                     </span>
                   )}
                 </span>
@@ -824,11 +832,11 @@ export default function ProfilePage() {
                   {pUser.phone}
                   {phoneVerified ? (
                     <span className="ml-1 rounded bg-emerald-500/15 px-1 text-[9px] font-bold text-emerald-400">
-                      Verified
+                      {t("profile.verified", "Verified")}
                     </span>
                   ) : (
                     <span className="ml-1 rounded bg-amber-500/15 px-1 text-[9px] font-bold text-amber-400">
-                      Unverified
+                      {t("profile.unverified", "Unverified")}
                     </span>
                   )}
                 </span>
@@ -840,6 +848,7 @@ export default function ProfilePage() {
                 <StarRating
                   rating={candidate.rating!}
                   count={candidate.ratingCount ?? 0}
+                  reviewsLabel={`(${candidate.ratingCount ?? 0} ${(candidate.ratingCount ?? 0) === 1 ? t("profile.reviewSingular", "review") : t("profile.reviewPlural", "reviews")})`}
                 />
               </div>
             )}
@@ -1045,6 +1054,11 @@ export default function ProfilePage() {
           <VerifRow
             label={t("profile.emailAddress", "Email Address")}
             verified={emailVerified}
+            statusText={
+              emailVerified
+                ? t("profile.verified", "Verified")
+                : t("profile.notVerified", "Not Verified")
+            }
             actionLabel={
               !emailVerified ? t("profile.verify", "Verify") : undefined
             }
@@ -1053,6 +1067,11 @@ export default function ProfilePage() {
           <VerifRow
             label={t("profile.phoneNumber", "Phone Number")}
             verified={phoneVerified}
+            statusText={
+              phoneVerified
+                ? t("profile.verified", "Verified")
+                : t("profile.notVerified", "Not Verified")
+            }
             actionLabel={
               !phoneVerified ? t("profile.verify", "Verify") : undefined
             }
@@ -1415,7 +1434,8 @@ export default function ProfilePage() {
                   €{r.rate as number}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--muted-text)]">
-                  per {fmt((r.paymentType as string) ?? "HOUR").toLowerCase()}
+                  {t("profile.per", "per")}{" "}
+                  {fmt((r.paymentType as string) ?? "HOUR").toLowerCase()}
                 </p>
                 {r.description ? (
                   <p className="mt-1 text-[10px] text-[var(--muted-text)]">
@@ -1457,7 +1477,7 @@ export default function ProfilePage() {
                     {w.toDate
                       ? ` - ${String(w.toDate)}`
                       : w.isCurrent
-                        ? " - Present"
+                        ? ` - ${t("profile.present", "Present")}`
                         : ""}
                   </p>
                 ) : null}
@@ -1569,7 +1589,7 @@ export default function ProfilePage() {
             rightAction={
               hasRating ? (
                 <span className="text-xs text-[var(--muted-text)]">
-                  {candidate.ratingCount} total
+                  {candidate.ratingCount} {t("profile.totalLower", "total")}
                 </span>
               ) : undefined
             }

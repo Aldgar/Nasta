@@ -15,13 +15,13 @@ Nasta ("we," "our," or "us") is committed to protecting your privacy. This Priva
 - Profile information (bio, location, skills, experience)
 - Profile photos and avatars
 - Payment information (processed securely through Stripe)
-- Business information (for employers)
 
 **Verification Information:**
-- Government-issued ID documents (passport, national ID, driver's license, residence permit)
+- Government-issued ID documents (passport, national ID, residence permit)
 - Selfie photos for identity verification
 - Criminal record certificates for background checks
-- Business registration documents (for business verification)
+- Driver license documents (front and back) for driving-related job categories
+- Vehicle photos (front, back, sides, license plate) and vehicle registration documents for transport-related job categories
 
 **Job and Application Information:**
 - Job postings and descriptions
@@ -69,9 +69,6 @@ Nasta ("we," "our," or "us") is committed to protecting your privacy. This Priva
 **Verification Services:**
 - Third-party identity verification services
 - Background check providers
-
-**Social Media (if applicable):**
-- Information from social media accounts you connect
 
 ## 3. How We Use Your Information
 

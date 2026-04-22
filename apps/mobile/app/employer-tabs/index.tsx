@@ -730,7 +730,7 @@ export default function EmployerFeed() {
                 marginBottom: 6,
               }}
             >
-              EMPLOYER HQ
+              CLIENT HQ
             </Text>
             <Text style={[styles.greeting, themeStyles.textPrimary]}>
               {t("employerHome.findTalent", {

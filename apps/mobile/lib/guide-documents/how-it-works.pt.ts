@@ -10,7 +10,7 @@ Levamos a confiança a sério. Todos os utilizadores completam um processo de ve
 Registe-se, verifique a sua identidade e defina as suas preferências. Demora menos de cinco minutos.
 
 ### 2. Peça ou Candidate-se
-Os empregadores pedem a pedido. Os prestadores candidatam-se com um toque.
+Os clientes pedem a pedido. Os prestadores candidatam-se com um toque.
 
 ### 3. Conclua e Receba
 Trabalho concluído, fundos libertados instantaneamente. Simples e transparente.
@@ -19,7 +19,7 @@ Trabalho concluído, fundos libertados instantaneamente. Simples e transparente.
 
 **Verifique-se uma vez, ganhe para sempre.**
 
-Complete a sua verificação para desbloquear pedidos de trabalho instantâneos e comece a ganhar. Cada passo aumenta a sua pontuação de confiança e visibilidade para os empregadores.
+Complete a sua verificação para desbloquear pedidos de trabalho instantâneos e comece a ganhar. Cada passo aumenta a sua pontuação de confiança e visibilidade para os clientes.
 
 ### O Que Precisa
 
@@ -31,7 +31,7 @@ Complete a sua verificação para desbloquear pedidos de trabalho instantâneos 
 - Conta Bancária e Configuração de Pagamentos — Obrigatório
 - Verificação de Telefone e Email — Obrigatório
 
-## Para Empregadores
+## Para Clientes
 
 **Publique o seu primeiro trabalho em minutos.**
 
@@ -48,7 +48,7 @@ Pode navegar por prestadores de serviços verificados imediatamente após criar 
 
 ## Confiança e Verificação
 
-Cada verificação constrói confiança. Estes passos existem para proteger todos na plataforma. Prestadores de serviços verificados recebem mais pedidos de trabalho. Empregadores verificados atraem melhor talento.
+Cada verificação constrói confiança. Estes passos existem para proteger todos na plataforma. Prestadores de serviços verificados recebem mais pedidos de trabalho. Clientes verificados atraem melhor talento.
 
 Ainda tem dúvidas? Contacte-nos em support@nasta.app
 `;

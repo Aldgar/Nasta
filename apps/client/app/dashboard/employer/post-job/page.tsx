@@ -79,6 +79,65 @@ export default function PostJobPage() {
   const { t } = useLanguage();
   const router = useRouter();
 
+  const workModeLabels: Record<string, string> = {
+    ON_SITE: t("employerDashboard.postJob.workModeOnSite", "On-site"),
+    REMOTE: t("employerDashboard.postJob.workModeRemote", "Remote"),
+    HYBRID: t("employerDashboard.postJob.workModeHybrid", "Hybrid"),
+  };
+  const urgencyLabels: Record<string, string> = {
+    NORMAL: t("employerDashboard.postJob.urgencyNormal", "Normal"),
+    URGENT: t("employerDashboard.postJob.urgencyUrgent", "Urgent"),
+  };
+  const jobTypeOptions = [
+    {
+      value: "FULL_TIME",
+      label: t("employerDashboard.postJob.jobTypeFullTime", "Full Time"),
+    },
+    {
+      value: "PART_TIME",
+      label: t("employerDashboard.postJob.jobTypePartTime", "Part Time"),
+    },
+    {
+      value: "CONTRACT",
+      label: t("employerDashboard.postJob.jobTypeContract", "Contract"),
+    },
+    {
+      value: "TEMPORARY",
+      label: t("employerDashboard.postJob.jobTypeTemporary", "Temporary"),
+    },
+    {
+      value: "FREELANCE",
+      label: t("employerDashboard.postJob.jobTypeFreelance", "Freelance"),
+    },
+    {
+      value: "INTERNSHIP",
+      label: t("employerDashboard.postJob.jobTypeInternship", "Internship"),
+    },
+    { value: "GIG", label: t("employerDashboard.postJob.jobTypeGig", "Gig") },
+  ];
+  const paymentTypeOptions = [
+    {
+      value: "HOURLY",
+      label: t("employerDashboard.postJob.paymentTypePerHour", "Per Hour"),
+    },
+    {
+      value: "DAILY",
+      label: t("employerDashboard.postJob.paymentTypePerDay", "Per Day"),
+    },
+    {
+      value: "WEEKLY",
+      label: t("employerDashboard.postJob.paymentTypePerWeek", "Per Week"),
+    },
+    {
+      value: "MONTHLY",
+      label: t("employerDashboard.postJob.paymentTypePerMonth", "Per Month"),
+    },
+    {
+      value: "FIXED",
+      label: t("employerDashboard.postJob.paymentTypeFixed", "Fixed Price"),
+    },
+  ];
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{
@@ -127,27 +186,63 @@ export default function PostJobPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      setToast({ message: "Job title is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorTitleRequired",
+          "Job title is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!description.trim()) {
-      setToast({ message: "Job description is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorDescRequired",
+          "Job description is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!location.trim()) {
-      setToast({ message: "Location is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorLocationRequired",
+          "Location is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!city.trim()) {
-      setToast({ message: "City is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorCityRequired",
+          "City is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!country.trim()) {
-      setToast({ message: "Country is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorCountryRequired",
+          "Country is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!startDate) {
-      setToast({ message: "Start date is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorStartDateRequired",
+          "Start date is required",
+        ),
+        type: "error",
+      });
       return;
     }
 
@@ -197,13 +292,24 @@ export default function PostJobPage() {
     if (res.error) {
       setToast({
         message:
-          typeof res.error === "string" ? res.error : "Failed to create job",
+          typeof res.error === "string"
+            ? res.error
+            : t(
+                "employerDashboard.postJob.errorCreateFailed",
+                "Failed to create job",
+              ),
         type: "error",
       });
       return;
     }
 
-    setToast({ message: "Job posted successfully!", type: "success" });
+    setToast({
+      message: t(
+        "employerDashboard.postJob.successPosted",
+        "Job posted successfully!",
+      ),
+      type: "success",
+    });
     setTimeout(() => router.push("/dashboard/employer/my-jobs"), 1000);
   };
 
@@ -343,7 +449,13 @@ export default function PostJobPage() {
                   )}
                   options={[
                     ...categories.map((c) => ({ value: c.id, label: c.name })),
-                    { value: "custom", label: "Other (custom)" },
+                    {
+                      value: "custom",
+                      label: t(
+                        "employerDashboard.postJob.otherCustom",
+                        "Other (custom)",
+                      ),
+                    },
                   ]}
                 />
               </div>
@@ -359,7 +471,10 @@ export default function PostJobPage() {
                     type="text"
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
-                    placeholder="Enter category name..."
+                    placeholder={t(
+                      "employerDashboard.postJob.enterCategoryPlaceholder",
+                      "Enter category name...",
+                    )}
                     className={inputCls}
                   />
                 </div>
@@ -371,10 +486,7 @@ export default function PostJobPage() {
                 <BrandedSelect
                   value={jobType}
                   onChange={setJobType}
-                  options={JOB_TYPES.map((t) => ({
-                    value: t.value,
-                    label: t.label,
-                  }))}
+                  options={jobTypeOptions}
                 />
               </div>
             </div>
@@ -418,7 +530,7 @@ export default function PostJobPage() {
                         d={wm.icon}
                       />
                     </svg>
-                    {wm.label}
+                    {workModeLabels[wm.value] ?? wm.label}
                   </button>
                 ))}
               </div>
@@ -442,7 +554,7 @@ export default function PostJobPage() {
                         : `border-[var(--border-color)] bg-[var(--surface-alt)] ${u.value === "URGENT" ? "text-[var(--alert-red)]/60 hover:border-[var(--alert-red)]/30" : "text-[var(--muted-text)] hover:border-[var(--primary)]/30"}`
                     }`}
                   >
-                    {u.label}
+                    {urgencyLabels[u.value] ?? u.label}
                   </button>
                 ))}
               </div>
@@ -466,7 +578,10 @@ export default function PostJobPage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Street address or area..."
+                placeholder={t(
+                  "employerDashboard.postJob.streetAddressPlaceholder",
+                  "Street address or area...",
+                )}
                 className={inputCls}
               />
             </div>
@@ -479,7 +594,10 @@ export default function PostJobPage() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="City..."
+                  placeholder={t(
+                    "employerDashboard.postJob.cityPlaceholder",
+                    "City...",
+                  )}
                   className={inputCls}
                 />
               </div>
@@ -491,7 +609,10 @@ export default function PostJobPage() {
                   type="text"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  placeholder="Country..."
+                  placeholder={t(
+                    "employerDashboard.postJob.countryPlaceholder",
+                    "Country...",
+                  )}
                   className={inputCls}
                 />
               </div>
@@ -514,15 +635,23 @@ export default function PostJobPage() {
               <BrandedDatePicker
                 value={startDate}
                 onChange={setStartDate}
-                placeholder="Select start date"
+                placeholder={t(
+                  "employerDashboard.postJob.selectStartDate",
+                  "Select start date",
+                )}
               />
             </div>
             <div>
-              <label className={labelCls}>Start Time</label>
+              <label className={labelCls}>
+                {t("employerDashboard.postJob.startTime", "Start Time")}
+              </label>
               <BrandedTimePicker
                 value={startTime}
                 onChange={setStartTime}
-                placeholder="Select time"
+                placeholder={t(
+                  "employerDashboard.postJob.selectTime",
+                  "Select time",
+                )}
                 step={15}
               />
             </div>
@@ -533,7 +662,10 @@ export default function PostJobPage() {
               <BrandedDatePicker
                 value={endDate}
                 onChange={setEndDate}
-                placeholder="Select end date"
+                placeholder={t(
+                  "employerDashboard.postJob.selectEndDate",
+                  "Select end date",
+                )}
               />
             </div>
           </div>
@@ -545,7 +677,10 @@ export default function PostJobPage() {
             {t("employerDashboard.postJob.compensation", "Payment")}
           </h2>
           <p className="mb-4 text-xs text-[var(--muted-text)]">
-            Optional. Service providers can see your rate when applying.
+            {t(
+              "employerDashboard.postJob.compensationOptional",
+              "Optional. Service providers can see your rate when applying.",
+            )}
           </p>
 
           <div className="grid gap-5 sm:grid-cols-3">
@@ -580,10 +715,7 @@ export default function PostJobPage() {
               <BrandedSelect
                 value={paymentType}
                 onChange={setPaymentType}
-                options={PAYMENT_TYPES.map((p) => ({
-                  value: p.value,
-                  label: p.label,
-                }))}
+                options={paymentTypeOptions}
               />
             </div>
           </div>
@@ -595,7 +727,10 @@ export default function PostJobPage() {
             {t("employerDashboard.postJob.requirementsTitle", "Requirements")}
           </h2>
           <p className="mb-4 text-xs text-[var(--muted-text)]">
-            Optional. List qualifications or skills needed for this job.
+            {t(
+              "employerDashboard.postJob.requirementsOptional",
+              "Optional. List qualifications or skills needed for this job.",
+            )}
           </p>
 
           <div className="space-y-2">
@@ -612,7 +747,7 @@ export default function PostJobPage() {
                       e.target.value,
                     )
                   }
-                  placeholder={`Requirement ${i + 1}...`}
+                  placeholder={`${t("employerDashboard.postJob.requirementPlaceholder", "Requirement")} ${i + 1}...`}
                   className={inputCls}
                 />
                 <button
@@ -670,7 +805,10 @@ export default function PostJobPage() {
             )}
           </h2>
           <p className="mb-4 text-xs text-[var(--muted-text)]">
-            Optional. Describe the tasks the service provider will perform.
+            {t(
+              "employerDashboard.postJob.responsibilitiesOptional",
+              "Optional. Describe the tasks the service provider will perform.",
+            )}
           </p>
 
           <div className="space-y-2">
@@ -687,7 +825,7 @@ export default function PostJobPage() {
                       e.target.value,
                     )
                   }
-                  placeholder={`Responsibility ${i + 1}...`}
+                  placeholder={`${t("employerDashboard.postJob.responsibilityPlaceholder", "Responsibility")} ${i + 1}...`}
                   className={inputCls}
                 />
                 <button
@@ -869,7 +1007,7 @@ export default function PostJobPage() {
             href="/dashboard/employer"
             className="text-sm font-medium text-[var(--muted-text)] transition-colors hover:text-[var(--foreground)]"
           >
-            Cancel
+            {t("employerDashboard.postJob.cancel", "Cancel")}
           </Link>
           <button
             type="submit"

@@ -10,7 +10,7 @@ We take trust seriously. Every user completes a verification process before they
 Sign up, verify your identity, and set your preferences. It takes less than five minutes.
 
 ### 2. Request or Apply
-Employers request on demand. Providers apply with one tap.
+Clients request on demand. Providers apply with one tap.
 
 ### 3. Complete & Get Paid
 Job done, funds released instantly. Simple and transparent.
@@ -19,7 +19,7 @@ Job done, funds released instantly. Simple and transparent.
 
 **Get verified once, earn forever.**
 
-Complete your verification to unlock instant job requests and start earning. Every step builds your trust score and visibility to employers.
+Complete your verification to unlock instant job requests and start earning. Every step builds your trust score and visibility to clients.
 
 ### What You Need
 
@@ -31,7 +31,7 @@ Complete your verification to unlock instant job requests and start earning. Eve
 - Bank Account & Payout Setup — Required
 - Phone & Email Verification — Required
 
-## For Employers
+## For Clients
 
 **Post your first job in minutes.**
 
@@ -48,7 +48,7 @@ You can browse verified service providers immediately after creating your accoun
 
 ## Trust & Verification
 
-Every verification builds trust. These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified employers attract better talent.
+Every verification builds trust. These steps exist to protect everyone on the platform. Verified service providers get more job requests. Verified clients attract better talent.
 
 Still have questions? Reach out to us at support@nasta.app
 `;

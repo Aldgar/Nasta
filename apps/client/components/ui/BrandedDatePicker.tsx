@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface BrandedDatePickerProps {
   value: string; // "YYYY-MM-DD" or ""
@@ -11,21 +12,15 @@ interface BrandedDatePickerProps {
   disabled?: boolean;
 }
 
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const DAY_KEYS = [
+  "daySu",
+  "dayMo",
+  "dayTu",
+  "dayWe",
+  "dayTh",
+  "dayFr",
+  "daySa",
+] as const;
 
 function pad(n: number) {
   return n < 10 ? `0${n}` : `${n}`;
@@ -50,6 +45,13 @@ export default function BrandedDatePicker({
   max,
   disabled = false,
 }: BrandedDatePickerProps) {
+  const { t } = useLanguage();
+  const days = DAY_KEYS.map((k) =>
+    t(`common.datePicker.${k}`, k.replace("day", "")),
+  );
+  const months = Array.from({ length: 12 }, (_, i) =>
+    t(`common.datePicker.month${i}`, String(i)),
+  );
   const parsed = parseYMD(value);
   const today = useMemo(() => new Date(), []);
 
@@ -186,7 +188,7 @@ export default function BrandedDatePicker({
           {/* Header */}
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-[var(--foreground)]">
-              {MONTHS[viewMonth]} {viewYear}
+              {months[viewMonth]} {viewYear}
             </span>
             <div className="flex items-center gap-1">
               <button
@@ -232,7 +234,7 @@ export default function BrandedDatePicker({
 
           {/* Day of week headers */}
           <div className="mb-1 grid grid-cols-7 text-center">
-            {DAYS.map((d) => (
+            {days.map((d) => (
               <span
                 key={d}
                 className="py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted-text)]"
@@ -288,7 +290,7 @@ export default function BrandedDatePicker({
               }}
               className="text-xs font-medium text-[var(--muted-text)] hover:text-[var(--foreground)] transition-colors"
             >
-              Clear
+              {t("common.datePicker.clear", "Clear")}
             </button>
             <button
               type="button"
@@ -299,7 +301,7 @@ export default function BrandedDatePicker({
               }}
               className="text-xs font-medium text-[var(--primary)] hover:opacity-80 transition-colors"
             >
-              Today
+              {t("common.datePicker.today", "Today")}
             </button>
           </div>
         </div>

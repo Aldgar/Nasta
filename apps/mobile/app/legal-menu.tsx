@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { getLegalDocument } from "../lib/legal-text";
 import { getGuideDocument } from "../lib/guide-text";
+import { getValidToken } from "../lib/authFetch";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -29,6 +30,29 @@ export default function LegalMenuScreen() {
   const { t, language } = useLanguage();
   const [employerExpanded, setEmployerExpanded] = useState(false);
   const [providerExpanded, setProviderExpanded] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadRole = async () => {
+      try {
+        const token = await getValidToken();
+        if (!token) {
+          setUserRole(null);
+          return;
+        }
+        const parts = token.split(".");
+        if (parts.length < 2) {
+          setUserRole(null);
+          return;
+        }
+        const payload = JSON.parse(atob(parts[1]));
+        setUserRole(payload?.role ? String(payload.role).toUpperCase() : null);
+      } catch {
+        setUserRole(null);
+      }
+    };
+    loadRole();
+  }, []);
 
   const legalItems = [
     {
@@ -302,6 +326,11 @@ export default function LegalMenuScreen() {
     </View>
   );
 
+  const showEmployer =
+    userRole === "EMPLOYER" || userRole === "ADMIN" || userRole === null;
+  const showProvider =
+    userRole === "JOB_SEEKER" || userRole === "ADMIN" || userRole === null;
+
   const renderUsageSection = () => (
     <View style={styles.sectionContainer}>
       <Text style={[styles.sectionTitle, themeStyles.text]}>
@@ -324,20 +353,22 @@ export default function LegalMenuScreen() {
             />
           </TouchableOpacity>
         ))}
-        {renderCollapsibleItem(
-          t("guide.forEmployers"),
-          employerExpanded,
-          () => toggleSection("employer"),
-          employerSubItems,
-          false,
-        )}
-        {renderCollapsibleItem(
-          t("guide.forServiceProviders"),
-          providerExpanded,
-          () => toggleSection("provider"),
-          providerSubItems,
-          true,
-        )}
+        {showEmployer &&
+          renderCollapsibleItem(
+            t("guide.forEmployers"),
+            employerExpanded,
+            () => toggleSection("employer"),
+            employerSubItems,
+            !showProvider,
+          )}
+        {showProvider &&
+          renderCollapsibleItem(
+            t("guide.forServiceProviders"),
+            providerExpanded,
+            () => toggleSection("provider"),
+            providerSubItems,
+            true,
+          )}
       </View>
     </View>
   );

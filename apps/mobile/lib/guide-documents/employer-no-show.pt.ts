@@ -1,13 +1,13 @@
 export const EMPLOYER_NO_SHOW_PT = `# Política de Não Comparência
 
-Este guia explica a política de não comparência da Nasta do ponto de vista do empregador — o que acontece quando um prestador de serviços aceite não se apresenta no emprego.
+Este guia explica a política de não comparência da Nasta do ponto de vista do cliente — o que acontece quando um prestador de serviços aceite não se apresenta no emprego.
 
 ## O Que Conta Como Não Comparência?
 
 Uma não comparência ocorre quando:
 - A hora de início do emprego já passou
 - O prestador **não usou o código de check-in** no local de trabalho
-- O empregador reporta a não comparência
+- O cliente reporta a não comparência
 
 Se o prestador fez check-in usando o código, não é considerado uma não comparência, mesmo que haja disputa sobre o trabalho realizado.
 

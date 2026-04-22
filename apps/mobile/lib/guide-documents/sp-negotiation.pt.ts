@@ -17,16 +17,16 @@ Pode negociar a taxa de qualquer emprego aceite **antes de o emprego ser marcado
 
 ## O Que Acontece a Seguir
 
-Após submeter um pedido de negociação, o empregador tem três opções:
+Após submeter um pedido de negociação, o cliente tem três opções:
 
-### O Empregador Aceita
-O empregador concorda com a sua taxa proposta. A taxa do emprego é atualizada e ambos veem o novo montante acordado.
+### O Cliente Aceita
+O cliente concorda com a sua taxa proposta. A taxa do emprego é atualizada e ambos veem o novo montante acordado.
 
-### O Empregador Recusa
-O empregador rejeita a sua proposta. A taxa original mantém-se. Pode ainda concluir o emprego à taxa original ou tentar negociar novamente com uma proposta diferente.
+### O Cliente Recusa
+O cliente rejeita a sua proposta. A taxa original mantém-se. Pode ainda concluir o emprego à taxa original ou tentar negociar novamente com uma proposta diferente.
 
-### O Empregador Contra-propõe
-O empregador não concorda com a sua taxa mas propõe um montante diferente. Verá a contra-proposta e pode:
+### O Cliente Contra-propõe
+O cliente não concorda com a sua taxa mas propõe um montante diferente. Verá a contra-proposta e pode:
 - **Aceitar** a contra-proposta
 - **Recusar** a contra-proposta (a taxa original mantém-se)
 - **Contra-propor** com uma nova proposta sua
@@ -34,7 +34,7 @@ O empregador não concorda com a sua taxa mas propõe um montante diferente. Ver
 ## Dicas de Negociação
 
 - **Seja razoável** — Propostas muito acima da taxa de mercado são provavelmente rejeitadas
-- **Explique claramente** — Uma boa explicação ajuda o empregador a entender o seu valor
+- **Explique claramente** — Uma boa explicação ajuda o cliente a entender o seu valor
 - **Considere o trabalho** — Tenha em conta o tempo de deslocação, custos de equipamento e complexidade do trabalho
 - **Negoceie cedo** — Negoceie antes de começar a trabalhar
 - **Seja profissional** — A negociação é uma parte normal do trabalho freelance

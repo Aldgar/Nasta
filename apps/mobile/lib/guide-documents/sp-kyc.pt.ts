@@ -1,6 +1,6 @@
 export const SP_KYC_PT = `# Verificação de Identidade KYC
 
-Antes de poder trabalhar na Nasta, precisa de completar a verificação de identidade KYC (Conheça o Seu Cliente). Isto protege tanto os empregadores como os prestadores de serviços, garantindo que todos na plataforma são verificados.
+Antes de poder trabalhar na Nasta, precisa de completar a verificação de identidade KYC (Conheça o Seu Cliente). Isto protege tanto os clientes como os prestadores de serviços, garantindo que todos na plataforma são verificados.
 
 ## Visão Geral do Processo
 
@@ -64,7 +64,7 @@ Após submeter os seus documentos:
 
 ## Porque É Que o KYC É Importante
 
-- Os empregadores confiam mais em prestadores verificados
+- Os clientes confiam mais em prestadores verificados
 - A verificação protege-o contra roubo de identidade
 - É um requisito para aceitar qualquer trabalho
 - Completa metade dos pré-requisitos para se candidatar a empregos

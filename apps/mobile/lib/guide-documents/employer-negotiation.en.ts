@@ -1,6 +1,6 @@
 export const EMPLOYER_NEGOTIATION_EN = `# Negotiation Requests
 
-Nasta supports flexible rate negotiation between employers and service providers. Negotiations can happen at any time before the job is marked as complete.
+Nasta supports flexible rate negotiation between clients and service providers. Negotiations can happen at any time before the job is marked as complete.
 
 ## When Can You Negotiate?
 
@@ -13,7 +13,7 @@ Negotiations are **not available** after the job is completed or cancelled.
 
 ## How Negotiation Works
 
-### As an Employer
+### As an Client
 
 **Sending a Rate Suggestion:**
 1. Open the applicant or job request details

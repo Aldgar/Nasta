@@ -23,7 +23,7 @@ export default function EmployerPaymentFields({ value, onChange }: Props) {
   return (
     <fieldset className="space-y-3 rounded-xl border border-neutral-200 p-4">
       <legend className="px-1 text-sm font-medium text-neutral-800">
-        Payment method (for employers)
+        Payment method (for clients)
       </legend>
       <p className="text-xs text-neutral-600">
         Add a card to pay for services. We don’t charge now; this is a

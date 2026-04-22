@@ -14,7 +14,7 @@ export default function EmployerOnboardingForm() {
   const [email, setEmail] = useState<string>(
     typeof window !== "undefined"
       ? (localStorage.getItem("auth_email") ?? "")
-      : ""
+      : "",
   );
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -57,7 +57,7 @@ export default function EmployerOnboardingForm() {
       if (res.status === 404) {
         if (typeof window !== "undefined") {
           const list = JSON.parse(
-            localStorage.getItem("employer_onboarding") ?? "[]"
+            localStorage.getItem("employer_onboarding") ?? "[]",
           );
           list.push({ ...payload, createdAt: new Date().toISOString() });
           localStorage.setItem("employer_onboarding", JSON.stringify(list));
@@ -80,7 +80,7 @@ export default function EmployerOnboardingForm() {
           Welcome, {state.name}!
         </h2>
         <p className="mt-2 text-sm text-neutral-700">
-          Your employer profile has been created. You can now post jobs and
+          Your client profile has been created. You can now post jobs and
           connect with caregivers.
         </p>
         <div className="mt-5">
@@ -184,7 +184,7 @@ export default function EmployerOnboardingForm() {
           disabled={loading}
           className="inline-flex w-full items-center justify-center rounded-full bg-linear-to-r from-primary to-soft-blue px-5 py-2 text-white shadow-sm transition hover:opacity-90 disabled:opacity-60 md:w-auto"
         >
-          {loading ? "Saving..." : "Create employer profile"}
+          {loading ? "Saving..." : "Create client profile"}
         </button>
       </div>
     </form>

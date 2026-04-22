@@ -706,7 +706,7 @@ export default function SettingsPage() {
         errors.push(
           typeof phoneRes.error === "string"
             ? phoneRes.error
-            : "Failed to update phone",
+            : t("settings.failedToUpdatePhone", "Failed to update phone"),
         );
     }
 
@@ -728,7 +728,7 @@ export default function SettingsPage() {
           errors.push(
             typeof profRes.error === "string"
               ? profRes.error
-              : "Failed to update profile",
+              : t("settings.failedToUpdateProfile", "Failed to update profile"),
           );
       }
     }
@@ -747,15 +747,12 @@ export default function SettingsPage() {
         errors.push(
           typeof addrRes.error === "string"
             ? addrRes.error
-            : "Failed to update address",
+            : t("settings.failedToUpdateAddress", "Failed to update address"),
         );
-
-      if (isEmployer) {
-        await api("/profiles/employer/me/address", {
-          method: "PATCH",
-          body: addrBody,
-        }).catch(() => {});
-      }
+      await api("/profiles/employer/me/address", {
+        method: "PATCH",
+        body: addrBody,
+      }).catch(() => {});
     }
 
     setProfileSaving(false);
@@ -763,7 +760,10 @@ export default function SettingsPage() {
       setToast({ message: errors.join(". "), type: "error" });
       return;
     }
-    setToast({ message: "Profile updated", type: "success" });
+    setToast({
+      message: t("settings.profileUpdated", "Profile updated"),
+      type: "success",
+    });
     refreshUser();
     fetchProfile();
   };
@@ -772,7 +772,10 @@ export default function SettingsPage() {
   const requestEmailChange = async () => {
     if (!newEmail.trim()) {
       setToast({
-        message: "Please enter your new email address",
+        message: t(
+          "settings.pleaseEnterNewEmail",
+          "Please enter your new email address",
+        ),
         type: "error",
       });
       return;
@@ -788,13 +791,19 @@ export default function SettingsPage() {
         message:
           typeof res.error === "string"
             ? res.error
-            : "Failed to request email change",
+            : t(
+                "settings.failedToRequestEmailChange",
+                "Failed to request email change",
+              ),
         type: "error",
       });
       return;
     }
     setToast({
-      message: "Confirmation email sent to your new address. Check your inbox.",
+      message: t(
+        "settings.emailChangeSent",
+        "Confirmation email sent to your new address. Check your inbox.",
+      ),
       type: "success",
     });
     setEmailChangeConfirmStep(true);
@@ -803,7 +812,10 @@ export default function SettingsPage() {
   const confirmEmailChange = async () => {
     if (!emailChangeToken.trim()) {
       setToast({
-        message: "Please enter the confirmation token",
+        message: t(
+          "settings.pleaseEnterConfirmToken",
+          "Please enter the confirmation token",
+        ),
         type: "error",
       });
       return;
@@ -819,12 +831,18 @@ export default function SettingsPage() {
         message:
           typeof res.error === "string"
             ? res.error
-            : "Invalid or expired token",
+            : t("settings.invalidOrExpiredToken", "Invalid or expired token"),
         type: "error",
       });
       return;
     }
-    setToast({ message: "Email updated successfully!", type: "success" });
+    setToast({
+      message: t(
+        "settings.emailUpdatedSuccessfully",
+        "Email updated successfully!",
+      ),
+      type: "success",
+    });
     setShowEmailChange(false);
     setNewEmail("");
     setEmailChangeToken("");
@@ -837,7 +855,10 @@ export default function SettingsPage() {
   const saveNewPhone = async () => {
     if (!newPhone.trim()) {
       setToast({
-        message: "Please enter your new phone number",
+        message: t(
+          "settings.pleaseEnterNewPhone",
+          "Please enter your new phone number",
+        ),
         type: "error",
       });
       return;
@@ -851,7 +872,9 @@ export default function SettingsPage() {
     if (res.error) {
       setToast({
         message:
-          typeof res.error === "string" ? res.error : "Failed to update phone",
+          typeof res.error === "string"
+            ? res.error
+            : t("settings.failedToUpdatePhone", "Failed to update phone"),
         type: "error",
       });
       return;
@@ -861,13 +884,18 @@ export default function SettingsPage() {
     });
     if (verifRes.error) {
       setToast({
-        message:
+        message: t(
+          "settings.phoneUpdatedSMSFailed",
           "Phone updated but verification SMS could not be sent. Try verifying later.",
+        ),
         type: "error",
       });
     } else {
       setToast({
-        message: "Phone updated. Verification code sent via SMS.",
+        message: t(
+          "settings.phoneUpdatedCodeSent",
+          "Phone updated. Verification code sent via SMS.",
+        ),
         type: "success",
       });
       setPhoneChangeCodeSent(true);
@@ -887,12 +915,17 @@ export default function SettingsPage() {
     if (res.error) {
       setToast({
         message:
-          typeof res.error === "string" ? res.error : "Invalid or expired code",
+          typeof res.error === "string"
+            ? res.error
+            : t("settings.invalidOrExpiredCode", "Invalid or expired code"),
         type: "error",
       });
       return;
     }
-    setToast({ message: "Phone verified!", type: "success" });
+    setToast({
+      message: t("settings.phoneVerified", "Phone verified!"),
+      type: "success",
+    });
     setShowPhoneChange(false);
     setNewPhone("");
     setPhoneChangeCode("");
@@ -911,12 +944,17 @@ export default function SettingsPage() {
     if (res.error) {
       setToast({
         message:
-          typeof res.error === "string" ? res.error : "Failed to upload avatar",
+          typeof res.error === "string"
+            ? res.error
+            : t("settings.failedToUploadAvatar", "Failed to upload avatar"),
         type: "error",
       });
       return;
     }
-    setToast({ message: "Avatar updated", type: "success" });
+    setToast({
+      message: t("settings.avatarUpdated", "Avatar updated"),
+      type: "success",
+    });
     fetchProfile();
     refreshUser();
   };
@@ -924,13 +962,19 @@ export default function SettingsPage() {
   /* ─ Professional profile actions ─ */
   const saveProfessionalProfile = async () => {
     if (!proAboutMe.trim()) {
-      setToast({ message: "About Me is required", type: "error" });
+      setToast({
+        message: t("settings.aboutMeRequired", "About Me is required"),
+        type: "error",
+      });
       return;
     }
     const validRates = proRates.filter((r) => parseFloat(r.rate) > 0);
     if (validRates.length === 0) {
       setToast({
-        message: "At least one rate with amount > 0 is required",
+        message: t(
+          "settings.rateRequired",
+          "At least one rate with amount > 0 is required",
+        ),
         type: "error",
       });
       return;
@@ -940,7 +984,10 @@ export default function SettingsPage() {
     );
     if (validSkills.length === 0) {
       setToast({
-        message: "At least one skill with experience is required",
+        message: t(
+          "settings.skillRequired",
+          "At least one skill with experience is required",
+        ),
         type: "error",
       });
       return;
@@ -1012,7 +1059,13 @@ export default function SettingsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: "Professional profile saved", type: "success" });
+    setToast({
+      message: t(
+        "settings.professionalProfileSaved",
+        "Professional profile saved",
+      ),
+      type: "success",
+    });
     refreshUser();
   };
 
@@ -1020,13 +1073,19 @@ export default function SettingsPage() {
   const changePassword = async () => {
     if (!currentPw.trim()) {
       setToast({
-        message: "Please enter your current password",
+        message: t(
+          "settings.pleaseEnterCurrentPassword",
+          "Please enter your current password",
+        ),
         type: "error",
       });
       return;
     }
     if (newPw !== confirmPw) {
-      setToast({ message: "Passwords do not match", type: "error" });
+      setToast({
+        message: t("settings.passwordsDoNotMatch", "Passwords do not match"),
+        type: "error",
+      });
       return;
     }
     const pwErrors: string[] = [];
@@ -1037,7 +1096,7 @@ export default function SettingsPage() {
     if (!/[^A-Za-z0-9]/.test(newPw)) pwErrors.push("One special character");
     if (pwErrors.length > 0) {
       setToast({
-        message: `Password requirements not met: ${pwErrors.join(", ")}`,
+        message: `${t("settings.passwordRequirementsNotMet", "Password requirements not met")}: ${pwErrors.join(", ")}`,
         type: "error",
       });
       return;
@@ -1053,12 +1112,15 @@ export default function SettingsPage() {
         message:
           typeof res.error === "string"
             ? res.error
-            : "Failed to change password",
+            : t("settings.failedToChangePassword", "Failed to change password"),
         type: "error",
       });
       return;
     }
-    setToast({ message: "Password changed successfully", type: "success" });
+    setToast({
+      message: t("settings.passwordUpdated", "Password changed successfully"),
+      type: "success",
+    });
     setCurrentPw("");
     setNewPw("");
     setConfirmPw("");
@@ -1074,7 +1136,10 @@ export default function SettingsPage() {
       return;
     }
     setToast({
-      message: "Verification email sent! Check your inbox.",
+      message: t(
+        "settings.verificationEmailSent",
+        "Verification email sent! Check your inbox.",
+      ),
       type: "success",
     });
   };
@@ -1089,7 +1154,10 @@ export default function SettingsPage() {
     }
     setPhoneCodeSent(true);
     setToast({
-      message: "Verification code sent to your phone.",
+      message: t(
+        "settings.verificationCodeSentPhone",
+        "Verification code sent to your phone.",
+      ),
       type: "success",
     });
   };
@@ -1106,7 +1174,10 @@ export default function SettingsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: "Phone verified!", type: "success" });
+    setToast({
+      message: t("settings.phoneVerified", "Phone verified!"),
+      type: "success",
+    });
     setPhoneCode("");
     setPhoneCodeSent(false);
     refreshUser();
@@ -1115,7 +1186,10 @@ export default function SettingsPage() {
   /* ─ Payment actions ─ */
   const saveBankAccount = async () => {
     if (!ibanValue.trim()) {
-      setToast({ message: "Please enter your IBAN", type: "error" });
+      setToast({
+        message: t("settings.pleaseEnterIBAN", "Please enter your IBAN"),
+        type: "error",
+      });
       return;
     }
     setBankSaving(true);
@@ -1128,7 +1202,10 @@ export default function SettingsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: "Bank account saved", type: "success" });
+    setToast({
+      message: t("settings.bankAccountSaved", "Bank account saved"),
+      type: "success",
+    });
     api<ConnectStatus>("/payments/connect/status").then((r) => {
       if (r.data) setConnectStatus(r.data);
     });
@@ -1143,7 +1220,10 @@ export default function SettingsPage() {
       setToast({ message: res.error, type: "error" });
       return;
     }
-    setToast({ message: `${doc.replace("-", " ")} accepted`, type: "success" });
+    setToast({
+      message: t("settings.documentAccepted", "Document accepted"),
+      type: "success",
+    });
     api<LegalStatus>("/users/me/legal/status").then((r) => {
       if (r.data) setLegalStatus(r.data);
     });
@@ -1166,7 +1246,7 @@ export default function SettingsPage() {
       | string
       | undefined;
     setToast({
-      message: `Deletion request submitted${ticket ? ` (${ticket})` : ""}. You will receive a confirmation email.`,
+      message: `${t("settings.deletionRequestSubmitted", "Deletion request submitted")}${ticket ? ` (${ticket})` : ""}. ${t("settings.deletionConfirmationEmail", "You will receive a confirmation email.")}`,
       type: "success",
     });
     setDeleteConfirm(false);
@@ -1346,7 +1426,13 @@ export default function SettingsPage() {
   })();
 
   const pwStrengthLabel =
-    ["", "Weak", "Fair", "Good", "Strong"][pwStrength] ?? "";
+    [
+      "",
+      t("settings.pwStrengthWeak", "Weak"),
+      t("settings.pwStrengthFair", "Fair"),
+      t("settings.pwStrengthGood", "Good"),
+      t("settings.pwStrengthStrong", "Strong"),
+    ][pwStrength] ?? "";
   const pwStrengthColor =
     [
       "",
@@ -1476,7 +1562,7 @@ export default function SettingsPage() {
                     <InputField
                       value={editFirstName}
                       onChange={setEditFirstName}
-                      placeholder="First name"
+                      placeholder={t("settings.firstName", "First name")}
                       disabled
                     />
                   </FieldRow>
@@ -1490,7 +1576,7 @@ export default function SettingsPage() {
                     <InputField
                       value={editLastName}
                       onChange={setEditLastName}
-                      placeholder="Last name"
+                      placeholder={t("settings.lastName", "Last name")}
                       disabled
                     />
                   </FieldRow>
@@ -1503,9 +1589,15 @@ export default function SettingsPage() {
                           disabled
                         />
                         {user?.emailVerified ? (
-                          <Badge ok={true} label="Verified" />
+                          <Badge
+                            ok={true}
+                            label={t("settings.verified", "Verified")}
+                          />
                         ) : (
-                          <Badge ok={false} label="Not verified" />
+                          <Badge
+                            ok={false}
+                            label={t("settings.notVerified", "Not verified")}
+                          />
                         )}
                         <button
                           onClick={() => {
@@ -1516,7 +1608,7 @@ export default function SettingsPage() {
                           }}
                           className="shrink-0 rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]"
                         >
-                          Change
+                          {t("common.change", "Change")}
                         </button>
                       </div>
                       {showEmailChange && (
@@ -1542,7 +1634,7 @@ export default function SettingsPage() {
                                   className="shrink-0 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--soft-blue)] disabled:opacity-50"
                                 >
                                   {emailChangeSaving
-                                    ? "Sending..."
+                                    ? t("common.sending", "Sending...")
                                     : t(
                                         "settings.sendConfirmation",
                                         "Send confirmation",
@@ -1562,7 +1654,10 @@ export default function SettingsPage() {
                                 <InputField
                                   value={emailChangeToken}
                                   onChange={setEmailChangeToken}
-                                  placeholder="Paste token from email"
+                                  placeholder={t(
+                                    "settings.pasteTokenFromEmail",
+                                    "Paste token from email",
+                                  )}
                                 />
                                 <button
                                   onClick={confirmEmailChange}
@@ -1570,7 +1665,7 @@ export default function SettingsPage() {
                                   className="shrink-0 rounded-lg bg-[var(--achievement-green)] px-4 py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
                                 >
                                   {emailChangeSaving
-                                    ? "Confirming..."
+                                    ? t("common.confirming", "Confirming...")
                                     : t(
                                         "settings.confirmChange",
                                         "Confirm change",
@@ -1593,9 +1688,15 @@ export default function SettingsPage() {
                           type="tel"
                         />
                         {user?.phoneVerified ? (
-                          <Badge ok={true} label="Verified" />
+                          <Badge
+                            ok={true}
+                            label={t("settings.verified", "Verified")}
+                          />
                         ) : (
-                          <Badge ok={false} label="Not verified" />
+                          <Badge
+                            ok={false}
+                            label={t("settings.notVerified", "Not verified")}
+                          />
                         )}
                         <button
                           onClick={() => {
@@ -1606,7 +1707,7 @@ export default function SettingsPage() {
                           }}
                           className="shrink-0 rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]"
                         >
-                          Change
+                          {t("common.change", "Change")}
                         </button>
                       </div>
                       {showPhoneChange && (
@@ -1632,7 +1733,7 @@ export default function SettingsPage() {
                                   className="shrink-0 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--soft-blue)] disabled:opacity-50"
                                 >
                                   {phoneChangeSaving
-                                    ? "Saving..."
+                                    ? t("common.saving", "Saving...")
                                     : t(
                                         "settings.updateAndVerify",
                                         "Update & verify",
@@ -1652,7 +1753,10 @@ export default function SettingsPage() {
                                 <InputField
                                   value={phoneChangeCode}
                                   onChange={setPhoneChangeCode}
-                                  placeholder="Enter 6-digit code"
+                                  placeholder={t(
+                                    "settings.enter6DigitCode",
+                                    "Enter 6-digit code",
+                                  )}
                                   className="max-w-[200px]"
                                 />
                                 <button
@@ -1661,7 +1765,7 @@ export default function SettingsPage() {
                                   className="shrink-0 rounded-lg bg-[var(--achievement-green)] px-4 py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
                                 >
                                   {phoneChangeVerifying
-                                    ? "Verifying..."
+                                    ? t("common.verifying", "Verifying...")
                                     : t("common.verify", "Verify")}
                                 </button>
                               </div>
@@ -1680,7 +1784,10 @@ export default function SettingsPage() {
                         <BrandedDatePicker
                           value={editDob}
                           onChange={setEditDob}
-                          placeholder="Select date of birth"
+                          placeholder={t(
+                            "settings.selectDateOfBirth",
+                            "Select date of birth",
+                          )}
                         />
                       </FieldRow>
                       <FieldRow label={t("settings.bio", "Bio")}>
@@ -1688,7 +1795,10 @@ export default function SettingsPage() {
                           value={editBio}
                           onChange={(e) => setEditBio(e.target.value)}
                           rows={3}
-                          placeholder="Tell employers about yourself..."
+                          placeholder={t(
+                            "settings.bioPlaceholder",
+                            "Tell clients about yourself...",
+                          )}
                           className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
                         />
                       </FieldRow>
@@ -1704,7 +1814,10 @@ export default function SettingsPage() {
                         <InputField
                           value={editStreet}
                           onChange={setEditStreet}
-                          placeholder="Street address"
+                          placeholder={t(
+                            "settings.streetAddress",
+                            "Street address",
+                          )}
                         />
                       </FieldRow>
                       <div className="grid grid-cols-2 gap-3">
@@ -1712,7 +1825,7 @@ export default function SettingsPage() {
                           <InputField
                             value={editCity}
                             onChange={setEditCity}
-                            placeholder="City"
+                            placeholder={t("profile.city", "City")}
                           />
                         </FieldRow>
                         <FieldRow
@@ -1721,7 +1834,10 @@ export default function SettingsPage() {
                           <InputField
                             value={editPostal}
                             onChange={setEditPostal}
-                            placeholder="Postal code"
+                            placeholder={t(
+                              "settings.postalCode",
+                              "Postal code",
+                            )}
                           />
                         </FieldRow>
                       </div>
@@ -1729,7 +1845,10 @@ export default function SettingsPage() {
                         <BrandedSelect
                           value={editCountry}
                           onChange={setEditCountry}
-                          placeholder="Select country"
+                          placeholder={t(
+                            "settings.selectCountry",
+                            "Select country",
+                          )}
                           options={EU_COUNTRIES.map((c) => ({
                             value: c.code,
                             label: c.name,
@@ -1757,7 +1876,7 @@ export default function SettingsPage() {
                 )}
                 description={t(
                   "settings.professionalDescription",
-                  "Your professional information visible to employers when applying for jobs.",
+                  "Your professional information visible to clients when applying for jobs.",
                 )}
               >
                 {!proLoaded ? (
@@ -1783,7 +1902,10 @@ export default function SettingsPage() {
                         value={proAboutMe}
                         onChange={(e) => setProAboutMe(e.target.value)}
                         rows={4}
-                        placeholder="I am a professional with experience in..."
+                        placeholder={t(
+                          "settings.iAmAProfessionalPlaceholder",
+                          "I am a professional with experience in...",
+                        )}
                         className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
                       />
                     </FieldRow>
@@ -2183,7 +2305,10 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Company name"
+                            placeholder={t(
+                              "settings.companyName",
+                              "Company name",
+                            )}
                           />
                         </div>
                         <div>
@@ -2215,7 +2340,7 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Select date"
+                            placeholder={t("common.selectDate", "Select date")}
                           />
                         </div>
                         <div>
@@ -2236,7 +2361,10 @@ export default function SettingsPage() {
                                   ),
                                 )
                               }
-                              placeholder="Select date"
+                              placeholder={t(
+                                "common.selectDate",
+                                "Select date",
+                              )}
                             />
                           )}
                         </div>
@@ -2277,7 +2405,10 @@ export default function SettingsPage() {
                             )
                           }
                           rows={2}
-                          placeholder="Describe your role..."
+                          placeholder={t(
+                            "settings.describeYourRole",
+                            "Describe your role...",
+                          )}
                           className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
                         />
                       </div>
@@ -2363,7 +2494,10 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Certification title"
+                            placeholder={t(
+                              "settings.certificationTitle",
+                              "Certification title",
+                            )}
                           />
                         </div>
                         <div>
@@ -2379,7 +2513,10 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Issuing institution"
+                            placeholder={t(
+                              "settings.issuingInstitution",
+                              "Issuing institution",
+                            )}
                           />
                         </div>
                         <div>
@@ -2397,7 +2534,7 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Select date"
+                            placeholder={t("common.selectDate", "Select date")}
                           />
                         </div>
                       </div>
@@ -2512,7 +2649,10 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="School or university"
+                            placeholder={t(
+                              "settings.schoolOrUniversity",
+                              "School or university",
+                            )}
                           />
                         </div>
                         <div>
@@ -2530,7 +2670,7 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Select date"
+                            placeholder={t("common.selectDate", "Select date")}
                           />
                         </div>
                       </div>
@@ -2629,7 +2769,10 @@ export default function SettingsPage() {
                                 ),
                               )
                             }
-                            placeholder="Project name"
+                            placeholder={t(
+                              "settings.projectName",
+                              "Project name",
+                            )}
                           />
                         </div>
                         <div>
@@ -2665,7 +2808,10 @@ export default function SettingsPage() {
                             )
                           }
                           rows={2}
-                          placeholder="What was this project about?"
+                          placeholder={t(
+                            "settings.whatWasProjectAbout",
+                            "What was this project about?",
+                          )}
                           className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
                         />
                       </div>
@@ -2728,7 +2874,10 @@ export default function SettingsPage() {
                   value={currentPw}
                   onChange={setCurrentPw}
                   type="password"
-                  placeholder="Current password"
+                  placeholder={t(
+                    "settings.currentPassword",
+                    "Current password",
+                  )}
                 />
               </FieldRow>
               <FieldRow label={t("settings.newPassword", "New password")}>
@@ -2737,7 +2886,7 @@ export default function SettingsPage() {
                     value={newPw}
                     onChange={setNewPw}
                     type="password"
-                    placeholder="New password"
+                    placeholder={t("settings.newPassword", "New password")}
                   />
                   {newPw && (
                     <>
@@ -2822,7 +2971,10 @@ export default function SettingsPage() {
                     value={confirmPw}
                     onChange={setConfirmPw}
                     type="password"
-                    placeholder="Confirm new password"
+                    placeholder={t(
+                      "settings.enterConfirmPassword",
+                      "Confirm new password",
+                    )}
                   />
                   {confirmPw && newPw && confirmPw !== newPw && (
                     <p className="text-xs text-[var(--alert-red)]">
@@ -2898,7 +3050,7 @@ export default function SettingsPage() {
                     className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[var(--soft-blue)] disabled:opacity-50"
                   >
                     {emailVerifSending
-                      ? "Sending..."
+                      ? t("common.sending", "Sending...")
                       : t("settings.sendVerification", "Send verification")}
                   </button>
                 )}
@@ -2946,7 +3098,7 @@ export default function SettingsPage() {
                       className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[var(--soft-blue)] disabled:opacity-50"
                     >
                       {phoneVerifSending
-                        ? "Sending..."
+                        ? t("common.sending", "Sending...")
                         : t("settings.sendCode", "Send code")}
                     </button>
                   )}
@@ -2956,7 +3108,7 @@ export default function SettingsPage() {
                     <InputField
                       value={phoneCode}
                       onChange={setPhoneCode}
-                      placeholder="Enter code"
+                      placeholder={t("settings.enterCode", "Enter code")}
                       className="max-w-[160px]"
                     />
                     <button
@@ -2965,7 +3117,7 @@ export default function SettingsPage() {
                       className="rounded-lg bg-[var(--achievement-green)] px-3 py-2 text-xs font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
                     >
                       {phoneVerifying
-                        ? "Verifying..."
+                        ? t("common.verifying", "Verifying...")
                         : t("common.verify", "Verify")}
                     </button>
                   </div>
@@ -3081,15 +3233,21 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-[var(--foreground)]">
-                        Physical Address
+                        {t("settings.physicalAddress", "Physical Address")}
                       </p>
                       <p className="text-xs text-[var(--muted-text)]">
-                        Required for posting jobs
+                        {t(
+                          "settings.requiredForPostingJobs",
+                          "Required for posting jobs",
+                        )}
                       </p>
                     </div>
                   </div>
                   {user?.addressVerified ? (
-                    <Badge ok={true} label="Verified" />
+                    <Badge
+                      ok={true}
+                      label={t("settings.verified", "Verified")}
+                    />
                   ) : (
                     <button
                       onClick={() => setActiveSection("profile")}
@@ -3161,7 +3319,10 @@ export default function SettingsPage() {
                         </div>
                       </div>
                       {connectStatus.payoutsEnabled ? (
-                        <Badge ok={true} label="Active" />
+                        <Badge
+                          ok={true}
+                          label={t("settings.active", "Active")}
+                        />
                       ) : connectStatus.detailsSubmitted ? (
                         <StatusBadge status="PENDING" />
                       ) : null}
@@ -3172,7 +3333,7 @@ export default function SettingsPage() {
                     <h3 className="text-sm font-semibold text-[var(--foreground)]">
                       {t("settings.bankAccount", "Bank Account")}
                     </h3>
-                    <FieldRow label="Country">
+                    <FieldRow label={t("profile.country", "Country")}>
                       <BrandedSelect
                         value={ibanCountry}
                         onChange={setIbanCountry}
@@ -3180,10 +3341,13 @@ export default function SettingsPage() {
                           value: c.code,
                           label: c.name,
                         }))}
-                        placeholder="Select country"
+                        placeholder={t(
+                          "settings.selectCountry",
+                          "Select country",
+                        )}
                       />
                     </FieldRow>
-                    <FieldRow label="IBAN">
+                    <FieldRow label={t("settings.iban", "IBAN")}>
                       <InputField
                         value={ibanValue}
                         onChange={setIbanValue}
@@ -3249,7 +3413,8 @@ export default function SettingsPage() {
                                   {pm.last4}
                                 </p>
                                 <p className="text-xs text-[var(--muted-text)]">
-                                  Expires {pm.expMonth}/{pm.expYear}
+                                  {t("settings.expires", "Expires")}{" "}
+                                  {pm.expMonth}/{pm.expYear}
                                 </p>
                               </div>
                             </div>
@@ -3274,20 +3439,20 @@ export default function SettingsPage() {
             >
               <FieldRow label={t("settings.theme", "Theme")}>
                 <div className="flex gap-2">
-                  {(["light", "dark", "system"] as ThemePref[]).map((t) => (
+                  {(["light", "dark", "system"] as ThemePref[]).map((thm) => (
                     <button
-                      key={t}
+                      key={thm}
                       onClick={() => {
-                        setThemePref(t);
-                        applyTheme(t);
+                        setThemePref(thm);
+                        applyTheme(thm);
                       }}
                       className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                        themePref === t
+                        themePref === thm
                           ? "border-[var(--primary)] bg-[var(--primary)]/15 text-[var(--primary)]"
                           : "border-[var(--border-color)] bg-[var(--surface-alt)] text-[var(--muted-text)] hover:border-[var(--primary)]/30"
                       }`}
                     >
-                      {t === "light" && (
+                      {thm === "light" && (
                         <svg
                           className="h-4 w-4"
                           fill="none"
@@ -3302,7 +3467,7 @@ export default function SettingsPage() {
                           />
                         </svg>
                       )}
-                      {t === "dark" && (
+                      {thm === "dark" && (
                         <svg
                           className="h-4 w-4"
                           fill="none"
@@ -3317,7 +3482,7 @@ export default function SettingsPage() {
                           />
                         </svg>
                       )}
-                      {t === "system" && (
+                      {thm === "system" && (
                         <svg
                           className="h-4 w-4"
                           fill="none"
@@ -3332,7 +3497,11 @@ export default function SettingsPage() {
                           />
                         </svg>
                       )}
-                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                      {thm === "light"
+                        ? t("settings.themeLight", "Light")
+                        : thm === "dark"
+                          ? t("settings.themeDark", "Dark")
+                          : t("settings.themeSystem", "System")}
                     </button>
                   ))}
                 </div>
@@ -3557,7 +3726,10 @@ export default function SettingsPage() {
                     <textarea
                       value={deleteReason}
                       onChange={(e) => setDeleteReason(e.target.value)}
-                      placeholder="Please tell us why you want to delete your account (optional)"
+                      placeholder={t(
+                        "settings.deleteReasonPlaceholder",
+                        "Please tell us why you want to delete your account (optional)",
+                      )}
                       maxLength={500}
                       rows={3}
                       className="w-full rounded-lg border border-[var(--alert-red)]/30 bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-[var(--alert-red)]/40"
@@ -3569,7 +3741,7 @@ export default function SettingsPage() {
                         className="rounded-lg bg-[var(--alert-red)] px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
                       >
                         {deleteLoading
-                          ? "Processing..."
+                          ? t("common.processing", "Processing...")
                           : t(
                               "settings.yesDeleteMyAccount",
                               "Yes, delete my account",

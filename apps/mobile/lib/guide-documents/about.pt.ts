@@ -1,12 +1,12 @@
 export const ABOUT_PT = `# Sobre a Nasta
 
-A Nasta é um mercado de trabalho a pedido que conecta prestadores de serviços verificados com empregadores de confiança de forma instantânea.
+A Nasta é um mercado de trabalho a pedido que conecta prestadores de serviços verificados com clientes de confiança de forma instantânea.
 
 Quer precise de alguém agora para uma tarefa urgente ou queira agendar um contrato a longo prazo, a Nasta torna a contratação rápida, justa e totalmente transparente.
 
 ## A Nossa Missão
 
-Acreditamos que todos merecem acesso instantâneo a oportunidades de trabalho legítimas, e todos os empregadores merecem acesso instantâneo a talentos fiáveis e verificados.
+Acreditamos que todos merecem acesso instantâneo a oportunidades de trabalho legítimas, e todos os clientes merecem acesso instantâneo a talentos fiáveis e verificados.
 
 A Nasta foi criada para tornar essa ligação instantânea e perfeita, protegendo ambos os lados com pagamentos seguros, verificação de identidade e monitorização de trabalhos em tempo real.
 
@@ -14,7 +14,7 @@ A Nasta foi criada para tornar essa ligação instantânea e perfeita, protegend
 
 Crie um perfil verificado e receba pedidos de trabalho instantâneos perto de si. Use a Nasta como rendimento principal ou trabalho flexível adicional, e receba o pagamento de forma segura quando o trabalho estiver concluído.
 
-## Para Empregadores
+## Para Clientes
 
 Publique pedidos instantâneos para ajuda a pedido ou agende trabalhos em categorias ilimitadas. Navegue por candidatos verificados, reserve com confiança e só liberte o pagamento quando estiver satisfeito.
 

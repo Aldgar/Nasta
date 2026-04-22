@@ -5,7 +5,7 @@ Os trabalhos instantâneos permitem-lhe enviar um pedido direto a um prestador d
 ## Como Funciona
 
 ### 1. Navegar pelos Prestadores de Serviços
-A partir do seu ecrã inicial de empregador, navegue pela lista de prestadores de serviços disponíveis. Pode ver os seus perfis, competências, classificações e disponibilidade.
+A partir do seu ecrã inicial de cliente, navegue pela lista de prestadores de serviços disponíveis. Pode ver os seus perfis, competências, classificações e disponibilidade.
 
 ### 2. Selecionar um Prestador
 Quando encontrar alguém que corresponda às suas necessidades, toque no perfil para ver os detalhes completos:

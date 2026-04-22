@@ -39,7 +39,7 @@ export default function AboutPage() {
             className="rounded-xl"
           />
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            About Nasta
+            {t("aboutPage.title", "About Nasta")}
           </h1>
         </div>
 
@@ -47,7 +47,7 @@ export default function AboutPage() {
           <p>
             {t(
               "aboutPage.intro",
-              "Nasta is an on-demand workforce marketplace that connects verified service providers with trusted employers instantly. Whether you need someone right now for an urgent task or want to schedule a long-term contract, Nasta makes hiring fast, fair, and fully transparent.",
+              "Nasta is an on-demand workforce marketplace that connects verified service providers with trusted clients instantly. Whether you need someone right now for an urgent task or want to schedule a long-term contract, Nasta makes hiring fast, fair, and fully transparent.",
             )}
           </p>
 
@@ -57,7 +57,7 @@ export default function AboutPage() {
           <p>
             {t(
               "aboutPage.missionDesc",
-              "We believe that everyone deserves instant access to legitimate work opportunities, and every employer deserves instant access to reliable, verified talent. Nasta was built to make that connection instant and seamless, while protecting both sides with secure payments, identity verification, and real-time job monitoring.",
+              "We believe that everyone deserves instant access to legitimate work opportunities, and every client deserves instant access to reliable, verified talent. Nasta was built to make that connection instant and seamless, while protecting both sides with secure payments, identity verification, and real-time job monitoring.",
             )}
           </p>
 
@@ -76,7 +76,7 @@ export default function AboutPage() {
             </li>
             <li>
               <strong className="text-[var(--foreground)]">
-                {t("aboutPage.forEmp", "For Employers:")}
+                {t("aboutPage.forEmp", "For Clients:")}
               </strong>{" "}
               {t(
                 "aboutPage.forEmpDesc",

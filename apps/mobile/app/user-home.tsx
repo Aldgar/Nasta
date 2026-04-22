@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, BackHandler } from "react-native";
+import { View, Text, StyleSheet, BackHandler, ScrollView } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -11,12 +11,30 @@ import { getApiBase } from "../lib/api";
 import { TouchableButton } from "../components/TouchableButton";
 import { Feather } from "@expo/vector-icons";
 import { Fonts } from "../constants/theme";
-import { getValidToken } from "../lib/authFetch";
+import { getValidToken, decodeJwtPayload } from "../lib/authFetch";
 
 export default function UserHome() {
   const { colors, isDark } = useTheme();
   const { t } = useLanguage();
   const resumeCount = useAppResume();
+
+  // Role guard: EMPLOYER and ADMIN users should not access SP home
+  useFocusEffect(
+    useCallback(() => {
+      const checkRole = async () => {
+        const token = await getValidToken();
+        if (!token) return;
+        const payload = decodeJwtPayload(token);
+        const role = String(payload?.role || "").toUpperCase();
+        if (role === "EMPLOYER") {
+          router.replace("/employer-home" as never);
+        } else if (role === "ADMIN") {
+          router.replace("/admin-home" as never);
+        }
+      };
+      checkRole();
+    }, []),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -111,7 +129,7 @@ export default function UserHome() {
       <SafeAreaView style={styles.safeArea}>
         {/* ─── HEADER ─── */}
         <View style={styles.header}>
-          <View>
+          <View style={styles.headerLeft}>
             <Text
               style={[
                 styles.sectionLabel,
@@ -244,7 +262,11 @@ export default function UserHome() {
           </View>
         </View>
 
-        <View style={styles.bentoGrid}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.bentoGrid}
+          showsVerticalScrollIndicator={false}
+        >
           {/* ─── MODULE A: KYC / IDENTITY ─── */}
           <View
             style={[
@@ -439,7 +461,7 @@ export default function UserHome() {
               </Text>
             </TouchableButton>
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </GradientBackground>
   );
@@ -455,6 +477,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 24,
     marginTop: 8,
+  },
+  headerLeft: {
+    flex: 1,
+    marginRight: 12,
   },
   sectionLabel: {
     fontSize: 10,
@@ -484,6 +510,7 @@ const styles = StyleSheet.create({
     gap: 6,
     alignItems: "flex-end",
     paddingTop: 18,
+    flexShrink: 0,
   },
   ledRow: {
     flexDirection: "row",
@@ -515,9 +542,12 @@ const styles = StyleSheet.create({
   },
 
   /* ── Bento Grid ── */
-  bentoGrid: {
+  scrollView: {
     flex: 1,
+  },
+  bentoGrid: {
     gap: 12,
+    paddingBottom: 24,
   },
 
   /* ── HUD Panels ── */
@@ -532,9 +562,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 0,
   },
-  heroPanel: {
-    flex: 1,
-  },
+  heroPanel: {},
   panelHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

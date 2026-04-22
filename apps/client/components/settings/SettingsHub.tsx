@@ -94,7 +94,7 @@ export default function SettingsHub() {
       >
         <SectionHeader
           title="Payments"
-          subtitle="Employers add a card; service providers add payout details."
+          subtitle="Clients add a card; service providers add payout details."
           open={active === "financial"}
           onToggle={() => setActive("financial")}
           collapsible={isMobile}
@@ -176,7 +176,7 @@ function ThemeToggle() {
   const [theme, setTheme] = useState<string>(() =>
     typeof window === "undefined"
       ? "system"
-      : localStorage.getItem("pref_theme") || "system"
+      : localStorage.getItem("pref_theme") || "system",
   );
 
   useEffect(() => {
@@ -220,12 +220,12 @@ function NotificationsPrefs() {
   const [emailJobs, setEmailJobs] = useState<boolean>(() =>
     typeof window === "undefined"
       ? true
-      : localStorage.getItem("pref_email_jobs") !== "false"
+      : localStorage.getItem("pref_email_jobs") !== "false",
   );
   const [pushGeneral, setPushGeneral] = useState<boolean>(() =>
     typeof window === "undefined"
       ? true
-      : localStorage.getItem("pref_push_general") !== "false"
+      : localStorage.getItem("pref_push_general") !== "false",
   );
 
   useEffect(() => {

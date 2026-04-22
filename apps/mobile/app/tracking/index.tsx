@@ -768,7 +768,7 @@ export default function TrackingScreen() {
                       ? b.job?.title || b.title || t("tracking.job")
                       : b.employer
                         ? `${b.employer.firstName || ""} ${b.employer.lastName || ""}`.trim()
-                        : "Employer";
+                        : "Client";
 
                   const isTrackingActive = b.status === "IN_PROGRESS";
                   const canStartTracking =
@@ -1032,8 +1032,7 @@ export default function TrackingScreen() {
                             onPress={async () => {
                               try {
                                 setStartingTracking(b.id);
-                                const token =
-                                  await getValidToken();
+                                const token = await getValidToken();
                                 if (!token) {
                                   setStartingTracking(null);
                                   return;
@@ -1162,8 +1161,7 @@ export default function TrackingScreen() {
                               }
                               try {
                                 setStoppingTracking(b.id);
-                                const token =
-                                  await getValidToken();
+                                const token = await getValidToken();
                                 if (!token) {
                                   setStoppingTracking(null);
                                   return;
@@ -1848,8 +1846,7 @@ export default function TrackingScreen() {
                     if (!bookingId) return;
                     try {
                       setStoppingTracking(bookingId);
-                      const token =
-                        await getValidToken();
+                      const token = await getValidToken();
                       if (!token) {
                         setStoppingTracking(null);
                         return;

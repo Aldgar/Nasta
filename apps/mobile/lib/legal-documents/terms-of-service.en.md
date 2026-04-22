@@ -8,7 +8,7 @@ By accessing and using the Nesta mobile application ("App", "Platform", "Service
 
 ## 2. Description of Service
 
-Nesta is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with employers seeking services. The Platform facilitates:
+Nesta is a marketplace platform that connects service providers (job seekers, freelancers, contractors) with clients seeking services. The Platform facilitates:
 
 - Job posting and application management
 - Service provider discovery and matching
@@ -28,14 +28,14 @@ Nesta is a marketplace platform that connects service providers (job seekers, fr
 - You agree to accept responsibility for all activities that occur under your account
 
 ### 3.2 Account Types
-- **Employers**: Users who post jobs and hire service providers
+- **Clients**: Users who post jobs and hire service providers
 - **Service Providers**: Users who offer services and apply for jobs
 - **Admins**: Platform administrators with specific capabilities
 
 ### 3.3 Verification Requirements
 - Identity verification (KYC) is mandatory for all service providers
 - Background checks may be required for certain job categories
-- Business verification may be required for employers
+- Business verification may be required for clients
 - Failure to complete verification may result in account restrictions
 
 ## 4. Platform Rules and Prohibited Conduct
@@ -67,8 +67,8 @@ You agree NOT to:
 - Payment processing is subject to Stripe's terms and conditions
 
 ### 5.2 Payment Timeline
-- **For Service Providers**: Payments are typically processed within 2-5 business days after job completion and employer approval
-- **For Employers**: Payments are charged immediately upon booking confirmation
+- **For Service Providers**: Payments are typically processed within 2-5 business days after job completion and client approval
+- **For Clients**: Payments are charged immediately upon booking confirmation
 - Payment disputes must be reported within 7 days of service completion
 
 ### 5.3 Fees
@@ -127,29 +127,29 @@ Any agreements made outside the Platform are:
 ## 8. Job Postings and Applications
 
 ### 8.1 Job Postings
-- Employers are responsible for accurate job descriptions
+- Clients are responsible for accurate job descriptions
 - Job postings must comply with all applicable employment laws
-- Employers must respond to applications in a timely manner
+- Clients must respond to applications in a timely manner
 - False or misleading job postings are prohibited
 
 ### 8.2 Applications
 - Service providers may apply for multiple jobs
 - Applications must be truthful and accurate
 - Service providers may withdraw applications at any time
-- Employers may reject applications at their discretion
+- Clients may reject applications at their discretion
 
 ## 9. Bookings and Service Delivery
 
 ### 9.1 Booking Process
 - Bookings are confirmed when both parties agree
 - Service providers must arrive on time and complete work as agreed
-- Employers must provide accurate job requirements and location
+- Clients must provide accurate job requirements and location
 - Changes to bookings must be agreed upon by both parties
 
 ### 9.2 Service Standards
 - Services must be delivered as described in the job posting
 - Service providers must have necessary skills, tools, and equipment
-- Employers must provide a safe working environment
+- Clients must provide a safe working environment
 - Both parties must communicate clearly and professionally
 
 ## 10. Dispute Resolution

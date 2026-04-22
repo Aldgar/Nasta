@@ -413,9 +413,17 @@ function RootLayoutNav() {
           nextState === "active"
         ) {
           try {
+            // Only validate if the user was previously logged in.
+            // If there is no stored token, the user is simply not authenticated
+            // (e.g. on the login screen) – calling forceLogout() would incorrectly
+            // redirect them away from the login page whenever the app briefly goes
+            // inactive (e.g. when a password manager overlay appears).
+            const storedToken = await SecureStore.getItemAsync("auth_token");
+            if (!storedToken) return;
+
             const token = await getValidToken();
             if (!token) {
-              // Both tokens expired – force re-login
+              // Both access + refresh tokens expired – force re-login
               await forceLogout();
             }
           } catch {

@@ -17,16 +17,16 @@ You can negotiate the rate for any accepted job **before the job is marked as co
 
 ## What Happens Next
 
-After you submit a negotiation request, the employer has three options:
+After you submit a negotiation request, the client has three options:
 
-### Employer Accepts
-The employer agrees to your proposed rate. The job rate is updated, and both of you see the new agreed amount.
+### Client Accepts
+The client agrees to your proposed rate. The job rate is updated, and both of you see the new agreed amount.
 
-### Employer Declines
-The employer rejects your proposal. The original rate remains. You can still complete the job at the original rate or try negotiating again with a different proposal.
+### Client Declines
+The client rejects your proposal. The original rate remains. You can still complete the job at the original rate or try negotiating again with a different proposal.
 
-### Employer Counter-Offers
-The employer does not agree with your rate but proposes a different amount. You will see their counter-offer and can:
+### Client Counter-Offers
+The client does not agree with your rate but proposes a different amount. You will see their counter-offer and can:
 - **Accept** the counter-offer
 - **Decline** the counter-offer (original rate remains)
 - **Counter** with a new proposal of your own
@@ -34,7 +34,7 @@ The employer does not agree with your rate but proposes a different amount. You 
 ## Negotiation Tips
 
 - **Be reasonable** — Proposals far above the market rate are likely to be rejected
-- **Explain clearly** — A good explanation helps the employer understand your value
+- **Explain clearly** — A good explanation helps the client understand your value
 - **Consider the work** — Factor in travel time, equipment costs, and job complexity
 - **Time your request** — Negotiate early, before you start working
 - **Be professional** — Negotiation is a normal part of freelance work

@@ -15,13 +15,13 @@ O Nasta ("nós", "nosso" ou "nos") está comprometido em proteger a sua privacid
 - Informações do perfil (biografia, localização, competências, experiência)
 - Fotos de perfil e avatares
 - Informações de pagamento (processadas de forma segura através do Stripe)
-- Informações comerciais (para empregadores)
 
 **Informações de Verificação:**
-- Documentos de identificação emitidos pelo governo (passaporte, cartão de cidadão, carta de condução, autorização de residência)
+- Documentos de identificação emitidos pelo governo (passaporte, cartão de cidadão, autorização de residência)
 - Fotos selfie para verificação de identidade
 - Certificados de registo criminal para verificações de antecedentes
-- Documentos de registo comercial (para verificação comercial)
+- Documentos da carta de condução (frente e verso) para categorias de trabalho relacionadas com condução
+- Fotografias do veículo (frente, traseira, laterais, matrícula) e documentos de registo do veículo para categorias de trabalho relacionadas com transporte
 
 **Informações de Trabalhos e Candidaturas:**
 - Publicações e descrições de trabalhos
@@ -69,9 +69,6 @@ O Nasta ("nós", "nosso" ou "nos") está comprometido em proteger a sua privacid
 **Serviços de Verificação:**
 - Serviços de verificação de identidade de terceiros
 - Fornecedores de verificações de antecedentes
-
-**Redes Sociais (se aplicável):**
-- Informações de contas de redes sociais que conecta
 
 ## 3. Como Usamos as Suas Informações
 

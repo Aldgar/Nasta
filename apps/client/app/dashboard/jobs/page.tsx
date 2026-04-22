@@ -285,7 +285,7 @@ export default function FindWorkPage() {
                 : (job.company as string) || "";
             const employerLabel = job.employer
               ? `${job.employer.firstName} ${job.employer.lastName}`
-              : job.employerName || companyName || "Employer";
+              : job.employerName || companyName || "Client";
             const locationLabel =
               [job.city, job.country].filter(Boolean).join(", ") ||
               job.location ||

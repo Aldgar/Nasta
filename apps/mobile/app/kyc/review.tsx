@@ -203,6 +203,9 @@ export default function ReviewScreen() {
                 styles.continueText,
                 { color: allCaptured ? "#fff" : colors.textMuted },
               ]}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
             >
               {t("kyc.continueToBackgroundCheck") ||
                 "Continue to Background Check"}
@@ -303,5 +306,6 @@ const styles = StyleSheet.create({
   continueText: {
     fontSize: 17,
     fontWeight: "700",
+    textAlign: "center",
   },
 });

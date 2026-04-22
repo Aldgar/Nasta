@@ -2,7 +2,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { api } from "../../../../lib/api";
-import BrandedSelect from "../../../../components/ui/BrandedSelect";
 import { useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../../context/LanguageContext";
 
@@ -30,92 +29,74 @@ interface Job {
   applicantCount?: number;
 }
 
-const STATUS_TABS = [
-  { key: "ALL", label: "All Jobs" },
-  { key: "ACTIVE", label: "Active" },
-  { key: "ASSIGNED", label: "In Progress" },
-  { key: "COMPLETED", label: "Completed" },
-  { key: "CLOSED", label: "Closed" },
-];
+type TFunc = (...args: unknown[]) => string;
 
-function statusBadge(status: string) {
-  const map: Record<string, { label: string; cls: string }> = {
-    ACTIVE: {
-      label: "Active",
-      cls: "bg-[var(--achievement-green)]/15 text-[var(--achievement-green)]",
-    },
-    ASSIGNED: {
-      label: "In Progress",
-      cls: "bg-[var(--soft-blue)]/15 text-[var(--soft-blue)]",
-    },
-    COMPLETED: {
-      label: "Completed",
-      cls: "bg-[var(--primary)]/15 text-[var(--primary)]",
-    },
-    CLOSED: {
-      label: "Closed",
-      cls: "bg-[var(--muted-text)]/15 text-[var(--muted-text)]",
-    },
-    DRAFT: {
-      label: "Draft",
-      cls: "bg-[var(--fulfillment-gold)]/15 text-[var(--fulfillment-gold)]",
-    },
-    PAUSED: {
-      label: "Paused",
-      cls: "bg-[var(--warm-coral)]/15 text-[var(--warm-coral)]",
-    },
-    EXPIRED: {
-      label: "Expired",
-      cls: "bg-[var(--alert-red)]/15 text-[var(--alert-red)]",
-    },
-    CANCELLED_NO_SHOW: {
-      label: "Cancelled",
-      cls: "bg-[var(--alert-red)]/15 text-[var(--alert-red)]",
-    },
+function statusBadge(status: string, t: TFunc) {
+  const ns = "employerDashboard.myJobsPage";
+  const labels: Record<string, string> = {
+    ACTIVE: t(`${ns}.statusActive`, "Active") as string,
+    ASSIGNED: t(`${ns}.statusAssigned`, "In Progress") as string,
+    COMPLETED: t(`${ns}.statusCompleted`, "Completed") as string,
+    CLOSED: t(`${ns}.statusClosed`, "Closed") as string,
+    DRAFT: t(`${ns}.statusDraft`, "Draft") as string,
+    PAUSED: t(`${ns}.statusPaused`, "Paused") as string,
+    EXPIRED: t(`${ns}.statusExpired`, "Expired") as string,
+    CANCELLED_NO_SHOW: t(`${ns}.statusCancelled`, "Cancelled") as string,
   };
-  const m = map[status] ?? {
-    label: status,
-    cls: "bg-[var(--surface-alt)] text-[var(--muted-text)]",
+  const clss: Record<string, string> = {
+    ACTIVE: "bg-[var(--achievement-green)]/15 text-[var(--achievement-green)]",
+    ASSIGNED: "bg-[var(--soft-blue)]/15 text-[var(--soft-blue)]",
+    COMPLETED: "bg-[var(--primary)]/15 text-[var(--primary)]",
+    CLOSED: "bg-[var(--muted-text)]/15 text-[var(--muted-text)]",
+    DRAFT: "bg-[var(--fulfillment-gold)]/15 text-[var(--fulfillment-gold)]",
+    PAUSED: "bg-[var(--warm-coral)]/15 text-[var(--warm-coral)]",
+    EXPIRED: "bg-[var(--alert-red)]/15 text-[var(--alert-red)]",
+    CANCELLED_NO_SHOW: "bg-[var(--alert-red)]/15 text-[var(--alert-red)]",
   };
   return (
     <span
-      className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${m.cls}`}
+      className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+        clss[status] ?? "bg-[var(--surface-alt)] text-[var(--muted-text)]"
+      }`}
     >
-      {m.label}
+      {labels[status] ?? status}
     </span>
   );
 }
 
-function typeLabel(t?: string) {
+function typeLabel(type: string | undefined, t: TFunc) {
+  const ns = "employerDashboard.postJob";
   const map: Record<string, string> = {
-    FULL_TIME: "Full Time",
-    PART_TIME: "Part Time",
-    CONTRACT: "Contract",
-    TEMPORARY: "Temporary",
-    FREELANCE: "Freelance",
-    INTERNSHIP: "Internship",
-    GIG: "Gig",
+    FULL_TIME: t(`${ns}.jobTypeFullTime`, "Full Time") as string,
+    PART_TIME: t(`${ns}.jobTypePartTime`, "Part Time") as string,
+    CONTRACT: t(`${ns}.jobTypeContract`, "Contract") as string,
+    TEMPORARY: t(`${ns}.jobTypeTemporary`, "Temporary") as string,
+    FREELANCE: t(`${ns}.jobTypeFreelance`, "Freelance") as string,
+    INTERNSHIP: t(`${ns}.jobTypeInternship`, "Internship") as string,
+    GIG: t(`${ns}.jobTypeGig`, "Gig") as string,
   };
-  return t ? (map[t] ?? t) : "";
+  return type ? (map[type] ?? type) : "";
 }
 
-function workModeLabel(w?: string) {
+function workModeLabel(w: string | undefined, t: TFunc) {
+  const ns = "employerDashboard.postJob";
   const map: Record<string, string> = {
-    ON_SITE: "On-site",
-    REMOTE: "Remote",
-    HYBRID: "Hybrid",
+    ON_SITE: t(`${ns}.workModeOnSite`, "On-site") as string,
+    REMOTE: t(`${ns}.workModeRemote`, "Remote") as string,
+    HYBRID: t(`${ns}.workModeHybrid`, "Hybrid") as string,
   };
   return w ? (map[w] ?? w) : "";
 }
 
-function paymentLabel(p?: string) {
+function paymentLabel(p: string | undefined, t: TFunc) {
+  const ns = "employerDashboard.myJobsPage";
   const map: Record<string, string> = {
-    HOURLY: "/ hr",
-    DAILY: "/ day",
-    WEEKLY: "/ wk",
-    MONTHLY: "/ mo",
-    FIXED: "fixed",
-    PROJECT: "fixed",
+    HOURLY: t(`${ns}.paymentShortHourly`, "/ hr") as string,
+    DAILY: t(`${ns}.paymentShortDaily`, "/ day") as string,
+    WEEKLY: t(`${ns}.paymentShortWeekly`, "/ wk") as string,
+    MONTHLY: t(`${ns}.paymentShortMonthly`, "/ mo") as string,
+    FIXED: t(`${ns}.paymentShortFixed`, "fixed") as string,
+    PROJECT: t(`${ns}.paymentShortFixed`, "fixed") as string,
   };
   return p ? (map[p] ?? "") : "";
 }
@@ -129,17 +110,32 @@ function fmtDate(d?: string) {
   });
 }
 
-const DELETE_REASONS = [
-  { value: "NO_LONGER_NEEDED", label: "No longer needed" },
-  { value: "FOUND_CANDIDATE", label: "Found a candidate" },
-  { value: "FULFILLED", label: "Job fulfilled" },
-  { value: "REQUIREMENTS_CHANGED", label: "Requirements changed" },
-  { value: "OTHER", label: "Other" },
-];
-
 export default function MyJobsPage() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
+
+  const statusTabs = [
+    {
+      key: "ALL",
+      label: t("employerDashboard.myJobsPage.allJobs", "All Jobs"),
+    },
+    {
+      key: "ACTIVE",
+      label: t("employerDashboard.myJobsPage.active", "Active"),
+    },
+    {
+      key: "ASSIGNED",
+      label: t("employerDashboard.myJobsPage.inProgress", "In Progress"),
+    },
+    {
+      key: "COMPLETED",
+      label: t("employerDashboard.myJobsPage.completed", "Completed"),
+    },
+    {
+      key: "CLOSED",
+      label: t("employerDashboard.myJobsPage.closed", "Closed"),
+    },
+  ];
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,18 +145,6 @@ export default function MyJobsPage() {
     message: string;
     type: "success" | "error";
   } | null>(null);
-
-  // Delete modal
-  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
-  const [deleteReason, setDeleteReason] = useState("NO_LONGER_NEEDED");
-  const [deleteCustomReason, setDeleteCustomReason] = useState("");
-  const [deleting, setDeleting] = useState(false);
-
-  // Edit modal
-  const [editJob, setEditJob] = useState<Job | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [editSaving, setEditSaving] = useState(false);
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -219,88 +203,6 @@ export default function MyJobsPage() {
       (j) => j.status === "COMPLETED" || j.status === "CLOSED",
     ).length,
   };
-
-  const handleDelete = async () => {
-    if (!deleteJobId) return;
-    setDeleting(true);
-    const reason =
-      deleteReason === "OTHER" && deleteCustomReason.trim()
-        ? deleteCustomReason.trim()
-        : (DELETE_REASONS.find((r) => r.value === deleteReason)?.label ??
-          deleteReason);
-    const res = await api(`/jobs/${deleteJobId}`, {
-      method: "DELETE",
-      body: { reason },
-    });
-    setDeleting(false);
-    if (res.error) {
-      setToast({
-        message:
-          typeof res.error === "string" ? res.error : "Failed to delete job",
-        type: "error",
-      });
-      return;
-    }
-    setToast({ message: "Job deleted", type: "success" });
-    setDeleteJobId(null);
-    fetchJobs();
-  };
-
-  const handleStatusChange = async (jobId: string, status: string) => {
-    const res = await api(`/jobs/${jobId}/status`, {
-      method: "PATCH",
-      body: { status },
-    });
-    if (res.error) {
-      setToast({
-        message:
-          typeof res.error === "string" ? res.error : "Failed to update status",
-        type: "error",
-      });
-      return;
-    }
-    setToast({
-      message: `Job status updated to ${status.toLowerCase()}`,
-      type: "success",
-    });
-    fetchJobs();
-  };
-
-  const openEdit = (job: Job) => {
-    setEditJob(job);
-    setEditTitle(job.title);
-    setEditDescription(job.description ?? "");
-  };
-
-  const handleEditSave = async () => {
-    if (!editJob) return;
-    setEditSaving(true);
-    const body: Record<string, unknown> = {};
-    if (editTitle.trim() !== editJob.title) body.title = editTitle.trim();
-    if (editDescription.trim() !== (editJob.description ?? ""))
-      body.description = editDescription.trim();
-    if (Object.keys(body).length === 0) {
-      setEditSaving(false);
-      setEditJob(null);
-      return;
-    }
-    const res = await api(`/jobs/${editJob.id}`, { method: "PATCH", body });
-    setEditSaving(false);
-    if (res.error) {
-      setToast({
-        message:
-          typeof res.error === "string" ? res.error : "Failed to update job",
-        type: "error",
-      });
-      return;
-    }
-    setToast({ message: "Job updated", type: "success" });
-    setEditJob(null);
-    fetchJobs();
-  };
-
-  const inputCls =
-    "w-full rounded-xl border border-[var(--border-color)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] transition-colors focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30";
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -393,7 +295,7 @@ export default function MyJobsPage() {
       {/* Filter tabs + search */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {STATUS_TABS.map((tab) => (
+          {statusTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -489,21 +391,19 @@ export default function MyJobsPage() {
               : null;
 
             return (
-              <div
+              <Link
                 key={job.id}
-                className="group rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5 transition-all hover:border-[var(--primary)]/20 hover:shadow-md hover:shadow-[var(--primary)]/5"
+                href={`/dashboard/employer/my-jobs/${job.id}`}
+                className="group block rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-5 transition-all hover:border-[var(--primary)]/30 hover:shadow-md hover:shadow-[var(--primary)]/5"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   {/* Left */}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/dashboard/employer/my-jobs/${job.id}`}
-                        className="text-base font-bold text-[var(--foreground)] transition-colors hover:text-[var(--primary)]"
-                      >
+                      <h3 className="text-base font-bold text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]">
                         {job.title}
-                      </Link>
-                      {statusBadge(job.status)}
+                      </h3>
+                      {statusBadge(job.status, t)}
                       {job.isInstantBook && (
                         <span className="rounded-full bg-[var(--fulfillment-gold)]/15 px-2 py-0.5 text-[10px] font-semibold text-[var(--fulfillment-gold)]">
                           {t(
@@ -581,14 +481,14 @@ export default function MyJobsPage() {
                               d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21"
                             />
                           </svg>
-                          {workModeLabel(job.workMode)}
+                          {workModeLabel(job.workMode, t)}
                         </span>
                       )}
-                      {job.type && <span>{typeLabel(job.type)}</span>}
+                      {job.type && <span>{typeLabel(job.type, t)}</span>}
                       {rate && (
                         <span className="font-medium text-[var(--achievement-green)]">
                           {rate} {job.currency ?? "EUR"}{" "}
-                          {paymentLabel(job.paymentType)}
+                          {paymentLabel(job.paymentType, t)}
                         </span>
                       )}
                     </div>
@@ -632,229 +532,26 @@ export default function MyJobsPage() {
                     </div>
                   </div>
 
-                  {/* Right - actions */}
-                  <div className="flex shrink-0 items-center gap-2">
-                    <Link
-                      href={`/dashboard/employer/applications?jobId=${job.id}`}
-                      className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:border-[var(--primary)]/30 hover:text-[var(--primary)]"
+                  {/* Arrow */}
+                  <div className="flex shrink-0 items-center self-center">
+                    <svg
+                      className="h-5 w-5 text-[var(--muted-text)] transition-colors group-hover:text-[var(--primary)]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
                     >
-                      {t(
-                        "employerDashboard.myJobsPage.applicants",
-                        "Applicants",
-                      )}
-                    </Link>
-                    {(job.status === "ACTIVE" || job.status === "DRAFT") && (
-                      <button
-                        onClick={() => openEdit(job)}
-                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:border-[var(--soft-blue)]/30 hover:text-[var(--soft-blue)]"
-                      >
-                        {t("employerDashboard.myJobsPage.edit", "Edit")}
-                      </button>
-                    )}
-                    {job.status === "ACTIVE" && (
-                      <button
-                        onClick={() => handleStatusChange(job.id, "PAUSED")}
-                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--fulfillment-gold)] transition-colors hover:border-[var(--fulfillment-gold)]/30 hover:bg-[var(--fulfillment-gold)]/5"
-                      >
-                        {t("employerDashboard.myJobsPage.pause", "Pause")}
-                      </button>
-                    )}
-                    {job.status === "PAUSED" && (
-                      <button
-                        onClick={() => handleStatusChange(job.id, "ACTIVE")}
-                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--achievement-green)] transition-colors hover:border-[var(--achievement-green)]/30 hover:bg-[var(--achievement-green)]/5"
-                      >
-                        {t("employerDashboard.myJobsPage.resume", "Resume")}
-                      </button>
-                    )}
-                    {(job.status === "ACTIVE" || job.status === "PAUSED") && (
-                      <button
-                        onClick={() => handleStatusChange(job.id, "CLOSED")}
-                        className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] px-3 py-1.5 text-xs font-medium text-[var(--muted-text)] transition-colors hover:border-[var(--muted-text)]/30 hover:text-[var(--foreground)]"
-                      >
-                        {t("employerDashboard.myJobsPage.close", "Close")}
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setDeleteJobId(job.id)}
-                      className="rounded-lg border border-[var(--border-color)] bg-[var(--surface-alt)] p-1.5 text-[var(--muted-text)] transition-colors hover:border-[var(--alert-red)]/30 hover:bg-[var(--alert-red)]/5 hover:text-[var(--alert-red)]"
-                    >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                        />
-                      </svg>
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
-        </div>
-      )}
-
-      {/* ── Delete confirmation modal ──────────── */}
-      {deleteJobId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => !deleting && setDeleteJobId(null)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-[var(--border-color)] bg-[var(--background)] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--alert-red)]/15 text-[var(--alert-red)]">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-[var(--foreground)]">
-                  {t("employerDashboard.myJobsPage.deleteJob", "Delete Job")}
-                </h3>
-                <p className="text-xs text-[var(--muted-text)]">
-                  {t(
-                    "employerDashboard.myJobsPage.cannotBeUndone",
-                    "This action cannot be undone.",
-                  )}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-[var(--foreground)]">
-                {t(
-                  "employerDashboard.myJobsPage.reasonForRemoval",
-                  "Reason for removal",
-                )}
-              </label>
-              <BrandedSelect
-                value={deleteReason}
-                onChange={setDeleteReason}
-                options={DELETE_REASONS.map((r) => ({
-                  value: r.value,
-                  label: r.label,
-                }))}
-              />
-              {deleteReason === "OTHER" && (
-                <input
-                  type="text"
-                  value={deleteCustomReason}
-                  onChange={(e) => setDeleteCustomReason(e.target.value)}
-                  placeholder="Please specify..."
-                  className={inputCls}
-                />
-              )}
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteJobId(null)}
-                disabled={deleting}
-                className="rounded-xl border border-[var(--border-color)] bg-[var(--surface-alt)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface)]"
-              >
-                {t("employerDashboard.myJobsPage.cancel", "Cancel")}
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={
-                  deleting ||
-                  (deleteReason === "OTHER" && !deleteCustomReason.trim())
-                }
-                className="flex items-center gap-2 rounded-xl bg-[var(--alert-red)] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[var(--alert-red)]/80 disabled:opacity-50"
-              >
-                {deleting
-                  ? t("employerDashboard.myJobsPage.deleting", "Deleting...")
-                  : t("employerDashboard.myJobsPage.deleteJob", "Delete Job")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Edit modal ────────────────────────── */}
-      {editJob && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => !editSaving && setEditJob(null)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl border border-[var(--border-color)] bg-[var(--background)] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-5 text-lg font-semibold text-[var(--foreground)]">
-              {t("employerDashboard.myJobsPage.editJob", "Edit Job")}
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                  {t("employerDashboard.myJobsPage.titleLabel", "Title")}
-                </label>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                  {t(
-                    "employerDashboard.myJobsPage.descriptionLabel",
-                    "Description",
-                  )}
-                </label>
-                <textarea
-                  rows={5}
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className={inputCls + " resize-none"}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setEditJob(null)}
-                disabled={editSaving}
-                className="rounded-xl border border-[var(--border-color)] bg-[var(--surface-alt)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface)]"
-              >
-                {t("employerDashboard.myJobsPage.cancel", "Cancel")}
-              </button>
-              <button
-                onClick={handleEditSave}
-                disabled={editSaving || !editTitle.trim()}
-                className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[var(--soft-blue)] disabled:opacity-50"
-              >
-                {editSaving
-                  ? t("employerDashboard.myJobsPage.saving", "Saving...")
-                  : t(
-                      "employerDashboard.myJobsPage.saveChanges",
-                      "Save Changes",
-                    )}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

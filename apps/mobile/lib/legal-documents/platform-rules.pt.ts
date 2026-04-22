@@ -77,7 +77,7 @@ export const PLATFORM_RULES_PT = `# Regras da Plataforma
 ### 3.2 Regras de Candidatura
 - As candidaturas devem ser verdadeiras e relevantes
 - Não se candidate a trabalhos que não pode completar
-- Responda às comunicações do empregador prontamente
+- Responda às comunicações do cliente prontamente
 - Retire candidaturas se não puder cumprir o trabalho
 
 ## 4. Padrões de Prestação de Serviços
@@ -87,9 +87,9 @@ export const PLATFORM_RULES_PT = `# Regras da Plataforma
 - Completar o trabalho conforme descrito e acordado
 - Trazer ferramentas e equipamentos necessários
 - Manter conduta profissional
-- Comunicar claramente com empregadores
+- Comunicar claramente com clientes
 
-### 4.2 Responsabilidades do Empregador
+### 4.2 Responsabilidades do Cliente
 - Fornecer descrições de trabalho precisas
 - Fornecer um ambiente de trabalho seguro
 - Pagar valores acordados a tempo
@@ -106,7 +106,7 @@ export const PLATFORM_RULES_PT = `# Regras da Plataforma
 
 ### 5.2 Cronograma de Pagamentos
 - Os prestadores de serviços recebem pagamento 2-5 dias úteis após a conclusão do trabalho
-- Os empregadores são cobrados imediatamente após a confirmação da reserva
+- Os clientes são cobrados imediatamente após a confirmação da reserva
 - Os reembolsos seguem a política de cancelamento
 
 ### 5.3 Práticas de Pagamento Proibidas

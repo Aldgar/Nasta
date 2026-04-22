@@ -37,34 +37,24 @@ interface CandidateData {
   }>;
 }
 
-const WORK_MODES = [
-  { value: "ON_SITE", label: "On-site" },
-  { value: "REMOTE", label: "Remote" },
-  { value: "HYBRID", label: "Hybrid" },
-];
-
-const URGENCY_OPTIONS = [
-  { value: "NORMAL", label: "Normal" },
-  { value: "URGENT", label: "Urgent" },
-];
-
-const JOB_TYPES = [
-  { value: "FULL_TIME", label: "Full Time" },
-  { value: "PART_TIME", label: "Part Time" },
-  { value: "CONTRACT", label: "Contract" },
-  { value: "TEMPORARY", label: "Temporary" },
-  { value: "FREELANCE", label: "Freelance" },
-  { value: "INTERNSHIP", label: "Internship" },
-  { value: "GIG", label: "Gig" },
-];
-
-const PAYMENT_TYPES = [
-  { value: "HOURLY", label: "Per Hour" },
-  { value: "DAILY", label: "Per Day" },
-  { value: "WEEKLY", label: "Per Week" },
-  { value: "MONTHLY", label: "Per Month" },
-  { value: "FIXED", label: "Fixed Price" },
-];
+const WORK_MODE_VALUES = ["ON_SITE", "REMOTE", "HYBRID"] as const;
+const URGENCY_VALUES = ["NORMAL", "URGENT"] as const;
+const JOB_TYPE_VALUES = [
+  "FULL_TIME",
+  "PART_TIME",
+  "CONTRACT",
+  "TEMPORARY",
+  "FREELANCE",
+  "INTERNSHIP",
+  "GIG",
+] as const;
+const PAYMENT_TYPE_VALUES = [
+  "HOURLY",
+  "DAILY",
+  "WEEKLY",
+  "MONTHLY",
+  "FIXED",
+] as const;
 
 const CURRENCIES = [
   "EUR",
@@ -91,21 +81,68 @@ const PAYMENT_TYPE_MAP: Record<string, string> = {
   OTHER: "OTHER",
 };
 
-const PAYMENT_TYPE_LABELS: Record<string, string> = {
-  HOUR: "Per Hour",
-  HOURLY: "Per Hour",
-  DAY: "Per Day",
-  DAILY: "Per Day",
-  WEEK: "Per Week",
-  WEEKLY: "Per Week",
-  MONTH: "Per Month",
-  MONTHLY: "Per Month",
-  FIXED: "Fixed Price",
-  OTHER: "Other",
+const PAYMENT_TYPE_LABEL_KEYS: Record<string, string> = {
+  HOUR: "employerDashboard.postJob.paymentTypePerHour",
+  HOURLY: "employerDashboard.postJob.paymentTypePerHour",
+  DAY: "employerDashboard.postJob.paymentTypePerDay",
+  DAILY: "employerDashboard.postJob.paymentTypePerDay",
+  WEEK: "employerDashboard.postJob.paymentTypePerWeek",
+  WEEKLY: "employerDashboard.postJob.paymentTypePerWeek",
+  MONTH: "employerDashboard.postJob.paymentTypePerMonth",
+  MONTHLY: "employerDashboard.postJob.paymentTypePerMonth",
+  FIXED: "employerDashboard.postJob.paymentTypeFixed",
+  OTHER: "common.other",
 };
 
 export default function InstantJobRequestPage() {
   const { t } = useLanguage();
+
+  const getWorkModeLabel = (value: string) => {
+    const map: Record<string, string> = {
+      ON_SITE: t("employerDashboard.postJob.workModeOnSite", "On-site"),
+      REMOTE: t("employerDashboard.postJob.workModeRemote", "Remote"),
+      HYBRID: t("employerDashboard.postJob.workModeHybrid", "Hybrid"),
+    };
+    return map[value] ?? value;
+  };
+
+  const getUrgencyLabel = (value: string) => {
+    const map: Record<string, string> = {
+      NORMAL: t("employerDashboard.postJob.urgencyNormal", "Normal"),
+      URGENT: t("employerDashboard.postJob.urgencyUrgent", "Urgent"),
+    };
+    return map[value] ?? value;
+  };
+
+  const getJobTypeLabel = (value: string) => {
+    const map: Record<string, string> = {
+      FULL_TIME: t("employerDashboard.postJob.jobTypeFullTime", "Full Time"),
+      PART_TIME: t("employerDashboard.postJob.jobTypePartTime", "Part Time"),
+      CONTRACT: t("employerDashboard.postJob.jobTypeContract", "Contract"),
+      TEMPORARY: t("employerDashboard.postJob.jobTypeTemporary", "Temporary"),
+      FREELANCE: t("employerDashboard.postJob.jobTypeFreelance", "Freelance"),
+      INTERNSHIP: t(
+        "employerDashboard.postJob.jobTypeInternship",
+        "Internship",
+      ),
+      GIG: t("employerDashboard.postJob.jobTypeGig", "Gig"),
+    };
+    return map[value] ?? value;
+  };
+
+  const getPaymentTypeLabel = (value: string) => {
+    const key = PAYMENT_TYPE_LABEL_KEYS[value];
+    if (!key) return value;
+    const fallbacks: Record<string, string> = {
+      "employerDashboard.postJob.paymentTypePerHour": "Per Hour",
+      "employerDashboard.postJob.paymentTypePerDay": "Per Day",
+      "employerDashboard.postJob.paymentTypePerWeek": "Per Week",
+      "employerDashboard.postJob.paymentTypePerMonth": "Per Month",
+      "employerDashboard.postJob.paymentTypeFixed": "Fixed Price",
+      "common.other": "Other",
+    };
+    return t(key, fallbacks[key] ?? value);
+  };
   const router = useRouter();
   const searchParams = useSearchParams();
   const candidateId = searchParams.get("candidateId");
@@ -211,31 +248,73 @@ export default function InstantJobRequestPage() {
 
   const handleContinueToReview = () => {
     if (!candidateId) {
-      setToast({ message: "Missing candidate ID", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.instantJob.missingCandidate",
+          "No candidate specified",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!title.trim()) {
-      setToast({ message: "Job title is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorTitleRequired",
+          "Job title is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!description.trim()) {
-      setToast({ message: "Job description is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorDescRequired",
+          "Job description is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!location.trim()) {
-      setToast({ message: "Location is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorLocationRequired",
+          "Location is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!city.trim()) {
-      setToast({ message: "City is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorCityRequired",
+          "City is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!country.trim()) {
-      setToast({ message: "Country is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorCountryRequired",
+          "Country is required",
+        ),
+        type: "error",
+      });
       return;
     }
     if (!startDate) {
-      setToast({ message: "Start date is required", type: "error" });
+      setToast({
+        message: t(
+          "employerDashboard.postJob.errorStartDateRequired",
+          "Start date is required",
+        ),
+        type: "error",
+      });
       return;
     }
 
@@ -319,7 +398,10 @@ export default function InstantJobRequestPage() {
         message:
           typeof jobRes.error === "string"
             ? jobRes.error
-            : "Failed to create instant job",
+            : t(
+                "employerDashboard.postJob.errorCreateFailed",
+                "Failed to create instant job",
+              ),
         type: "error",
       });
       return;
@@ -341,7 +423,10 @@ export default function InstantJobRequestPage() {
         message:
           typeof applyRes.error === "string"
             ? applyRes.error
-            : "Job created but failed to send request to provider",
+            : t(
+                "employerDashboard.instantJob.failedToSendRequest",
+                "Job created but failed to send request to provider",
+              ),
         type: "error",
       });
       return;
@@ -606,10 +691,7 @@ export default function InstantJobRequestPage() {
               )}
               <SummaryRow
                 label={t("employerDashboard.postJob.workMode", "Work Mode")}
-                value={
-                  WORK_MODES.find((w) => w.value === workMode)?.label ||
-                  workMode
-                }
+                value={getWorkModeLabel(workMode)}
               />
               <SummaryRow
                 label={t("employerDashboard.postJob.urgency", "Urgency")}
@@ -629,8 +711,7 @@ export default function InstantJobRequestPage() {
                         className="text-sm text-[var(--foreground)]"
                       >
                         • {currency} {rate.rate.toFixed(2)} /{" "}
-                        {PAYMENT_TYPE_LABELS[rate.paymentType] ||
-                          rate.paymentType}
+                        {getPaymentTypeLabel(rate.paymentType)}
                         {rate.description || rate.otherSpecification
                           ? ` — ${rate.description || rate.otherSpecification}`
                           : ""}
@@ -639,7 +720,7 @@ export default function InstantJobRequestPage() {
                     {hasCustom && (
                       <p className="text-sm text-blue-500">
                         • {currency} {rateAmount} /{" "}
-                        {PAYMENT_TYPE_LABELS[paymentType] || paymentType} (
+                        {getPaymentTypeLabel(paymentType)} (
                         {t(
                           "employerDashboard.instantJob.customRateLabel",
                           "Custom",
@@ -967,7 +1048,10 @@ export default function InstantJobRequestPage() {
                     type="text"
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
-                    placeholder="Enter category name..."
+                    placeholder={t(
+                      "employerDashboard.postJob.enterCategoryPlaceholder",
+                      "Enter category name...",
+                    )}
                     className={inputCls}
                   />
                 </div>
@@ -979,9 +1063,9 @@ export default function InstantJobRequestPage() {
                 <BrandedSelect
                   value={jobType}
                   onChange={setJobType}
-                  options={JOB_TYPES.map((jt) => ({
-                    value: jt.value,
-                    label: jt.label,
+                  options={JOB_TYPE_VALUES.map((v) => ({
+                    value: v,
+                    label: getJobTypeLabel(v),
                   }))}
                 />
               </div>
@@ -1002,18 +1086,18 @@ export default function InstantJobRequestPage() {
                 {t("employerDashboard.postJob.workMode", "Work Mode")} *
               </label>
               <div className="flex flex-wrap gap-3">
-                {WORK_MODES.map((wm) => (
+                {WORK_MODE_VALUES.map((wm) => (
                   <button
-                    key={wm.value}
+                    key={wm}
                     type="button"
-                    onClick={() => setWorkMode(wm.value)}
+                    onClick={() => setWorkMode(wm)}
                     className={`rounded-xl border px-5 py-3 text-sm font-medium transition-all ${
-                      workMode === wm.value
+                      workMode === wm
                         ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
                         : "border-[var(--border-color)] bg-[var(--surface-alt)] text-[var(--muted-text)] hover:border-[var(--primary)]/30 hover:text-[var(--foreground)]"
                     }`}
                   >
-                    {wm.label}
+                    {getWorkModeLabel(wm)}
                   </button>
                 ))}
               </div>
@@ -1024,20 +1108,20 @@ export default function InstantJobRequestPage() {
                 {t("employerDashboard.postJob.urgency", "Urgency")}
               </label>
               <div className="flex flex-wrap gap-3">
-                {URGENCY_OPTIONS.map((u) => (
+                {URGENCY_VALUES.map((u) => (
                   <button
-                    key={u.value}
+                    key={u}
                     type="button"
-                    onClick={() => setUrgency(u.value)}
+                    onClick={() => setUrgency(u)}
                     className={`rounded-xl border px-5 py-3 text-sm font-medium transition-all ${
-                      urgency === u.value
-                        ? u.value === "URGENT"
+                      urgency === u
+                        ? u === "URGENT"
                           ? "border-[var(--alert-red)] bg-[var(--alert-red)]/10 text-[var(--alert-red)]"
                           : "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
                         : "border-[var(--border-color)] bg-[var(--surface-alt)] text-[var(--muted-text)]"
                     }`}
                   >
-                    {u.label}
+                    {getUrgencyLabel(u)}
                   </button>
                 ))}
               </div>
@@ -1061,7 +1145,10 @@ export default function InstantJobRequestPage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Street address or area..."
+                placeholder={t(
+                  "employerDashboard.postJob.streetAddressPlaceholder",
+                  "Street address or area...",
+                )}
                 className={inputCls}
               />
             </div>
@@ -1074,7 +1161,10 @@ export default function InstantJobRequestPage() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="City..."
+                  placeholder={t(
+                    "employerDashboard.postJob.cityPlaceholder",
+                    "City...",
+                  )}
                   className={inputCls}
                 />
               </div>
@@ -1086,7 +1176,10 @@ export default function InstantJobRequestPage() {
                   type="text"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  placeholder="Country..."
+                  placeholder={t(
+                    "employerDashboard.postJob.countryPlaceholder",
+                    "Country...",
+                  )}
                   className={inputCls}
                 />
               </div>
@@ -1109,15 +1202,23 @@ export default function InstantJobRequestPage() {
               <BrandedDatePicker
                 value={startDate}
                 onChange={setStartDate}
-                placeholder="Select start date"
+                placeholder={t(
+                  "employerDashboard.postJob.selectStartDate",
+                  "Select start date",
+                )}
               />
             </div>
             <div>
-              <label className={labelCls}>Start Time</label>
+              <label className={labelCls}>
+                {t("employerDashboard.postJob.startTime", "Start Time")}
+              </label>
               <BrandedTimePicker
                 value={startTime}
                 onChange={setStartTime}
-                placeholder="Select time"
+                placeholder={t(
+                  "employerDashboard.postJob.selectTime",
+                  "Select time",
+                )}
                 step={15}
               />
             </div>
@@ -1128,7 +1229,10 @@ export default function InstantJobRequestPage() {
               <BrandedDatePicker
                 value={endDate}
                 onChange={setEndDate}
-                placeholder="Select end date"
+                placeholder={t(
+                  "employerDashboard.postJob.selectEndDate",
+                  "Select end date",
+                )}
               />
             </div>
           </div>
@@ -1187,8 +1291,7 @@ export default function InstantJobRequestPage() {
                       <div>
                         <p className="text-sm font-semibold text-[var(--foreground)]">
                           {currency} {rate.rate.toFixed(2)} /{" "}
-                          {PAYMENT_TYPE_LABELS[rate.paymentType] ||
-                            rate.paymentType}
+                          {getPaymentTypeLabel(rate.paymentType)}
                         </p>
                         {(rate.description || rate.otherSpecification) && (
                           <p className="text-xs text-[var(--muted-text)]">
@@ -1291,9 +1394,9 @@ export default function InstantJobRequestPage() {
                 <BrandedSelect
                   value={paymentType}
                   onChange={setPaymentType}
-                  options={PAYMENT_TYPES.map((p) => ({
-                    value: p.value,
-                    label: p.label,
+                  options={PAYMENT_TYPE_VALUES.map((v) => ({
+                    value: v,
+                    label: getPaymentTypeLabel(v),
                   }))}
                 />
               </div>
@@ -1321,7 +1424,7 @@ export default function InstantJobRequestPage() {
                       e.target.value,
                     )
                   }
-                  placeholder={`Requirement ${i + 1}...`}
+                  placeholder={`${t("employerDashboard.postJob.requirementPlaceholder", "Requirement")} ${i + 1}...`}
                   className={inputCls}
                 />
                 <button
@@ -1393,7 +1496,7 @@ export default function InstantJobRequestPage() {
                       e.target.value,
                     )
                   }
-                  placeholder={`Responsibility ${i + 1}...`}
+                  placeholder={`${t("employerDashboard.postJob.responsibilityPlaceholder", "Responsibility")} ${i + 1}...`}
                   className={inputCls}
                 />
                 <button
@@ -1661,7 +1764,7 @@ export default function InstantJobRequestPage() {
             onClick={() => router.back()}
             className="text-sm font-medium text-[var(--muted-text)] transition-colors hover:text-[var(--foreground)]"
           >
-            Cancel
+            {t("employerDashboard.postJob.cancel", "Cancel")}
           </button>
           <button
             type="button"
